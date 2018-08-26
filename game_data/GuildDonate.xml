@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item ItemID="57001" RequestNum="10" DonateRewardItem="20,10" LimitScore="1" />
+     <item ItemID="57002" RequestNum="10" DonateRewardItem="20,10" LimitScore="1" />
+     <item ItemID="57003" RequestNum="10" DonateRewardItem="20,10" LimitScore="1" />
+     <item ItemID="57004" RequestNum="10" DonateRewardItem="20,10" LimitScore="1" />
+     <item ItemID="57005" RequestNum="10" DonateRewardItem="20,10" LimitScore="1" />
+     <item ItemID="57006" RequestNum="10" DonateRewardItem="20,10" LimitScore="1" />
+     <item ItemID="57011" RequestNum="1" DonateRewardItem="20,100" LimitScore="10" />
+     <item ItemID="57012" RequestNum="1" DonateRewardItem="20,100" LimitScore="10" />
+     <item ItemID="57013" RequestNum="1" DonateRewardItem="20,100" LimitScore="10" />
+     <item ItemID="57014" RequestNum="1" DonateRewardItem="20,100" LimitScore="10" />
+     <item ItemID="57015" RequestNum="1" DonateRewardItem="20,100" LimitScore="10" />
+     <item ItemID="57016" RequestNum="1" DonateRewardItem="20,100" LimitScore="10" />
+</Config>

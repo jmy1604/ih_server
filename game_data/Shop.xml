@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item ID="1" ShopType="1" ShopMaxSlot="8" AutoRefreshTime="" FreeRefreshTime="14400" RefreshRes="3,20" />
+     <item ID="2" ShopType="2" ShopMaxSlot="-1" AutoRefreshTime="" FreeRefreshTime="0" RefreshRes="10,20000" />
+     <item ID="3" ShopType="2" ShopMaxSlot="-1" AutoRefreshTime="" FreeRefreshTime="0" RefreshRes="" />
+     <item ID="4" ShopType="2" ShopMaxSlot="-1" AutoRefreshTime="00:00:00" FreeRefreshTime="0" RefreshRes="" />
+     <item ID="5" ShopType="2" ShopMaxSlot="-1" AutoRefreshTime="" FreeRefreshTime="0" RefreshRes="20,20000" />
+</Config>

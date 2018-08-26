@@ -1,0 +1,18 @@
+Source: golang-goprotobuf
+Section: devel
+Priority: extra
+Maintainer: Tonnerre Lombard <tonnerre@ancient-solutions.com>
+Build-Depends: debhelper (>= 9), dh-golang, golang-go (>= 1.0)
+Standards-Version: 3.9.4
+Homepage: https://code.google.com/p/protobuf/
+Vcs-Git: git://anonscm.debian.org/pkg-go/packages/golang-goprotobuf.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-go/packages/golang-goprotobuf.git;a=summary
+
+Package: golang-goprotobuf-dev
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, protobuf-compiler
+Description: Protocol buffer support for the Go programming language
+ Adds support for serializing and deserializing data in the protocol buffer
+ format for users of the Go language. This will also install a protobuf
+ compiler filter which will allow you to compile protocol buffers to Go
+ code using protoc from the protobuf-compiler package.

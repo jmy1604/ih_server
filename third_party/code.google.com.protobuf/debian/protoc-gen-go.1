@@ -1,0 +1,84 @@
+.\" Hey, EMACS: -*- nroff -*-
+.TH PROTOC-GEN-GO "1" "Aug 2013" "protoc-gen-go"
+.SH NAME
+protoc-gen-go \- Go compiler output filter for the protocol buffer
+compiler
+.SH SYNOPSIS
+.TP
+.B protoc
+\fI--plugin=protoc-gen-go=/usr/bin/protoc-gen-go\fR
+\fI--go_out=gocode\fR
+\fIinput.proto\fR
+.TP
+.B protoc
+\fI--go_out=gocode\fR
+\fIinput.proto\fR
+.SH DESCRIPTION
+.PP
+.B protoc-gen-go
+is a filter for the
+.BR protoc (1)
+protocol buffer compiler.
+It takes the protocol buffer format from
+.BR protoc (1)
+as input and produces Go code as output which can then be used to
+encode (marshal) and decode (unmarshal) data in the protocol buffer
+format specified in its input. The input is typically produced by
+.BR protoc (1)
+by taking a .proto input file and converting it to a protocol buffer
+descriptor format which
+.B protoc-gen-go
+can then read.
+If
+.B protoc-gen-go
+can be found in the regular search path, the
+.I --plugin
+flag can be omitted.
+.SH OPTIONS
+.B protoc-gen-go
+itself doesn't like options.
+All input is taken from stdin.
+If you use the protobuf compiler to invoke protoc-gen-go,
+see
+.BR protoc (1)
+for a detailed list of all options.
+.SH "SEE ALSO"
+.BR protoc (1) .
+.SH AUTHOR
+.B protoc-gen-go
+was mostly written by Rob Pike and David Symonds for The Go Authors.
+.SH "REPORTING BUGS"
+Please file any bug in the bug tracker at
+.I https://code.google.com/p/goprotobuf/issues/list
+.SH COPYRIGHT
+.PP
+Copyright \(co 2010-2013 The Go Authors.
+All rights reserved.
+.PP
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+.PP
+.IP \[bu]
+Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+.IP \[bu]
+Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+.IP \[bu]
+Neither the name of Google Inc. nor the names of its contributors may
+be used to endorse or promote products derived from this software
+without specific prior written permission.
+.PP
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

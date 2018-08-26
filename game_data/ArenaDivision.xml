@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item Division="1" DivisionScoreMin="0" DivisionScoreMax="99" WinScore="20" WinningStreakScoreBonus="20" LoseScore="10" NewSeasonScore="0" RewardList="" />
+     <item Division="2" DivisionScoreMin="100" DivisionScoreMax="299" WinScore="20" WinningStreakScoreBonus="20" LoseScore="8" NewSeasonScore="100" RewardList="13,100,15,5" />
+     <item Division="3" DivisionScoreMin="300" DivisionScoreMax="599" WinScore="20" WinningStreakScoreBonus="20" LoseScore="6" NewSeasonScore="200" RewardList="13,200,15,10" />
+     <item Division="4" DivisionScoreMin="600" DivisionScoreMax="999" WinScore="20" WinningStreakScoreBonus="20" LoseScore="4" NewSeasonScore="300" RewardList="13,500,16,1" />
+     <item Division="5" DivisionScoreMin="1000" DivisionScoreMax="1499" WinScore="20" WinningStreakScoreBonus="20" LoseScore="2" NewSeasonScore="450" RewardList="13,1000,16,1" />
+     <item Division="6" DivisionScoreMin="1500" DivisionScoreMax="99999" WinScore="20" WinningStreakScoreBonus="20" LoseScore="0" NewSeasonScore="600" RewardList="13,2000,16,2" />
+</Config>

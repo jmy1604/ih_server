@@ -1,0 +1,38 @@
+package db;
+
+
+message SmallRankRecord{
+	optional int32 Rank=1;
+	optional int32 Id=2;
+	optional int32 Val=3;
+	optional string Name=4;
+	optional string TongName=5;
+	optional int32 TongIcon=6;
+	optional int32 ArenaLvl=7;
+	optional int32 Camp=8;
+}
+
+message CustomMatchPlayer{
+	optional int32 PlayerId=1;
+	optional int32 Score=2;
+	optional string Name=3;
+	optional int32 TongIcon=4;
+	optional string TongName=5;
+	optional int32 ArenaLvl=6;
+	optional int32 Camp=7;
+}
+
+message CustomMatchBaseInfo{
+	optional int32 MasterId=1;
+	optional int32 RoomType=2;
+	optional string RoomName=3;
+	optional string MasterName=4;
+	optional int32 CreateUnix=5;
+	optional int32 MasterTongIcon=6;
+	optional string MasterTongName=7;
+}
+
+message CustomMatchRecords{
+	repeated CustomMatchPlayer InMatchPlayers=1;
+}
+

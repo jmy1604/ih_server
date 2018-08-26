@@ -1,0 +1,6495 @@
+package msg.youma;
+
+//////////////////////////////////////登陆&重连////////////////////////////////////
+
+//版本号
+enum E_VERSION{
+	E_VERSION_NUMBER=1101;
+}
+
+//版本检查请求
+message VersionCheckRequest{
+	required int32 VersionNumber=1;
+} 
+
+//版本检查返回
+message VersionCheckResponse{
+	required int32 VersionNumber=1;
+}
+
+//断开通知
+message DisconnectNotify{
+	required int32 Reason=1;
+}
+
+//登陆错误码
+enum E_LOGIN_ERR{
+	E_LOGIN_ERR_OK=0;
+	E_LOGIN_ERR_INTERNAL_ERROR=1;
+	E_LOGIN_ERR_REGIST_CLOSED=2;
+	E_LOGIN_ERR_MAX_CONNECTIONS_REACHED=3;
+	E_LOGIN_ERR_SERVER_BUSY=4;
+}
+
+//登陆请求
+message GameLoginRequest{
+	required string GameVersion=1;
+	//required string AccessToken = 2;
+	required string Account=2;
+}
+
+//登陆返回
+message GameLoginResponse{
+	required E_LOGIN_ERR Err=1;
+	required int32 PlayerId=2;
+	required string SessionKey=3;	
+	required int32 ServerTime=4;
+}
+
+//登陆完成
+message GameLoginCompleted{
+}
+
+//重连错误码
+enum E_RECONNECT_ERR{
+	E_RECONNECT_ERR_OK=0;
+	E_RECONNECT_ERR_INTERNAL_ERROR=1;
+	E_RECONNECT_ERR_ID_NOT_EXIST=2;
+	E_RECONNECT_ERR_SESSION_EXPIRED=3;
+	E_RECONNECT_ERR_DICONNECT_BY_SERVER=4;	
+}
+
+//重连请求
+message ReconnectRequest{
+	required string GameVersion=1;
+	required int32 PlayerId=2;
+	required string SessionKey=3;
+	repeated int32 SyncTypes=4;
+	repeated int32 SyncSeqs=5;
+}
+
+//重连返回
+message ReconnectResponse{
+	required E_RECONNECT_ERR Err=1;
+	required int32 DisconnectReason=2;
+}
+
+//重连完成
+message ReconnectCompleted{
+	optional string ClientVersion = 1;
+}
+
+//心跳请求
+message HeartBeatRequest{
+	
+}
+
+//心跳返回
+message HeartBeatResponse{
+	
+}
+
+//服务器时间
+message ServerTime{
+	required int32 Time=1;
+}
+
+// **************************************** 新登陆 **************************************** /
+// 登录请求
+message MsgGameLoginRequest {
+	required string login_channel 	= 1; // 对应网易的login_channel
+	required string app_channel 	= 2; // 对应网易的app_channel		
+	required string platform 		= 3; // 对应网易的platform
+	required string ip 				= 4; // 对应网易的ip
+	required string user_name 		= 5; // 对应网易的username
+	required string udid 			= 6; // 对应网易的udid
+	required string session_id 		= 7; // 对应网易的sessionid
+	required string sdk_version 	= 8; // 对应网易的sdk_version
+	required string device_id 		= 9; // 对应网易的deviceid
+	required string channel_gameid 	= 10;// 对应网易的channel_gameid
+	required string user_id 		= 11;// 对应网易的userid
+	required string anonymous 		= 12;// 对应网易的anonymous
+	required int64 timestamp 		= 13;// 对应网易的timestamp
+	required int32 cpid 			= 14;// 对应网易的 cpid
+}
+
+// 游戏服务器账号类型
+enum E_GAME_SERVER_ACCOUNT_TYPE {
+	E_GAME_SERVER_ACCOUNT_TYPE_NORMAL 		= 0; // 正式
+	E_GAME_SERVER_ACCOUNT_TYPE_VERIFYING 	= 1; // 审核
+	E_GAME_SERVER_ACCOUNT_TYPE_QA 			= 2;
+}
+
+// 登录服务器数据
+message GameServerInfo {
+	required int32 ID 				= 1;		// ID
+	required string Name 			= 2;		// 服务器显示名称
+	repeated string IP 				= 4;		// 多个IP [电信 联通 教育网]
+	repeated string ClientVersion 	= 6;		// 版本可多个
+	optional int32 MaintainState    = 7;		// 1 正常  2 维护
+	optional int32 BusyState		= 8;		// 1 空闲  2 良好  3 繁忙  4 爆满
+	optional bool IsNew				= 9;		// 是否新服
+	optional bool IsRecommend		= 10;		// 是否推荐
+}
+
+// 登录结果枚举
+enum E_LOGIN_RES {
+	E_LOGIN_NO_ERROR 				= 0; // 登陆成功
+	E_LOGIN_CHECKING_TOKEN 			= 1; // 正在确认令牌，不能重复登录
+	E_LOGIN_REPEATED_MESSAGE 		= 2; // 重复发送登录消息
+	E_LOGIN_TOKEN_ERROR 			= 3; // 令牌错误
+	E_LOGIN_CHANNEL_ERROR 			= 4; // 渠道码错误
+	E_LOGIN_VERSION_ERROR 			= 5; // 版本错误
+	E_LOGIN_ACCOUNT_NOT_EXIST 		= 6; // 账号不存在
+	E_LOGIN_INTERNAL_ERROR 			= 7; // 内部错误
+	E_LOGIN_MAX_CONNECTIONS_REACHED = 8; // 连接数达最大
+	E_LOGIN_REGIST_CLOSED 			= 9; // 注册已关闭
+	E_LOGIN_SERVER_BUSY 			= 10;// 服务器忙
+	E_LOGIN_TIMEOUT					= 11;// 超时
+}
+
+// 登录返回
+message MsgGameLoginResponse {
+	required E_LOGIN_RES result 			= 1; // 结果
+	required int64 aid 						= 2; // 对应网易返回的aid
+	required string user_name 				= 3; // 用户名，对应网易的username
+	required string sn 						= 4; // 对应网易的SN
+	required int32 events					= 5; // 对应网易的events
+	required int32 uidcount 				= 6; // 对应网易的uidcount
+	required string message 				= 7; // 对应网易的message
+	repeated GameServerInfo servers_info 	= 8; // 可选服务器列表
+}
+
+// 选择服务器
+message MsgSelectServerRequest {
+	required int32 GameServerID = 1;
+}
+
+enum E_SELECT_GAME_ERR {
+	E_SELECT_GAME_NO_ERROR = 0;					// 无错误
+	E_SELECT_GAME_NOT_VERIFIED = 1;				// 未验证
+	E_SELECT_GAME_SERVER_INVALID = 2;			// 服务器不合法
+	E_SELECT_GAME_SELECTED_SERVER = 3;			// 已经选择了
+	E_SELECT_GAME_ENTERED_SERVER = 4;			// 已经进入了
+	E_SELECT_GAME_SERVER_IS_MAINTAIN = 5;		// 服务器正在维护
+	E_SELECT_GAME_SERVER_BUSY = 6;				// 服务器满
+}
+
+// 选择服务器返回
+message MsgSelectServerResponse {
+	required int32 GameServerID = 1;
+	required E_SELECT_GAME_ERR Error = 2;
+	required string session_code = 3; 			// 用于后面进入game_server验证
+	optional string CryptKey = 4;				// 密钥
+}
+
+// game通知login连接成功
+message MsgG2LConnectedNotify {
+	required int32 GameServerID = 1;
+	required string GameServerName = 2;
+}
+
+// login通知game有玩家进入
+message MsgL2GAccountEnterNotify {
+	required string Aid = 1;	// 网易唯一标识
+	required string SessionCode = 2;
+	optional string CryptKey = 3;				// 密钥
+}
+
+// game同步收到login的通知消息
+message MsgG2LAccountEnterSync {
+	required string Aid = 1;
+	required string SessionCode = 2;
+}
+
+// game通知login玩家进入
+message MsgG2LAccountEnterNotify {
+	required string Aid = 1;
+}
+
+// game通知login玩家退出
+message MsgG2LAccountLeaveNotify {
+	required string Aid = 1;
+}
+
+// 进入游戏服务器请求
+message MsgGameEnterRequest {
+	required string Aid = 1;			// 网易唯一标识
+	required string SessionCode = 2;	// 验证码
+}
+
+enum E_ENTER_GAME_RES {
+	E_ENTER_GAME_NO_ERROR = 0;			// 进入游戏成功
+	E_ENTER_GAME_VERIFY_ERROR = 1;		// 验证码错误
+	E_ENTER_GAME_VERSION_ERROR = 2;		// 版本错误
+	E_ENTER_GAME_TIME_OUT = 3;			// 超时
+	E_ENTER_GAME_ACCOUNT_NOT_EXIST = 4;	// 账号不存在
+	E_ENTER_GAME_MAX_PLAYER_COUNT = 5;	// 玩家数量已达最大
+	E_ENTER_GAME_INTERNAL_ERROR = 6;	// 内部错误
+}
+
+// 进入游戏服务器返回
+message MsgGameEnterResponse {
+	required E_ENTER_GAME_RES Err = 1;
+	required int32 PlayerId = 2;
+	required string SessionKey = 3;	
+	required int32 ServerTime = 4;
+	required bool FirstLogin = 5;		// 是否第一次登陆
+	required int32 CreateTime = 6;		// 创建时间
+	required int32 LastLogoutTime = 7;	// 上次登出时间
+}
+
+// GameServer通知LoginServer人数
+message MsgG2LPlayersNumNotify {
+	optional int32 MaxNum = 1;			// 最大人数
+	optional int32 CurrNum = 2;			// 当前人数
+}
+
+// 登陆服信息
+message LoginServerInfo {
+	optional int32 Id = 1;
+	optional string ListenGameIP = 2;
+}
+
+// LoginServer连接AssistServer
+message MsgL2AConnectedNotify {
+	optional LoginServerInfo Info = 1;
+}
+
+// 游戏服配置数据
+message GameServerConfData {
+	required bool Enable = 1;
+	repeated string ChannelCode = 2;
+	required int32 Id = 3;
+	required int32 SourceId = 4;
+	required bool IsNew = 5;
+	required bool IsRecommend = 6;
+	required string Role = 7;
+	required string Name = 8;
+	repeated string IP = 9;
+	repeated string ClientVersion = 10;
+	optional bool IsMaintaining = 11;			// 是否维护
+	optional int32 BusyState = 12;				// 人数状态
+}
+
+// AssistServer通知LoginServer游戏服列表
+message MsgA2LGameServerListNotify {
+	repeated GameServerConfData Infos = 1;
+}
+
+// 白名单
+message WriteListRole {
+	optional string RoleType = 1;
+	optional string UserName = 2;
+	optional string NameContain = 3;
+}
+
+// AssistServer通知LoginServer白名单列表
+message MsgA2LRoleWriteListNotify {
+	repeated WriteListRole Roles = 1;
+}
+
+// AssistServer通知GameServer增加登陆服
+message MsgA2GAddLoginServerNotify {
+	optional LoginServerInfo Info = 1;
+}
+
+// AssistServer通知GameServer删除登陆服
+message MsgA2GRemoveLoginServerNotify {
+	optional int32 LoginServerId = 1;
+}
+
+// GameServer请求AssistServer登陆服列表
+message MsgG2ALoginServerListRequest {
+	optional int32 ServerId = 1;		// 向AssistServer请求列表时把ID和IP发过去检测合法性
+	optional string ListenIP = 2;
+}
+
+// AssistServer通知GameServer刷新登陆服列表
+message MsgA2GLoginServerListResponse {
+	repeated LoginServerInfo Infos = 1;
+}
+
+// *************************************** GM 命令 *****************************************
+
+// GM命令
+message GMCommandRequest {
+	required string arg = 1;
+}
+
+// GM指令错误返回
+message GMCmdErrorResponse {
+	required string ErrDesc = 1;
+}
+
+//GM指令数据
+message GmCmdData {
+	required string CmdId = 1;
+	required string CmdName = 2;
+	required string ParamsDesc = 3;
+	required bool IsShow = 4;
+}
+
+// 请求GM指令列表
+message GmCmdListRequest {
+}
+
+// 请求GM指令成功
+message GmCmdListResponse {
+	repeated GmCmdData CmdList = 1;
+}
+
+//////////////////////////////////////游戏错误消息///////////////////////////////////
+//错误码
+enum E_ERR{
+	E_ERR_OK=0;
+	E_ERR_INTERNAL=1;									//内部错误
+	E_ERR_PLAYER_NOT_EXIST=2;							//玩家不存在
+	E_ERR_INVALID_PARAM=3;								//错误的参数
+	
+	//主公
+	E_ERR_LOGIN_INTERNAL=1000;
+	E_ERR_NO_DIAMOND=1100;								//钻石不够
+	E_ERR_NO_GOLD=1101;									//金币不够
+	E_ERR_NO_CHICKEN=1102;								//体力不够
+	E_ERR_NO_SPIRIT=1103;								//精力不够
+	E_ERR_CHICKEN_MAX_EXTED=1104;						//体力超出上限
+	E_ERR_SPIRIT_MAX_EXTED=1105;						//精力超出上限
+	E_ERR_NO_GOLD_BUY_COUNT=1106;						//点金手使用次数已用尽
+	E_ERR_NO_CHICKEN_BUY_COUNT=1107;					//体力购买次数已用尽
+	E_ERR_NO_SPIRIT_BUY_COUNT=1108;						//精力购买次数已用尽
+	E_ERR_CHICKEN_REWARD_INVALID_TIME=1109;				//领取体力时间不正确
+	E_ERR_CHICKEN_REWARD_ALREADY_GOTED=1110;			//本次体力已经领取
+	E_ERR_QUALITY_NOT_FOUND=1111;						//品质不存在
+	E_ERR_GUIDE_TYPE_NOT_EXSIT=1112;					//新手引导类型不存在
+	E_ERR_GuIDE_FIRST_BATTLE_ALREADY_FIGHTED=1113;		//新手引导第一场战斗已经打过
+	E_ERR_PLAYER_NAME_ALREADY_EXISTS=1114;				//玩家名称已存在
+	E_ERR_NO_SOUL=1115;                                 //魂石不足
+	E_ERR_NO_CHARM=1116;                                //魅力值不够
+	E_ERR_HAVE_HIGHTER_VIP_LEVEL=1117;                  //你已拥有高级特权
+	
+	//战役
+	E_ERR_CAMPAIGN_LOCKED=2000;							//关卡已锁住
+	E_ERR_CAMPAIGN_CLOSED=2001;							//关卡已经关闭
+	E_ERR_CAMPAIGN_SKIPPED=2002;						//关卡分支已跳过
+	E_ERR_CAMPAIGN_NO_COUNT=2003;						//次数不够
+	E_ERR_CAMPAIGN_SUMMON_FAILED=2007;					//招降失败
+	E_ERR_CAMPAIGN_MISMATCH=2008;						//开始战斗结束战斗不匹配
+	E_ERR_CAMPAIGN_PREVIOUS_DIFF_NOT_PASSED=2009;		//上级难度未通过
+	E_ERR_CAMPAIGN_DIFF_TARGET_CANT_FIGHT=2010;			//降低难度的目标关卡不可打
+	E_ERR_CAMPAIGN_DIFF_REDUCE_COUNT_EXCETED=2011;		//降低难度的最大次数已经达到了
+	E_ERR_CAMPAIGN_ID_NOT_EXIST=2012;					//关卡ID不存在
+	E_ERR_CAMPAIGN_DIFF_NOT_SUPPORT=2013;				//不支持的关卡难度
+	E_ERR_CAMPAIGN_BOSS_PREVIOUS_INSANE_NOT_PASSED=2014;//boss关前一关卡尚未3星通关
+	E_ERR_CAMPAIGN_DIFF_REDUCE_CANT_MOP=2015;			//降低难度的关卡不可扫荡
+	E_ERR_CAMPAIGN_MOP_NOT_PASSED=2016;					//扫荡的关卡难度尚未通过
+	E_ERR_CAMPAIGN_LEVEL_CANT_SUMMON=2017; 				//关卡不可招降
+	E_ERR_CAMPAIGN_SUMMON_NOT_ENOUGH_STARS=2018;        //招降星数不够
+	E_ERR_CAMPAIGN_SUMMON_DIFF_NOT_SUPPORT=2019;		//招降难度不支持
+	E_ERR_CAMPAIGN_BUY_COUNT_NORMAL_CANT=2020;			//普通难度的关卡不可购买次数
+	E_ERR_CAMPAIGN_BUY_COUNT_NOT_FIGHTED=2021;			//未打过的关卡不可购买次数
+	E_ERR_CAMPAIGN_BUY_COUNT_REST_FIGHT_NOT_ZERO=2022;	//剩余的次数不为0时不可购买
+	E_ERR_CAMPAIGN_NO_BUY_COUNT_HARD=2023;				//困难难度的购买次数已用尽
+	E_ERR_CAMPAIGN_NO_BUY_COUNT_INSANE=2024;			//地狱难度的购买此书已用尽
+	E_ERR_CAMPAIGN_LOCKED_LEVEL_REQUIRED=2025;			//关卡未解锁，章节要求的等级达不到
+	E_ERR_CAMPAIGN_CHANGE_ASSIST_FAILED=2026;			//改变助战列表失败
+	E_ERR_CAMPAIGN_LAST_CHAPTER_NOT_PASSED=2027; 		//上一章未通关
+	E_ERR_CAMPAIGN_CHAPTER_REWARD_STARS_NOT_ENONGH=2028;//战役章节奖励星数不够
+	E_ERR_CAMPAIGN_CHAPTER_REWARD_ALREADY_GOTED=2029;	//战役章节奖励已领取
+	E_ERR_CAMPAIGN_CHAPTER_REWARD_NOT_EXSIT=2030;		//战役章节奖励编号不存在
+	E_ERR_CAMPAIGN_CHAPTER_NOT_EXSIT=2031;				//战役章节不存在
+	E_ERR_CAMPAIGN_ALREADY_PASSED=2032;					//关卡已经通关
+	
+	//武将
+	E_ERR_HERO_LEVEL_UP_FULL = 3000;					// 升级已满
+	E_ERR_HERO_LEVEL_UP_NOT_ENOUGH_MONEY = 3001;		// 升级钱不够
+	E_ERR_HERO_LEVEL_UP_NOT_ENOUGH_QUALITY = 3002;		// 品质不够
+	E_ERR_HERO_STAR_LEVEL_FULL = 3003;					// 升星已满
+	E_ERR_HERO_STAR_UPGRADE_NOT_ENOUGH_MONEY = 3004;	// 升星钱不够
+	E_ERR_HERO_NOT_FOUND = 3005;						// 没有该武将
+	E_ERR_HERO_SKILL_LEVEL_UP_NOT_ENOUGH_MONEY = 4000;	// 技能升级钱不够
+	E_ERR_HERO_SKILL_LEVEL_FULL = 4001;					// 技能等级已满
+	E_ERR_HERO_SET_TO_PVP_TEAM_FAILED = 4002;			// 加入打擂分队失败
+	E_ERR_HERO_SET_TO_PVE_TEAM_FAILED = 4003;			// 加入出征分队失败
+	E_ERR_HERO_SAME_IN_PVP_TEAM = 4004;					// 打擂分队有相同英雄
+	E_ERR_HERO_SAME_IN_PVE_TEAM = 4005;					// 出征分队有相同英雄
+	E_ERR_HERO_UPGRADE_STAR_NOT_ENOUGH_STONE = 4006;	// 升星魂石不足
+	E_ERR_HERO_EQUIP_ITEM_FAILED = 4007;				// 装备物品失败
+	E_ERR_HERO_UNEQUIP_ITEM_FAILED = 4008;				// 卸载物品失败
+	E_ERR_HERO_SKILL_LEVEL_UP_FAILED = 4009;			// 技能升级失败
+	E_ERR_HERO_SKILL_LEVEL_MAX = 4010;					// 技能等级最大
+	E_ERR_HERO_NOT_FOUND_FOR_PLAYER = 4019;				// 没有英雄
+	E_ERR_HERO_CONFIG_DATA_ERROR = 4020;				// 英雄配置错误
+	E_ERR_HERO_LEVEL_CANT_GREATER_PLAYER_LEVEL = 4021;	// 武将等级不能比玩家等级高
+	E_ERR_HERO_SKILL_LEVEL_CANT_GREATER_HERO_LEVEL = 4022;	// 武将技能等级不能大于武将等级
+	E_ERR_HERO_CONFIG_DATA_NOT_EXIST=4023;//			//英雄配置数据不存在
+	E_ERR_HERO_ASSIST_SLOT_ACTIVED=4024;				// 助战槽位已开通
+	E_ERR_HERO_ASSIST_SLOT_NOT_FOUND=4025;				// 没有该助战槽位
+	E_ERR_HERO_ASSIST_SLOT_NOT_ACTIVE_BY_VIP_LEVEL=4026;// 助战槽位不能开通VIP等级不够
+	E_ERR_HERO_ASSIST_SLOT_NOT_ACTIVE_BY_PLAYER_LEVEL=4027;	// 助战槽位不能开通玩家等级不够
+	E_ERR_HERO_COMBO_FAILED=4028;						// 武将合成失败
+	E_ERR_HERO_COMBO_HAVE_HERO=4029;					// 武将合成，已有该武将
+	E_ERR_HERO_COMBO_MATERIAL_NOT_ENOUGH=4030;			// 武将合成，材料不足
+	E_ERR_HERO_COMBO_GOLD_NOT_ENOUGH=4031;				// 武将合成，金钱不足
+	E_ERR_HERO_EQUIP_COMBO_MATERIAL_NOT_ENOUGH = 4032;	// 武将装备品质升级，材料不足
+	E_ERR_HERO_EQUIP_COMBO_GOLD_NOT_ENOUGH = 4033;		// 武将装备品质升级，金钱不足
+	E_ERR_HERO_WEAPON_LEVELUP_FAILED = 4034;			// 武将武器升级失败
+	E_ERR_HERO_WEAPON_LEVEL_HIGH = 4035;				// 武将武器升级高于武将等级
+	E_ERR_HERO_WEAPON_LEVEL_GOLD_NOT_ENOUGH = 4036;		// 武将武器升级金钱不足
+	E_ERR_HERO_ARMOR_LEVELUP_FAILED = 4037;				// 武将护具升级失败
+	E_ERR_HERO_ARMOR_LEVEL_HIGH = 4038;					// 武将护具升级高于武将等级
+	E_ERR_HERO_ARMOR_LEVEL_GOLD_NOT_ENOUGH = 4039;		// 武将护具升级金钱不足
+	E_ERR_HERO_NECKNESS_LEVELUP_FAILED = 4040;			// 武将项链升级失败
+	E_ERR_HERO_NECKNESS_LEVEL_HIGH = 4041;				// 武将项链升级高于武将等级
+	E_ERR_HERO_NECKNESS_LEVEL_GOLD_NOT_ENOUGH = 4042;	// 武将项链升级金钱不足
+	E_ERR_HERO_RING_LEVELUP_FAILED = 4043;				// 武将戒指升级失败
+	E_ERR_HERO_RING_LEVEL_HIGH = 4044;					// 武将戒指升级高于武将等级
+	E_ERR_HERO_RING_LEVEL_GOLD_NOT_ENOUGH = 4045;		// 武将戒指升级金钱不足
+	E_ERR_HERO_EQUIP_LEVELUP_ALL_FAILED = 4046;			// 一键升级武将所有装备失败
+	E_ERR_HERO_EQUIP_LEVELUP_ALL_HIGH = 4047;			// 一键升级武将所有装备，装备都等于武将装备
+	E_ERR_HERO_EQUIP_LEVELUP_ALL_GOLD_NOT_ENOUGH = 4048;// 一键升级武将所有装备，金钱不足
+	E_ERR_HERO_WEAPON_STRENTHEN_LEVELUP_FAILED = 4049;	// 一键升级武将武器失败
+	E_ERR_HERO_WEAPON_STRENTHEN_LEVELUP_HIGH = 4050;	// 一键升级武将武器高于武将等级
+	E_ERR_HERO_WEAPON_STRENTHEN_LEVELUP_GOLD_NOT_ENOUGH = 4051;	// 一键升级武将武器，金钱不足
+	E_ERR_HERO_ARMOR_STRENTHEN_LEVELUP_FAILED = 4052;	// 一键升级武将武器失败
+	E_ERR_HERO_ARMOR_STRENTHEN_LEVELUP_HIGH = 4053;		// 一键升级武将武器高于武将等级
+	E_ERR_HERO_ARMOR_STRENTHEN_LEVELUP_GOLD_NOT_ENOUGH = 4054;	// 一键升级武将武器，金钱不足
+	E_ERR_HERO_NECKNESS_STRENTHEN_LEVELUP_FAILED = 4055;// 一键升级武将武器失败
+	E_ERR_HERO_NECKNESS_STRENTHEN_LEVELUP_HIGH = 4056;	// 一键升级武将武器高于武将等级
+	E_ERR_HERO_NECKNESS_STRENTHEN_LEVELUP_GOLD_NOT_ENOUGH = 4057;	// 一键升级武将武器，金钱不足
+	E_ERR_HERO_RING_STRENTHEN_LEVELUP_FAILED = 4058;	// 一键升级武将武器失败
+	E_ERR_HERO_RING_STRENTHEN_LEVELUP_HIGH = 4059;		// 一键升级武将武器高于武将等级
+	E_ERR_HERO_RING_STRENTHEN_LEVELUP_GOLD_NOT_ENOUGH = 4060;	// 一键升级武将武器，金钱不足
+	E_ERR_HERO_WEAPON_STRENTH_BY_BOOK_FAILED = 4061;	// 武将武器突破失败
+	E_ERR_HERO_WEAPON_HAVE_STRENTH_BY_BOOK = 4062;		// 武将武器已经突破
+	E_ERR_HERO_WEAPON_STRENTH_BY_BOOK_NOT_BOOK = 4063;	// 武将武器突破，没有图谱
+	E_ERR_HERO_UPGRADE_QUALITY_FAILED = 4064;			// 升级武将品质失败
+	E_ERR_HERO_UPGRADE_QUALITY_HIGH = 4065;				// 武将品质等于装备最低品质
+	E_ERR_HERO_UPGRADE_QUALITY_HERO_LEVEL_LIMIT = 4066;	// 升级武将品质所需武将等级不足
+	E_ERR_HERO_WEAPON_LEVEL_MAX = 4067;					// 武将武器等级达到当前品质可升最大等级
+	E_ERR_HERO_ARMOR_LEVEL_MAX = 4068;					// 武将护具等级达到当前品质可升最大等级
+	E_ERR_HERO_NECKNESS_LEVEL_MAX = 4069;				// 武将项链等级达到当前品质可升最大等级
+	E_ERR_HERO_RING_LEVEL_MAX = 4070;					// 武将戒指等级达到当前品质可升最大等级
+	E_ERR_HERO_WEAPON_STRENTHEN_LEVEL_MAX = 4071;		// 强化武将武器，等级达到当前品质可升最大等级
+	E_ERR_HERO_ARMOR_STRENTHEN_LEVEL_MAX = 4072;		// 强化武将护具，等级达到当前品质可升最大等级
+	E_ERR_HERO_NECKNESS_STRENTHEN_LEVEL_MAX = 4073;		// 强化武将项链，等级达到当前品质可升最大等级
+	E_ERR_HERO_RING_STRENTHEN_LEVEL_MAX = 4074;			// 强化武将戒指，等级达到当前品质可升最大等级
+	E_ERR_HERO_WEAPON_UPGRADE_HERO_LEVEL_LIMIT = 4075;	// 武将武器进阶，武将等级低于进阶到目标武器品质所需的武将等级
+	E_ERR_HERO_ARMOR_UPGRADE_HERO_LEVEL_LIMIT = 4076;	// 武将护具进阶，武将等级低于进阶到目标护具品质所需的武将等级
+	E_ERR_HERO_NECKNESS_UPGRADE_HERO_LEVEL_LIMIT = 4077;// 武将项链进阶，武将等级低于进阶到目标项链品质所需的武将等级
+	E_ERR_HERO_RING_UPGRADE_HERO_LEVEL_LIMIT = 4078;	// 武将戒指进阶，武将等级低于进阶到目标戒指品质所需的武将等级
+	E_ERR_HERO_WEAPON_UPGRADE_WEAPON_LEVEL_LIMIT = 4079;// 武将武器进阶，武器等级低于进阶到目标武器所需的武器等级
+	E_ERR_HERO_ARMOR_UPGRADE_ARMOR_LEVEL_LIMIT = 4080;	// 武将护具进阶，护具等级低于进阶到目标护具所需的护具等级
+	E_ERR_HERO_NECKNESS_UPGRADE_NECKNESS_LEVEL_LIMIT = 4081;// 武将项链进阶，项链等级低于进阶到目标项链所需的项链等级
+	E_ERR_HERO_RING_UPGRADE_RING_LEVEL_LIMIT = 4082;	// 武将戒指进阶，戒指等级低于进阶到目标戒指所需的戒指等级
+	E_ERR_HERO_UPGRADE_QUALITY_MATERIAL_NOT_ENOUGH = 4083;	// 升级武将品质，材料不足
+	E_ERR_HERO_UPGRADE_QUALITY_GOLD_NOT_ENOUGH = 4084;	// 升级武将品质，金钱不足
+	E_ERR_HERO_CHANGE_HORSE_TYPE_IN_CARD_DISMATCH = 4085;	// 武将改变的战马与其职业不符
+	
+	//战马
+	E_ERR_HORSE_NOT_FOUND = 5000;						// 找不到战马
+	E_ERR_HORSE_USING = 5001;							// 正在使用战马
+	E_ERR_HORSE_SET_FAILED = 5002;						// 设置战马失败
+	E_ERR_HORSE_LEVEL_UP_NOT_ENOUGH_QUALITY = 5003;		// 品质不够
+	E_ERR_HORSE_LEVEL_LIMITED_BY_STAR_LEVEL = 5004;		// 受到星级限制
+	E_ERR_HORSE_USING_CANT_SELL	= 5005;					// 正在使用不能出售
+	E_ERR_HORSE_PUXIU_MAX_COUNT = 5006;					// 已达最大次数
+	E_ERR_HORSE_TEXIU_NOT_ENOUGH_DIAMOND = 5007;		// 特修钻石不够
+	E_ERR_HORSE_PUXIU_RESET_NOT_ENOUGH_DIAMOND = 5008;	// 普修重置钻石不够
+	E_ERR_HORSE_CANT_XXX_BY_STAR = 5009;				// 星级不相等战马不能交配
+	E_ERR_HORSE_CANT_XXX_BY_LEVEL = 5010;				// 等级不够不能交配
+	E_ERR_HORSE_CONFIG_DATA_ERROR = 5011;				// 战马配置错误
+	E_ERR_HORSE_OTHER_HORSE_NOT_FOUND = 5012;			// 找不到另一匹马
+	E_ERR_HORSE_STAR_MAX = 5013;						// 星级已满
+	E_ERR_HORSE_EQUIP_RUNE_FAILED = 5014;				// 装备符文失败
+	E_ERR_HORSE_UNEQUIP_RUNE_FAILED = 5015;				// 卸载符文失败
+	E_ERR_HORSE_COMBO_RUNE_NOT_ENOUGH = 5016;			// 符文不够
+	E_ERR_HORSE_SEARCH_NOT_FOUND_PLAYER = 5017;			// 搜索战马但是找不到玩家(专门针对马场)
+	E_ERR_HORSE_UPGRADE_STAR_LEVEL_NOT_ENOUGH = 5018;	// 升星需要的等级不够
+	E_ERR_HORSE_CONFIG_DATA_NOT_EXIST=5019;				// 战马配置数据不存在
+	E_ERR_HORSE_CANT_XXX_OTHER_STATE_LOW=5020;			// 对方战马状态太低不能双修
+	E_ERR_HORSE_COMBO_FAILED=5021;						// 战马合成失败
+	E_ERR_HORSE_EQUIP_COMBO_FAILED=5022;				// 战马装备合成失败
+	E_ERR_HORSE_EQUIP_COMBO_MATIERIAL_NOT_ENOUGH=5023;	// 战马装备合成材料不足
+	E_ERR_HORSE_EQUIP_COMBO_GOLD_NOT_ENOUGH=5024;		// 战马装备合成金钱不足
+	E_ERR_HORSE_BRIDLE_LEVELUP_FAILED=5025;				// 战马笼头升级失败
+	E_ERR_HORSE_BRIDLE_LEVELUP_HIGH=5026;				// 战马笼头升级高于马的等级
+	E_ERR_HORSE_BRIDLE_LEVELUP_GOLD_NOT_ENOUGH=5027;	// 战马笼头升级金钱不足
+	E_ERR_HORSE_ARMOR_LEVELUP_FAILED=5028;				// 战马护具升级失败
+	E_ERR_HORSE_ARMOR_LEVELUP_HIGH=5029;				// 战马护具升级高于马的等级
+	E_ERR_HORSE_ARMOR_LEVELUP_GOLD_NOT_ENOUGH=5030;		// 战马护具升级金钱不足
+	E_ERR_HORSE_SADDLE_LEVELUP_FAILED=5031;				// 战马马鞍升级失败
+	E_ERR_HORSE_SADDLE_LEVELUP_HIGH=5032;				// 战马马鞍升级高于马的等级
+	E_ERR_HORSE_SADDLE_LEVELUP_GOLD_NOT_ENOUGH=5033;	// 战马马鞍升级金钱不足
+	E_ERR_HORSE_SHOES_LEVELUP_FAILED=5034;				// 战马蹄铁升级失败
+	E_ERR_HORSE_SHOES_LEVELUP_HIGH=5035;				// 战马蹄铁升级高于马的等级
+	E_ERR_HORSE_SHOES_LEVELUP_GOLD_NOT_ENOUGH=5036;		// 战马蹄铁升级金钱不足
+	E_ERR_HORSE_EQUIP_ALL_LEVELUP_FAILED=5037;			// 一键升级战马所有装备失败
+	E_ERR_HORSE_EQUIP_ALL_LEVELUP_HIGH=5038;			// 一键升级战马所有装备，装备等级都等于玩家等级
+	E_ERR_HORSE_EQUIP_ALL_LEVELUP_GOLD_NOT_ENOUGH=5039;	// 一键升级战马所有装备金钱不足
+	E_ERR_HORSE_BRIDLE_STRENTH_LEVELUP_FAILED=5040;		// 一键升级战马笼头失败
+	E_ERR_HORSE_BRIDLE_STRENTH_LEVELUP_HIGH=5041;		// 一键升级战马笼头，笼头等级等于战马等级
+	E_ERR_HORSE_BRIDLE_STRENTH_LEVELUP_GOLD_NOT_ENOUGH=5042;	// 一键升级战马笼头金钱不足
+	E_ERR_HORSE_ARMOR_STRENTH_LEVELUP_FAILED=5043;		// 一键升级战马护具失败
+	E_ERR_HORSE_ARMOR_STRENTH_LEVELUP_HIGH=5044;		// 一键升级战马护具，护具等级等于战马等级
+	E_ERR_HORSE_ARMOR_STRENTH_LEVELUP_GOLD_NOT_ENOUGH=5045;		// 一键升级战马护具金钱不足
+	E_ERR_HORSE_SADDLE_STRENTH_LEVELUP_FAILED=5046;		// 一键升级战马马鞍失败
+	E_ERR_HORSE_SADDLE_STRENTH_LEVELUP_HIGH=5047;		// 一键升级战马马鞍，马鞍等级等于战马等级
+	E_ERR_HORSE_SADDLE_STRENTH_LEVELUP_GOLD_NOT_ENOUGH=5048;	// 一键升级战马马鞍金钱不足
+	E_ERR_HORSE_SHOES_STRENTH_LEVELUP_FAILED=5049;		// 一键升级战马蹄铁失败
+	E_ERR_HORSE_SHOES_STRENTH_LEVELUP_HIGH=5050;		// 一键升级战马蹄铁，蹄铁等级等于战马等级
+	E_ERR_HORSE_SHOES_STRENTH_LEVELUP_GOLD_NOT_ENOUGH=5051;		//一键升级战马蹄铁金钱不足
+	E_ERR_HORSE_UPGRADE_QUALITY_FAILED = 5052;			// 升级战马品质失败
+	E_ERR_HORSE_UPGRADE_QUALITY_HIGH = 5053;			// 战马品质等于装备最低品质
+	E_ERR_HORSE_EQUIP_WASH_FAILED = 5054;				// 战马装备洗练失败
+	E_ERR_HORSE_UPDATE_EQUIP_WASH_FAILED = 5055;		// 战马装备洗练更新失败
+	E_ERR_HORSE_CANT_MATCH_HORSES = 5060;				// 无法匹配到其他战马
+	E_ERR_HORSE_FIGHT_FAILED = 5061;					// 马场开战失败
+	E_ERR_HORSE_PURCHASE_MAX_NUM = 5062;				// 购买双修次数已达最大
+	E_ERR_HORSE_SELECT_CARD_FAILED = 5063;				// 翻牌失败
+	E_ERR_HORSE_CHANGE_COLOR_FAILED = 5064;				// 改变颜色失败
+	E_ERR_HORSE_EQUIP_FASHION_FAILED = 5065;			// 装备时装失败
+	E_ERR_HORSE_EXCHANGE_FASHION_FAILED = 5066;			// 交换时装失败
+	E_ERR_HORSE_SHUANGXIU_COUNT_NOT_ENOUGH = 5067;		// 双修次数不足
+	E_ERR_HORSE_OPEN_CARD_CHANGE_COLOR_FAILED = 5068;	// 翻卡变色错误
+	E_ERR_HORSE_OPEN_CARD_COUNT_NO_VIP_FAILED = 5069;	// 非VIP翻卡次数错误
+	E_ERR_HORSE_OPEN_CARD_COUNT_FAILED = 5070;			// 翻卡次数错误
+	E_ERR_HORSE_CHANGE_COLOR_FAILED_WITH_NO_HORSE = 5071;	// 不能给未指定的马变色
+	E_ERR_HORSE_CHANGE_COLOR_FAILED_WITH_STATE_ERROR = 5072; // 变色状态错误
+	E_ERR_HORSE_SAME_IN_PVP_TEAM = 5073;
+	E_ERR_HORSE_UPGRADE_QUALITY_HORSE_LEVEL_LIMIT = 5074;// 升级战马品质所需战马等级不足
+	E_ERR_HORSE_BRIDLE_LEVEL_MAX = 5075;				// 战马笼头等级达到当前品质可升最大等级
+	E_ERR_HORSE_ARMOR_LEVEL_MAX = 5076;					// 战马护具等级达到当前品质可升最大等级
+	E_ERR_HORSE_SADDLE_LEVEL_MAX = 5077;				// 战马马鞍等级达到当前品质可升最大等级
+	E_ERR_HORSE_SHOES_LEVEL_MAX = 5078;					// 战马蹄铁等级达到当前品质可升最大等级
+	E_ERR_HORSE_BRIDLE_STRENTHEN_LEVEL_MAX = 5079;		// 强化战马笼头，等级达到当前品质可升最大等级
+	E_ERR_HORSE_ARMOR_STRENTHEN_LEVEL_MAX = 5080;		// 强化战马护具，等级达到当前品质可升最大等级
+	E_ERR_HORSE_SADDLE_STRENTHEN_LEVEL_MAX = 5081;		// 强化战马马鞍，等级达到当前品质可升最大等级
+	E_ERR_HORSE_SHOES_STRENTHEN_LEVEL_MAX = 5082;		// 强化战马蹄铁，等级达到当前品质可升最大等级
+	E_ERR_HORSE_BRIDLE_UPGRADE_HORSE_LEVEL_LIMIT = 5083;// 战马笼头进阶，战马等级低于进阶到目标笼头品质所需的战马等级
+	E_ERR_HORSE_ARMOR_UPGRADE_HORSE_LEVEL_LIMIT = 5084;	// 战马护具进阶，战马等级低于进阶到目标护具品质所需的战马等级
+	E_ERR_HORSE_SADDLE_UPGRADE_HORSE_LEVEL_LIMIT = 5085;// 战马马鞍进阶，战马等级低于进阶到目标马鞍品质所需的战马等级
+	E_ERR_HORSE_SHOES_UPGRADE_HORSE_LEVEL_LIMIT = 5086;	// 战马蹄铁进阶，战马等级低于进阶到目标蹄铁品质所需的战马等级
+	E_ERR_HORSE_BRIDLE_UPGRADE_BRIDLE_LEVEL_LIMIT = 5087;	// 战马笼头进阶，笼头等级低于进阶到目标笼头所需的笼头等级
+	E_ERR_HORSE_ARMOR_UPGRADE_ARMOR_LEVEL_LIMIT = 5088;	// 战马护具进阶，护具等级低于进阶到目标护具所需的护具等级
+	E_ERR_HORSE_SADDLE_UPGRADE_SADDLE_LEVEL_LIMIT = 5089;	// 战马马鞍进阶，马鞍等级低于进阶到目标马鞍所需的马鞍等级
+	E_ERR_HORSE_SHOES_UPGRADE_SHOES_LEVEL_LIMIT = 5090;	// 战马蹄铁进阶，蹄铁等级低于进阶到目标戒指所需的蹄铁等级
+	E_ERR_HORSE_UPGRADE_QUALITY_MATERIAL_NOT_ENOUGH = 5091;	// 升级战马品质，材料不足
+	E_ERR_HORSE_UPGRADE_QUALITY_GOLD_NOT_ENOUGH = 5092;	// 升级战马品质，金钱不足
+	
+	//竞技场
+	E_ERR_ARENA_FIGHT_GROUP_MAX_HERO_EXCETED=6001;		//竞技场的挑战阵容英雄数量过多
+	E_ERR_ARENA_DEFENCE_GROUP_MAX_HERO_EXCETED=6002;	//竞技场的防御阵容英雄数量过多
+	E_ERR_ARENA_FIGHTER_NOT_EXIST=6003;					//竞技场对手不存在	
+	E_ERR_ARENA_FIGHT_NOT_START=6004;                   //战斗未开始
+	E_ERR_ARENA_RECORD_DATA_INVALID=6005;				//无效的录像数据
+	E_ERR_ARENA_CHANGE_ASSIST_FAILED=6006;				//改变助战列表失败
+	E_ERR_ARENA_RECORD_ID_NOT_EXSIT=6007;				//录像Id不存在
+	E_ERR_ARENA_GOLD_NOT_ENOUPH=6008;					//竞技场币不足
+	E_ERR_ARENA_FIGHT_COOLDOWN=6009;					//擂台CD
+	E_ERR_ARENA_FIGHT_MISMATCH=6010;					//擂台战斗不匹配
+	E_ERR_ARENA_FIGHTER_NOT_IN_SEARCH_RESULT=6011;		//擂台对手不在搜索结果中
+	E_ERR_ARENA_PLAYER_NOT_IN_SECTION_UP=6012;			//玩家不在晋级区间
+	E_ERR_ARENA_PLAYER_FIGHT_NOT_START=6013;			//玩家没有开始挑战
+	E_ERR_ARENA_PLAYER_IN_SECTION_UP = 6014;			// 玩家处于晋级区间中
+	E_ERR_ARENA_PLAYER_SECTION_CHANGED = 6015;			// 玩家段位已改变
+	E_ERR_ARENA_PLAYER_SCORE_DOWN = 6016;				// 玩家积分下降
+	E_ERR_ARENA_PLAYER_RANK_CHANGED = 6017;				// 玩家名次改变
+	E_ERR_ARENA_FIGHTER_RANK_CHANGED = 6018;			// 对手名次改变
+	E_ERR_ARENA_PLAYER_FIGHT_TYPE_DISMATCH = 6019;		// 战斗类型不匹配
+	E_ERR_ARENA_PLAYER_SKILL_LEVEL_MAX = 6020;			// 技能已达最大等级
+	E_ERR_ARENA_PLAYER_SKILL_OVER_SECTION = 6021;		// 段位不足以升该技能
+	E_ERR_ARENA_PLAYER_SKILL_NOT_EXIST = 6022;			// 请求技能不存在
+	E_ERR_ARENA_FIGHT_END = 6023;						// 战斗已结束
+	E_ERR_ARENA_PLAYER_DATA = 6024;						// 玩家数据错误
+	E_ERR_ARENA_PLAYER_NOT_ENOUGH_SCORE_TO_UP_SECTION = 6025;	// 积分不够不能进入晋级赛
+	E_ERR_ARENA_SELF_FIGHTING = 6026;					// 正在挑战其他玩家
+	E_ERR_ARENA_SELF_CHALLENGED_BY_OTHER = 6027;		// 正在被其他玩家挑战
+	E_ERR_ARENA_PLAYER_FIGHTING = 6028;					// 对方正在挑战其他玩家
+	E_ERR_ARENA_PLAYER_CHALLENGED_BY_OTHER = 6029;		// 对方正在被其他玩家挑战
+	E_ERR_ARENA_NO_NEED_TO_RESET_FIGHT_COOLDOWN = 6030;	// 无需重置战斗CD
+	E_ERR_ARENA_FIGHT_COOLDOWN_RESET_NUM_USED_OUT = 6031;// 重置战斗CD次数已用完
+	E_ERR_ARENA_TIMEOUT_NOTIFY = 6032;					// 战斗超时通知
+	
+	// 物品
+	E_ERR_ITEM_NOT_FOUND = 7000;						// 物品找不到
+	E_ERR_ITEM_FULL_COUNT = 7001;						// 物品数量已达最大
+	E_ERR_ITEM_USE_FAILED = 7002;						// 物品使用失败
+	E_ERR_ITEM_SELL_FAILED = 7003;						// 出售物品失败
+	E_ERR_ITEM_NUM_NOT_ENOUGH = 7004;					// 物品数量不足
+	E_ERR_ITEM_CANT_SELL = 7005;						// 物品不能出售
+	E_ERR_ITEM_EQUIP_COMBO_FAILED = 7006;				// 装备合成错误
+	E_ERR_ITEM_CONFIG_DATA_NOT_EXIST=7007;//			// 装备配置数据不存在
+	E_ERR_ITEM_COMBO_MATERIAL_NOT_ENOUGH = 7008;		// 合成材料不足
+	E_ERR_ITEM_COMBO_GOLD_NOT_ENOUGH = 7009;			// 合成金钱不足
+	E_ERR_ITEM_COMBO_FAILED = 7010;						// 物品合成失败
+	E_ERR_CHEST_USE_TIME_LIMIT = 7011;                  // 未到使用时间
+	E_ERR_CHEST_USE_DIAMOND_LIMIT = 7012;               // 元宝不足
+	E_ERR_CHEST_USE_LVL_LIMIT = 7013;                   // 等级不够
+	
+	// 任务
+	E_ERR_MISSION_IMCOMPLETE = 8000;					// 任务未完成
+	E_ERR_MISSION_GET_AWARD_FAILED = 8001;				// 任务领奖失败
+	E_ERR_MISSION_ALREADY_GET_AWARD = 8002;				// 任务已领过奖
+	
+	// 许愿池
+	E_ERR_FOUNTAIN_GOLD_FREE_NUM_USED_OUT = 9000;		// 用完每天免费次数
+	E_ERR_FOUNTAIN_GOLD_FREE_CANT_USE = 9001;			// 不能免费金币抽奖
+	E_ERR_FOUNTAIN_DIAMOND_FREE_CANT_USE = 9002;		// 不能免费钻石抽奖
+	E_ERR_FOUNTAIN_DIAMOND_ULTRA_VIP_LEVEL_NOT_ENOUGH = 9003;	// 魂匣购买VIP等级不够
+	
+	// 商城
+	E_ERR_SHOP_RUSH_TIME_NOT_START = 9004;				// 抢购时间未到
+	E_ERR_SHOP_MARKET_ALREADY_PURCHASED = 9005;			// 集市已经购买过
+	E_ERR_SHOP_PURCHASED_FAILED = 9006;					// 购买失败
+	
+	//邮箱
+	E_ERR_MAIL_NO_ATTACHMENT=10001;						//邮件没有附件
+	E_ERR_MAIL_NOT_EXIST=10002;							//邮件不存在
+	
+	//夺宝
+	E_ERR_ROB_SCROLL_NOT_EXSIT=11001;					//卷轴不存在
+	E_ERR_ROB_PIECE_NOT_EXSIT=11002;					//碎片不存在
+	E_ERR_ROB_COMBINE_PIECE_NOT_ENOPGH=11003;			//卷轴合成碎片未集齐
+	E_ERR_ROB_COMBINE_ALREADY_STARTED=11004;			//卷轴已经开始合成
+	E_ERR_ROB_COMBINE_NOT_STARTED=11005;				//卷轴合成尚未开始
+	E_ERR_ROB_COMBINE_ALLREADY_SPEEDUP=11006;			//卷轴已加速
+	E_ERR_ROB_COMBINE_NOT_FINISHED=11007;				//卷轴合成尚未完成
+	E_ERR_ROB_SCORLL_LEVELUP_FULL=11008;				//卷轴已经满级
+	E_ERR_ROB_SCROLL_LOCKED=11009;						//卷轴尚未解锁
+	E_ERR_ROB_PRODUCE_NOT_STARTED=11010;				//卷轴生产尚未开始
+	E_ERR_ROB_PRODUCE_NOT_FINISHED=11011;				//卷轴生产尚未完成
+	E_ERR_ROB_SCROLL_NOT_ACTIVATED=11012;				//卷轴尚未激活
+	E_ERR_ROB_CARD_OPEN_NO_COUNT=11013;					//无卡可抽了
+	E_ERR_ROB_ITEM_IS_NOT_TRAP=11014;					//物品不是陷阱
+	E_ERR_ROB_TARGET_HAS_NO_ITEM=11015;					//目标没有该物品
+	E_ERR_ROB_PRODUCE_ALREADY_CLICKED=11016;			//炼丹炉已经领取
+	E_ERR_ROB_INVITE_INVALID_INDEX=11017;				//炼丹炉邀请编号错误
+	E_ERR_ROB_INVITE_POS_ALREAD_EXIST=11018;			//炼丹炉已经邀请
+	E_ERR_ROB_INVITE_INDEX_NEED_VIP=11019;				//炼丹炉编号需要Vip等级
+	E_ERR_ROB_INVITE_FRIEND_NOT_EXIST=11020;			//邀请的好友不存在
+	E_ERR_ROB_INVITE_NOT_FRIEND=11021;					//邀请的不是好友
+	E_ERR_ROB_INVITE_FRIEND_IN_USE=11022;				//好友已被邀请	
+	E_ERR_ROB_PRODUCE_NOT_CLICKED=11023;				//卷轴生产结果尚未点击
+	E_ERR_ROB_RECORD_NOT_EXSIT=11024;					//被抢记录不存在
+	
+	// 资源副本
+	E_ERR_RES_DUNGEON_CHANLLENGE_FAILED = 12001;		// 挑战资源副本失败
+	E_ERR_RES_DUNGEON_MAX_CHANLLENGE_NUM = 12002;		// 资源副本挑战次数达上限
+	E_ERR_RES_DUNGEON_CHICKEN_NOT_ENOUGH = 12003;		// 体力不足
+	E_ERR_RES_DUNGEON_MOP_FAILED = 12004;				// 资源副本挑战失败
+	E_ERR_RES_DUNGEON_NOT_OPEN_TIME = 12005;			// 未到开启时间
+	E_ERR_RES_DUNGEON_MOP_NOT_PASSED = 12006;			// 未通关，不能扫荡
+	E_ERR_RES_DUNGEON_LEVEL_NOT_ENOUGH = 12007;			// 等级不足
+	E_ERR_RES_DUNGEON_COST_NOT_ENOUGH = 12008;			// 洗练金钱不足
+	
+	// 模块开关
+	E_ERR_MODULE_OPEN_NOT_OPEN = 13001;				// 模块未开启
+	
+	// 在线奖励
+	E_ERR_ACTIVITY_ONLINE_REWARD_NOT_START = 14000;		// 在线奖励未开始计时
+	
+	// 好友
+	E_ERR_FRIEND_NOT_FIND = 15001;					// 好友不存在
+	E_ERR_FRIEND_MAX_HAVE = 15002;					// 好友已满
+	E_ERR_FRIEND_REPLIER_MAX_HAVE = 15003;			// 对方好友已满
+	E_ERR_FRIEND_REPLY_AGREE_NOT_HAVE = 15004;	// 接受好友请求，不在好友请求列表
+	E_ERR_FRIEND_REPLY_AGREE_NOT_FIND = 15005;		// 接受好友请求，该玩家不存在
+	E_ERR_FRIEND_REPLY_FRIEND_FULL = 15006;			// 接受好友请求，好友数已满
+	E_ERR_FRIEND_REPLY_APPLICANT_FRIEND_FULL = 15007;	// 接受好友请求，对方好友已满
+	E_ERR_FRIEND_REPLY_DISAGREE_NOT_HAVE = 15008;	// 拒绝好友请求，不在好友请求列表
+	E_ERR_FRIEND_REMOVE_NOT_HAVE = 15009;			// 删除好友，不是好友
+	E_ERR_FRIEND_REMOVE_NOT_FIND = 15010;			// 删除好友，该玩家不存在
+	E_ERR_FRIEND_GIVE_SPIRITE_NOT_HAVE = 15011;		// 赠送体力，不是好友
+	E_ERR_FRIEND_GIVE_SPIRITE_NOT_FIND = 15012;		// 赠送体力，好友不存在
+	E_ERR_FRIEND_GIVE_SPIRITE_HAVE_GIVE = 15013;	// 已赠送过体力
+	E_ERR_FRIEND_TAKE_SPIRITE_NOT_FRIEND = 15014;	// 领取体力，不是好友
+	E_ERR_FRIEND_TAKE_SPIRITE_NOT_SPIRITE = 15015;	// 领取体力，好友没有赠送你体力
+	E_ERR_FRIEND_RECOMMEND_FAILED = 15016;		// 推荐好友失败
+	E_ERR_FRIEND_ALREADY = 15017;					// 已是好友
+	E_ERR_FRIEND_RECOMMEND_NOT_FIND = 15018;	// 没有推荐好友
+	
+	// 聊天
+	E_ERR_CHAT_WORLD_SEND_CD	 = 16001;				// 发送世界消息CD
+	E_ERR_CHAT_WORLD_SEND_FAILED = 16002;			// 发送世界消息失败
+	E_ERR_CHAT_PERSON_PLAYER_NOT_FIND = 16003;		// 玩家不存在
+	E_ERR_CHAT_PERSON_PLAYER_OFF_LINE = 16004;		// 玩家不在线
+	E_ERR_CHAT_PERSON_SEND_TO_SELF = 16005;			// 不能对自己发私信
+	
+	//精英副本
+	E_ERR_CAMPAIGNHARD_INVALID_LEVELID = 17001;    //无效的精英副本id
+	E_ERR_CAMPAIGNHARD_NORMALLEVEL = 17002;        //对应的普通章节未完成 
+	E_ERR_CAMPAIGNHARD_PRECONDITION = 17003;       //关卡前置条件不满足
+	E_ERR_CAMPAIGNHARD_CHAPTERLEVEL = 17004;       //玩家开启章节等级不足
+	E_ERR_CAMPAIGNHARD_UPDATEDB = 17005;           //更新数据表失败
+	E_ERR_CAMPAIGNHARD_REWARD = 17006;             //更新奖励物品失败
+	
+	//赛马
+	E_ERR_RACING_PRICE_STATE = 18001;               //错误的参赛费用类型
+	E_ERR_RACING_PRICE = 18002;                     //参赛费用不足
+	E_ERR_RACING_HORSE = 18003;                     //参赛马不存在
+	E_ERR_RACING_HERO = 18004;                      //参赛骑手不存在
+	E_ERR_RACING_MAXROOM = 18005;                   //参赛房间已经最大 
+	E_ERR_RACING_JOINROOM = 18006;                  //无法加入房间
+	E_ERR_RACING_INROOM = 18007;                    //已经在房间中
+	E_ERR_RACING_PLAYER = 18008;                    //用户不存在
+	E_ERR_RACING_ROOM = 18009;                      //房间不存在
+	E_ERR_RACING_ROOMSTATE = 18010;                 //房间状态错误
+	E_ERR_RACING_PLAYERPOWER = 18011;               //用户权限错误
+	E_ERR_RACING_SETSTATE = 18012;                  //用户设置状态错误
+	
+	//马厩
+	E_ERR_HORSEROOM_HERO = 19001;                   //英雄不存在
+	E_ERR_HORSEROOM_HORSE = 19002;                  //马不存在
+	E_ERR_HORSEROOM_SAME_HERO = 19003;              //相同的英雄
+	E_ERR_HORSEROOM_SAME_HORSE = 19004;             //相同的马
+	E_ERR_HORSEROOM_MBCOIN_NOT_ENOUGH = 19005;		 //马币数量不足
+	
+	//战斗
+	E_ERR_BATTLE_INFO_CLAC_FAILED=20001;				//战斗数据计算失败
+	
+	//马拉屎
+	E_ERR_SHIT_NOT_EXSIT=21001;							//屎不存在
+	E_ERR_SHIT_DROP_COOLDOWN=21002;						//屎CD
+	E_ERR_SHIT_FULL=21003;								//屎坑已满	
+
+	//巡游武将
+	E_ERR_CRUISE_RONIN_NOT_FOUND = 22001;				//浪人不存在
+	E_ERR_CRUISE_RONIN_REFRESH_FAILED = 22002;			//刷新浪人失败
+	E_ERR_CRUISE_RONIN_SATISFY_DESIRE_FAILED = 22003;	//满足浪人愿望失败
+	E_ERR_CRUISE_OUTHERO_NOT_FOUND = 22004;				//在野武将不存在
+	E_ERR_CRUISE_OUTHERO_SATISFY_DESIRE_FAILED = 22005;	//满足在野武将愿望失败
+	E_ERR_CRUISE_OUTHERO_HEART_GET_AWARD_FAILED = 22006;//在野武将好感度领奖失败	
+	E_ERR_CRUISE_EXISTHERO_NOT_FOUND = 22007;			//已有武将不存在
+	E_ERR_CRUISE_EXISTHERO_SATISFY_DESIRE_FAILED = 22008;//满足已有武将愿望失败
+	E_ERR_CRUISE_EXISTHERO_HEART_GET_AWARD_FAILED = 22009;//已有武将好感度领奖失败
+	E_ERR_CRUISE_EXISTHERO_CONTINUOUS_GET_AWARD_FAILED = 22010;//已有武将连续领奖失败
+	E_ERR_CRUISE_EXISTHERO_REFRESH_FAILED = 22011;		// 已有巡游武将刷新失败
+	E_ERR_CRUISE_RONIN_FIGHT_COUNT_NOT_ENOUGH = 22012;	// 比拼浪人剩余次数不足
+	E_ERR_CRUISE_OUTHERO_FIGHT_COUNT_NOT_ENOUGH = 220013;// 在野武将战斗次数不够
+	
+	//特殊BOSS
+	E_ERR_SBOSS_FIRST_CHAPTER_NOT_PASSED_ALL_STARS= 23001;		//第一章未满星通关
+	E_ERR_SBOSS_NO_FIGHT_COUNT=23002;							//没有挑战次数
+	E_ERR_SBOSS_BOSS_GONE=23003;								//boss已经走了
+	E_ERR_SBOSS_ALREADY_DEAD=23004;								//Boss已死
+	E_ERR_SBOSS_FIGHTING=23005;									//正在攻打
+	E_ERR_SBOSS_FIGHT_NOT_STARTED=23006;						//尚未开始
+	E_ERR_SBOSS_SOS_ALREADY_SENDED=23007;						//sos已经发送过
+	E_ERR_SBOSS_DAILY_DAMAGE_REWARD_DATA_NOT_EXSIT=23008;		//每日奖励配置数据不存在
+	E_ERR_SBOSS_DAILY_DAMAGE_REWARD_DAMAGE_NOT_ENOPH=23009;		//每日奖励的伤害条件不够
+	E_ERR_SBOSS_DAILY_DAMAGE_REWARD_ALREDY_GOTED=23010;			//每日伤害奖励已经领取过
+	E_ERR_SBOSS_WEEK_DAMAGE_RANK_REWARD_ID_NOT_EXSIT=23011;		//每周伤害排名奖励Id不存在
+	E_ERR_SBOSS_MONTH_DAMAGE_RANK_REWARD_ID_NOT_EXSIT=23012;	//每月伤害排名奖励Id不存在
+	E_ERR_SBOSS_FINDER_REWARD_ID_NOT_EXSIT=23013;				//发现奖励I不存在
+	E_ERR_SBOSS_KILL_REWARD_DATA_NOT_EXSIT=23014;				//击杀奖励boss数据不存在
+	
+	// 世界Boss
+	E_ERR_WBOSS_ACT_NOT_OPEN          =23100; // 不在活动期间
+	E_ERR_WBOSS_ACT_ALREADY_DEAD      =23101; // BOSS已经死亡
+	E_ERR_WBOSS_POWERUP_OVER_MAXCOUNT =23102; // 鼓舞次数到达上限
+	E_ERR_WBOSS_FIGHT_CDING           =23103; // 冷却中不能挑战
+	E_ERR_WBOSS_FIGHT_CD_NO_GOLD      =23104; // 金币不足不能直接冷却挑战时间
+	E_ERR_WBOSS_FIGHT_CD_NO_DIAMOND   =23105; // 钻石不足不能直接冷却挑战时间
+	E_ERR_WBOSS_POWERUP_NO_CFG   	  =23106; // 当前鼓舞次数的消耗未配置
+	E_ERR_WBOSS_POWERUP_NO_GOLD       =23107; // 金币不足不能鼓舞
+	E_ERR_WBOSS_POWERUP_NO_DIAMOND    =23108; // 钻石不足不能鼓舞
+	E_ERR_WBOSS_POWERUP_MAX_ADD       =23109; // 达到最大加成不能再鼓舞了
+	
+	// 远征
+	E_ERR_EXPEDITION_NOT_ENOUGH_LEVEL = 24001;		// 等级不足
+	E_ERR_EXPEDITION_HAVE_FINISH = 24002;				// 远征已经完成
+	E_ERR_EXPEDITION_TIME_NOT_REACH = 24003;		// 未到达下个关卡
+	
+	//炼化
+	E_ERR_REFINERY_HORSE = 25001;                     //马不存在
+	E_ERR_REFINERY_HERO = 25002;                      //骑手不存在
+	E_ERR_DECOMPOSE_HERO_FAILED = 25003;			  //分解武将失败，不存在
+	E_ERR_DECOMPOSE_HERO_IN_GROUP = 25004;			  // 武将在阵容中
+	E_ERR_DECOMPOSE_HERO_GET_HERO_LEVEL_REWARD_FAILED = 25005;
+	E_ERR_DECOMPOSE_HERO_GET_HERO_STAR_REWARD_FAILED = 25006;
+	E_ERR_DECOMPOSE_HERO_GET_HERO_EQUIP_REWARD_FAILED = 25007;
+	E_ERR_DECOMPOSE_HERO_GET_HERO_EQUIP_UPGRADE_REWARD_FAILED = 25008;
+	E_ERR_DECOMPOSE_HERO_GET_HERO_SKILL_REWARD_FAILED = 25009;
+	E_ERR_DECOMPOSE_HERO_NOT_FOUND = 25010;
+	
+	//工会
+	E_ERR_TONG_HAVE_JOIN = 26001;					// 已有帮会
+	E_ERR_TONG_CREATE_FAILED = 26002;				// 创建帮会失败
+	E_ERR_TONG_CREATE_LEVEL_NOT_ENOUGH = 26003;		// 创建帮会等级不足
+	E_ERR_TONG_CREATE_DIAMOND_NOT_ENOUGH = 26004;	// 创建帮会钻石不足
+	E_ERR_TONG_NAME_TOO_LONG = 26005;				// 帮会名字太长
+	E_ERR_TONG_RECRUIT_INFO_TOO_LONG = 26006;		// 招募公告太长
+	E_ERR_TONG_JOIN_FAILED = 26007;					// 加入帮会失败
+	E_ERR_TONG_JOIN_NOT_FIND = 26008;				// 加入帮会未找到
+	E_ERR_TONG_JOIN_LEVEL_NOT_ENOUGH = 26009;		// 加入帮会的等级不足
+	E_ERR_TONG_MEMBER_IS_FULL = 26010;				// 帮会成员已满
+	E_ERR_TONG_RECOMMAND_CD = 26011;				// 推荐帮会冷却
+	E_ERR_TONG_NOT_FIND = 26012;					// 查找的帮会不存在
+	E_ERR_TONG_JOIN_LIST_FAILED = 26013;			// 请求加入申请列表失败
+	E_ERR_TONG_ADD_MEMBER_LIMIT = 26014;			// 没有添加帮会成员的权限
+	E_ERR_TONG_NOT_HAVE_JOIN = 26015;				// 玩家不在帮会中
+	E_ERR_TONG_JOIN_REPLY_FAILED = 26016;			// 回复玩家即纳入帮会申请失败
+	E_ERR_TONG_JOIN_ID_NOT_FOUND = 26017;			// 回复的玩家不在申请加入列表中
+	E_ERR_TONG_JOIN_PLAYER_NOT_FOUND = 26018;		// 回复的玩家不存在
+	E_ERR_TONG_JOIN_PLAYER_HAVE_TONG = 26019;		// 回复的玩家已有帮会
+	E_ERR_TONG_KICK_MEMBER_FAILED = 26020;			// 踢出玩家失败
+	E_ERR_TONG_KICK_MEMBER_LIMIT = 26021;			// 没有踢出帮会玩家的权限
+	E_ERR_TONG_CAN_NOT_KICK_SELF = 26022;			// 不能踢出自己
+	E_ERR_TONG_LEAVE_FAILED = 26023;				// 离开帮会失败
+	E_ERR_PRESIDENT_CAN_NOT_LEAVE = 26024;			// 帮主不能离开帮会
+	E_ERR_TONG_NAME_ALREADY_EXISTS = 26025;			// 帮会名存在
+	E_ERR_TONG_CHANGE_NAME_LIMIT = 26026;			// 没有改帮会名的权限
+	E_ERR_TONG_RECRUIT_INFO_LIMIT = 26027;			// 没有改帮会招募公告的权限
+	E_ERR_TONG_ANNOUNCE_LIMIT = 26028;				// 没有改帮会公告的权限
+	E_ERR_TONG_UPLEVEL_LIMIT = 26029;				// 没有帮会升级的权限
+	E_ERR_TONG_UPLEVEL_FAILED = 26030;				// 帮会升级失败
+	E_ERR_TONG_UPLEVEL_EXP_NOT_ENOUGH = 26031;		// 帮会升级经验不足
+	E_ERR_TONG_LEVEL_IS_FULL = 26032;				// 帮会等级已达上限
+	E_ERR_TONG_DONATE_GOLD_NOT_ENOUGH = 26033;		// 捐献的金钱不足
+	E_ERR_TONG_DONATE_DIAMOND_NOT_ENOUGH = 26034;	// 捐献的钻石不足
+	E_ERR_TONG_DONATE_FAILED = 26035;				// 帮会捐献失败
+	E_ERR_TONG_DONATE_WEEK_CONTRIBUTE_FULL = 26036;	// 帮会本周贡献值达上限
+	E_ERR_TONG_DONATE_TIMES_FULL = 26037;			// 帮会捐献次数达上限
+	E_ERR_TONG_APPOINT_LIMIT = 26038;				// 没有帮会职务任命的权限
+	E_ERR_TONG_CANNOT_APPOINT_SELF = 26039;			// 不能任命自己
+	E_ERR_TONG_APPOINT_MEM_NOT_FOUND = 26040;		// 任命的帮会成员不存在
+	E_ERR_TONG_APPOINTMENT_FULL = 26041;			// 任命的职位已满
+	E_ERR_TONG_DEMISE_LIMIT = 26042;				// 没有禅让帮主的权限
+	E_ERR_TONG_CANNOT_DEMISE_SELF = 26043;			// 不能禅让给自己
+	E_ERR_TONG_DEMISE_MEM_NOT_FOUND = 26044;		// 禅让的帮会成员不存在
+	E_ERR_TONG_INVITE_LIMIT = 26045;				// 没有邀请玩家加入帮会的权限
+	E_ERR_TONG_INVITE_FAILED = 26046;				// 邀请的玩家不存在
+	E_ERR_TONG_CANNOT_INVITE_SELF = 26047;			// 不能邀请自己加入工会
+	E_ERR_TONG_OPEN_WELF_FAILED = 26048;			// 开启福利失败
+	E_ERR_TONG_OPEN_WELF_LIMIT = 26049;				// 没有开启福利的权限
+	E_ERR_TONG_CANNOT_OPEN_WELF_NOW = 26050;		// 未到开启时间
+	E_ERR_TONG_WELF_HAVE_OPEN = 26051;				// 福利已开启
+	E_ERR_TONG_GET_WELF_LIST_FAILED = 26052;		// 获取福利列表失败
+	E_ERR_TONG_REQ_JOIN_TIMES_FULL = 26053;			// 请求加入帮会次数达上限
+	E_ERR_TONG_RED_PACKET_LEVEL_NOT_REACH = 26054;	// 帮会未达到兑换红包的等级
+	E_ERR_TONG_RED_PACKET_NOT_ENOUGH_GOLD = 26055;	// 帮会红包没有足够的兑换金钱
+	E_ERR_TONG_RED_PACKET_NOT_ENOUGH_POINT = 26056;	// 帮会红包没有足够的兑换积分
+	E_ERR_TONG_RED_PACKET_FIALED = 26057;			// 帮会红包兑换失败
+	E_ERR_TONG_GRAB_RED_PACKET_EMPTY = 26058;		// 帮会红包已抢完
+	E_ERR_TONG_HAVE_GRAB_RED_PACKET = 26059;		// 已抢过帮会红包
+	E_ERR_TONG_START_PERSON_DUNGEON_FIALED = 26060;	// 开启帮会副本失败
+	E_ERR_TONG_PERSON_DUNGEON_TIMES_FULL = 26061;	// 副本次数达上限
+	E_ERR_TONG_JOIN_TONG_STOP_RECRUIT = 26062;		// 请求加入的帮会停止招募
+	E_ERR_TONG_RED_PACKET_NOT_ENOUGH_DIAMAND = 26063;	// 帮会红包没有足够的兑换钻石
+	E_ERR_TONG_CANNOT_KICK_OVERTOP_GRADE = 26064;	// 只能踢出比自己职位地的帮会成员
+	E_ERR_TONG_CANNOT_APPOINT_OVERTOP_GRADE = 26065;	// 只能任命比自己职位低的职位
+	E_ERR_TONG_NAME_ONLY_NUM_LIMIT = 26066;			// 帮会名称不能为纯数字
+	E_ERR_TONG_PERSON_DUNGEON_CD = 26067;			// 帮会副本cd中
+	E_ERR_TONG_DIAMOND_RED_PACKET_COUNT_LIMINT = 26068;	// 帮会钻石兑换红包次数限制
+	
+	// 武魂
+	E_ERR_HERO_SOUL_ALREADY_MAX_STAR = 27001; // 武魂已经到上限了不能再突破了
+	E_ERR_HERO_SOUL_CUR_PROP_NOT_SEL = 27002; // 上一次的洗练结果还未选择
+	E_ERR_HERO_SOUL_PROP_REF_LESS_GOLD = 27003; // 武魂洗练金币不足
+	E_ERR_HERO_SOUL_PROP_REF_LESS_DIAMOND = 27004; // 武魂洗练元宝不足
+	E_ERR_HERO_SOUL_PROP_REF_USE_OLD_REF_ERROR = 27005; // 之前的武魂洗练数据有错误
+	E_ERR_HERO_SOUL_PROP_REF_USE_OLD_ADD_ERROR = 27006; // 之前的武魂附加数据有错误
+	E_ERR_HERO_SOUL_STAR_UP_LESS_METERIAL = 27007; // 之前的武魂附加数据有错误
+	E_ERR_HERO_SOUL_STAR_UP_LESS_LVL = 27008; // 玩家等级不够，不能突破武魂等级
+	E_ERR_HERO_SOUL_PROP_REF_USE_NO_OLD = 27009; // 玩家没有洗练结果，不能应用
+	E_ERR_HERO_SOUL_PROP_REF_LESS_METERIAL = 27010; // 玩家没有洗练结果，不能应用
+	
+	// 封测福利
+	E_ERR_BETA_WELFARE_WRONG_ID = 28001; // 封测福利Id错误
+	E_ERR_BETA_WELFARE_WRONG_CFG = 28002; // 封测福利配置错误
+	E_ERR_BETA_WELFARE_NO_FINISHED = 28003; // 封测福利未完成
+	E_ERR_BETA_WELFARE_HAVE_FINISHED = 28004; // 该封测福利已经完成
+	E_ERR_BETA_WELFARE_ACT_OVER = 28005; // 封测福利活动已经过期
+	
+	// 觉醒
+	E_ERR_HORSE_AWAKE_START_MISSION_FAILED = 29001;			// 开始任务失败
+	E_ERR_HORSE_AWAKE_MISSION_CHAIN_NOT_START = 29002;		// 任务链未开始
+	E_ERR_HORSE_AWAKE_MISSION_CHAIN_ALREADY_START = 29003;  // 觉醒任务链已开始
+	E_ERR_HORSE_AWAKE_DATA_NOT_FOUND = 29004;				// 觉醒数据不存在
+	E_ERR_HORSE_AWAKE_DATA_DISMATCH = 29005;				// 觉醒战马或武将数据与配置不匹配
+	E_ERR_HORSE_AWAKE_HORSE_LEVEL_NOT_ENOUGH = 29006;		// 战马等级不够
+	E_ERR_HORSE_AWAKE_MISSION_CHAIN_ALREADY_COMPLETED = 29007;	// 任务链已完成
+	E_ERR_HORSE_AWAKE_MISSION_NOT_COMPLETE = 29008;			// 当前任务未完成
+	E_ERR_HORSE_AWAKE_SKILL_LEVEL_IS_MAX = 29009;			// 技能等级最大
+	E_ERR_HORSE_AWAKE_SKILL_LEVEL_LIMIT_BY_GRACE = 29010;	// 技能等级受限于契合度
+	E_ERR_HORSE_AWAKE_SKILL_COST_CONFIG_DATA_ERROR = 29011; // 技能消耗配置错误
+	E_ERR_HORSE_AWAKE_SKILL_LEVELUP_ITEM_NOT_ENOUGH = 29012;// 技能升级物品不够
+	E_ERR_HORSE_AWAKE_FIGHT_BEGIN_FAILED = 290013;			// 觉醒关卡请求战斗失败
+	E_ERR_HORSE_AWAKE_FIGHT_END_FAILED = 290014;			// 觉醒关卡战斗结算失败
+	E_ERR_HORSE_AWAKE_GRACE_IS_MAX = 290015;				// 契合度已达最大
+	
+	E_ERR_EXPLORATION_JMYT_LEVEL_LIMIT = 30001;		// 探险 金马玉堂等级限制
+	E_ERR_EXPLORATION_JMYT_COUNT_LIMIT = 30002;		// 探险 金马玉堂次数限制
+	E_ERR_EXPLORATION_JMYT_NOT_OPEN = 30003;		// 探险 金马玉堂未开启
+	E_ERR_EXPLORATION_JMYT_MOP_VIP_LIMIT = 30004;	// 探险 金马玉堂扫荡vip限制
+	E_ERR_EXPLORATION_QMQK_NOT_OPEN = 30005;		// 探险 裘马轻狂未开启
+	E_ERR_EXPLORATION_QMQK_LEVEL_LIMIT = 30006;		// 探险 裘马轻狂等级限制
+	E_ERR_EXPLORATION_QMQK_COUNT_LIMIT = 30007;		// 探险 裘马轻狂等级限制
+	E_ERR_EXPLORATION_QMQK_MOP_VIP_LIMIT = 30008;	// 探险 裘马轻狂扫荡vip限制
+	E_ERR_EXPLORATION_QJQB_NOT_OPEN = 30009;		// 探险 奇境求宝未开启
+	E_ERR_EXPLORATION_QJQB_LEVEL_LIMIT = 30010;		// 探险 奇境求宝等级限制
+	E_ERR_EXPLORATION_QJQB_COUNT_LIMIT = 30011;		// 探险 奇境求宝次数限制
+	E_ERR_EXPLORATION_QJQB_HAVE_START_OFF = 30012;	// 探险 奇境求宝已开始
+	E_ERR_EXPLORATION_START_OFF_FAILED = 30013;		// 探险 组队出发失败
+	E_ERR_EXPLORATION_START_OFF_SUM_STAR_LIMIT = 30014;	// 探险 奇境求宝武将总星级不足
+	E_ERR_EXPLORATION_START_OFF_SUM_LEVEL_LIMIT = 30015;// 探险 奇境求宝武将总等级不足
+	E_ERR_EXPLORATION_START_OFF_SUM_ATTACK_LIMIT = 30016;	// 探险 奇境求宝武将总攻击力不足
+	E_ERR_EXPLORATION_START_OFF_SUM_HEALTH_LIMIT = 30017;	// 探险 奇境求宝武将血量不足
+	E_ERR_EXPLORATION_START_OFF_SUM_SPELL_ARMOR_LIMIT = 30018;	// 探险 奇境求宝武将总法防不足
+	E_ERR_EXPLORATION_START_OFF_SUM_PHYSCIAL_ARMOR_LIMIT = 30019;	// 探险 奇境求宝武将总物防不足
+	E_ERR_EXPLORATION_START_OFF_HERO_CONDITION_LIMIT = 30020;	// 探险 奇境求宝满足条件的武将数量不足
+	E_ERR_EXPLORATION_QJQB_REWARD_TIME_LIMIT = 30021;	// 探险 奇境求宝未到领奖时间
+	E_ERR_EXPLORATION_QJQB_NOT_START_OFF = 30022;		// 探险 奇境求宝未组队出发
+	E_ERR_EXPLORATION_LBSX_NOT_OPEN = 30023;		// 探险 力拔山兮未开启
+	E_ERR_EXPLORATION_LBSX_LEVEL_LIMIT = 30024;		// 探险 力拔山兮等级限制
+	E_ERR_EXPLORATION_LBSX_COUNT_LIMIT = 30025;		// 探险 力拔山兮次数限制
+	E_ERR_EXPLORATION_LBSX_FIGHT_BUT_FINISH = 30026;// 探险 力拔山兮申请战斗，但战斗已完成
+	E_ERR_EXPLORATION_LBSX_START_OFF_NOT_FINISH = 30027;	// 探险 力拔山兮战斗未完成，不能进行武将挑战
+	E_ERR_EXPLORATION_LBSX_HAVE_START_OFF = 30028;	// 探险 力拔山兮已经开始
+	E_ERR_EXPLORATION_LBSX_NOT_START_OFF = 30029;	// 探险 力拔山兮组队触发未开始
+	E_ERR_EXPLORATION_RMKZ_NOT_OPEN = 30030;		// 探险 戎马倥偬未开启
+	E_ERR_EXPLORATION_RMKZ_LEVEL_LIMIT = 30031;		// 探险 戎马倥偬等级限制
+	E_ERR_EXPLORATION_RMKZ_HAVE_START_OFF = 30032;	// 探险 戎马倥偬已组队出发
+	E_ERR_EXPLORATION_RMKZ_COUNT_LIMIT = 30033;		// 探险 戎马倥偬次数限制
+	E_ERR_EXPLORATION_RMKZ_NOT_START_OFF = 30034;	// 探险 戎马倥偬未组队出发
+	E_ERR_EXPLORATION_RMKZ_REWARD_TIME_LIMIT = 30035;	// 探险 戎马倥偬未到领奖时间
+	E_ERR_EXPLORATION_LJYY_COIN_LIMIT = 30036;		// 探险 良驹益友RPcoin不足
+	E_ERR_EXPLORATION_QMQK_HALF_REWARD_NOT_GET = 30037;	// 探险 裘马轻狂半血奖励未领取
+	E_ERR_EXPLORATION_QMQK_FULL_REWARD_NOT_GET = 30038;	// 探险 裘马轻狂满血奖励未领取
+	E_EER_EXPLORATION_QJQB_HAVE_SPEED = 30039;		// 探险 奇境求宝已加速
+	E_ERR_EXPLORATION_QJQB_SPEED_DIAMAND_LIMIT = 30040;	// 探险 奇境求宝加速元宝不足
+	E_ERR_EXPLORATION_LBSX_HAVE_SPEED = 30041;		// 探险 力拔山兮已加速
+	E_ERR_EXPLORATION_LBSX_SPEED_DIAMAND_LIMIT = 30042;	// 探险 力拔山兮加速元宝不足
+	E_ERR_EXPLORATION_RMKZ_HAVE_SPEED = 30043;		// 探险 戎马倥偬已加速
+	E_ERR_EXPLORATION_RMKZ_SPEED_DIAMAND_LIMIT = 30044;	// 探险 戎马倥偬加速元宝不足
+	E_ERR_EXPLORATION_LJYY_SELL_ITEM_COUNT_LIMIT = 30045;	// 探险 良驹益友卖的物品个数不足
+	E_ERR_EXPLORATION_LJYY_BUY_ITEM_UPDATE = 30046;		// 探险 良驹益友购买的道具已刷新
+	E_ERR_EXPLORATION_LJYY_HAVE_BUY = 30047;		// 探险 良驹益友该道具已被购买
+	E_ERR_EXPLORATION_LJYY_RESET_COUNT_LIMIT = 30048;	// 探险 良驹益友重置商品道具次数达上限
+	E_ERR_EXPLORATION_XLTX_DIG_FAILED = 30049;		// 探险 寻龙探穴挖矿失败
+	E_ERR_EXPLORATION_XLTX_LEVEL_LIMIT = 30050;		// 探险 寻龙探穴等级不足
+	E_ERR_EXPLORATION_XLTX_DIG_BUT_RESET = 30051;	// 探险 寻龙探穴物品数量刷新，挖矿失败
+	E_ERR_EXPLORATION_XLTX_DIG_CD = 30052;			// 探险 寻龙探穴挖矿CD
+	E_ERR_EXPLORATION_XLTX_DIG_COUNT_LIMIT = 30053;	// 探险 寻龙探穴挖矿次数达上限
+	E_ERR_EXPLORATION_XLTX_DOUBLE_COUNT_LIMIT = 30054;	// 探险 寻龙探穴双倍次数达上限
+	
+	// 神骏大会
+	E_ERR_HORSE_SHOW_HORSE_ID_WRONG = 31001; // 所选的参赛马的Id有错误
+	E_ERR_HORSE_SHOW_NO_JUDGEING = 31002; // 没有点击评审直接发结果
+	E_ERR_HORSE_SHOW_JUDGE_OP_WRONG_IDX = 31003; // 错误的选项
+	E_ERR_HORSE_SHOW_JUDGE_OP_WRONG_TYPE = 31004; // 错误的操作类型
+	E_ERR_HORSE_SHOW_OP_LESS_GOLD = 31005; // 神骏操作金币不够
+	E_ERR_HORSE_SHOW_OP_LESS_DIAMOND = 31006; // 神骏操作钻石不够
+	E_ERR_HORSE_SHOW_OP_RANK_WRONG_IDX = 31007; // 选择的人的不在榜上
+	E_ERR_HORSE_SHOW_OP_ALREADY_ADDED = 31008; // 已经赞过的对象
+	E_ERR_HORSE_SHOW_OP_NOT_FRIEND = 31009; // 不是你的好友
+	E_ERR_HORSE_SHOW_OP_YOU_FRINED_NOT_IN_ACT = 31010; // 你的好友并未参加活动
+	E_ERR_HORSE_SHOW_JUDGE_NO_LIB = 31011; // 没有人参赛，还不能评审
+	E_ERR_HORSE_SHOW_JUDGE_NO_PLAYER = 31012; // 未找到玩家
+	E_ERR_HORSE_SHOW_JUDGE_REF_CDING = 31013; // 刷新冷却中不能进行刷新
+	E_ERR_HORSE_SHOW_HAVE_SELF_P_TODAY = 31014; // 今天你已经赞过自己了
+	E_ERR_HORSE_SHOW_HAVE_SELF_F_TODAY = 31015; // 今天你已经给自己送过花了
+	E_ERR_HORSE_SHOW_SHOP_BUY_NO_ITEM = 31016; // 你选择购买的道具不存在
+	E_ERR_HORSE_SHOW_RANK_OP_SELF = 31017; // 排行榜上不能给自己点赞
+	E_ERR_HORSE_SHOW_10CHG_LESS_NUM = 31018; // 10次以上才能兑换奖励
+	E_ERR_HORSE_SHOW_10CHG_CFG_ERROR = 31019; // 奖励配置有问题
+	E_ERR_HORSE_SHOW_LESS_JUDGE_COUNT = 31020; // 次数不足，不能评审
+	
+	// Vip礼包
+	E_ERR_VIP_GIFT_ALREADY_BUYED = 31101; // 你已经买过这个等级的礼包了
+	E_ERR_VIP_GIFT_NEED_VIP_LEVEL = 31102; // 你的VIP等级不够
+	E_ERR_VIP_GIFT_NO_CONFIG = 31103; // 你所购买的VIP等级的礼包不存在
+	E_ERR_VIP_GIFT_NO_DIAMOND = 31104; // 你的元宝不足
+	
+	// 购买经验丹
+	E_ERR_BUY_EXP_ITEM_NOT_EXIST = 31201; // 你所购买的经验丹不存在
+	E_ERR_BUY_EXP_ITEM_MAX_NUM = 31202; // 物品堆叠数目已达上限
+	E_ERR_BUY_EXP_WRONG_ITEM_TYPE = 31203; // 你只能购买经验丹
+	E_ERR_BUY_EXP_LESS_DIAMOND = 31204; // 你的钻石不足，不能购买经验丹
+	E_ERR_BUY_EXP_LESS_LEVEL = 31205; // 你的主公等级不足，不能够买
+	
+	// 兑换码
+	E_ERR_REWARDKEY_NOT_EXIST = 31301; // 兑换码错误
+	E_ERR_REWARDKEY_BE_USED = 31302; // 哎呀，该兑换码已被使用
+	E_ERR_REWARDKEY_TYPE_ERROR = 31303; // 兑换码错误
+	E_ERR_REWARDKEY_TYPE_USED = 31304; // 您已兑换过该礼品了哟！
+	
+	// 调查问卷
+	E_ERR_SURVEY_ALEADY_FINISHED = 31401; // 已经完成过调查问卷
+	
+	// 黑市
+	E_ERR_BLACKMARKET_BUY_FAILED = 31501; // 购买失败
+}
+
+//错误消息
+message Err{
+	required E_ERR Code=1;
+}
+
+///////////////////////////////公共数据结构//////////////////////////////
+//物品掉落
+message LootItem{//非消息
+	required int32 ItemConfigId=1;//物品Id
+	required int32 Count=2;//物品数量
+}
+
+//物品掉落列表
+message Loots{//非消息
+	required int32 Diamonds=1;//钻石
+	required int32 Gold=2;//金币
+	repeated LootItem Items=3;//物品列表
+	repeated int32 NewHeros = 4;					// 新增武将
+	repeated Hero2StoneData Hero2Stones = 5;		// 武将换魂石
+}
+
+//PVE 扫荡单次物品掉落
+message PVE_LootItems{//非消息
+	repeated LootItem List=1;//物品掉落
+}
+
+//PVE掉落
+message PVE_Loot{//非消息	
+	required int32 KingLevel=1;//主公等级
+	required int32 KingExp=2;//主公经验
+	required int32 KingExpAdd=3;//主公经验增加
+	required int32 Gold=4;//金币
+	required int32 HeroExp=5;//英雄经验
+	required int32 HorseExp=6;//英雄经验
+	repeated LootItem ExpLoot=7;//经验瓶掉落
+	repeated PVE_LootItems Items=8;//物品掉落,多次扫荡，每次多个物品
+	repeated int32 NewHeros = 9;					// 新增武将
+	repeated Hero2StoneData Hero2Stones = 10;		// 武将换魂石
+}
+
+///////////////////////////////////////战斗//////////////////////////////////////
+//武将战斗数据
+message HeroBattleInfo{//非消息
+	required int32 Pos=1;
+	required int32 Id=2;
+	required int32 ConfigId=3;
+	required int32 Level=4;
+	required int32 Stars=5;
+	required int32 HorseConfigId=6;
+	required int32 HorseLevel=7;
+	required int32 HorseStars=8;
+	required int32 HorseState=9;
+	required float HorseAddSoul=10;
+	required float Health=11;
+	required float Soul=12;
+	required float Attack=13;
+	required float AttackSpeed=14;
+	required float ArmorPhysical=15;
+	required float ArmorSpell=16;
+	required float Accurate=17;
+	required float DodgeRate=18;
+	required float HitRate=19;
+	required float CriticalRate=20;
+	required float CriticalValue=21;
+	required float DecriticalRate=22;
+	required float DecriticalValue=23;
+	required int32 WeaponConfigId=27;
+	required int32 ArmorConfigId=28;
+	required int32 NecknessConfigId=29;
+	required int32 RingConfigId=30;
+	required int32 RuneConfigId=31;
+	required int32 HorseTexture=32;
+	required int32 HorseColorId=33;
+	required int32 Force=34;
+	required float HorseAddAttack=35;
+	required float HorseAddHealth=36;
+	required float HorseAddPhysicalArmor=37;
+	required float HorseAddSpellArmor=38;
+	required int32 HorseIsExsiting=39;
+	required int32 HorseStateType=40;
+	required int32 HorseTextureColor=41;
+	required int32 HorseFashion=42;
+	required int32 HorseSuit=43;
+	required int32 HorseMane=44;
+	required int32 HorseQualityConfigId=45;
+	required int32 HeroQualityConfigId=46;
+	required int32 HorseManeColor=47;
+	required int32 HorseAwakeConfigId=48;		// 觉醒ConfigId
+	required int32 HorseAwakeSkillLevel=49;		// 觉醒技能等级
+	required int32 KungFuSoulStar=50; // 武魂星级
+	repeated int32 SkillsLevel=51;	// 技能等级 上面的SkillActiveLevel SkillAssistLevel SkillPassiveLevel作废
+}
+//玩家战斗数据
+message PlayerBattleInfo{//非消息
+	required int32 Id=1;
+	required string Name=2;
+	required string Icon=3;
+	required int32 Level=4;
+	required string GuildName=5;
+	required int32 Rank=6;
+	required int32 BattleTime=7;
+	required int32 SoulStoneMax=8;
+	repeated HeroBattleInfo Heros=9;
+	repeated int32 ArenaSkillsLevel = 10;		// 擂台技能
+	optional int32 ArenaSection = 11;			// 擂台段位
+	//repeated int32 FightValueBoxCids = 12; // 触发武将战力宝盒id列表(数组长固定为4个;0,所有武将 1,猛士类武将 2,战将类武将 3,巫师类武将)
+}
+
+// 玩家历史最高战力 战斗数据
+message PlayerHighForceInfo {//非消息
+	repeated HeroBattleInfo List = 1;
+}
+
+//队伍类型
+enum E_BATTLE_GROUP_TYPE{
+	//E_BATTLE_GROUP_TYPE_CAMPAIGN_FIGHT=1;
+	//E_BATTLE_GROUP_TYPE_ARENA_FIGHT=2;
+	//E_BATTLE_GROUP_TYPE_ARENA_DEFENCE=3;
+	//E_BATTLE_GROUP_TYPE_HORSE_DEFENCE=4;
+	//E_BATTLE_GROUP_TYPE_ROB_DEFENCE=5;
+	//E_BATTLE_GROUP_TYPE_EXPEDITION_DEFENCE = 6;
+	E_BATTLE_GROUP_TYPE_NONE = 0;
+	E_BATTLE_GROUP_TYPE_ATTACK=1;
+	E_BATTLE_GROUP_TYPE_DEFENCE=2;
+	E_BATTLE_GROUP_TYPE_EXPEDITION=3;
+	E_BATTLE_GROUP_TYPE_MAX = 4;
+}
+
+//设置战斗队伍请求
+message BattleGroupRequest{
+	required E_BATTLE_GROUP_TYPE Type=1;
+	repeated int32 Heros=2;
+}
+//队伍战斗信息
+message BattleGroupResponse{
+	required E_BATTLE_GROUP_TYPE Type=1;
+	repeated int32 Heros=2;
+}
+
+////////////////////////////主公//////////////////////////////
+//随机名称请求
+message RandomNameRequest{
+	
+}
+
+//随机名称返回
+message RandomNameResponse{
+	required string Name=1;//名称
+}
+
+//修改名称请求
+message ChangeNameRequest{
+	required string Name=1;
+	required int32 Female=2;
+}
+
+//主公名称
+message PlayerName{
+	required string Name=1;
+	required int32 Female=2;
+}
+
+//修改头像请求
+message ChangeIconRequest{
+	required string Icon=1;
+}
+
+//主公头像
+message PlayerIcon{
+	required string Icon=1;
+}
+
+//玩家等级和经验
+message PlayerLevel{
+	required int32 Level=1;
+	required int32 LevelExp=2;
+}
+
+//玩家购买钻石
+message PlayerBuyDiamonds{
+	required int32 Diamonds=1;
+}
+
+//玩家钻石
+message PlayerDiamonds{
+	required int32 Diamonds=1;
+}
+
+// 购买钻石成功
+message PlayerBuyDiamondResponse {
+}
+
+//玩家金币
+message PlayerGold{
+	required int32 Gold=1;
+}
+
+//玩家魂石
+message PlayerSoul{
+	required int32 Soul=1;
+}
+
+//购买金币
+message BuyGoldRequest{
+}
+
+//购买金币结果
+message BuyGoldResponse{
+	required int32 Diamonds=1;
+	required int32 Count=2;
+	required int32 Multiply=3;
+}
+
+//连续购买金币请求
+message BuyNGoldRequest{
+	required int32 N=1;
+}
+
+//连续购买金币返回
+message BuyNGoldResponse{
+	required E_ERR Err=1;
+	repeated BuyGoldResponse List=2;
+}
+
+//已购买金币次数
+message PlayerGoldChangeCount{
+	required int32 Count=1;
+}
+
+//购买体力请求
+message BuyChickenRequest{
+	
+}
+
+//领取大餐体力
+message DailyChickenRewardRequest{
+	
+}
+
+//领取体力时间
+message DailyChickenRewardGotTime{
+	required int32 Time=1;	
+	required bool Successed=2;
+}
+
+//玩家体力
+message PlayerChicken{
+	required int32 Chicken=1;
+	required int32 ChickenTime=2;
+}
+
+//体力已购买次数
+message ChickenBoughtCount{
+	required int32 Count=1;
+}
+
+//购买精力请求
+message BuySipiritRequest{
+	
+}
+
+//玩家精力
+message PlayerSipirit{
+	required int32 Spirit=1;
+	required int32 SpiritTime=2;
+}
+
+//精力已购买次数
+message SpiritBoughtCount{
+	required int32 Count=1;
+}
+
+//玩家VIP
+message PlayerVip{
+	required int32 VipLevel=1;
+	required int32 VipExp=2;
+	optional bool bUpdate=3;
+}
+
+//建筑物类型
+enum E_BUILDING_TYPE{
+	E_BUILDING_TYPE_HERO=0;
+	E_BUILDING_TYPE_HORSE=1;
+	E_BUILDING_TYPE_FOUNTAIN=2;
+	E_BUILDING_TYPE_ARENA=3;
+	E_BUILDING_TYPE_CAMPAIGN=4;
+}
+
+//建筑物级别
+message BuildingLevel{
+	required E_BUILDING_TYPE Type=1;
+	required int32 Level=2;
+}
+
+//建筑物级别列表
+message BuildingLevelList{
+	repeated BuildingLevel Levels=1;
+}
+
+//建筑物升级
+message BuildingUpgrade{
+	required E_BUILDING_TYPE Type=1;
+	required int32 OldLevel=2;
+	required int32 NewLevel=3;
+}
+
+///////////////////////////////////////////////////新手引导////////////////////////////////////////////////////
+//新手引导状态
+message GuideState{//非消息
+	required int32 Systype=1;
+	required int32 SysStep=2;
+}
+
+//新手引导状态列表
+message GuideStateList{
+	repeated GuideState List=1;
+}
+
+
+//新手引导状态请求
+message GuideStateRequest{
+	required GuideState State=1;
+}
+
+//新手引导状态返回
+message GuideStateResponse{
+}
+
+//新手引导战斗请求
+message GuideFirstBattleRequest{
+	required int32 Index=1;//从1开始的引导战斗编号
+}
+
+//新手引导战斗返回
+message GuideFirstBattleResponse{
+	required int32 Index=1;//从1开始的引导战斗编号
+	required int32 Rand=2;
+}
+
+//新手引导战斗结束请求
+message GuideFirstBattleEndRequest{
+	required int32 Index=1;//从1开始的引导战斗编号
+}
+
+//新手引导战斗结束返回
+message GuideFirstBattleEndResponse{
+	required int32 Index=1;//从1开始的引导战斗编号
+	repeated int32 HeroConfigIdList=2;//赠送的英雄列表
+}
+
+////////////////////////////战役//////////////////////////////
+//请求同步战役数据
+message CampaignSyncRequest{
+	
+}
+
+//战役同步完成
+message CampaignSyncCompleted{
+	
+}
+
+//战役关卡的状态
+enum E_CAMPAIGN_LEVEL_STATE{
+	E_CAMPAIGN_LEVEL_STATE_LOCKED=0;//未解锁
+	E_CAMPAIGN_LEVEL_STATE_SKIPPED=1;//分支已跳过
+	E_CAMPAIGN_LEVEL_STATE_CLOSED=2;//已关闭
+	E_CAMPAIGN_LEVEL_STATE_PASSED=3;//已通过
+	E_CAMPAIGN_LEVEL_STATE_FIGHT_NOT_PASSED=4;//打过但没通过
+	E_CAMPAIGN_LEVEL_STATE_OPENED=5;//已开放
+}
+
+//战役关卡
+message CampaignLevel{
+	required int32 ConfigId=1;//关卡ID
+	required E_CAMPAIGN_LEVEL_STATE State=2;//关卡状态
+	required bool Mission_1=3;//任务是否已达成
+	required bool Mission_2=4;//任务是否已达成
+	required bool Mission_3=5;//任务是否已达成
+	required int32 DiffReduceCount=10;//难度已降低的次数
+}
+
+//重置战役状态
+message CamaignResetState{
+	
+}
+
+//战役关卡列表
+message CampaignLevelList{
+	repeated CampaignLevel Levels=1;//所有已打或者打了未通过的关卡数据
+}
+
+//开始战斗
+message CampaignFight{
+	required int32 ConfigId=1;//关卡ID
+}
+
+//返回可以开始战斗
+message CampaignFightResponse{
+	required int32 Rand=1;//战斗初始随机种子
+}
+
+//战斗完成通知服务器
+message CampaignFightCompleteRequest{
+	required int32 ConfigId=1;//关卡Id
+	required bool Mission_1=3;//任务是否已达成
+	required bool Mission_2=4;//任务是否已达成
+	required bool Mission_3=5;//任务是否已达成
+	required bool Win=6;//是否胜利
+}
+
+//战斗掉落
+message CampaignFightCompleteResponse{
+	required int32 ConfigId=1;//关卡Id
+	required bool Mission_1=3;//任务是否已达成
+	required bool Mission_2=4;//任务是否已达成
+	required bool Mission_3=5;//任务是否已达成
+	required PVE_Loot Loot=6;//掉落	
+}
+
+//招降
+message CampaignSummonRequest{
+	required int32 ConfigId=1;//关卡ID
+}
+
+//招降掉落
+message CampaignSummonResponse{
+	required int32 ConfigId=1;//关卡Id
+	required PVE_Loot Loot=3;//掉落
+}
+
+//连续扫荡请求
+message CampaignNMopRequest{
+	required int32 ConfigId=1;//关卡ID
+	required int32 N=3;//扫荡次数
+}
+
+//连续扫荡返回
+message CampaignNMopResponse{
+	required int32 ConfigId=1;//关卡Id
+	required PVE_Loot Loot=3;//掉落
+}
+
+//修改最后对话请求
+message CampaignLastDialogRequest{
+	required int32 GroupId=1;//对话编号
+}
+
+//最后对话返回
+message CampaignLastDialogResponse{
+	required int32 GroupId=1;//对话编号
+}
+
+//战役章节状态数据
+message CampaignChapterState{
+	required int32 ChapterId=1;//章节Id
+	required bool Passed=2;//是否已通关
+	required int32 Stars=3;//已获得星数
+	required bool RewardGoted_1=4;//章节1奖励是否已获取
+	required bool RewardGoted_2=5;//章节2奖励是否已获取
+	required bool RewardGoted_3=6;//章节3奖励是否已获取
+}
+
+//战役章节状态数据
+message CampaignChapterStateList{
+	repeated CampaignChapterState List=1;//已达到的章节状态列表
+}
+
+//领取章节奖励
+message CampaignChapterRewardRequest{
+	required int32 ChapterId=1;//章节Id
+	required int32 Index=2;//宝箱编号
+}
+
+//领取章节奖励返回
+message CampaignChapterRewardResponse{
+	required Loots Loot=1;//掉落
+}
+
+//**************************竞技场****************************//
+//竞技场英雄信息
+message ArenaHero{//非消息
+	required int32 Pos = 1;
+	required int32 HeroConfigId = 2;
+	required int32 HeroLevel = 3;
+	required int32 HeroStars = 4;
+	required int32 HeroQualityConfigId = 5;
+	required int32 HorseConfigId = 6;
+	required int32 HorseLevel = 7;
+	required int32 HorseStars = 8;
+	required int32 HorseColor = 9;
+	required int32 HorseMane = 10;
+	required int32 HorseManeColor = 11;
+	required int32 HorseFashion = 12;
+	required int32 HorseQualityConfigId = 13;
+	required int32 HorseState = 14;
+}
+
+//竞技场玩家信息
+message ArenaFighter{//非消息
+	required int32 Id = 1;
+	required string Name = 2;
+	required int32 Female=3;
+	required string Icon = 4;
+	required int32 Level = 5;
+	required int32  GuildId = 6;
+	required string GuildName = 7;
+	required int32 Section = 8;		// 段位
+	required int32 Rank = 9;		// 排名
+	required int32 Score = 10;		// 积分
+	required int32 Force=11;
+	required int32 Wins=12;
+	required int32 VipLevel = 13;
+	repeated ArenaHero Heros = 14;
+	repeated int32 SkillsLevel = 15;
+}
+
+//进入竞技场请求
+message ArenaEnterRequest{
+}
+
+message ArenaEnterResponse {
+	required int32 Section = 1;  	// 段位
+	required int32 Score = 2;	  	// 积分
+	required int32 Rank = 3;		// 排名
+	required bool InUpgrade = 4;	// 是否在进行晋级赛
+	repeated int32 UpResults = 5;	// 晋级赛场次结果
+	repeated int32 SkillsLevel = 6;	// 技能等级
+	required int32 RemainCooldown = 7; 	// 剩余冷却
+	required int32 LeftFightNum = 8; 	// 剩余挑战次数
+	required int32 TotalFightNum = 9;	// 总共挑战次数
+	required int32 BuyNumOfFight = 10;	// 已买战斗次数
+	required int32 BuyNumOfResetCD = 11; // 已买重置CD次数
+}
+
+//请求换一组对手
+message ArenaChangeFightersRequest{
+	required int32 FightType = 1;  	// 0 普通积分赛  1 普通晋级赛  2 最高段位晋级赛  3 排名赛
+}
+
+message ArenaChangeFightersResponse {
+	repeated ArenaFighter Fighters = 1;
+	required int32 FightType = 2;  	// 同上个消息
+}
+
+//请求战斗
+message ArenaFightRequest{
+	required int32 FighterId = 1;
+	required int32 FightType = 2;   // 同上个消息
+}
+
+//战斗数据
+message ArenaFightResponse{
+	required int32 Rand=1;
+	required PlayerBattleInfo Self=2;
+	required PlayerBattleInfo Fighter=3;
+	required int32 FightType = 4;   // 同上个消息
+}
+
+//战斗结束
+message ArenaFightEndRequest{
+	required int32 FightResult = 1;
+	required int32 FighterId = 2;
+	required int32 FightType = 3;	// 同上个消息
+	repeated ArenaFightAction Action = 4; // 战斗操作
+	optional bool IsRecord = 5;		// 是否生成战斗记录 
+}
+//战斗结果
+message ArenaFightEndResponse{
+	required int32 FightResult = 1;				// 本次比赛结果
+	required int32 Section = 2;
+	required int32 Score = 3;
+	required int32 Rank = 4;
+	required int32 FightType = 5;				// 同上个消息
+	repeated int32 FightResults = 6;			// 晋级赛所有场次的结果
+	required int32 LeftFightNum = 7;			// 已用挑战次数
+	required int32 RemainCooldown = 8; 			// 剩余冷却
+	required int32 TopRankRewardDiamond = 9;	// 奖励的元宝
+	required int32 UpState = 10;				// 晋级赛中使用 0 未结束 1 晋级成功 2 晋级失败
+}
+
+//获取排名榜
+message ArenaRankListRequest{
+}
+
+//排行榜
+message ArenaRankList{
+	repeated ArenaRankInfo RankList = 1;
+}
+
+//排名信息
+message ArenaRankInfo{//非消息
+	required int32 Rank=1;
+	required int32 PlayerId=2;
+	required string Name=3;
+	required string Icon=4;
+	required int32 Level=5;
+}
+
+//详细排名信息请求
+message ArenaRankDetailInfoRequest{
+	required int32 PlayerId=1;
+}
+
+//详细排名信息返回
+message ArenaRankDetailInfoResponse{
+	required ArenaFighter Info=1;
+}
+
+//请求录像列表
+message ArenaSimpleRecordListRequest{
+}
+
+//录像信息
+message ArenaSimpleRecord{//非消息
+	required int32 RecordId=1;
+	required int32 Time=2;
+	required int32 Win=3;
+	required int32 OldRank=5;
+	required int32 NewRank=6;
+	required int32 FighterId=7;
+	required string FighterName=8;
+	required string FighterIcon=9;
+	required int32 FighterLevel=10;
+}
+
+//录像信息列表
+message ArenaSimpleRecordList{
+	repeated ArenaSimpleRecord List=1;
+}
+
+// 战斗操作
+message ArenaFightAction{
+    required int32 HeroIndex=1;
+	required float Time=2;
+	required int32 ActionType=3;
+	required int32 ActionValue=4;
+}
+
+//请求录像数据
+message ArenaRecordRequest{
+	required int32 RecordId=1;
+}
+
+//录像数据
+message ArenaRecord{
+	required ArenaFightResponse Data=1;
+	repeated ArenaFightAction Action = 2; // 战斗操作
+}
+
+//复仇对象信息请求
+message RevengeFighterRequest{
+	required int32 FighterId=1;
+}
+
+//复仇对象信息返回
+message RevengeFighterResponse{
+	required ArenaFighter Fighter = 1;
+}
+
+//复仇请求
+message RevengeFightRequest{
+	required int32 FighterId=1;
+}
+
+//复仇返回
+message RevengeFightResponse{
+	required int32 Rand=1;
+	required PlayerBattleInfo Self=2;
+	required PlayerBattleInfo Fighter=3;
+}
+
+//复仇结束请求
+message RevengeFightEndRequest{
+	required int32 FightResult = 1;
+	required int32 FighterId = 2;	
+	required int32 RecordId=3;
+}
+
+//复仇结束返回
+message RevengeFightEndResponse{
+	required int32 FightResult = 1;
+	required Loots Loot=2;
+}
+
+//竞技场币
+message ArenaGold{
+	required int32 Count=1;
+}
+
+//竞技场币产生状态
+message ArenaGoldGenerateState{
+	required int32 GoldCount=1;
+	required float Speed=2;
+}
+
+//领取竞技场币请求
+message ArenaDrawGoldRequest{
+	
+}
+
+//领取竞技场币返回
+message ArenaDrawGoldResponse{
+	
+}
+
+//上一次战斗时间
+message ArenaLastFightTime{
+	required int32 Time=1;
+}
+
+// 技能数据
+message ArenaSkillLevelupRequest {
+	required int32 SkillId = 1;
+}
+
+message ArenaSkillLevelupResponse {
+	required int32 SkillId = 1;
+	required int32 NewLevel = 2;
+}
+
+// 进入晋级赛
+message ArenaEnterUpSectionRequest {
+}
+
+message ArenaEnterUpSectionResponse {
+	required bool up_section = 1;
+}
+
+// 擂台每日重置
+message ArenaDailyResetNotify {
+	required int32 UsedFightNum = 1;
+}
+
+// 重置挑战倒计时
+message ArenaResetFightCooldownRequest {
+}
+
+message ArenaResetFightCooldownResponse {
+	required int32 RemainCooldown = 1;
+	required int32 NumOfReset = 2;		// 已重置次数
+}
+
+// 购买战斗
+message ArenaBuyFightRequest {
+	
+}
+
+message ArenaBuyFightResponse {
+	required int32 BuyNumOfFight = 1;	// 已购买次数
+	required int32 LeftFightNum = 2;	// 剩余战斗次数
+}
+//********************************* 战马 **********************************
+//添加战马
+message HorseAdd{
+	required int32 Id=1;
+	required int32 ConfigId=2;
+	required int32 Using=3;
+	required int32 Stars=4;
+	required int32 StarsExp=5;
+	required int32 Level=6;
+	required int32 LevelExp=7;
+	required int32 Color=8;
+	required int32 Texture=9;
+	required int32 TextureColor = 10;
+	required int32 State=11;				// 状态值
+	required int32 StateType=12;			// 状态类型
+	required int32 RuneConfigId=13;			// 符文ID
+	required int32 ShuangxiuNum=14;			// 双修次数
+	required int32 PurchaseShuangxiuNum=15;	// 重置双修次数
+	required int32 Fashion=16;				// 时装
+	required int32 Suit=17;					// 套装
+	required int32 Mane=18;					// 鬃毛
+	required int32 QualityConfigId=19;		// 品质
+	required int32 ManeColor = 20;			// 鬃毛颜色
+	required int32 BridleConfigId=25;		// 笼头ID
+	required int32 ArmorConfigId=26;		// 护具ID
+	required int32 SaddleConfigId=27;		// 马鞍ID
+	required int32 ShoesConfigId=28;		// 蹄铁ID
+	required int32 BridleLevel=29;			// 笼头等级
+	required int32 ArmorLevel=30;			// 护具等级
+	required int32 SaddleLevel=31;			// 马鞍等级
+	required int32 ShoesLevel=32;			// 蹄铁等级
+	repeated int32 BridlePropAddtion=33;	// 笼头洗练属性
+	repeated int32 ArmorPropAddtion=34;		// 护具洗练属性
+	repeated int32 SaddlePropAddtion=35;	// 马鞍洗练属性
+	repeated int32 ShoesPropAddtion=36;		// 蹄铁洗练属性
+	required int32 BridleXiLianTimes=37;	// 笼头洗练次数
+	required int32 ArmorXiLianTimes=38;	    // 护具洗练次数
+	required int32 SaddleXiLianTimes=39;	// 马鞍洗练次数
+	required int32 ShoesXiLianTimes=40;	    // 蹄铁洗练次数
+	required int32 Racingwin=41;            // 赛马获胜次数
+	required int32 Racingtotal=42;          // 赛马比赛次数
+	required int32 Suitability_Total=43;    // 适性总和
+	required int32 Suitability_Dune=44;     // 沙丘适性
+	required int32 Suitability_Stone=45;    // 岩石适性
+	required int32 Suitability_Briar=46;    // 荆棘适性
+	required int32 SuChgNum=47;             // 马匹适性改造次数
+	required int32 FashionEndTime=48;   	// 结束时间
+}
+
+//删除战马
+message HorseRemove{
+	required int32 Id=1;
+}
+//战马列表刷新
+message HorseList{
+	repeated HorseAdd Add=1;
+	optional bool BClear=2; // 是否清空消息
+}
+
+// 战马改变花纹
+message HorseChangeTextureRequest {
+	required int32 HorseId = 1;
+	required int32 NewTextureId = 2;
+}
+
+message HorseChangeTextureResponse {
+	required int32 HorseId = 1;
+	required int32 NewTextureId = 2;
+}
+
+// 出售战马
+message HorseSellRequest {
+	required int32 HorseId = 1;
+}
+
+message HorseSellResponse {
+	required int32 HorseId = 1;
+}
+
+// 请求战马双修花费
+message HorseShuangxiuCostRequest {
+	required int32 HorseId = 1;
+}
+
+message HorseShuangxiuCostResponse {
+	required int32 HorseId = 1;
+	required int32 NextPuxiuCost = 2;
+	required int32 NextTexiuCost = 3;
+}
+
+message HorseError {
+	required E_ERR err = 1;						// 马场错误
+}
+
+// 马匹升级
+message HorseLevelupNotify {
+	required int32 HorseId = 1;
+	required int32 NewLevel = 2;
+	required int32 NewExp = 3;
+}
+
+// 马匹升星
+message HorseUpgradeStarNotify {
+	required int32 HorseId = 1;
+	required int32 NewStar = 2;
+	required int32 NewShuliandu = 3;
+	required int32 AddShuliandu = 4;
+}
+
+// 装备符文
+message HorseEquipRuneRequest {
+	required int32 HorseId = 1;				// 战马实例ID
+	required int32 RuneConfigId = 2;		// 物品实例ID
+}
+
+// 五行属性
+enum E_WUXING {
+	E_WUXING_NONE = 0;
+	E_WUXING_GOLD = 1;			// 金
+	E_WUXING_WOOD = 2;			// 木
+	E_WUXING_WATER = 3;			// 水
+	E_WUXING_FIRE = 4;			// 火
+	E_WUXING_SOIL = 5;			// 土
+	E_WUXING_ALL = 6;			// 全属性
+}
+
+message HorseEquipRuneResponse {
+	required int32 HorseId = 1;				// 战马实例ID
+	required int32 RuneConfigId = 2;		// 物品实例ID
+	required E_WUXING WuxingProperty = 3;	// 符文属性： 1 金 2 木 3 水 4 火 5 土 6 全属性
+}
+
+// 卸载符文
+message HorseUnequipRuneRequest {
+	required int32 HorseId = 1;
+}
+
+message HorseUnequipRuneResponse {
+	required int32 HorseId = 1;
+}
+
+// 合成符文
+message HorseComboRuneRequest {
+	required int32 ComboTargetId = 1;		// 目标符文ID
+}
+
+message HorseComboRuneResponse {
+	required ItemAdd NewRune = 1;			// 表示已经成功，删除材料符文和增加新符文的消息是物品已有的增加删除消息
+}
+
+// 请求战马状态
+message HorseStateRequest {
+	required int32 HorseId = 1;				// 值为0时表示请求所有战马状态
+}
+
+message HorseState {
+	required int32 HorseId = 1;
+	required int32 HorseStateType = 2;
+	required int32 HorseStateValue = 3;
+}
+
+message HorseStateResponse {
+	repeated HorseState States = 1;
+}
+
+// 状态更新
+message HorseStateUpdateNotify {
+	required int32 HorseId = 1;
+	required int32 HorseStateType = 2;		// 0 抑郁  1 平和  2 开心  3 兴奋
+	required int32 HorseStateValue = 3;		// 状态值，最大100
+}
+
+// 战马合成
+message HorseComboRequest {
+	required int32 HorseConfigId = 1;
+}
+
+message HorseComboResponse {
+	required int32 HorseId = 1;
+}
+
+message HorseCanEquipComboRequest {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;
+	required int32 TargetId = 3;
+}
+
+message HorseCanEquipComboResponse {
+	required bool CanCombo = 1;
+	required int32 GoldCost = 2;
+}
+
+// 战马装备合成
+message HorseEquipComboRequest {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;			// 1:笼头 2:护具 3:马鞍 4:蹄铁
+	required int32 TargetId = 3;
+}
+
+message HorseEquipComboResponse {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;			// 1:笼头 2:护具 3:马鞍 4:蹄铁
+	required int32 TargetId = 3;
+}
+
+// 战马装备升级
+message HorseEquipLevelUpRequest {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;	// 马装备 1:笼头 2:护具 3:马鞍 4:蹄铁
+	//required int32 EquipId = 2;
+}
+
+message HorseEquipLevelUpResponse {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;	// 马装备 1:笼头 2:护具 3:马鞍 4:蹄铁
+	required int32 EquipLevel = 3;
+	//required int32 EquipId = 2;
+}
+
+// 战马品质升级
+message HorseQualityUpgrageRequest {
+	required int32 HorseId = 1;
+}
+
+message HorseQualityUpgrageResponse {
+	required int32 HorseId = 1;
+	required int32 Quality = 2;
+}
+
+// 马装备一键强化
+message AllHorseEquipLevelUpRequest {
+	required int32 HorseId = 1;
+}
+
+message AllHorseEquipLevelUpResponse {
+	required int32 HorseId = 1;
+	//required int32 AllEquipLevel = 2;
+	required int32 BridleLevel = 2;
+	required int32 ArmorLevel = 3;
+	required int32 SaddleLevel = 4;
+	required int32 ShoesLevel = 5;
+}
+
+// 马装备 10次强化
+message HorseEquipLevelUpStrenthenRequest {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;
+}
+
+message HorseEquipLevelUpStrenthenResponse {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;
+	required int32 EquipLevel = 3;
+}
+
+// 战马装备随机洗练值
+message HorseXiLianRequest {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;			// 马装备 1:笼头 2:护具 3:马鞍 4:蹄铁
+}
+
+message HorseXiLianResponse {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;			// 马装备 1:笼头 2:护具 3:马鞍 4:蹄铁
+	required int32 XiLianTimes = 3;
+	repeated int32 PropList = 4;
+}
+
+message HorseUpdateXiLianRequest {
+}
+
+message HorseUpdateXiLianResponse {
+	required int32 HorseId = 1;
+	required int32 EquipSlot = 2;
+	repeated int32 PropList = 3;
+}
+
+/****************************** 新马场双修 *********************************/
+// 马场使用默认阵容
+message HorseDefenseGroupSetDefaultRequest {
+	required bool Default = 1;
+}
+
+message HorseDefenseGroupSetDefaultResponse {
+	required bool Default = 1;
+}
+
+// 马场请求对方防守阵容
+message HorseOtherDefenseGroupRequest {
+	required int32 PlayerId = 1;
+}
+
+message HorseOtherDefenseGroupResponse {
+	required int32 PlayerId = 1;
+	repeated ArenaHero PlayerHeros = 2;
+	required int32 PlayerFightForce = 3;
+}
+
+// 匹配战马
+message HorseMatchStarRequest {
+	required int32 HorseId = 1;
+}
+
+// 匹配战马的数据
+message HorseBaseSearch {
+	required int32 Id=1;
+	required int32 ConfigId=2;
+	required int32 Stars=3;
+	required int32 Level=4;
+	required int32 Color=5;
+	required int32 Texture=6;
+	required int32 TextureColor = 7;
+	required int32 State=8;					// 状态值
+	required int32 StateType=9;				// 状态类型
+	required int32 RuneConfigId=10;			// 符文ID
+	required int32 Fashion=11;				// 时装
+	required int32 Suit=12;					// 套装
+	required int32 Mane=13;					// 鬃毛
+	required int32 QualityConfigId=14;		// 品质
+	required int32 ManeColor = 15;			// 鬃毛颜色
+	required int32 HeroConfigId = 16;		// 武将ConfigId
+	required int32 HeroQualityConfigId = 17;// 武将品质ConfigId
+}
+
+// 搜索战马的数据
+message MatchHorseData {
+	required HorseBaseSearch HorseData = 1;
+	required int32 OwnerPlayerId = 2;
+	required int32 OwnerHeroType = 3;
+	required string OwnerPlayerName = 4;
+	required int32 OwnerFightForce = 5; // 对手防守战力
+	required int32 AttackNum = 6;      	// 挑战次数
+	repeated ArenaHero PlayerHeros = 7;	// 阵容
+	required int32 AddBonus = 8;		// 增加的票券数
+}
+
+message HorseMatchStarResponse {
+	repeated MatchHorseData Data = 1; 		// 搜索到的战马数据
+	required int32 ShuangxiuNum = 2;		// 剩余双修次数
+}
+
+// 购买每天双修次数
+message HorsePurchaseShuangxiuRequest {
+	required int32 HorseId = 1;
+}
+
+// 购买双修次数成功
+message HorsePurchaseShuangxiuResponse {
+	required int32 HorseId = 1;
+	required int32 ShuangxiuNum = 2;
+	required int32 PurchasedShuangxiuNum = 3;	// 已买过双修次数		
+}
+
+// 马场开打
+message HorseFight2OtherRequest {
+	required int32 HorseId = 1;
+	required int32 OtherPlayerId = 2;
+	required int32 OtherHorseId = 3;
+}
+
+message HorseFight2OtherResponse {
+	required int32 HorseId = 1;
+	required int32 OtherPlayerId = 2;
+	required int32 OtherHorseId = 3;
+	required bool Win = 4;
+	required int32 ShuangxiuNum = 5;			// 马匹双修次数
+	repeated ArenaHero Heros = 6;
+	required int32 AttackNum = 7;				// 挑战成功次数
+	required int32 Bonus = 8;					// 票券
+	required int32 AddShuangxiu = 9;			// 增加的双修值
+}
+
+// 马场选择卡片
+message HorseSelectCardRequest {
+}
+
+// 颜色组合
+message HorseColorCombo {
+	required int32 BodyColor = 1;    // 毛色
+	required int32 HairColor = 2;    // 发色
+	required int32 Tattoo = 3;       // 花纹
+	required int32 TattooColor = 4;  // 花纹颜色
+}
+
+// 选择卡片成功
+message HorseSelectCardResponse {
+	required int32 CardConfigId = 1;
+	required int32 ItemNum = 2;
+	required int32 SelectNum = 3;			 // 翻卡次数
+	required bool ChangedColor = 4;			 // 是否变色
+	required HorseColorCombo ColorCombo = 5; // 颜色组合
+}
+
+// 点击确定后翻开剩余的卡片
+message HorseFightWinCardsRequest {
+}
+
+
+message HorseFightWinCardsResponse {
+	repeated int32 CardConfigIds = 1;			// 对应的翻卡配置表中的ConfigId
+	repeated int32 CardSelectNums = 2;			// 对应的翻卡的次数
+}
+
+// 确认改变颜色
+message HorseChangeColorComboRequest {
+	required bool Change = 1;
+	required bool IsRoulin = 2;
+}
+
+message HorseChangeColorComboResponse {
+	required int32 HorseId = 1;
+	required bool Change = 2;
+	required HorseColorCombo ColorCombo = 3;
+	required bool IsRoulin = 4;
+}
+
+// 确认改变花纹颜色
+message HorseChangeTextureColorRequest {
+	required bool Change = 1;
+}
+
+message HorseChangeTextureColorResponse {
+	required int32 HorseId = 1;
+	required int32 Color = 2;
+}
+
+// 双修次数重置通知
+message HorseShuangxiuNumResetNotify {
+	required int32 HorseId = 1;
+	required int32 ShuangxiuNum = 2;
+}
+
+// 换时装
+message HorseChangeFashionRequest {
+	required int32 HorseId = 1;
+	required int32 FashionId = 2;
+	required int32 ChangePart = 3;  // 0 头部  1 半身  2 全身
+}
+
+message HorseChangeFashionResponse {
+	required int32 HorseId = 1;
+	required int32 FashionId = 2;
+	required int32 ChangePart = 3;  // 0 头部  1 半身  2 全身
+	optional int32 EndTime = 4; // 战马时装结束时间 
+}
+
+// 交换战马时装
+message HorseExchangeFashionRequest {
+	required int32 HorseId1 = 1;
+	required int32 HorseId2 = 2;
+	required int32 ChangePart = 3;
+}
+
+message HorseExchangeFashionResponse {
+	required int32 HorseId1 = 1;
+	required int32 HorseId2 = 2;
+	required int32 FashionId1 = 3;
+	required int32 FashionId2 = 4;
+	required int32 ExchangePart = 5;
+}
+
+// 马场防守记录
+message HorseHouseDefenseRecordRequest {
+}
+
+message HorseHouseDefenseRecord {
+	required int32 RecordId = 1;			// 防守记录ID
+	required int32 HorseConfigId = 2;		// 战马ConfigID
+	required int32 OtherPlayerId = 3;		// 对方玩家ID
+	required string OtherPlayerName = 4;	// 对方玩家名
+	required int32 OtherPlayerLevel = 5;	// 对方玩家等级
+	required string OtherPlayerIcon = 6;	// 对方玩家头像
+	required int32 OtherHorseConfigId = 7;  // 对方战马ConfigID
+	required int32 SecondsFromFight = 8;	// 距离现在时间（秒）
+	required int32 DefenseResult = 9;		// 0 输  1 赢
+}
+
+message HorseHouseDefenseRecordResponse {
+	repeated HorseHouseDefenseRecord Records = 1;
+}
+
+//复仇对象信息请求
+message HorseHouseRevengeFighterRequest{
+	required int32 FighterId=1;
+}
+
+//复仇对象信息返回
+message HorseHouseRevengeFighterResponse{
+	required ArenaFighter Fighter = 1;
+}
+
+// 马场复仇
+message HorseHouseRevengeRequest {
+	required int32 RecordId = 1;
+}
+
+message HorseHouseRevengeResponse {
+	required int32 Rand = 1;
+	required PlayerBattleInfo Self = 2;
+	required PlayerBattleInfo Fighter = 3;
+}
+
+// 马场复仇结束请求
+message HorseHouseRevengeEndRequest{
+	required int32 RecordId = 1;
+	required bool FightResult = 2;
+	required int32 FighterId = 3;
+}
+
+// 马场复仇结束返回
+message HorseHouseRevengeEndResponse{
+	required int32 RecordId = 2;
+	required bool FightResult = 3;
+	required int32 HorseId = 4;
+	required int32 StateValue = 5;		// 提升状态值
+	repeated ItemData AwardItems = 6;
+	required int32 AwardGold = 7;
+	required int32 AwardDiamond = 8;
+	optional int32 AwardDevilPoint = 9;
+}
+
+// 马场是否有新的防守记录
+message HorseHouseHaveNewRecordsRequest {
+}
+
+message HorseHouseHaveNewRecordsResponse {
+	required bool HaveNew = 1;
+}
+
+// 马场老虎机请求挑战记录
+message HorseHouseAttackRecordsRequest {
+}
+
+message HorseHouseAttackRecord {
+	required string PlayerName = 1;
+	required int32 AttackNum = 2;
+	required int32 AttackTime = 3;
+}
+
+message HorseHouseAttackRecordsResponse {
+	repeated HorseHouseAttackRecord Records = 1;
+}
+
+// 马场老虎机抽奖
+message HorseHouseSlotsDrawRequest {
+}
+
+message HorseHouseSlotsDrawResponse {
+	required int32 ItemA = 1;
+	required int32 ItemANum = 2;
+	required int32 ItemB = 3;
+	required int32 ItemBNum = 4;
+	required int32 ItemC = 5;
+	required int32 ItemCNum = 6;
+}
+
+// 马场数据重置
+message HorseHouseResetRefresh {
+}
+
+// 马场票券
+message HorseHouseBonusRequest {
+	
+}
+
+message HorseHouseBonusResponse {
+	required int32 Bonus = 1;
+}
+
+// 查看战马是否被强插
+message HorseAttackedStateRequest {
+}
+
+message HorseAttackedStateResponse {
+	required bool attacked = 1;
+}
+
+// 蹂躏
+message HorseRoulinCardReward {
+	required int32 CardConfigId = 1;
+	required int32 ItemNum = 2;
+	required bool ChangedColor = 3;			 // 是否变色
+	required HorseColorCombo ColorCombo = 4; // 颜色组合
+	required int32 CostMoney = 5;			 // 消耗金币
+}
+
+message HorseRoulinOnceResult {
+	required bool Win = 1;							// 成功
+	required int32 ShuangxiuNum = 2;				// 马匹双修次数
+	required int32 AttackNum = 4;					// 挑战成功次数
+	required int32 Bonus = 5;						// 票券
+	required int32 AddShuangxiu = 6;				// 增加的双修值
+	required int32 Spirit = 7;						// 消耗精力
+	repeated HorseRoulinCardReward CardRewards = 8; // 翻牌奖励
+}
+
+message HorseRoulinRequest {
+	required int32 HorseId = 1;
+	required int32 OtherPlayerId = 2;
+	required int32 OtherHorseId = 3;
+}
+
+enum ROULIN_END_REASON {
+	ROULIN_END_REASON_NONE = 0;
+	ROULIN_END_REASON_UPSTAR = 1;					// 升星
+	ROULIN_END_REASON_DAY_LIMIT = 2;				// 每天双修次数限制
+	ROULIN_END_REASON_NOT_ENOUGH_SPIRIT = 3; 		// 精力不够
+	ROULIN_END_REASON_OPPONENT_NOT_FOUND = 4;		// 对手不存在
+}
+
+message HorseRoulinResponse {
+	required int32 HorseId = 1;
+	required int32 OtherPlayerId = 2;
+	required int32 OtherHorseId = 3;
+	repeated HorseRoulinOnceResult Results = 4;
+	required ROULIN_END_REASON EndReason = 5;
+}
+
+// ********************************** 武将 ************************************
+//添加武将
+message HeroAdd{
+	required int32 Id=1;
+	required int32 ConfigId=2;
+	required int32 Stars=3;
+	required int32 StarsExp=4;
+	required int32 Level=5;
+	required int32 LevelExp=6;
+	//required int32 HorseId=7;
+	required int32 WeaponConfigId=8;
+	required int32 ArmorConfigId=9;
+	required int32 NecknessConfigId=10;
+	required int32 RingConfigId=11;
+	required int32 WeaponLevel=16;
+	required int32 ArmorLevel=17;
+	required int32 NecknessLevel=18;
+	required int32 RingLevel=19;
+	required int32 QualityConfigId=20;
+	required int32 RelatedWeaponId=21;
+	repeated int32 Horses = 22;	   // 几个阵容对应的战马
+	optional int32 SoulStar = 23;  // 武魂等级
+	repeated float CurSoulProps = 24; // 当前的武魂附加属性
+	repeated int32 SkillsLevel = 25;  // 技能等级  上面的SkillActiveLevel  SkillAssistLevel  SkillPassiveLevel作废
+}
+//删除武将
+message HeroRemove{
+	required int32 Id=1;
+}
+//武将列表刷新
+message HeroList{
+	repeated HeroAdd Add=1;
+}
+
+// 武将升级
+message HeroLevelUpNotify {
+	required int32 HeroId = 1;
+	required int32 HeroLevel = 2;
+	required int32 HeroExp = 3;
+}
+
+// 武将升星
+message HeroUpgradeStarRequest {
+	required int32 HeroId = 1;
+}
+
+message HeroUpgradeStarResponse {
+	required int32 HeroId = 1;
+	required int32 HeroStar = 2;
+}
+
+// 换马
+message HeroChangeHorseRequest {
+	required int32 HeroId = 1;
+	required int32 NewHorseId = 2;
+	required E_BATTLE_GROUP_TYPE GroupType = 3;
+}
+
+message HeroChangeHorseResponse {
+	required int32 HeroId = 1;
+	required int32 NewHorseId = 2;
+	required E_BATTLE_GROUP_TYPE GroupType = 3;
+}
+
+// 技能升级
+message HeroSkillLevelUpRequest {
+	required int32 HeroId = 1;
+	required int32 SkillType = 2;				// 1 主动技  2 被动技  3 援护技
+}
+
+message HeroSkillLevelUpResponse {
+	required int32 HeroId = 1;
+	required int32 SkillType = 2;				// 1 主动技  2 被动技  3 援护技
+	required int32 SkillLevel = 3;
+}
+
+// 装备武器或防具或项链或戒指
+message HeroEquipRequest {
+	required int32 HeroId = 1;
+	required int32 ItemConfigId = 2;			// 类型ID，0表示卸载
+	required int32 EquipSlot = 3;				// 装备位置: 1 武器 2 防具 3 项链 4 戒指
+}
+
+message HeroEquipResponse {
+	required int32 HeroId = 1;
+	required int32 ItemConfigId = 2;			// 新装备上的物品类型ID，0表示卸载
+	required int32 EquipSlot = 4;				// 装备位置: 1 武器 2 防具 3 项链 4 戒指
+}
+
+// 技能点数
+message HeroSkillPointsRequest {
+}
+
+// 购买技能点数
+message HeroSkillPointsPurchaseRequest {
+}
+
+// 上面的两个请求都用该消息回应
+message HeroSkillPointsDataResponse {
+	required int32 SkillPoints = 1;				// 点数
+	required int32 RemainRefreshSeconds = 2;	// 剩余刷新时间
+	required int32 BuyCount = 3;				// 购买次数
+	required int32 RecoverOnePointsSeconds = 4;	// 恢复一点需要的时间
+}
+
+// 技能点重置刷新
+message HeroSkillPointsBuyNumResetRefresh {
+	required int32 BuyCount = 1;
+}
+
+// 武将合成
+message HeroComboRequest {
+	required int32 HeroConfigId = 1; 
+}
+
+message HeroComboResponse {
+	required int32 HeroId = 1;
+}
+
+// 武将品质升级
+message HeroQualityUpgrageRequest {
+	required int32 HeroId = 1;
+}
+
+message HeroQualityUpgrageResponse {
+	required int32 HeroId = 1;
+	required int32 Quality = 2;
+}
+
+// 武将装备升级
+message EquipmentLevelUpRequest {
+	required int32 HeroId = 1;
+	required int32 EquipSlot = 2;	// 装备类型 1:武器 2:防具 3:项链 4:戒指
+	//required int32 EquipId = 2;
+}
+
+message EquipmentLevelUpResponse {
+	required int32 HeroId = 1;
+	required int32 EquipSlot = 2;	// 装备类型 1:武器 2:防具 3:项链 4:戒指
+	required int32 EquipLevel = 3;
+	//required int32 EquipId = 2;
+}
+
+// 武将装备一键强化
+message AllEquipLevelUpRequest {
+	required int32 HeroId = 1;
+}
+
+message AllEquipLevelUpResponse {
+	required int32 HeroId = 1;
+	//required int32 AllEquipLevel = 2;
+	required int32 WeaponLevel = 2;
+	required int32 ArmorLevel = 3;
+	required int32 NecknessLevel = 4;
+	required int32 RingLevel = 5;
+}
+
+// 武将 装备10次升级
+message EquipLevelUpStrenthenRequest {
+	required int32 HeroId = 1;
+	required int32 EquipSlot = 2;	// 装备类型 1:武器 2:防具 3:项链 4:戒指
+	//required int32 EquipId = 2;
+}
+
+message EquipLevelUpStrenthenResponse {
+	required int32 HeroId = 1;
+	required int32 EquipSlot = 2;	// 装备类型 1:武器 2:防具 3:项链 4:戒指
+	required int32 EquipLevel = 3;
+	//required int32 EquipId = 2;
+}
+
+message WeaponStrenthenByBookRequest {
+	required int32 HeroId = 1;
+}
+
+message WeaponStrenthenByBookResponse {
+	required int32 HeroId = 1;
+}
+
+// ********************************** 物品 **************************************
+//添加装备
+message ItemAdd{
+	required int32 Id=1;
+	required int32 ConfigId=2;
+	required int32 Count=4;
+	optional int32 EndTime=5;
+	optional int32 GetTime=6; // 获得该物品的时间戳
+}
+//删除装备
+message ItemRemove{
+	required int32 Id=1;
+	required int32 Count=2;
+}
+//装备列表刷新
+message ItemList{
+	repeated ItemAdd Add=1;
+}
+
+// 添加多个物品
+message ItemAddList {
+	repeated ItemAdd Add=1;
+}
+
+message CanEquipmentComboRequest {
+	required int32 HeroId = 1;
+	required int32 TargetId = 2;
+	required int32 EquipSlot = 3;
+}
+
+message CanEquipmentComboResponse {
+	required bool CanCombo = 1;
+	required int32 GoldCost = 2;
+}
+
+// 装备合成
+message EquipmentComboRequest {
+	//required int32 ComboId = 1;
+	required int32 HeroId = 1;
+	required int32 TargetId = 2;
+	required int32 EquipSlot = 3;
+}
+
+message EquipmentComboResponse {
+	//required int32 ComboId = 1;
+	required int32 HeroId = 1;
+	required int32 TargetId = 2;
+	required int32 EquipSlot = 3;
+}
+
+// 碎片,符文合成
+message ItemComboRequest {
+	required int32 TargetConfigId = 1;
+}
+
+message ItemComboResponse {
+	required ItemAdd NewTargetItem = 1;			// 表示已经成功，删除材料和增加新物品的消息是物品已有的增加删除消息
+}
+
+// 使用物品
+message ItemUseRequest {
+	required int32 ItemId = 1;					// 实例ID
+	required int32 TargetType = 2;				// 目标类型  0 不需要 1 武将 2 战马
+	required int32 TargetId = 3;				// 目标ID
+	required int32 UseNum = 4;					// 使用个数
+}
+
+message ItemUseResponse {
+	required int32 ItemId = 1;					// 实例ID
+	required int32 UsedNum = 2;					// 使用了次数
+}
+
+// 出售多个物品
+message ItemSellRequest {
+	required int32 ItemId = 1;					// 实例ID
+	required int32 SellNum = 2;					// 需要出售的数量，0表示全部出售
+}
+
+// 返回就表示成功出售
+message ItemSellResponse {
+	required int32 ItemId = 1;					// 实例ID
+	required int32 SoldNum = 2;					// 出售掉的数量
+}
+
+// 出售某种品质的全部物品
+message ItemSellByQualityRequest {
+	required int32 quality = 1;
+	required int32 item_type = 2;				// 物品类型 0 全部 1 装备 2 碎片 3 符文 4 消耗 
+}
+
+// 返回就表示成功出售
+message ItemSellByQualityResponse {
+	required int32 quality = 1;
+}
+
+// ***************************************  任务  *****************************************
+
+// 任务列表请求
+message MissionListRequest {
+}
+
+// 任务数据
+message MissionData {
+	required int32 mission_id = 1;
+	required int32 mission_state = 2;		// 0 已接  1 完成  2 已领奖
+	required int32 mission_value = 3;
+}
+
+// 任务列表
+message MissionListRefresh {
+	repeated MissionData missions = 1;
+	required int32 mission_class = 2; 		// 任务种类：0 普通  1 每日
+}
+
+// 新增的任务
+message MissionListNew {
+	repeated MissionData missions = 1;		// 增加的已接任务，状态都为已接
+	required int32 mission_class = 2;		// 任务种类：0 普通  1 每日
+}
+
+// 单个任务更新（服务器通知）
+message MissionStateRefresh {
+	required MissionData mission = 1;
+	required int32 mission_class = 2;		// 任务种类：0 普通  1 每日
+}
+
+// 任务领奖
+message MissionGetAwardRequest {
+	required int32 mission_id = 1;			// 这个消息表示领奖成功
+}
+
+// 这个消息表示领奖成功，具体的奖品通过物品或金币消息发送
+message MissionGetAwardResponse {
+	required int32 mission_id = 1;
+	required int32 mission_class = 2;		// 任务种类：0 普通  1 每日
+	repeated int32 new_heros = 3; 
+	repeated Hero2StoneData heros2stones = 4;
+}
+
+// *************************************** 许愿池 ******************************************
+
+// 许愿池数据请求
+message FountainDataRequest {
+}
+
+message FountainDataResponse {
+	required int32 GoldCost = 1; 					// 金币单次购买消费
+	required int32 GoldTenCost = 2;					// 金币购买十连抽消费
+	required int32 GoldGetItem = 3;					// 金币购买获得物品
+	required int32 GoldFreeInterval = 4;			// 金币购买免费机会间隔时间
+	required int32 GoldCountPerday = 5;				// 金币每天购买次数
+	required int32 GoldIsPurchased = 6;				// 用于判断是否第一次金币购买
+	required int32 GoldRemainCount = 7;				// 金币购买剩余免费次数 (变量)
+	required int32 GoldNextFreeRemainTime = 8;		// 金币购买下次免费剩余时间(单位 秒)
+	required int32 DiamondCost = 9;					// 钻石购买单次消费
+	required int32 DiamondTenCost = 10;				// 钻石十连抽消费
+	required int32 DiamondGetItem = 11;				// 钻石购买获得物品
+	required int32 DiamondFreeInterval = 12;		// 钻石购买免费机会时间间隔
+	required int32 DiamondFreeNeedCount = 13;		// 钻石购买获得免费需要的次数
+	required int32 DiamondIsPurchased = 14;			// 用于判断是否第一次钻石购买
+	required int32 DiamondPurchasedCount = 15;		// 钻石已经购买次数
+	required int32 DiamondNextFreeRemainTime = 16;	// 钻石购买下次免费剩余时间(单位 秒)
+	required int32 DiamondUltraNeedVIPLevel = 17;	// VIP开启钻石终极购买需要等级
+	required int32 DiamondUltraCost = 18;			// 钻石购买魂匣消耗钻石
+	required int32 DiamondUltraGetItem = 19;		// 钻石魂匣购买获得物品
+	repeated int32 DiamondUltraHeros = 20;			// 面板显示武将 4个
+	optional int32 DiamondRemainNumForNextHero = 21;// 下次必得武将次数
+}
+
+// 许愿池金币抽奖
+message FountainGoldPurchaseRequest {
+	required int32 DrawStyle = 1;					// 抽奖方式 0 抽一次 1 十连抽
+	required int32 IsFree = 2;						// 使用免费，用于判断客户端是否与服务器时间一致
+}
+
+message Hero2StoneData {
+	required int32 ReplacedHero = 1;				// 替换的武将，没有为0
+	required int32 SoulStone = 2;					// 武将替换成的魂石，没有为0
+	required int32 SoulStoneNum = 3;				// 魂石数
+}
+
+message FountainDrawItem {
+	required int32 ItemId = 1;
+	required int32 ItemNum = 2;
+}
+
+message FountainGoldPurchaseResponse {
+	required int32 DrawStyle = 1;					// 抽奖方式
+	required int32 IsFree = 2;						// 是否使用的免费
+	repeated FountainDrawItem DrawItems = 3;					// 抽到的物品
+	required int32 RemainFreeNum = 4;				// 剩余的免费次数
+	repeated int32 NewHeros = 5;					// 新增武将
+	repeated Hero2StoneData Hero2Stones = 6;		// 武将换魂石
+}
+
+// 许愿池金币购买次数刷新重置
+message FountainGoldPurchaseRefresh {
+	required int32 FreeNum = 1;						// 免费次数
+}
+
+// 时间累计的免费通知
+message FountainGoldFreeByTimeNotify {
+}
+
+// 许愿池钻石抽奖
+message FountainDiamondPurchaseRequest {
+	required int32 DrawStyle = 1;					// 抽奖方式
+	required int32 IsFree = 2;						// 是否使用免费次数
+}
+
+message FountainDiamondPurchaseResponse {
+	required int32 DrawStyle = 1;					// 抽奖方式
+	required int32 IsFree = 2;						// 是否使用免费次数
+	repeated FountainDrawItem DrawItems = 3;					// 抽到的物品
+	required int32 PurchasedCount = 4;				// 购买次数
+	repeated int32 NewHeros = 5;					// 新增武将
+	repeated Hero2StoneData Hero2Stones = 6;		// 武将换魂石
+	optional int32 RemainNumForNextHero = 7;		// 下次必得武将次数
+}
+
+// 时间累计的免费通知
+message FountainDiamondFreeByTimeNotify {
+}
+
+// 钻石购买魂匣
+message FountainDiamondUltraPurchaseRequest {
+}
+
+message FountainDiamondUltraPurchaseResponse {
+	repeated FountainDrawItem Items = 1;						// 获得的物品
+	repeated int32 NewHeros = 2;					// 新增武将
+	repeated Hero2StoneData Hero2Stones = 3;		// 武将换魂石
+}
+
+// *************************************** 商城 ******************************************
+
+// 商品数据
+message ShopItemData {
+	required int32 ShopType = 1;					// 商店类型  1 普通  2 竞技场  3 炼化  4 赛马  5 远征
+	required int32 PriceType = 2;					// 价格类型: 0 金币  1 钻石  2 竞技场  3 炼化  4 赛马  5 远征
+	required int32 ItemCid = 3;						// 物品配置ID
+	required int32 Price = 4;						// 价格
+	required int32 IsPurchased = 5;					// 是否已购买
+}
+
+// 商城商品列表
+message ShopItemListRequest {
+	required int32 ShopType = 1;
+}
+
+// 手动刷新
+message ShopItemListManualRequest {
+	required int32 ShopType = 1;
+}
+
+// 商品列表
+message ShopItemListResponse {
+	repeated ShopItemData items = 1;
+	required int32 ManualRefreshCost = 2;			// 手动刷新花费钻石数
+	required int32 NextRefreshRemainSeconds = 3;	// 距离下次刷新时间(秒)
+}
+
+// 购买请求
+message ShopItemPurchaseRequest {
+	required int32 ShopType = 1;
+	required int32 ItemCid = 2;						// 物品ConfigID
+}
+
+// 商品购买回应
+message ShopItemPurchaseResponse {
+	required int32 ShopType = 1;
+	required int32 ItemCid = 2;							// 物品ConfigId
+	required int32 RemainPurchaseNum = 3;				// 剩余购买次数
+}
+
+// *************************************** 邮箱 ******************************************
+//同步请求
+message MailSyncRequest{
+	
+}
+
+//同步完成
+message MailSyncCompleted{
+	
+}
+
+enum E_MailTemplate{
+	E_MailTemplate_SystemMail=0;//系统邮件
+	E_MailTemplate_RobInvitedReward=1;//夺宝被邀请奖励
+	E_MailTemplate_PlayerMessage=5;//玩家消息
+	E_MailTemplate_ArenaRankReward=6;//擂台每日排名奖励
+	E_MailTemplate_ArenaHistoricalTopRank=7;//擂台历史最高排名奖励
+	E_MailTemplate_SbossWeekReward=8;//特殊boss周排行奖励
+	E_MailTemplate_SbossMonthReward=9;//特殊boss月排行奖励
+	E_MailTemplate_JoinInTong = 10;	//成功加入帮会
+	E_MailTemplate_InvitedJoinTong=11;//邀请玩家加入帮会
+	E_MailTemplate_WbossRankReward=12;//世界boss排名奖励
+	E_MailTemplate_HorseShowRankReward=13;//神骏大会排名奖励
+}
+
+//系统邮件
+message MailData_System{//非消息
+	required int32 SystemMailId=1;//系统邮件Id
+	required string Title=2;//标题
+	required string Content=3;//内容
+	required Loots Loots=4;//奖励
+}
+
+//玩家消息邮件
+message MailData_PlayerMessage{//非消息
+	required int32 PlayerId=1;//玩家Id
+	required string PlayerName=2;//玩家名称
+	required string PlayerIcon=3;//玩家头像	
+	required string Title=4;//标题
+	required string Content=5;//内容
+}
+
+//擂台排名奖励邮件
+message MailData_ArenaRankReward{//非消息
+	required int32 Rank=1;//排名
+	required int32 ArenaGold=2;//擂台币
+	required Loots Loot=3;//其他奖励
+}
+
+//擂台历史最高排名邮件
+message MailData_AreanHistoricalTopRankReward{//非消息
+	required int32 OldRank=1;//旧排名
+	required int32 NewRank=2;//新排名
+	required Loots Loot=3;//奖励
+}
+
+//夺宝被邀请奖励邮件
+message MailData_RobInvitedReward{//非消息
+	required int32 PlayerId=1;//玩家Id
+	required string PlayerName=2;//玩家名称
+	required string PlayerIcon=3;//玩家头像
+	required int32 Gold=4;//金币
+}
+
+//特殊boss周排名奖励邮件
+message MailData_SbossWeekRankReward{//非消息
+	required int32 Time=1;//结算时间
+	required int32 Rank=2;//排名
+	required int32 TotalDamage=3;//总伤害
+	required Loots Loots=4;//奖励
+}
+
+//特殊boss月排名奖励邮件
+message MailData_SbossMonthRankReward{//非消息
+	required int32 Time=1;//结算时间
+	required int32 Rank=2;//排名
+	required int32 TotalDamage=3;//总伤害
+	required Loots Loots=4;//奖励
+}
+
+//世界boss排名奖励邮件
+message MailData_WbossRankReward{//非消息
+	required int32 Time=1;//结算时间
+	required int32 Rank=2;//排名
+	required int32 TotalDamage=3;//总伤害
+	required Loots Loots=4;//奖励
+}
+
+//神骏大会排行榜奖励邮件
+message MailData_HorseShowRankReward{
+	required int32 Time=1;//结算时间
+	required int32 Rank=2;//排名
+	required int32 TotalDamage=3;//总伤害
+	required Loots Loots=4;//奖励
+}
+
+//成功加入帮会
+message MailData_JoinInTong {
+	required string TongName = 1;
+}
+
+//邀请玩家加入帮会
+message MailData_InvitedJoinTong {
+	required int32 TongId = 1;
+	required string InviterName = 2;
+	required string TongName = 3;
+}
+
+//邮件
+message Mail{
+	required int32 MailId=1;//邮件ID
+	required int32 SendTime=2;//发送时间
+	required int32 DeleteTime=3;//删除时间
+	required E_MailTemplate Template=4;//邮件类型
+	required int32 Readed=5;//readed
+	required bytes Data=6;//邮件数据
+}
+
+//请求删除邮件
+message MailDeleteRequest{
+	required int32 MailId=1;
+}
+
+//删除邮件
+message MailDeleteResponse{
+	required int32 MailId=1;
+}
+
+//邮件标记已阅读
+message MailReaded{
+	required int32 MailId=1;
+}
+
+message MailReadedResponse{
+	required int32 MailId=1;
+}
+
+//邮件领取奖励
+message MailGetReward{
+	required int32 MailId=1;
+}
+
+message MailGetRewardResponse{
+	required int32 MailId=1;
+}
+
+message MailRequestJoinTong {
+	required int32 MailId = 1;
+}
+
+message MailRequestJoinTongResponse {
+	required int32 MailId = 1;
+}
+
+//发送玩家消息邮件
+message MailSendPlayerMessage{
+	required int32 ToPlayerId=1;
+	required string Title=2;
+	required string Content=3;
+}
+
+message MailSendPlayerMessageResponse{
+}
+
+//一键领取邮件请求
+message MailGetAllRewardRequest{
+	repeated int32 List=1;
+}
+
+//一键领取邮件返回
+message MailGetAllRewardResponse{
+	repeated int32 List=1;
+}
+
+// *************************************** 世界广播 ******************************************
+enum E_WorldBoardTemplate{
+	E_WorldBoardTemplate_SimpleText=0;
+	E_WorldBoardTemplate_GotItem=1;
+	E_WorldBoardTemplate_HorseStarUpTo3=2;
+	E_WorldBoardTemplate_HeroStarUpTo3=3;
+	E_WorldBoardTemplate_ArenaRankInTop20=4;
+	E_WorldBoardTemplate_KickHorseAss=5;
+	E_WorldBoardTemplate_BuildingUpgrade=6;
+	E_WorldBoardTemplate_SystemMessage=7;
+	E_WorldBoardTemplate_ArenaRankIsTop1=8;
+	E_WorldBoardTemplate_KillWorldBoss=9;
+	E_WorldBoardTemplate_GotItem_No_Src=10;
+	E_WorldBoardTemplate_GotHero=11;
+	E_WorldBoardTemplate_GotHero_No_Src=12;
+	E_WorldBoardTemplate_GotHorse=13;
+	E_WorldBoardTemplate_GotHorse_No_Src=14;
+}
+
+message WorldBoardData_SimpleText{//非消息
+	required string Text =1;
+}
+
+message WorldBoardData_GotItem{//非消息
+	required int32 PlayerId  =1;   
+	required string PlayerName  =2;
+	required string Source  =3;   
+	required int32 Quality  =4;    
+	required int32 ItemConfigId =5;
+}
+
+message WorldBoardData_GotItem_No_Src{//非消息
+	required int32 PlayerId  =1;   
+	required string PlayerName  =2;   
+	required int32 ItemConfigId =3;
+}
+
+message WorldBoardData_GotHero{//非消息
+	required int32 PlayerId  =1;   
+	required string PlayerName  =2;
+	required string Source  =3;     
+	required int32 HeroConfigId =4;
+}
+
+message WorldBoardData_GotHero_No_Src{//非消息
+	required int32 PlayerId  =1;   
+	required string PlayerName  =2;   
+	required int32 HeroConfigId =3;
+}
+
+message WorldBoardData_GotHorse{//非消息
+	required int32 PlayerId  =1;   
+	required string PlayerName  =2;
+	required string Source  =3;     
+	required int32 HorseConfigId =4;
+}
+
+message WorldBoardData_GotHorse_No_Src{//非消息
+	required int32 PlayerId  =1;   
+	required string PlayerName  =2;   
+	required int32 HorseConfigId =3;
+}
+
+message WorldBoardData_HorseStarUpTo3{//非消息
+	required int32 PlayerId    =1;  
+	required string PlayerName   =2; 
+	required int32 HorseConfigId =3;
+	required int32 Stars    =4;     
+}
+
+message WorldBoardData_HeroStarUpTo3{//非消息
+	required int32 PlayerId   =1;  
+	required string PlayerName  =2; 
+	required int32 HeroConfigId =3;
+	required int32 Stars    =4;    
+}
+
+message WorldBoardData_ArenaRankInTop20{//非消息
+	required int32 PlayerId   =1;
+	required string PlayerName =2;
+	required int32 Rank       =3;
+}
+
+message WorldBoardData_ArenaRankIsTop1{//非消息
+	required int32 PlayerId   =1;
+	required string PlayerName =2;
+}
+
+message WorldBoardData_KickHorseAss{//非消息
+	required int32 PlayerId_1   =1;   
+	required string PlayerName_1   =2; 
+	required int32 HorseConfigId_1 =3;
+	required int32 HorseId_1   =4;    
+
+	required int32 PlayerId_2    =5;  
+	required string PlayerName_2   =6; 
+	required int32 HorseConfigId_2 =7;
+	required int32 HorseId_2   =8;    
+}
+
+message WorldBoardData_BuildingUpgrade{//非消息
+	required int32 PlayerId   =1;
+	required string PlayerName =2;
+	required int32 BuildingType=3;
+	required int32 BuildingLevel=4;
+}
+
+message WorldBoardData_SystemMessage{//非消息
+	required string Text=1;
+}
+
+message WorldBoardData_KillWorldBoss{//非消息
+	required int32 PlayerId   =1;
+	required string PlayerName =2;
+}
+
+message WorldBoard{
+	required E_WorldBoardTemplate Template=1;
+	required int32 ConfigId=2;
+	required bytes Data=3;
+}
+
+/************************************ 活动 **************************************/
+
+// 七日目标任务数据请求
+message SevenDayMissionsDataRequest {
+}
+
+// 七日目标任务数据
+message SevenDayMissionsDataResponse {
+	repeated MissionData Missions = 1;		// 已经开启的任务数据
+}
+
+// 七日目标新开启的任务日
+message SevenDayMissionNewDaysResponse {
+	repeated int32 DayNum = 1;				// 是任务日的数组
+}
+
+// 七日目标单个任务状态
+message SevenDayOneMissionData {
+	required MissionData data = 1;			// 任务数据(ID，状态，数值)
+}
+
+// 七日目标任务领奖（成功返回上一个消息，任务状态为已完成，奖励是增加物品的消息）
+message SevenDayOneMissionAwardRequest {
+	required int32 MissionId = 1;
+}
+
+// 七日目标任务领奖返回
+message SevenDayOneMissionAwardResponse {
+	required Loots Rewards = 1;
+}
+
+// 七日目标任务所有天任务完成状态
+message SevenDayMissionsState {
+	repeated int32 MissionsState = 1;		// 状态数组，1表示已完成，0表示正在进行
+}
+
+// 签到
+message DailyRewardRequest {
+}
+
+message DailyRewardResponse {
+	required int32 day = 1;								// 签到的那一天
+	required int32 RemainNum = 2;						// 剩余签到次数
+	required Loots Rewards = 3;
+}
+
+// 签到数据请求
+message DailyRewardDataRequest {
+}
+
+// 已经签到的天数状态
+message DailyRewardDataResponse {
+	repeated int32 Days = 1;				// 已经签到的天数状态
+	required int32 DaysNum = 2;				// 已签天数
+	required int32 CurrMonth = 3;			// 当前月
+	required int32 CurrDay = 4;				// 当日
+	required int32 MonthDays = 5;			// 当月天数
+	required bool IsTodaySigned = 6;		// 今天是否已签
+	required int32 RemainNum = 7;			// 剩余补签次数
+}
+
+// 剩余补签次数刷新
+message DailyRewardSignNumRefresh {
+	required int32 RemainNum = 1;
+}
+
+// 一次补签（返回DailyRewardDataResponse）
+message DailyRewardOnceSignedAllRequest {
+}
+
+message DailyRewardOnceSignedAllResponse {
+	repeated int32 Days = 1;				// 已经签到的天数状态
+	required int32 DaysNum = 2;				// 已签天数
+	required int32 RemainNum = 3;			// 剩余补签次数
+}
+
+// 七日目标任务状态
+message SevenDailyStateResponse {
+	required int32 State = 1;				// 0 正在进行, 1 已完成, 2 已取消
+}
+
+// 成长基金数据
+message FundDataRequest {
+}
+
+// 领奖状态
+message FundRewardState {
+	required int32 ConfigId = 1;
+	required int32 State = 2;					// 0 不能领 1 可领 2 已领
+}
+
+message FundDataResponse {
+	required int32 IsPurchased = 1;				// 是否购买过基金
+	repeated FundRewardState States = 2;		// 领奖状态
+}
+
+// 购买成长基金
+message FundPurchaseRequest {
+}
+
+// 购买成功
+message FundPurchaseResponse {
+	required int32 CostDiamond = 1;
+}
+
+// 领取成长基金奖励
+message FundRewardsRequest {
+	required int32 ConfigId = 1;
+}
+
+// 领取成长基金奖励成功
+message FundRewardsResponse {
+	required int32 ConfigId = 1;
+
+}
+
+// 在线奖励数据请求
+message OnlineRewardDataRequest {
+}
+
+// 在线奖励数据
+message OnlineRewardDataResponse {
+	repeated int32 RewardConfigIds = 1;
+	required int32 NextRewardConfigId = 2;
+	required int32 NextRemainSeconds = 3;
+}
+
+// 获取在线奖励请求
+message OnlineRewardRequest {
+	required int32 RewardConfigId = 1;
+}
+
+// 获取在线奖励请求成功
+message OnlineRewardResponse {
+	required int32 RewardConfigId = 1;
+	required int32 NextRewardRemainSeconds = 2;
+	required Loots Rewards = 3;
+}
+
+//**************************************抢夺*****************************************
+//夺宝同步请求
+message RobSyncRequest{
+	
+}
+
+//夺宝同步完成
+message RobSyncResponse{
+	
+}
+
+//夺宝产出好友状态
+message RobProduceFriendState{//非消息
+	required int32 StartTime=1;//开始邀请时间
+	required int32 FriendId=2;//好友Id
+	required int32 FriendLevel=3;//好友等级
+}
+
+//神器状态
+message RobScrollState{
+	required int32 ScrollConfigId=1;//神器Id
+	required int32 Level=2;//神器等级
+	required int32 LevelExp=3;//神器当前等级经验
+	required int32 CombineStartTime=4;//合成开始时间
+	required int32 CombineSpeedupTime=5;//合成加速开始时间
+	required int32 ProduceRemainSeconds=7;//当前产出剩余倒计时
+	required int32 ProducePieceConfigId=8;//产出碎片Id
+	required bool ProduceClicked=9;//炼丹炉产出已领取
+	repeated RobProduceFriendState Friends=10;//数组长度为2
+}
+
+//好友邀请次数
+message RobProduceFriendInviteCount{
+	required int32 FriendId=1;//好友Id
+	required int32 Count=2;//已邀请次数
+}
+
+//好友邀请次数列表
+message RobProduceFriendInviteCountList{
+	repeated RobProduceFriendInviteCount List=1;
+}
+
+//夺宝好友邀请次数重置
+message RobProduceFriendInviteCountReset{
+	
+}
+
+//神器状态列表
+message RobScrollStateList{
+	repeated RobScrollState List=1;
+}
+
+//开始合成请求
+message RobCombineStartRequest{
+	required int32 ScrollConfigId=1;
+}
+
+//开始合成返回
+message RobCombineStartResponse{
+	required int32 ScrollConfigId=1;	
+	required int32 StartTime=2;
+}
+
+//合成中断通知
+message RobCombineCorrupedNotify{
+	required int32 ScrollConfigId=1;
+}
+
+//加速合成请求
+message RobCombineSpeedupRequest{
+	required int32 ScrollConfigId=1;
+}
+
+//加速合成返回
+message RobCombineSpeedupResponse{
+	required int32 ScrollConfigId=1;	
+	required int32 StartTime=2;
+}
+
+//确认合成请求
+message RobCombineConfirmRequest{
+	required int32 ScrollConfigId=1;
+}
+
+//确认合成返回
+message RobCombineConfirmResponse{
+	required int32 ScrollConfigId=1;
+	required int32 Level=2;
+	required int32 LevelExp=3;
+	required int32 Time=4;
+	required int32 ProduceRemainSeconds=5;			// 激活神器后开始的倒计时
+}
+
+//获取产出请求
+message RobGetProducedRequest{
+	required int32 ScrollConfigId=1;
+}
+
+//获取产出返回
+message RobGetProducedResponse{//同时发送新物品
+	required int32 PieceConfigId=1;
+	required int32 NextPieceConfigId=2;
+	required int32 RemainSeconds = 3;				// 获取产出后的下一个开始的倒计时
+}
+
+//搜索对手请求
+message RobChangeFightersRequest{
+	required int32 PieceConfigId=1;
+}
+
+//碎片持有者数据
+message RobFighterInfo{//非消息
+	required int32 PlayerId=1;
+	required string Name=2;
+	required string Icon=3;
+	required int32 Level=4;
+	required int32 RobRate=5;
+	required int32 RobotId=6;
+	required int32 PieceConfigId=7;
+	optional int32 FightPower=8;
+}
+
+//搜索对手返回
+message RobChangeFightersResponse{
+	repeated RobFighterInfo Fighters=1;
+}
+
+//抢夺请求
+message RobFightRequest{
+	required int32 PlayerId=1;
+	required int32 PieceConfigId=2;
+	required int32 RobRate=3;
+	required int32 RobotId=4;
+}
+
+//抢夺返回
+message RobFightResponse{//同时发送物品
+	required E_ERR Err=1;
+	required bool Win=2;
+	required bool Successed=3;
+	required int32 PieceConfigId=4;
+}
+
+//被抢记录
+message RobbedRecord{//非消息
+	required int32 RecordId=1;
+	required int32 PlayerId=2;
+	required string Name=3;
+	required string Icon=4;
+	required int32 Level=5;
+	required int32 PieceConfigId=6;
+	required int32 Time=7;
+}
+
+//被抢记录列表请求
+message RobbedRecordListRequest{
+	
+}
+
+//被抢记录列表返回
+message RobbedRecordListResponse{
+	repeated RobbedRecord List=1;
+}
+
+//被抢通知
+message RobNewRecordNotify{
+	
+}
+
+//翻卡请求
+message RobOpenCardRequest{
+}
+
+//翻卡奖励
+message CardOpenReward{//非消息
+	required int32 Diamonds=1;//如果有，后面字段不处理
+	required int32 Gold=2;//如果有，后面字段不处理
+	required int32 ItemConfigId=3;
+	required int32 ItemCount=4;
+}
+
+//翻卡返回
+message RobOpenCardResponse{//同时发送物品
+	required CardOpenReward Item=1;  
+}
+
+//翻开剩下的卡请求
+message RobOpenRestCardsRequest{
+	
+}
+
+//翻开剩下的卡返回
+message RobOpenRestCardsResponse{
+	repeated CardOpenReward Items=1;
+}
+
+//复仇对象信息请求
+message RobRevengeFighterRequest{
+	required int32 FighterId=1;
+}
+
+//复仇对象信息返回
+message RobRevengeFighterResponse{
+	required ArenaFighter Fighter = 1;
+}
+
+//复仇请求
+message RobRevengeFightRequest{
+	required int32 FighterId=1;
+}
+
+//复仇返回
+message RobRevengeFightResponse{
+	required int32 Rand=1;
+	required PlayerBattleInfo Self=2;
+	required PlayerBattleInfo Fighter=3;
+}
+
+//复仇结束请求
+message RobRevengeFightEndRequest{
+	required int32 FightResult = 1;
+	required int32 FighterId = 2;	
+	required int32 RecordId=3;
+}
+//复仇结束返回
+message RobRevengeFightEndResponse{
+	required int32 FightResult = 1;
+	required Loots Loot=2;
+}
+
+//使用竞技场防御队伍
+message RobUseArenaDefenceGroupRequest{
+	required bool Use=1;
+}
+
+//使用竞技场队伍返回
+message RobUseArenaDefenceGroupResponse{
+	required bool Use=1;
+}
+
+//陷阱状态
+message RobTrapState{//非消息
+	required int32 PieceConfigId=1;
+	required int32 ItemConfigId=2;
+	required int32 ItemCount=3;
+}
+
+//陷阱状态列表请求
+message RobTrapStatesRequest{
+}
+
+//陷阱状态列表返回
+message RobTrapStatesResponse{
+	repeated RobTrapState List=1;
+}
+
+//修改陷阱请求
+message RobTrapModRequest{
+	repeated RobTrapState List=1;
+}
+
+//修改陷阱返回
+message RobTrapModResponse{
+	repeated RobTrapState List=1;
+}
+
+//购买陷阱请求
+message RobTrapBuyRequest{
+	required int32 ItemConfigId=1;
+	required int32 Count=2;
+}
+
+//购买陷阱返回
+message RobTrapBuyResponse{
+	required E_ERR Err=1;
+}
+
+//点击炼丹炉请求
+message RobProduceClickRequest{
+	required int32 ScrollConfigId=1;
+}
+
+//点击炼丹炉返回
+message RobProduceClickResponse{
+	required int32 ScrollConfigId=1;
+}
+
+//夺宝邀请好友请求
+message RobProduceInviteFriendRequest{
+	required int32 ScrollConfigId=1;//神器Id
+	required int32 Index=2;//好友格子编号
+	required int32 FriendId=3;//好友Id
+}
+
+//夺宝邀请好友返回
+message RobProduceInviteFriendResponse{
+	required int32 ScrollConfigId=1;//神器Id
+	required int32 ProduceRemainSeconds=2;//产出状态更新时间
+	required int32 Index=3;//好友格子编号
+	required int32 FriendId=4;//好友Id
+	required int32 FriendLevel=5;//好友级别
+	required int32 InviteTime=6;//开始时间
+}
+
+// 连续抢夺请求
+message RobContinuousFightRequest{
+	required int32 PlayerId = 1;
+	required int32 PieceConfigId = 2;
+	required int32 RobRate = 3;
+	required int32 RobotId = 4;
+}
+
+// 连续抢夺单次结果
+message RobOneFightResult {
+	required bool RobSuccess = 1;		// 是否抢夺碎片成功
+	required bool FightWin = 2;		    // 战斗胜利
+	repeated CardOpenReward Rewards = 3;
+}
+
+// 连续抢夺返回
+message RobContinuousFightResponse{//同时发送物品
+	required E_ERR Err = 1;
+	required int32 PieceConfigId = 2;       // 0表示没有获得碎片
+	repeated RobOneFightResult Results = 3;
+}
+
+//**************************************资源副本*****************************************
+// 申请资源副本章节信息
+message ResDungeonChapterRequest {
+}
+
+message ResDungeonChapterInfo {
+	required int32 ChapterId = 1;
+	required int32 Times = 2;
+}
+
+message ResDungeonChapterResponse {
+	repeated ResDungeonChapterInfo ChapList = 1;		// 可打资源副本列表
+}
+
+message ResDungeonLevelInfoRequest {
+	required int32 ChapterId = 1;
+}
+
+message ResDungeonLevelInfo {
+	required int32 ConfigId = 1;
+	required int32 State = 2;
+}
+
+message ResDungeonLevelInfoResponse {
+	repeated ResDungeonLevelInfo LevelList = 1;
+}
+
+// 申请挑战资源副本
+message ResDungeonChallengeRequest {
+	required int32 ConfigId = 1;
+}
+
+message ResDungeonChallengeResponse {
+	required int32 ConfigId = 1;
+	required int32 Rand = 2;
+}
+
+// 挑战资源副本结果
+message ResDungeonChallengeEndRequest {
+	required int32 ConfigId = 1;
+	required int32 Win = 2;
+}
+
+message ResDungeonChallengeEndResponse {
+	required int32 ConfigId = 1;
+	required int32 ChallengeNum = 2;
+	required int32 Win = 3;
+	required PVE_Loot Loot = 4;
+}
+
+// 扫荡资源副本
+message ResDungeonMopRequest {
+	required int32 ConfigId = 1;
+}
+
+message ResDungeonMopResponse {
+	required int32 ConfigId = 1;
+	required int32 ChallengeNum = 2;
+	required PVE_Loot Loot = 3;
+}
+
+// 扫荡全部资源副本
+message ResDungeonContinousMopRequest {
+	required int32 ConfigId = 1;
+}
+
+message ResDungeonContinousMopResponse {
+	required int32 ConfigId = 1;
+	required int32 MopNum = 2;
+	required PVE_Loot LootList = 3;
+}
+
+////////////////////////////////////////////////////好友///////////////////////////////////////////////
+
+// 名字或ID查找玩家
+message NameOrIdFindFriendRequest {
+	required string NameOrId = 1;
+}
+
+message NameOrIdFindFriendResponse {
+	required FriendApplicantData PlayerInfo = 1;
+}
+
+// 申请交友
+message MakeFriendRequest {
+	required int32 PlayerId = 1;
+}
+
+message MakeFriendResponse {
+	required int32 PlayerId = 1;
+}
+
+message NotifyRequestFriendMake {
+}
+
+// 推荐好友列表
+message FriendRecommendRequest {
+}
+
+message FriendRecommendResponse {
+	repeated FriendApplicantData PlayerList = 1;
+}
+
+// 交友申请者列表
+message FriendApplicantListRequest {
+}
+
+message FriendApplicantData {
+	required int32 PlayerId = 1;
+	required string PlayerName = 2;
+	required int32 PlayerLevel = 3;
+	required int32 FightValue = 4;
+	required int32 VipLevel = 5;
+	required string PlayerIcon = 6;
+	required string Union = 7;
+}
+
+message FriendApplicantListResponse {
+	repeated FriendApplicantData ApplicantList = 1;
+}
+
+// 回复申请交友请求
+message ReplyMakeFriendRequest {
+	required int32 ReplyType = 1;			// 0:拒绝 1:接受
+	required int32 ApplicantId = 2;
+}
+
+message ReplyMakeFriendResponse {
+	required int32 ReplyType = 1;
+	required int32 ApplicantId = 2;
+}
+
+message NotifyNewMakeFriend {
+}
+
+// 请求好友列表
+message FriendListRequest {
+	required bool ChangeNewState = 1;
+}
+
+message FriendListResponse {
+	repeated ListFriendData List = 1;
+}
+
+message ListFriendData {
+	required int32 PlayerId = 1;
+	required string PlayerName = 2;
+	required int32 PlayerLevel = 3;
+	required int32 VipLevel = 4;
+	required int32 LogoutTime = 5;		// -1:表示在线
+	required int32 FightValue = 6;
+	required string UnionName = 7;
+	required string PlayerIcon = 8;
+	required bool SendSpirit = 9;
+	required bool NewFriend = 10;
+}
+
+message SyncFriendData {
+	required ListFriendData Data = 1;
+}
+
+// 删除好友请求
+message RemoveFriendRequest {
+	required int32 FriendId = 1;
+}
+
+message RemoveFriendResponse {
+	required int32 FriendId = 1;
+}
+
+message NotifyFriendShipRemove {
+	required int32 FriendId = 1;
+}
+
+// 赠送精力
+message GiveSpiritRequest {
+	required int32 FriendId = 1;
+}
+
+message GiveSpiritResponse {
+	required int32 FriendId = 1;
+}
+
+message NotifyFriendGiveSpirite {
+}
+
+// 领取精力
+message TakeFriendSpiritRequest {
+	required int32 FriendId = 1;
+}
+
+message TakeFriendSpiritResponse {
+	required int32 FriendId = 1;
+	required int32 TakeSpiriteNum = 2;
+}
+
+message ListFriendSpiriteData {
+	required int32 PlayerId = 1;
+	required string PlayerName = 2;
+	required int32 PlayerLevel = 3;
+	required string PlayerIcon = 4;
+	required int32 SpiriteValue = 5;
+	required int32 SpiriteTime = 6;
+	required int32 LogoutTime = 7;
+	required int32 VipLevel = 8;
+}
+
+message FriendSpiriteListRequest {
+}
+
+message FriendSpiriteListResponse {
+	repeated ListFriendSpiriteData List = 1;
+	required int32 TakeSpiriteNum = 2;
+}
+
+// 好友数量
+message FriendCountRequest {
+}
+
+message FriendCountResponse {
+	required int32 Count = 1;
+}
+
+//////////////////////////////////////////////////////////聊天////////////////////////////////////////////////////////
+// 请求世界聊天信息
+message ChatWorldInfoRequest {
+}
+
+message ChatWorldInfoResponse {
+	required int32 WorldChatPassTime = 1;
+	//required int32 SendCount = 1;
+	//required int32 AddCountDuration = 2;
+	//required int32 PaySendCount = 3;
+}
+
+message ChatContentData {
+	required int32 SenderId = 1;
+	required string SenderName = 2;
+	required int32 SenderLevel = 3;
+	required string SenderIcon = 4;
+	required string TongName = 5;
+	required string Msg = 6;
+	required int32 MsgType = 7;
+	required int32 SendTime = 8;
+}
+
+// 请求发送世界聊天频道消息
+message ChatWorldRequest {
+	required string Msg = 1;
+	required int32 MsgType = 2;
+}
+
+message ChatWorldResponse {
+	required string Msg = 1;
+	required int32 MsgType = 2;
+}
+
+// 同步世界聊天频道消息
+message ChatUpdateWorldMsg {
+	required ChatContentData Data = 1;
+}
+
+message ChatPersonRecordInfo {
+	required ChatContentData data = 1;
+	required int32 ReceiverId = 2;
+	required string ReceiverName = 3;
+}
+
+// 请求私聊记录
+message ChatPersonRecordRequest {
+	required int32 LastRecordId = 1;
+}
+
+message ChatPersonRecordResponse {
+	required int32 StartRecordId = 1;
+	repeated ChatPersonRecordInfo List = 2;
+}
+
+// 私聊玩家信息请求
+message ChatPersonInfoRequest {
+	required string ReceiverId = 1;
+}
+
+message ChatPersonInfoResponse {
+	required int32 ReceiverId = 1;
+	required string ReceiverName = 2;
+}
+
+// 发送私聊请求
+message ChatPersonRequest {
+	required int32 ReceiverId = 1;
+	required string Msg = 2;
+	required int32 MsgType = 3;
+}
+
+message ChatPersonContent {
+	required int32 RecordId = 1;
+	required ChatContentData Data = 2;
+}
+
+// 请求帮会聊天记录
+message ChatTongRecordRequest {
+	required int32 LastRecordId = 1;
+}
+
+message ChatTongRecordResponse {
+	required int32 StartRecordId = 1;
+	repeated ChatContentData List = 2;
+}
+
+// 发送帮会聊天请求
+message ChatTongRequest {
+	required int32 MsgType = 1;
+	required string Msg = 2;
+}
+
+message ChatTongContent {
+	required int32 RecordId = 1;
+	required ChatContentData Data = 2;
+}
+
+// 请求战斗录像
+message ChatFightRecordRequest {
+	required int32 PlayerId = 1;
+	required int32 RecordId = 2;
+}
+
+message ChatFightRecordResponse {
+	required ArenaRecord Record = 1;
+	//required ArenaFightResponse Data=1;
+}
+
+/////////////////////////////////////////////////精英关卡/////////////////////////////////////////////////
+
+message CampaignHard_Start{
+	required int32 ConfigId=1;//精英关卡ID
+}
+message CampaignHard_Completed{
+	required int32 ConfigId=1;//关卡Id
+	required bool Mission_1=3;//任务是否已达成
+	required bool Mission_2=4;//任务是否已达成
+	required bool Mission_3=5;//任务是否已达成
+	required bool Win=6;//是否胜利
+}
+message CampaignHard_Mop_Start{
+	required int32 ConfigId=1;//精英关卡ID
+	required int32 N=3;//扫荡次数
+}
+message CampaignHard_BuyNumber{
+	required int32 ConfigId=1;
+}
+message CampaignHard_Response_BuyNumber{
+	required int32 ConfigId=1;//关卡ID
+	required int32 CountNow=2;//本关卡剩余次数
+	required int32 CountBuy=3;//本关卡购买次数
+	required int32 ResetTime=4;//上次刷新的时间戳
+}
+message CampaignHard_Sync{
+}
+
+message CampaignHard_Start_Response{
+	required int32 Rand=1;//战斗初始随机种子
+}
+
+message CampaignHard_Completed_Response{
+	required int32 ConfigId=1;//关卡Id
+	required bool Mission_1=3;//任务是否已达成
+	required bool Mission_2=4;//任务是否已达成
+	required bool Mission_3=5;//任务是否已达成
+	required PVE_Loot Loot=6;//掉落	
+}
+
+message CampaignHard_Completed_Mop_Response{
+	required int32 ConfigId=1;//关卡Id
+	required PVE_Loot Loot=3;//掉落
+}
+
+message CampaignHard_Level_Sync{
+	required int32 ConfigId=1;//关卡ID
+	required bool Mission_1=3;//任务是否已达成
+	required bool Mission_2=4;//任务是否已达成
+	required bool Mission_3=5;//任务是否已达成
+	required int32 CountNow=6;//本关卡剩余次数
+	required int32 CountBuy=7;//本关卡购买次数
+	required int32 ResetTime=8;//上次刷新的时间戳
+}
+
+message CampaignHard_LevelList_Sync{
+	repeated CampaignHard_Level_Sync Levels=1;
+}
+
+message CampaignHard_SyncCompleted_Sync{
+}
+
+message CampaignHard_Response_ChapterData{
+	required int32 ChapterID=1;
+	required bool Passed=2;
+	required int32 Starts=3;
+	required bool RewardGoted_1=4;
+	required bool RewardGoted_2=5;
+	required bool RewardGoted_3=6;
+}
+message CampaignHard_Response_ChapterData_List{
+	repeated CampaignHard_Response_ChapterData Lists=1;
+}
+message CampaignHard_Request_Chapter_Reward{
+	required int32 ChapterId=1;//章节Id
+	required int32 Index=2;//宝箱编号
+}
+message CampaignHard_Response_Chapter_Reward{
+	required Loots Loot=1;//掉落
+}
+message CampaignHard_Request_GetCount{
+	required int32 levelid=1;
+}
+message CampaignHard_Response_GetCount{
+	required int32 ConfigId=1;//关卡ID
+	required int32 CountNow=2;//本关卡剩余次数
+	required int32 CountBuy=3;//本关卡购买次数
+	required int32 ResetTime=4;//上次刷新的时间戳
+}
+
+///////////////////////////////////////////////赛马////////////////////////////////////////
+
+message Racing_Request_Room_Init{
+}
+message Racing_Request_Room_Match{
+	required int32 price=1;
+	required int32 heroid=2;
+	required int32 horseid=3;
+}
+message Racing_Request_Room_Create{
+	required int32 price=1;
+	required int32 heroid=2;
+	required int32 horseid=3;
+}
+message Racing_Request_Room_Close{
+	required int32 roomid=1;
+}
+message Racing_Request_Game_Start{
+	required int32 roomid=1;
+}
+message Racing_Request_Player_Ready{
+	required int32 roomid=1;
+}
+message Racing_Request_Player_Leave{
+	required int32 roomid=1;
+}
+message Racing_Request_Jump{
+	required int32 Track=1;
+}
+
+message Racing_Response_Room_Init{
+	repeated int32 Prices=1;
+	repeated int32 Numbers=2;
+	required int32 maxplayer=3;
+	required bool matching=4;
+}
+message Racing_Response_Sync{
+}
+message Racing_Response_Room_Create{
+	required int32 roomid=1;
+	required int32 maxplayer=2;
+	required int32 price=3;
+}
+message Racing_Data{
+	required int32 Index=1;          //赛道位置
+	required int32 Soul=2;           //充魂值
+	required int32 AssaultAbility=3; //冲锋值
+	required int32 QTE_dune=4;       //沙丘QTE宽度
+	required int32 QTE_stone=5;      //岩障QTE宽度
+	required int32 QTE_briar=6;      //荆棘QTE宽度
+	required int32 SuDune=7;         //沙丘适性值
+	required int32 SuStone=8;        //岩障适性值
+	required int32 SuBriar=9;        //荆棘适性值
+	repeated bool  jumps=10;         //每个区间是否跳跃成功，如本地QTE失败，使用此值
+}
+message Racing_Response_Hero_Data{
+	required int32 Heroid=1;
+	required int32 Configid=2;
+	required int32 Star=3;
+	required int32 Level=4;
+	required int32 Commandability=5;
+	required int32 WeaponConfigId=6;
+	required int32 ArmorConfigId=7;
+	required int32 NecknessConfigId=8;
+	required int32 RingConfigId=9;
+	required int32 QualityConfigId=10;
+}
+message Racing_Response_Horse_Data{
+	required int32 Horseid=1;
+	required int32 Configid=2;
+	required int32 Star=3;
+	required int32 Win=4;
+	required int32 Total=5;
+	required int32 Su_total=6;
+	required int32 Su_dune=7;
+	required int32 Su_stone=8;
+	required int32 Su_briar=9;
+	required int32 Level=10;
+	required int32 State=11;
+	required int32 Texture=12;
+	required int32 ColorId=13;
+	required int32 TextureColor=14;
+	required int32 Fashion=15;
+	required int32 Suit=16;
+	required int32 Mane=17;
+	required int32 QualityConfigId=18;
+	required int32 ManeColor=19;
+	required int32 RuneConfigId=20;
+}
+message Racing_Response_Player_Join{
+	required int32 index=1;
+	required int32 userid=2;
+	required string username=3;
+	required int32 state=4;
+	required Racing_Response_Horse_Data horsedata=5;
+	required Racing_Response_Hero_Data herodata=6;
+}
+message Racing_Response_Player_Leave{
+	required int32 index=1;
+	required int32 userid=2;
+}
+message Racing_Response_Player_Ready{
+	required int32 roomid=1;
+	required int32 index=2;
+}
+message Racing_Response_Room_Close{
+	required int32 roomid=1;
+}
+message Racing_Response_Game_Start{
+	required int32 Rand=1;
+	repeated Racing_Data Lists=2;
+	repeated Racing_Track Tracks=3;
+}
+message Racing_Response_Validate_Fail{
+	required bool Fail_Price=1;
+	required bool Fail_Hero=2;
+	required bool Fail_Horse=3;
+}
+message Racing_Response_Match_Fail{	
+}
+message Racing_Track{
+	required int32 Track_State=1;//赛道区间类型，0=沙丘，1=岩障，2=荆棘
+	required int32 Track_Width=2;//赛道区间宽度
+	required int32 Obstacle_Pos=3;//障碍物所在区间的位置，-1表示没有障碍
+}
+message Racing_Response_Match_Over{
+	required int32 Index=1;     //玩家房间中位置，0开始
+	required int32 Order=2;     //玩家比赛中的名词，1开始
+	required int32 Time=3;      //玩家比赛耗时，单位秒
+	required int32 Price=4;     //玩家所得奖励，马币
+}
+message Racing_Response_Match_Over_List{
+	repeated Racing_Response_Match_Over Lists=1;
+}
+message Racing_Response_Jump{
+	required int32 Index=1;
+	required int32 track=2;
+	required bool jump=3;
+}
+message Racing_Request_Signle{
+	required int32 heroid=1;
+	required int32 horseid=2;
+}
+message Racing_Response_Signle{
+	required Racing_Response_Player_Join join=1;
+	required Racing_Response_Game_Start gamestart=2;
+}
+message Racing_Request_Signle_Over{
+	required int32 secs=1;
+	required int32 tracks=2;	
+}
+message Racing_Request_Signle_Order{
+	
+}
+message Racing_Request_Signle_OrderList{
+}
+message Racing_Response_Signle_Order{
+	required int32 secs=1;
+	required int32 tracks=2;	
+}
+message Racing_Response_Signle_Order_List{
+	repeated Racing_Response_Signle_Order Lists=1;
+}
+
+message HorseRoom_Request_Set{
+	repeated HorseRoom_Horse Lists=1;
+}
+message HorseRoom_Request_Select{
+	required int32 heroid=1;
+	required int32 horseid=2;
+}
+message HorseRoom_Response_Select{
+	required int32 heroid=1;
+	required int32 horseid=2;
+}
+message HorseRoom_Request_GetSelect{
+}
+message HorseRoom_Response_GetSelect{
+	required int32 heroid=1;
+	required int32 horseid=2;
+}
+message HorseRoom_Horse{
+	required int32 heroid=1;
+	required int32 horseid=2;
+}
+message HorseRoom_HorseList{
+	repeated HorseRoom_Horse Lists=1;
+}
+message HorseRoom_Request_Change{
+	required int32 horseid=1;
+	required int32 pricestate=2;
+}
+message HorseRoom_Response_Change{
+	required int32 Horseid=1;
+	required int32 SuMax=2;
+	required int32 SuTotal=3;
+	required int32 SuDune=4;
+	required int32 SuStone=5;
+	required int32 SuBriar=6;	
+	required int32 ChgNum=7;
+}
+message HorseRoom_Request_Change_Confirm{
+	required int32 horseid=1;
+}
+message HorseRoom_Response_Change_Confirm{
+}
+message HorseRoom_Request_Change_Cancel{
+	required int32 horseid=1;
+}
+
+// 马币
+message HorseRoomMBCoin {
+	required int32 coin = 1;
+}
+
+// 赛马商店金币兑换马币
+message HorseShopExchangeDiamond2MBCoinRequest {
+	required int32 ConfigId = 1;
+}
+
+message HorseShopExchangeDiamond2MBCoinResponse {
+	required int32 ConfigId = 1;
+	required int32 CostDiamond = 2;					// 消耗的钻石
+	required int32 GetMBCoin = 3;					// 获得的马币
+}
+
+//////////////////////////////////////////特殊boss战/////////////////////////////
+//同步状态请求
+message SbossSyncRequest{
+	
+}
+//同步状态完成
+message SbossSyncCompleted{
+	
+}
+//触发几率
+message SbossTriggerRate{
+	required int32 Rate=1;//几率
+}
+//Boss状态
+message SbossState{//非消息
+	required int32 TimeIndex=1;//时间点
+	required int32 BossId=2;//BossId,如果为0表示未触发
+	required int32 BossConfigId=3;//boss数据Id
+	required int32 StartTime=4;//开始时间
+	required int32 DurationSeconds=5;//持续秒数
+	required int32 Health=6;//血量
+	required int32 FightCount=7;//已挑战次数
+	required Loots FindLoots=8;//发现奖励
+}
+//Boss开始状态列表
+message SbossStateList{
+	repeated SbossState List=1;//当天的触发表
+}
+//Boss血量
+message SbossHealth{
+	required int32 BossId=1;//BossId
+	required int32 Health=2;//血量
+}
+//总伤害量
+message SbossTotalDamage{
+	required int32 DayDamage=1;//日伤害量
+	required int32 WeekDamage=2;//周伤害量
+	required int32 MonthDamage=3;//月伤害量
+}
+//已挑战次数
+message SbossFightCount{//已作废
+	required int32 Count=1;//次数
+}
+//挑战请求
+message SbossFightRequest{
+	required int32 BossId=1;//BossId
+}
+//挑战返回
+message SbossFightResponse{
+	required int32 BossId=1;//BossId
+	required int32 Rand=2;//随机种子
+	required int32 Health=3;//血量
+}
+//挑战完成请求
+message SbossFightCompleteRequest{
+	required int32 BossId=1;//BossId
+	required int32 RestHealth=2;//剩余血量
+	required int32 TotalDamage=3;//总伤害量
+}
+//挑战完成返回
+message SbossFightCompleteResponse{
+	required int32 BossId=1;//BossId
+	required bool Killed=2;//是否成功击杀
+	required Loots Loots=3;//击杀奖励
+}
+//提供帮助请求
+message SbossHelpRequest{
+	required int32 FriendId=1;//好友Id
+	required int32 BossId=2;//BossId
+}
+//提供帮助返回
+message SbossHelpResponse{
+	required int32 FriendId=1;//好友Id
+	required int32 BossId=2;//bossId
+	required int32 Rand=3;//随机种子 
+	required int32 Health=4;//血量
+}
+//提供帮助完成请求
+message SbossHelpCompleteRequest{
+	required int32 FriendId=1;//好友Id
+	required int32 BossId=2;//bossId
+	required int32 RestHealth=3;//剩余血量
+	required int32 TotalDamage=4;//总伤害量
+}
+//提供帮助完成返回
+message SbossHelpCompleteResponse{
+	required int32 FriendId=1;//好友Id
+	required int32 BossId=2;//bossId
+	required bool Killed=3;//是否成功击杀
+	required Loots Loots=4;//击杀奖励
+}
+//求助请求
+message SbossSosRequest{
+	required int32 BossId=1;//BossId
+}
+//求助返回
+message SbossSosResponse{
+	required int32 BossId=1;//BossId
+}
+//求助通知
+message SbossSosNotify{
+	required int32 FriendId=1;//好友Id
+	required string FriendName=2;//好友名字
+	required string FriendIcon=3;//好友头像
+	required int32 FriendLevel=4;//好友级别
+	required int32 BossId=5;//BossId
+	required int32 BossConfigId=6;//boss数据Id
+	required int32 Heath=7;//血量
+	required int32 StartTime=8;//开始时间
+	required int32 DurationSeconds=9;//持续时间
+}
+//求助通知列表
+message SbossSosNotifyList{
+	repeated SbossSosNotify List=1;
+}
+//自己周排名
+message SbossWeekRank{
+	required int32 Rank=1;//周排名
+}
+//自己月排名
+message SbossMonthRank{
+	required int32 Rank=1;//月排名
+}
+//排名信息
+message SbossRankInfo{//非消息
+	required int32 Rank=1;
+	required int32 PlayerId=2;
+	required string Name=3;
+	required string Icon=4;
+	required int32 Level=5;
+	required int32 TotalDamage=6;//总伤害量
+}
+//周排行榜请求
+message SbossWeekRankListRequest{
+	
+}
+//周排行榜返回
+message SbossWeekRankListResponse{
+	repeated SbossRankInfo List=1;
+}
+//月排行榜请求
+message SbossMonthRankListRequest{
+	
+}
+//月排行榜返回
+message SbossMonthRankListResponse{
+	repeated SbossRankInfo List=1;
+}
+
+//当日伤害奖励已领取列表
+message SbossDailuDamageRewardGotedList{
+	repeated int32 ConfigIdList=1;//奖励配置Id列表
+}
+
+//当日伤害奖励请求
+message SbossDailyDamageRewardRequest{
+	required int32 ConfigId=1;//奖励配置Id
+}
+//当日伤害奖励返回
+message SbossDailyDamageRewardResponse{
+	required int32 ConfigId=1;//奖励配置Id
+	required Loots Loots=2;//奖励
+}
+//发现奖励
+message SbossFinderReward{
+	required int32 RewardId=1;//奖励Id
+	required int32 BossId=2;//BossId
+	required int32 BossConfigId=3;//Boss数据Id
+	required int32 FindTime=4;//发现时间
+	required Loots Loots=5;//奖励
+}
+//发现奖励列表
+message SbossFinderRewardList{
+	repeated SbossFinderReward List=1;
+}
+//发现奖励领取请求
+message SbossFinderRewardRequest{
+	required int32 RewardId=1;//奖励Id
+}
+//发现奖励领取返回
+message SbossFinderRewardResponse{
+	required int32 RewardId=1;//奖励Id
+	required Loots Loots=2;//奖励
+}
+
+///////////////////////////////////////马拉屎////////////////////////////////////
+//同步请求
+message ShitSyncRequest{
+	
+}
+//同步返回
+message ShitSyncCompleted{
+	
+}
+//上次拉屎时间
+message ShitLastTime{
+	required int32 Time=1;//时间
+}
+//屎的位置
+message ShitPosition{//非消息
+	required int32 ShitId=1;//屎Id
+	required bool Offline=2;//离线拉的
+	required float PosX=3;//坐标X
+	required float PosY=4;//坐标Y
+	required float PosZ=5;//坐标Z
+}
+//屎列表
+message ShitPositionList{
+	repeated ShitPosition List=1;
+}
+//离线拉屎重定位请求
+message ShitRepositionRequest{
+	required int32 ShitId=1;
+	required float PosX=2;//坐标X
+	required float PosY=3;//坐标Y
+	required float PosZ=4;//坐标Z
+}
+message ShitRepositionResponse{
+	required int32 ShitId=1;
+}
+//拉屎请求
+message ShitDropRequest{
+	required float PosX=1;//坐标X
+	required float PosY=2;//坐标Y
+	required float PosZ=3;//坐标Z
+}
+//拉屎返回
+message ShitDropResponse{
+	required int32 ShitId=1;//屎Id
+	required float PosX=2;//坐标X
+	required float PosY=3;//坐标Y
+	required float PosZ=4;//坐标Z
+}
+//捡屎请求
+message ShitPickupRequest{
+	required int32 ShitId=1;//屎Id
+}
+//捡屎返回
+message ShitPickupResponse{
+	required int32 ShitId=1;//屎Id
+	required Loots Loots=2;//奖励
+}
+
+/************************************************ 巡游武将 **************************************************/
+// 愿望参数
+message CruiseDesireParam {
+	required int32 ParamType = 1;			// 愿望参数类型
+	required int32 Value1 = 2;				// 愿望参数值1
+	required int32 Value2 = 3;              // 愿望参数值2
+	required int32 State = 4;				// 参数状态  0 未达到  1 达到
+}
+
+// 愿望数据
+message CruiseDesireData {
+	required int32 DesireId = 1;			// 愿望ID
+	required int32 DesireState = 2;			// 0 未接受  1 已接受  2 可完成  3 已完成
+	repeated CruiseDesireParam Params = 3;
+}
+
+// 愿望出现
+message CruiseDesireAppearNotify {
+	required int32 CruiseHeroType = 1;      // 0 浪人  1 在野武将  2 已有武将
+	required int32 HeroId = 2;				// 浪人和在野武将为ConfigId，已有武将为实例ID
+	required CruiseDesireData DesireData = 3;
+}
+
+// 愿望消失
+message CruiseDesireDisappearNotify {
+	required int32 CruiseHeroType = 1;
+	required int32 HeroId = 2;
+	required int32 DesireId = 3;
+}
+
+// 愿望状态通知
+message CruiseDesireStateNotify {
+	required int32 CruiseHeroType = 1;
+	required int32 HeroId = 2;
+	required CruiseDesireData DesireData = 3;
+}
+
+// 浪人信息
+message RoninInfo {
+	required int32 ConfigId = 1;			// 武将ConfigId（浪人为0）
+	required int32 RemainSeconds = 2;		// 剩余时间
+	required int32 RemainFightCount = 3;    // 剩余打架次数
+	required CruiseDesireData DesireData = 4;
+}
+
+// 浪人出现
+message CruiseRoninAppearNotify {
+	required RoninInfo Info = 1;
+	required bool IsNew = 2;
+}
+
+// 浪人消失
+message CruiseRoninDisappearNotify {
+	required int32 RoninId = 1;
+}
+
+// 请求刷新浪人
+message CruiseRoninRefreshRequest {
+}
+
+// 已刷新
+message CruiseRoninRefreshResponse {
+	required int32 RoninId = 1;
+}
+
+// 满足浪人愿望
+message CruiseSatisfyRoninDesireRequest {
+}
+
+// 已满足
+message CruiseSatisfyRoninDesireResponse {
+}
+
+// 在野武将信息
+message CruiseOutHeroInfo {
+	required int32 ConfigId = 1;			// 武将ConfigId
+	required int32 HeartValue = 2;			// 好感度
+	required int32 RemainSeconds = 3;		// 剩余时间
+	required int32 HorseConfigId = 4;		// 战马ConfigId
+	required CruiseDesireData DesireData = 5;
+	required int32 RemainFightCount = 6;
+}
+
+// 在野武将出现
+message CruiseOutHeroAppearNotify {
+	required CruiseOutHeroInfo Info = 1;
+	required bool IsNew = 2;
+}
+
+// 在野武将消失
+message CruiseOutHeroDisappearNotify {
+	required int32 HeroConfigId = 1;
+}
+
+// 请求跟浪人比拼
+message CruiseFight2HeroRequest {
+	required int32 HeroType = 1;   // 0 浪人 1 在野武将
+	required int32 HeroConfigId = 2; // 武将ConfigId
+}
+
+message CruiseFight2HeroResponse {
+	required int32 HeroType = 1;
+	required int32 HeroConfigId = 2;
+	required bool Win = 3;
+	required int32 RemainFightCount = 4;
+}
+
+// 满足在野武将愿望
+message CruiseSatisfyOutHeroDesireRequest {
+	required int32 HeroConfigId = 1;
+}
+
+// 愿望实现更新数据
+message CruiseSatisfyOutHeroDesireResponse {
+	required int32 HeroConfigId = 1;	// 武将ConfigId
+	required int32 HeartValue = 2;    	// 好感度
+	required int32 RemainSeconds = 3;	// 剩余时间
+	required int32 OldDesireId = 4;		// 原来的愿望
+	required CruiseDesireData NewDesire = 5; // 新刷出的愿望
+}
+
+// 在野武将领取好感度奖励
+message CruiseOutHeroGetHeartAwardRequest {
+	required int32 HeroConfigId = 1;
+}
+
+// 获得好感度奖励
+message CruiseOutHeroGetHeartAwardResponse {
+	required int32 HeroConfigId = 1;
+	required int32 Heart = 2;
+	required int32 ItemId = 3;
+	required int32 ItemNum = 4;
+}
+
+// 已有武将巡游信息
+message CruiseExistHeroInfo {
+	required int32 HeroId = 1;				// 武将Id
+	required int32 HeartValue = 2;			// 好感度
+	required int32 SatisfiedCount = 3;		// 以满足的愿望数
+	required int32 SoulStoneId = 4;			// 已领取魂石ID
+	required int32 SoulStoneCount = 5;		// 已领取魂石数量
+	required int32 SeveralDaysAward = 6;	// 已连续领奖天数
+	repeated CruiseDesireData DesiresData = 7;
+}
+
+// 已有武将巡游出现
+message CruiseExistHeroAppearNotify {
+	required CruiseExistHeroInfo Info = 1;
+	required bool IsNew = 2;				// 是否新刷新的武将
+}
+
+// 已有巡游武将消失
+message CruiseExistHeroDisappearNotify {
+	required int32 HeroId = 1;
+}
+
+// 刷新已有武将
+message CruiseRefreshExistHeroRequest {
+}
+
+// 已刷新
+message CruiseRefreshExistHeroResponse {
+}
+
+// 满足已有武将愿望
+message CruiseSatisfyExistHeroDesireRequest {
+	required int32 HeroId = 1;
+	required int32 DesireId = 2;
+	required bool UseDiamond = 3;
+}
+
+// 表示已满足
+message CruiseSatisfyExistHeroDesireResponse {
+	required int32 HeroId = 1;				// 武将ID（实例）
+	required int32 Heart = 2;				// 好感度
+	required int32 SatisfiedCount = 3;		// 满足愿望数
+	required int32 AwardItemId = 4;			// 奖励物品ID
+	required int32 AwardItemCount = 5;		// 奖励物品数
+	required int32 SoulStoneId = 6;			// 魂石ID
+	required int32 SoulStoneCount = 7;		// 满足该武将愿望获得的魂石数
+	required int32 OldDesireId = 8;			// 原来的愿望
+	required CruiseDesireData NewDesire = 9; // 新刷出的愿望
+	required bool UseDiamond = 10;			// 是否钻石购买的
+}
+
+// 已有武将好感度领奖
+message CruiseExistHeroGetAwardRequest {
+	required int32 HeroId = 1;
+}
+
+// 表示领完
+message CruiseExistHeroGetAwardResponse {
+	required int32 HeroId = 1;
+	required int32 Heart = 2;               // 好感度
+	required int32 SeveralDaysAward = 3;	// 已连续领奖天数
+	required int32 ItemId = 4;				// 奖励的物品
+	required int32 ItemNum = 5;				// 物品个数
+}
+
+// 教训已有武将
+message CruiseBeatingExistHeroRequest {
+	required int32 HeroId = 1;
+}
+
+// 已教训
+message CruiseBeatingExistHeroResponse {
+	required int32 HeroId = 1;
+}
+
+// 连续领取3日奖励
+message CruiseSeveralDaysAwardRequest {
+	required int32 HeroId = 1;
+}
+
+message CruiseSeveralDaysAwardResponse {
+	required int32 HeroId = 1;
+	required int32 ItemId = 2;
+	required int32 ItemNum = 3;
+}
+
+/********************************************** 杀出重围 ****************************************************/
+// 杀出重围 状态列表
+message ExpeditionRoadListRequest {
+}
+
+message ExpeditionRoadInfo {
+	required int32 CustomId = 1;
+	required int32 ChapterConfig = 2;
+	required int32 FightSuccess = 3;
+	required int32 EventType = 4;
+	required int32 EventTrigger = 5;
+	required int32 SureChangeBuff = 6;
+}
+
+message ExpeditionRoadListResponse {
+	required bool Start = 1;
+	repeated ExpeditionRoadInfo List = 2;
+	repeated ExpeditionEventData HaveList = 3;
+}
+
+// 杀出重围 开启标记
+message ExpeditionStartRequest {
+}
+
+message ExpeditionStartResponse {
+}
+
+message ExpeditionEnemyGroup {
+	repeated HeroBattleInfo List = 1;
+}
+
+message ExpeditionEnemyStateData {
+	required int32 EnemyConfig = 1;
+	required float LifeValue = 2;
+	required int32 RaceId = 3;
+	required int32 RoundId = 4;
+}
+
+message ExpeditionEnemyStateGroup {
+	required int32 RoundId = 1;
+	repeated ExpeditionEnemyStateData List = 2;
+}
+
+message ExpeditionEnemyDataList {
+	repeated ExpeditionEnemyGroup List = 1;
+}
+
+// 杀出重围 战斗开启
+message ExpeditionFightRequest {
+	required int32 CustomId = 1;
+}
+
+// 玩家远征英雄状态信息
+message ExpeditionHeroStateData {
+	required int32 HeroConfigId = 1;
+	required float PercentLife = 2;
+}
+
+message ExpeditionFightResponse {
+	required int32 CustomId = 1;
+	repeated ExpeditionHeroStateData HeroStateList = 2;
+	required ExpeditionEnemyGroup EnemyList = 3;
+	required ExpeditionEnemyStateGroup EnmeyStateInfo = 4;
+}
+
+// 杀出重围 战斗结束
+message ExpeditionFightEndRequest {
+	required int32 CustomId = 1;
+	required bool Win = 2;
+	repeated ExpeditionHeroStateData HeroStateList = 3;
+	required ExpeditionEnemyStateGroup EnmeyStateInfo = 4;
+}
+
+message ExpeditionFightEndResponse {
+	required int32 CustomId = 1;
+	required bool Win = 2;
+	required PVE_LootItems LootItems = 3;
+	required int32 Gold = 4;
+	required int32 Diamand = 5;
+	required int32 ExpeditionCoin = 6;
+}
+
+// 杀出重围 事件请求
+message ExpeditionEventRequest {
+	required int32 CustomId = 1;
+}
+
+message ExpeditionEventData {
+	required int32 EventType = 1;
+	required int32 EventValue = 2;
+}
+
+message ExpeditionNormalEventResponse {
+	required ExpeditionEventData Data = 1; 
+}
+
+// 杀出重围 
+message ExpeditionChangeEventRequest {
+	required int32 CustomId = 1;
+}
+
+message ExpeditionChangeEventRespone {
+	required int32 HaveChangeCount = 1;
+	repeated ExpeditionEventData RandList = 2;
+}
+
+message ExpeditionSureChangeRequest {
+	required int32 CustomId = 1;
+}
+
+message ExpeditionSureChangeResponse {
+	repeated ExpeditionEventData BuffList = 1;
+}
+
+message ExpeditionRewardEventRequest {
+	required int32 CustomId = 1;
+}
+
+message ExpeditionRewardEventResponse {
+	required int32 RewardCount = 1;
+	repeated LootItem List = 2;
+}
+
+message ExpeditionSyncCoin {
+	required int32 Value = 1;
+}
+
+//炼化功能
+message Refinery_Request_Horse{
+	repeated int32 ConfigId=1;
+	optional bool CostItem=2;
+}
+message Refinery_Response_Horse{
+	repeated Refinery_Response_Reward Rewards=1;
+}
+message Refinery_Request_Hero{
+	repeated int32 ConfigId=1;
+	optional bool CostItem=2;
+}
+message Refinery_Response_Hero{
+	repeated Refinery_Response_Reward Rewards=1;
+	repeated HeroAdd Heros=2;
+}
+message Refinery_Response_Reward{
+	required int32 ID=1;
+	repeated Refinery_Response_Reward_Cost Costs=2;
+	repeated Refinery_Response_Reward_Item Items=3;
+}
+message Refinery_Response_Reward_Cost{
+	required int32 state=1;
+	required int32 count=2;
+}
+message Refinery_Response_Reward_Item{
+	required int32 itemid=1;
+	required int32 itemnum=2;
+}
+
+// 物品显示
+message ItemData {
+	required int32 ConfigId = 1;
+	required int32 Num = 2;
+}
+
+// 宝箱物品结果
+message ItemBoxResultNotify {
+	repeated ItemData items = 1;
+	required int32 Diamond = 2;
+	required int32 Gold = 3;
+	required int32 ExpeditionCoin = 4;
+	required int32 Chicken = 5;
+	required int32 SkillPoints = 6;
+}
+
+// 武将分解
+message HeroDecomposeRequest {
+	repeated int32 HerosId = 1;
+	optional bool CostItem = 2;
+}
+message HeroDecomposeResponse {
+	repeated Refinery_Response_Reward Rewards = 1;
+	repeated int32 CostMoney = 2;					// 金币
+	repeated int32 CostDiamond = 3;					// 钻石
+}
+
+/********************************************** 帮会 ****************************************************/
+// 创建帮会
+message TongCreateRequest {
+	required string Name = 1;
+	required bool OpenJoinLevel = 2;
+	required int32 PlayerJoinLevel = 3;
+	required bool NeedVerify = 4;
+	required string RecruitNotice = 5;
+	required bool StopRecruit = 6;
+}
+
+message TongCreateResponse {
+	required TongData Data = 1;
+	required int32 SelfGrade = 2;
+}
+
+message TongData {
+	required int32 Id = 1;
+	required string Name = 2;
+	required int32 Level = 3;
+	required string PresidentName = 4;
+	required int32 MemberCount = 5;
+}
+
+message TongSyncInfoRequest {
+}
+
+// 登录同步玩家帮会信息
+message TongSyncPlayerTongInfo {
+	required TongData Data = 1;
+	required int32 SelfGrade = 2;
+}
+
+// 查找帮会
+message TongFindRequest {
+	required string NameOrId = 1;
+}
+
+message TongListData {
+	required int32 Id = 1;
+	required string Name = 2;
+	required int32 Level = 3;
+	required string RecruitNotice = 4;
+	required int32 MemberCount = 5;
+	required int32 ReqJoinTime = 6;
+}
+
+message TongFindResponse {
+	required TongListData Data = 1;
+}
+
+// 推荐帮会
+message TongRecommandRequest {
+}
+
+message TongRecommandResponse {
+	repeated TongListData List = 1;
+}
+
+message TongAnnounceContentRequest {
+}
+
+message TongAnnounceContentResponse {
+	required string Announce = 1;
+}
+
+// 帮会成员列表
+message TongMemberListRequest {
+}
+
+message TongMemberData {
+	required int32 Id = 1;
+	required int32 PlayerId = 2;
+	required string Name = 3;
+	required int32 PlayerLevel = 4;
+	required int32 Grade = 5;
+	required int32 WeekContribute = 6;
+	required int32 TotalContribute = 7;
+	required int32 OfflineTime = 8;		// -1表示在线
+	required string PlayerIcon = 9;
+}
+
+message TongMemberListResponse {
+	repeated TongMemberData List = 1;
+}
+
+// 帮会申请次数
+message TongCanJoinCountRequest {
+}
+
+message TongCanJoinCountResponse {
+	required int32 CanJoinCount = 1;
+}
+
+// 加入帮会
+message TongJoinRequest {
+	required int32 Id = 1;
+}
+
+message TongJoinResponse {
+	required int32 Id = 1;
+	required int32 HaveJoinCount = 2;
+}
+
+// 请求加入帮会玩家列表
+message TongJoinListRequest {
+}
+
+// 请求加入帮会玩家列表 页数切换
+message TongJoinListChangeRequest {
+	required int32 Change = 1;		// -1:上一页; 1:下一页
+}
+
+message TongJoinData {
+	required int32 JoinId = 1;
+	required string Name = 2;
+	required string Icon = 3;
+	required int32 Level = 4;
+}
+
+message TongJoinListResponse {
+	repeated TongJoinData List = 1;
+	required int32 CurPage = 2;
+	required int32 MaxPage = 3;
+}
+
+// 回复请求加入帮会玩家
+message TongReplyJoinRequest {
+	required int32 ReplyType = 1;	// 1:接受 2:拒绝
+	required int32 JoinId = 2;
+}
+
+message TongReplyJoinResponse {
+	required int32 ReplyType = 1;	// 1:接受 2:拒绝
+	required int32 JoinId = 2;
+}
+
+// 通知玩家被加入帮会
+message TongNotifyJoin {
+	required TongData Data = 1;
+	required int32 SelfGrade = 2;
+}
+
+// 踢出帮会成员
+message TongKickRequest {
+	required int32 MemberId = 1;
+}
+
+message TongKickResponse {
+	required int32 MemberId = 1;
+}
+
+message TongNotifyBeKicked {
+}
+
+// 退出帮会
+message TongLeaveRequest {
+}
+
+message TongLeaveResponse {
+}
+
+// 帮会管理信息请求
+message TongManageInfoRequest{
+}
+
+message TongManageInfoResponse{
+	required string Announce = 1;
+	required string RecruitNotice = 2;
+	required bool OpenJoinLevel = 3;
+	required int32 PlayerJoinLevel = 4;
+	required bool NeedVerify = 5;
+	required bool StopRecruit = 6;
+}
+
+// 帮会改名
+message TongNameRequest {
+	required string Name = 1;
+}
+
+message TongNameResponse {
+}
+
+// 帮会公告修改
+message TongAnnounceRequest {
+	required string Announce = 1;
+}
+
+message TongAnnounceResponse {
+}
+
+// 帮会招募公告修改
+message TongRecruitNoticeRequest {
+	required string RecruitNotice = 1;
+}
+
+message TongRecruitNoticeResponse {
+}
+
+// 帮会信息修改
+message TongRecruitInfoRequest {
+	required bool OpenJoinLevel = 1;
+	required int32 PlayerJoinLevel = 2;
+	required bool NeedVerify = 3;
+	required bool StopRecruit = 4;
+}
+
+message TongRecruitInfoResponse {
+	required bool OpenJoinLevel = 1;
+	required int32 PlayerJoinLevel = 2;
+	required bool NeedVerify = 3;
+	required bool StopRecruit = 4;
+}
+
+// 帮会等级信息
+message TongLevelInfoRequest {
+}
+
+message TongLevelInfoResponse {
+	required int32 Level = 1;
+	required int32 Exp = 2;
+}
+
+// 帮会升级
+message TongUpLevelRequest {
+}
+
+message TongUpLevelResponse {
+	required int32 Level = 1;
+	required int32 Exp = 2;
+}
+
+message TongDonateCountRequest {
+}
+
+message TongDonateCountResponse {
+	required int32 Count = 1;
+}
+
+// 成员周贡献
+message TongWeekContributeRequest {
+}
+
+message TongWeekContributeResponse{
+	required int32 WeekContribute = 1;
+}
+
+// 帮会捐献
+message TongDonateRequest {
+	required int32 DonateType = 1;		// 1:金币 2:钻石不够
+}
+
+message TongDonateResponse {
+	required int32 DonateCount = 1;
+	required int32 WeekContribute = 2;
+}
+
+// 帮会任命
+message TongAppointRequest {
+	required int32 MemberId = 1;
+	required int32 Grade = 2;
+}
+
+message TongAppointResponse {
+	required int32 MemberId = 1;
+	required int32 Grade = 2;
+}
+
+message TongNotifyGradeChange {
+	required int32 Grade = 1;
+}
+
+// 帮会禅让
+message TongDemiseRequest {
+	required int32 MemberId = 1;
+}
+
+message TongDemiseResponse {
+	required int32 MemberId = 1;
+	required int32 SelfGrade = 2;
+}
+
+// 帮会邀请
+message TongInviteRequest {
+	required int32 PlayerId = 1;
+}
+
+message TongInviteResponse {
+	required int32 PlayerId = 1;
+}
+
+// 开启福利
+message TongOpenWelfBuffRequest {
+	required int32 WelfId = 1;
+}
+
+message TongOpenWelfBuffResponse {
+	required int32 WelfId = 1;
+}
+
+message TongNotifyWelfBuffOpen {
+	required int32 WelfId = 1;
+}
+
+// 福利信息列表
+message TongWelfBuffListRequest {
+}
+
+message TongWelfBuffData {
+	required int32 WelfId = 1;
+	required int32 DurationSeconds = 2;
+	required int32 OpenWelfTime = 3;
+}
+
+message TongWelfBuffListResponse {
+	repeated TongWelfBuffData List = 1;
+}
+
+message TongWelfBuffDataRequest {
+	required int32 WelfId = 1;
+}
+
+message TongWelfBuffDataResponse {
+	required TongWelfBuffData Data = 1;
+}
+
+// 下一把福利红包额外效果
+message TongRedPacketEffectRequest {
+	required int32 ExchangeType = 1;
+}
+
+message TongRedPacketEffectResponse {
+	required int32 ExchangeType = 1;
+	repeated int32 EffectType = 2;
+}
+
+message TongRedPacketPointRequest {
+}
+
+message TongRedPacketPointResponse {
+	required int32 PointValue = 1;
+}
+
+message TongDiamondRedPacketCountRequest {
+}
+
+message TongDiamondRedPacketCountResponse {
+	required int32 Count = 1;
+}
+
+// 福利红包兑换
+message TongRedPacketRequest {
+	required int32 ExchageType = 1;		// 1:金钱 2:积分 3:钻石
+}
+
+message TongRedPacketResponse {
+	required int32 ExchageType = 1;
+	required int32 ConfigId = 2;
+	required int32 Count = 3;
+}
+
+// 红包积分抢夺
+message TongNotifyGrabRedPacket {
+	required int32 Index = 1;
+	required string SenderName = 2;
+}
+
+message TongRedPacketGrabRequest {
+	required int32 Index = 1;
+}
+
+message TongRedPacketGrabResponse {
+	required int32 PointValue = 1;
+	required int32 Index = 2;
+}
+
+message TongDungeonInfo {
+	required int32 TypeId = 1;
+	required int32 Count = 2;
+	required int32 RemainTime = 3;
+	required int32 FinishDiffcult = 4;
+}
+
+message TongDungeonInfoRequest {
+}
+
+message TongDungeonInfoResponse {
+	repeated TongDungeonInfo List = 1;
+}
+
+message TongDungeonStartRequest {
+	required int32 ConfigId = 1;
+}
+
+message TongDungeonStartResponse {
+	required int32 ConfigId = 1;
+}
+
+message TongDungeonEndRequest {
+	required int32 ConfigId = 1;
+	required float FightValue = 2;
+	required bool Win = 3;
+}
+
+message TongDungeonEndResponse {
+	required bool Win = 1;
+	required PVE_LootItems Items = 2;
+	required int32 Gold = 3;
+	required int32 Diamand = 4;
+	required int32 AddDonate = 5;
+	required int32 AddDonateCoin = 6;
+	required int32 ConfigId = 7;
+	required int32 Count = 8;
+}
+
+message TongNewsRequest {
+	required int32 NewsIndex = 1;	// 前一次最大index
+}
+
+message TongNewsData {
+	required int32 NewsType = 1;
+	required string NewsParams = 2;
+	required int32 NewsTime = 3;
+}
+
+message TongNewsResponse {
+	required int32 LastNewsIndex = 1;	// 当前最大index
+	repeated TongNewsData List = 2;
+}
+
+message TongDonateCoinSync {
+	required int32 Value = 1;
+}
+
+message TongRaidDungeonChapterInfoRequest {
+}
+
+message TongRaidDungeonChapterInfo {
+	required int32 ChapterId = 1;
+	required int32 PassedState = 2;
+}
+
+message TongRaidDungeonChapterInfoResponse {
+	repeated TongRaidDungeonChapterInfo List = 1;
+	required int32 PlayCount = 2;
+}
+
+message TongRaidDungeonInfoRequest {
+	required int32 ChapterId = 1;
+}
+
+message TongRaidDungeonInfoResponse {
+	required int32 ChapterId = 1;
+	required int32 LastCampaignIndex = 2;
+	required int32 BossHealth = 3;
+	required int32 BossTotalHealth = 4;
+}
+
+message TongRaidDungeonResetRequest {
+	required int32 ChapterId = 1;
+}
+
+message TongRaidDungeonResetResponse {
+	required int32 ChapterId = 1;
+	required int32 LastCampaignIndex = 2;
+	required int32 BossHealth = 3;
+}
+
+message TongRaidDungeonRequest {
+	required int32 ConfigId = 1;
+}
+
+message TongRaidDungeonResponse {
+	required int32 ConfigId = 1;
+}
+
+message TongRaidDungeonEndRequest {
+	required int32 ConfigId = 1;
+	required int32 DamageValue = 2;
+}
+
+message TongRaidDungeonEndResponse {
+	required PVE_LootItems Items = 1;
+	required int32 Gold = 2;
+	required int32 Diamand = 3;
+	required int32 PlayCount = 4;
+}
+
+// 客户端日志
+message ClientLogRequest {
+	required string Content = 1; // 日志内容
+	optional bool bSvrPrint = 2; // 服务器是否打印
+}
+
+// 回复客户端IP地址 
+message ClientIPResponse {
+	required string IPAddr = 1; // 客户端IP地址	
+}
+
+//////////////////////////////////////////世界Boss战/////////////////////////////
+
+//排行榜条目数据定义
+message WbossRankRecord {
+	required string Name     = 1; // 玩家名称
+	required int32 Level     = 2; // 玩家等级
+	required int32 VipLevel  = 3; // 玩家Vip等级
+	required string TongName = 4; // 玩家帮会名称
+	required int32 DmgRank   = 5; // 玩家伤害排名 -1 表示未上榜
+	required int32 Dmg       = 6; // 玩家伤害值
+}
+
+//同步状态请求
+message WbossSyncRequest{
+	
+}
+
+//同步返回
+message WbossSynResponse{
+	required bool ActOpen               = 1;  // 活动是否开启
+	required int32 BossId               = 2;  // 当前BossId
+	required int32 CurHp                = 3;  // Boss当前血量 小于等于零则表示boss已经死亡
+	required int32 TotalHp              = 4;  // Boss的总血量
+	required int32 MyDmg                = 5;  // 我所造成的伤害
+	required int32 MyRank               = 6;  // 我当前的排名
+	required int32 MyPropAddPercent     = 7;  // 我当前的鼓舞属性加成 这个是百分比相当于比率乘于100之后的值
+	required int32 GoldPowerUpCount     = 8;  // 当前金币鼓舞次数
+	required int32 DiamondPowerUpCount  = 9;  // 当前元宝鼓舞次数
+	required int32 CurFightCdCount      = 10;  // 当日重置Cd次数
+	required int32 CurFightCdSecond     = 11; // 当前挑战冷却时间
+	repeated WbossRankRecord TopPlayers = 12; // 当前排行榜信息
+	optional WbossRankRecord Killer     = 13; // 击杀者信息
+}
+
+//同步状态请求
+message WbossUpdateRequest{
+	
+}
+
+//同步返回
+message WbossUpdateResponse{
+	required int32 CurHp                = 1; // Boss当前血量 小于等于零则表示boss已经死亡
+	repeated WbossRankRecord TopPlayers = 2; // 当前排行榜信息
+	optional WbossRankRecord Killer     = 3; // 击杀者信息
+}
+
+//挑战请求
+message WbossFightRequest{
+	
+}
+
+//挑战返回
+message WbossFightResponse{
+	required int32 BossId = 1; // BossId
+	required int32 Rand   = 2; // 随机种子
+	required int32 Health = 3; // 血量
+}
+
+//挑战完成请求
+message WbossFightCompleteRequest{
+	required int32 BossId      = 1; // BossId
+	required int32 TotalDamage = 2; // 总伤害量
+}
+
+//挑战完成返回
+message WbossFightCompleteResponse{
+	required bool Killed = 1; // 是否成功击杀
+	required Loots Loots = 2; // 完成奖励
+}
+
+// 鼓舞请求
+message WBossPowerUpRequest{
+	required int32 Type = 1; // 鼓舞类型
+}
+
+// 鼓舞返回
+message WBossPowerUpResponse{
+	required bool BSuccess             = 1; // 鼓舞是否成功
+	required int32 GoldPowerUpCount    = 2; // 当前金币鼓舞次数
+	required int32 DiamondPowerUpCount = 3; // 当前钻石鼓舞次数
+	required int32 CurPowerPercent     = 4; // 当前鼓舞加成比率
+}
+
+// 清理战斗CD请求
+message WBossCDRequest{
+	required int32 Type = 1; // 清理方式，消耗0消耗金币，1消耗元宝
+}
+
+// 清理战斗CD返回
+message WBossCDResponse{
+	required bool BSuccess = 1; // 清理结果
+}
+
+//////////////////////////////////////////武魂洗练//////////////////////////////////////////
+
+// 玩家升级武魂
+message HeroSoulStarUpRequest {
+	optional int32 HeroId = 1; // 武将Id
+}
+
+// 玩家升级武魂结果
+message HeroSoulStarUpResponse {
+	required int32 HeroId = 1;    // 升级结果
+	required int32 CurStar = 2; // 当前的武魂等级
+}
+
+// 玩家炼魂
+message HeroSoulPropRefRequest {
+	required int32 HeroId = 1; // 武将Id
+	required int32 CostType = 2;   // 刷新消耗类型 金币为1，钻石为2
+	required int32 Count = 3; // 炼魂次数
+}
+
+// 玩家炼魂返回
+message HeroSoulPropRefResponse {
+	required int32 HeroId = 1; // 武将Id
+	repeated HeroSoulPropRefItem CurSoulPropRefs = 2; // 本次洗练结果
+}
+
+// 处理当前炼魂结果
+message HeroSoulPropRefManageRequest {
+	required bool BUse = 1; // 是否使用当前结果
+}
+
+// 处理炼魂结果返回，这种情况默认清掉洗练结果
+message HeroSoulPropRefManageResponse {
+	required bool BUse = 1; // 是否使用当前结果
+	optional int32 HeroId = 2; // 武将Id
+	repeated float CurSoulProps = 3; // 当前武魂属性
+}
+
+// 洗练结果条目结构
+message HeroSoulPropRefItem {
+	required bool BUse = 1; // 是否随机出来的结果
+	optional float Val = 2; // 随机出来的结果值
+	optional bool BCri = 3; // 是否暴击
+}
+
+//////////////////////////////////////////封测活动//////////////////////////////////////////
+
+//  封测福利刷新请求
+message BetaWelfareSyncRequest{
+	
+}
+
+//  封测福利刷新回复
+message BetaWelfareSyncResponse{
+	required int32 LoginDayCount = 1; // 当前登录次数
+	repeated int32 FinishedTasks = 2; // 已经完成的封测福利Id
+	optional bool BActClose = 3; // 封测福利活动是否关闭
+	optional int32 FinalLvl = 4; // 封测福利结束时候的玩家等级
+	optional int32 FinalStar = 5; // 封测福利结束时候的玩家星星数目
+	optional int32 FinalFasion = 6; // 封测福利结束时候的玩家时装数目
+	optional int32 FinalHorseNum = 7; // 封测福利结束时候的玩家战马数目
+	optional int32 FinalHeroNum = 8; // 封测福利结束时候的玩家英雄数目
+	optional int32 FinalMLNum = 9; // 封测福利结束时候的玩家的交融次数
+	optional int32 FinalPower = 10; // 封测福利结束时候的玩家的战力
+}
+
+// 更新登录次数
+message BetaWelfareLoginNum{
+	required int32 LoginDayCount = 1; // 当前登录次数
+}
+
+// 战马交融总次数请求
+message HorseMLTotalCountRequst{
+	
+}
+
+// 战马交融总次数回复
+message HorseMLTotalCountResponse{
+	required int32 CurCount = 1; // 当前交融次数
+}
+
+// 封测福利完成请求
+message BetaWelfareFinishRequest{
+	required int32 WelfareCfgId = 1; // 想要完成的封测福利Id
+}
+
+// 封测福利完成结果
+message BetaWelfareFinishResponse{
+	required int32 WelfareCfgId = 1; // 完成的封测福利Id
+	required Loots Loots = 2; // 完成奖励
+	optional int32 Exp = 3; // 经验奖励
+	optional int32 Chiken = 4; // 体力奖励
+}
+// 封测福利排行榜每个记录的数据
+message BetaWefareRankRecord {
+	optional string PlayerName = 1; // 玩家名称
+	optional int32 PlayerLvl = 2; // 玩家等级
+	optional int32 Rank = 3; // 榜上排名
+	optional int32 RankVal = 4; // 榜上值
+	optional int32 HeroCfgId = 5; // 英雄Id 战马榜才有值
+	optional HorseApperance HorseApp = 6; // 战马外观属性
+}
+
+// 封测排行榜请求
+message BetaWelfareRankRequest {
+	required int32 RankType = 1; // 排行榜类型 1 战马数榜 2英雄数榜 3星星榜 4战马交融榜 5战马时装榜
+}
+
+// 封测排行榜请求回复
+message BetaWelfareRankResponse {
+	required int32 RankType = 1; // 排行榜类型 1 战马数榜 2英雄数榜 3星星榜 4战马交融榜 5战马时装榜
+	optional int32 MyRank = 2; // 我的排行名次 -1 表示未上榜
+	repeated BetaWefareRankRecord Records = 3; // 排行榜记录
+}
+
+// 战马外观
+message HorseApperance{
+	optional int32 ConfigId=1;
+	optional int32 Color=2;
+	optional int32 Texture=3;
+	optional int32 TextureColor = 4;
+	optional int32 State=5;					// 状态值
+	optional int32 StateType=6;				// 状态类型
+	optional int32 Fashion=7;				// 时装
+	optional int32 Suit=8;					// 套装
+	optional int32 Mane=9;					// 鬃毛
+	optional int32 QualityConfigId=10;		// 品质
+	optional int32 ManeColor = 11;			// 鬃毛颜色
+}
+
+/**************************** 战马觉醒 ******************************/
+
+// 请求战马觉醒数据
+message HorseAwakeDataRequest {
+}
+
+message AwakeMissionData {
+	required int32 AwakeConfigId 		= 1;
+	required int32 HeroId 				= 2;
+	required int32 HorseId 				= 3;
+	required int32 MissionIndex 		= 4; // 当前进行的任务索引
+}
+
+message AwakeSkillData {
+	required int32 AwakeConfigId 	= 1; // 觉醒ConfigID
+	required int32 HeroId 			= 2; // 武将ID
+	required int32 HorseId 			= 3; // 战马ID	
+	required int32 Grace			= 5; // 契合度
+	required int32 GraceExp			= 6; // 契合度经验
+	required int32 Level 			= 7; // 等级
+}
+
+message HorseAwakeDataResponse {
+	required AwakeMissionData Mission 	= 1;
+	repeated AwakeSkillData Skill 	  	= 2;
+}
+
+message HorseAwakeStartMissionRequest {
+	required int32 HorseId 			= 1;
+	required int32 HeroId 			= 2;
+	required int32 AwakeConfigId 	= 3;
+}
+
+message HorseAwakeStartMissionResponse {
+	required int32 HorseId 			= 1;
+	required int32 HeroId 			= 2;
+	required int32 AwakeConfigId 	= 3;
+	required int32 Index			= 4;
+	required int32 Result 			= 5;
+}
+
+message HorseAwakeFinishMissionRequest {
+}
+
+message HorseAwakeFinishMissionResponse {
+	required int32 NextIndex		= 1;
+	required int32 ActivatedSkill	= 2;
+	required int32 Result			= 3;
+	required AwakeSkillData SkillData = 4;
+}
+
+message HorseAwakeCancelMissionRequest {
+}
+
+message HorseAwakeCancelMissionResponse {
+	required int32 Result 			= 1;
+}
+
+message HorseAwakeFeedingRequest {
+	required int32 HorseId 			= 1;
+	required int32 HeroId			= 2;
+	required int32 AwakeConfigId 	= 3;
+	required int32 ItemId 			= 4;
+	required int32 ItemNum			= 5;
+}
+
+message HorseAwakeFeedingResponse {
+	required int32 HorseId 			= 1;
+	required int32 HeroId			= 2;
+	required int32 AwakeConfigId 	= 3;
+	required int32 Grace			= 4; // 契合度Index
+	required int32 GraceExp			= 5; // 契合度进度
+	required int32 Result			= 6;
+}
+
+message HorseAwakeSkillLevelUpRequest {
+	required int32 HorseId 			= 1;
+	required int32 HeroId			= 2;
+	required int32 AwakeConfigId    = 3;
+}
+
+message HorseAwakeSkillLevelUpResponse {
+	required int32 HorseId 			= 1;
+	required int32 HeroId			= 2;
+	required int32 AwakeConfigId	= 3;
+	required int32 SkillLevel 		= 4;
+	required int32 Result			= 5;
+}
+
+message HorseAwakeFightRequest{
+	required int32 ConfigId 		= 1; //关卡ID
+}
+
+message HorseAwakeFightResponse{
+	required int32 Rand				= 1; //战斗初始随机种子
+}
+
+message HorseAwakeFightEndRequest{
+	required int32 ConfigId			= 1; //关卡Id
+	required bool Mission_1			= 2; //任务是否已达成
+	required bool Mission_2			= 3; //任务是否已达成
+	required bool Mission_3			= 4; //任务是否已达成
+	required bool Win				= 5; //是否胜利
+}
+
+message HorseAwakeFightEndResponse{
+	required int32 ConfigId			= 1; //关卡Id
+	required bool Mission_1			= 2; //任务是否已达成
+	required bool Mission_2			= 3; //任务是否已达成
+	required bool Mission_3			= 4; //任务是否已达成
+}
+/********************************************** 探险 ****************************************************/
+message ExplorationCampaignLevel {
+	required int32 ConfigId = 1;
+	required int32 Mission_1 = 2;
+	required int32 Mission_2 = 3;
+	required int32 Mission_3 = 4;
+}
+
+// 金马玉堂 玩家信息申请
+message ExplorationJMYTInfoRequest {
+}
+
+message ExplorationJMYTInfoResponse {
+	required int32 PlayCount = 1;
+	repeated ExplorationCampaignLevel List = 2;
+}
+
+// 金马玉堂 开始战斗申请
+message ExplorationJMYTFightRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationJMYTFightResponse {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationJMYTFightEndRequest {
+	required int32 ConfigId = 1;
+	required int32 Mission_1 = 2;
+	required int32 Mission_2 = 3;
+	required int32 Mission_3 = 4;
+	required bool Win = 5;
+}
+
+message ExplorationJMYTFightEndResponse {
+	required PVE_LootItems ItemLoots = 1;
+	required int32 Gold = 2;
+	required int32 HeroExp = 3;
+	required int32 HorseExp = 4;
+	required bool Win = 5;
+	required int32 PlayCount = 6;
+	required ExplorationCampaignLevel Data = 7;
+}
+
+message ExplorationJMYTMopRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationJMYTMopResponse {
+	required int32 ConfigId = 1;
+	required int32 PlayCount = 2;
+	required int32 Gold = 3;
+	required PVE_LootItems ItemLoots = 4;
+	repeated LootItem ExpLoot = 5;
+}
+
+message ExplorationQMQKInfo {
+	required ExplorationCampaignLevel Data = 1;
+	//required int32 PlayCount = 2;
+	required int32 HaveHalfReward = 2;
+	required int32 HaveFullReward = 3;
+}
+
+message ExplorationQMQKInfoRequest {
+}
+
+message ExplorationQMQKInfoResponse {
+	repeated ExplorationQMQKInfo List = 1;
+	required int32 PlayCount = 2;
+}
+
+message ExplorationQMQKFightRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationQMQKFightResponse {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationQMQKFightEndRequest {
+	required int32 ConfigId = 1;
+	required int32 Mission_1 = 2;
+	required int32 Mission_2 = 3;
+	required int32 Mission_3 = 4;
+	required float DamageValue = 5;
+}
+
+message ExplorationQMQKFightEndResponse {
+	required ExplorationQMQKInfo Data = 1;
+	required int32 Gold = 2;
+	required int32 HeroExp = 3;
+	required int32 HorseExp = 4;
+	required PVE_LootItems ItemLoots = 5;
+	required int32 PlayCount = 6;
+}
+
+message ExplorationQMQKRewardRequest {
+	required int32 ConfigId = 1;
+	required int32 RewardType = 2;			// 1:半血 2:全血
+}
+
+message ExplorationQMQKRewardResponse {
+	required int32 ConfigId = 1;
+	required int32 RewardType = 2;
+	required int32 Gold = 3;
+	required PVE_LootItems ItemLoots = 4;
+	required int32 HaveHalfReward = 5;
+	required int32 HaveFullReward = 6;
+}
+
+message ExplorationQMQKMopRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationQMQKMopResponse {
+	required int32 ConfigId = 1;
+	required int32 PlayCount = 2;
+	required int32 Gold = 3;
+	required PVE_LootItems ItemLoots = 4;
+	repeated LootItem ExpLoot = 5;
+	required int32 HaveHalfReward = 6;
+	required int32 HaveFullReward = 7;
+}
+
+message ExplorationQJQBInfoRequest {
+}
+
+message ExplorationQJQBInfo {
+	required int32 ConfigId = 1;
+	required int32 PlayCount = 2;
+	repeated int32 HeroIdList = 3;
+	required int32 ComboConfigId = 4;
+	required int32 PassedTime = 5;
+	required int32 IsSpeed = 6;
+}
+
+message ExplorationQJQBInfoResponse {
+	repeated ExplorationQJQBInfo List = 1;
+}
+
+message ExplorationQJQBStartOffRequest {
+	required int32 ConfigId = 1;
+	repeated int32 HeroIdGourp = 2;
+}
+
+message ExplorationQJQBStartOffResponse {
+	required int32 ConfigId = 1;
+	repeated int32 HeroIdGroup = 2;
+	required int32 PlayCount = 3;
+}
+
+message ExplorationQJQBSpeedRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationQJQBSpeedResponse {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationQJQBRewardRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationQJQBRewardResponse {
+	required int32 ConfigId = 1;
+	required int32 Gold = 2;
+	required PVE_LootItems ItemLoots = 3;
+}
+
+message ExplorationLBSXInfo {
+	required int32 ConfigId = 1;
+	required int32 PlayCount = 2;
+	repeated int32 HeroIdList = 3;
+	required int32 FightComplete = 4;
+	required int32 ComboConfigId = 5;
+	required int32 PassedTime = 6;
+	required int32 HaveSpeed = 7;
+}
+
+message ExplorationLBSXInfoRequest {
+}
+
+message ExplorationLBSXInfoResponse {
+	repeated ExplorationLBSXInfo List = 1;
+}
+
+message ExplorationLBSXFightRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationLBSXFightResponse {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationLBSXFightEndRequest {
+	required int32 ConfigId = 1;
+	required bool Win = 2;
+}
+
+message ExplorationLBSXFightEndResponse {
+	required int32 ConfigId = 1;
+	required bool Win = 2;
+	required int32 Gold = 3;
+	required int32 HeroExp = 4;
+	required int32 HorseExp = 5;
+	required PVE_LootItems ItemLoots = 6;
+}
+
+message ExplorationLBSXStartOffRequest {
+	required int32 ConfigId = 1;
+	repeated int32 HeroGroup = 2;
+}
+
+message ExplorationLBSXStartOffResponse {
+	required int32 ConfigId = 1;
+	repeated int32 HeroGroup = 2;
+	required int32 PlayCount = 3;
+}
+
+message ExplorationLBSXSpeedRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationLBSXSpeedResponse {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationLBSXRewardRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationLBSXRewardResponse {
+	required int32 ConfigId = 1;
+	required int32 Gold = 2;
+	required PVE_LootItems ItemLoots = 3;
+}
+
+message ExplorationRMKZInfoRequest {
+}
+
+message ExplorationRMKZInfo {
+	required int32 ConfigId = 1;
+	required int32 PlayCount = 2;
+	repeated int32 HeroIdList = 3;
+	required int32 ComboConfigId = 4;
+	required int32 PassedTime = 5;
+	required int32 HaveSpeed = 6;
+}
+
+message ExplorationRMKZInfoResponse {
+	repeated ExplorationRMKZInfo List = 1;
+}
+
+message ExplorationRMKZStartOffRequest {
+	required int32 ConfigId = 1;
+	repeated int32 HeroIdGourp = 2;
+}
+
+message ExplorationRMKZStartOffResponse {
+	required int32 ConfigId = 1;
+	repeated int32 HeroIdGroup = 2;
+	required int32 PlayCount = 3;
+}
+
+message ExplorationRMKZSpeedRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationRMKZSpeedResponse {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationRMKZRewardRequest {
+	required int32 ConfigId = 1;
+}
+
+message ExplorationRMKZRewardResponse {
+	required int32 ConfigId = 1;
+	required int32 Gold = 2;
+	required PVE_LootItems ItemLoots = 3;
+}
+
+
+message ExplorationLJYYInfoRequest {
+}
+
+message ExplorationLJYYInfoResponse {
+	required int32 Coin = 1;
+	required int32 UpdateCount = 2;
+	repeated int32 GoodsList = 3;
+	repeated int32 BuyState = 4;
+}
+
+message ExplorationLJYYSellRequest {
+	repeated int32 ItemId = 1;
+	repeated int32 ItemCount = 2;
+}
+
+message ExplorationLJYYSellResponse {
+	required int32 Coin = 1;
+}
+
+message ExplorationLJYYBuyRequest {
+	required int32 ItemIndex = 1;
+}
+
+message ExplorationLJYYBuyResponse {
+	required int32 ItemIndex = 1;
+	required int32 Coin = 2;
+}
+
+message ExplorationLJYYResetGoodsRequest {
+}
+
+message ExplorationLJYYResetGoodsResponse {
+	required int32 UpdateCount = 1;
+	repeated int32 GoodsList = 2;
+}
+
+message ExplorationXLTXChapterListRequest {
+}
+
+message ExplorationXLTXChapterList {
+	required int32 ChapterId = 1;
+	required int32 RemainTime = 2;
+}
+
+message ExplorationXLTXChapterListResponse {
+	//repeated ExplorationXLTXChapterList List = 1;
+	required int32 RemainTime = 1;
+}
+
+message ExplorationXLTXCountRequest {
+}
+
+message ExplorationXLTXCountResponse {
+	required int32 Count = 1;
+}
+
+message ExplorationXLTXLevelRequest {
+	required int32 ShopType = 1;
+}
+
+message ExplorationXLTXLevelResponse {
+	required int32 ShopType = 1;
+	repeated int32 ItemCount = 2;
+	required int32 DoubleCount = 3;
+	repeated int32 ItemConfig = 4;
+}
+
+message ExplorationXLTXDoubleRequest {
+	required int32 ShopType = 1;
+}
+
+message ExplorationXLTXDoubleResponse {
+	required int32 ShopType = 1;
+	required int32 DoubleCount = 2;
+}
+
+message ExplorationXLTXDigRequest {
+	required int32 ShopType = 1;
+	repeated int32 DoubleList = 2;
+}
+
+message ExplorationXLTXDigResponse {
+	required int32 ShopType = 1;
+	required int32 ItemPlace = 2;
+	required int32 ItemCount = 3;
+	required int32 DigCount = 4;
+	required int32 RemainTime = 5;
+	required int32 DoubleCount = 6;
+}
+
+/**************************** 客户端信息 ******************************/ 
+
+message ClientInfo{
+	required string DeviceModel = 1; // 设备型号
+	required int32 DeviceHeight = 2; // 设备高度
+	required int32 DeviceWidth = 3; // 设备宽度
+	required string OsName = 4; // 操作系统
+	required string OsVer = 5; // 系统版本
+	required string UdId = 6; // 设备唯一标识
+	required string IdFa = 7; // 广告标识
+	required string ISP = 8; // 网络运营商
+	required string NetWork = 9; // 网络连接 有3g, 2.5g, 4g, wifi几种
+	required string AppChannel = 10; // 运用渠道
+	required string AppVer = 11; // 客户端版本号
+	required string AccountId = 12; // 账号唯一标识
+	required string OldAccountId = 13; // 游客身份标识
+	required bool BRootMark = 14; // 是否越狱
+	required string IMEI = 15; // 国际码
+	required string MacAddr = 16; // Mac地址
+	optional string SDKVer = 17; // 客户端SDK版本号
+}
+
+message S2CAskForClientInfo{
+	
+}
+
+/**************************** 神骏大会 ******************************/
+
+// 神骏排行榜每个记录的数据
+message HorseShowRankRecord {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	optional int32 PlayerLvl = 3; // 玩家等级
+	optional int32 Rank = 4; // 榜上排名
+	optional int32 RankVal = 5; // 榜上值
+	optional HorseApperance HorseApp = 6; // 战马外观属性
+	optional bool IfAdded = 7; // 是否已经点过赞
+	optional Loots loots = 8; // 只有获奖公示记录有值
+}
+
+// 每个评审记录的信息
+message HorseShowItem{
+	required int32 PlayerId = 1; // 玩家Id
+	required string PlayerName = 2; // 玩家名称
+	required HorseApperance HorseApp = 3; // 战马外观数据
+	required int32 RankVal = 4; // 被赞数量
+}
+
+// 获取当前神骏榜前三名信息
+message HorseShowCurTop3Request {
+}
+
+// 当前神骏榜前三名信息回复
+message HorseShowCurTop3Response {
+	repeated HorseShowRankRecord Records = 1; // 排行榜记录
+	optional int32 CurActLastDay = 2; // 当前活动持续时间
+}
+
+// 获取当前我的参赛信息
+message HorseShowMyInfoRequest {
+}
+
+// 我的参赛信息回复
+message HorseShowMyInfoResponse {
+	required int32 BePraisedCount = 1; // 当前获赞次数
+	required int32 OnHoseId = 2; // 当前参加比赛的马的Id
+	required int32 Rank = 3; // 当前排行榜名次 从零开始，-1 为未上榜
+	required int32 CharmVal = 4; // 魅力值
+	required bool BSelfPraised = 5; // 今天是否点赞过
+	required bool BSelfFlowSended = 6; // 今天是否送过花
+}
+
+// 我要评审
+message HorseShowJudgeRequest{
+	
+}
+
+// 评审请求回复
+message HorseShowJudgeResponse{
+	required int32 LeftJudgeCount = 1; // 剩余评审次数
+	required int32 JudgeCdSecond = 2; // 评审次数当前回复Cd 秒
+	required int32 DoJudgeCount = 3; // 未抽奖的评审次数
+	required int32 RefleshCdSecond = 4; // 刷新一批的Cd 秒 
+	repeated HorseShowItem Records = 5; // 服务器回复的评审对象
+}
+
+// 刷新一批请求
+message HorseShowJudgeRefRequest{
+	
+}
+
+// 刷新一批回复
+message HorseShowJudgeRefResponse{
+	required int32 RefleshCdSecond = 1; // 刷新一批的Cd 秒 
+	repeated HorseShowItem Records = 2; // 服务器回复的评审对象
+}
+
+// 获取当前神骏榜信息
+message HorseShowRankRequest {
+}
+
+// 当前神骏榜信息回复
+message HorseShowRankResponse {
+	required int32 BePraisedCount = 1; // 自己当前获赞次数
+	required int32 OnHoseId = 2; // 自己当前参加比赛的马的Id
+	required int32 Rank = 3; // 自己当前排行榜名次 从零开始，-1 为未上榜
+	repeated HorseShowRankRecord Records = 4; // 排行榜记录
+	
+}
+
+// 获奖公示请求
+message HorseShowLastTop3Request {
+}
+
+// 获奖公示回复
+message HorseShowLastTop3Response {
+	repeated HorseShowRankRecord Records = 1; // 排行榜记录
+}
+
+// 好友列表信息请求
+message HorseShowFriendRequest {
+}
+
+// 好友列表信息更新
+message HorseShowFriendResponse{
+	repeated HorseShowRankRecord Records = 1; // 好友记录
+}
+
+// 参与神骏大会请求
+message HorseShowEnterRequest{
+	required int32 HorseId = 1; // 参与的战马Id
+}
+
+// 离开神骏大会请求
+message HorseShowLeaveRequest{
+	
+}
+
+// 评审操作请求
+message HorseShowJudgeOpRequest{
+	required int32 OpType = 1; // 操作类型数据 0点赞 1送花 2砸翔 
+	required int32 TgtIdx = 2; // 操作对象
+}
+
+// 评审操作回复
+message HorseShowJudgeOpResponse{
+	required int32 OpType = 1; // 操作类型数据
+	required int32 TgtIdx = 2; // 操作对象
+}
+
+// 排行榜操作请求
+message HorseShowRankOpRequest{
+	required int32 OpType = 1; // 操作类型
+	required int32 TgtPlayerId = 2; // 目标Id
+}
+
+// 排行榜操作回复
+message HorseShowRankOpResponse{
+	required int32 OpType = 1; // 操作类型
+	required int32 TgtPlayerId = 2; // 目标Id
+}
+
+// 好友操作请求
+message HorseShowFriendOpRequest{
+	required int32 OpType = 1; // 操作类型
+	required int32 FriendId = 2; // 好友Id
+}
+
+// 好友操作回复
+message HorseShowFriendOpResponse{
+	required int32 OpType = 1; // 操作类型
+	required int32 FriendId = 2; // 好友Id
+}
+
+// 对自己点赞或者送花操作请求
+message HorseShowSelfOpRequest{
+	required int32 OpType = 1; // 操作类型
+}
+
+// 对自己点赞或者送花操作回复
+message HorseShowSelfOpResponse{
+	required int32 OpType = 1; // 操作类型
+}
+
+// 兑换10次奖励请求
+message HorseShow10ChgRequest{
+}
+
+// 兑换10次奖励回复
+message HorseShow10ChgResponse{
+	required Loots loots = 1; // 奖励的道具记录
+}
+
+// 查询魅力值
+message PlayerCharmRequest{
+	
+}
+
+// 魅力值查询回复
+message PlayerCharmResponse{
+	required int32 CharVal = 1; // 当前魅力值
+}
+
+/**************************** Vip礼包 ******************************/ 
+
+// 购买Vip礼包
+message BuyVipGiftRequest{
+	required int32 VipPrevilegeId = 1; // 购买了哪个等级的Vip礼包
+}
+
+// 同步当前已经购买的Vip礼包
+message VipGiftsStateResponse{
+	repeated int32 VipPrevilegeIds = 1; // 已经购买的Vip等级
+}
+
+/**************************** 购买经验单 ******************************/
+
+// 购买经验丹
+message BuyExpItemRequest {
+	required int32 ItemCfgId = 1; // 经验丹Id
+	required int32 ItemNum = 2; // 购买数量
+}
+
+// 购买经验丹回复
+message BuyExpItemResponse {
+	required int32 ItemCfgId = 1; // 经验丹Id
+	required int32 ItemNum = 2; // 实际购买数量
+}
+
+/**************************** 购买经验单 ******************************/
+
+// 兑换码兑换
+message RewardKeyUseRequest {
+	required string KeyCode = 1; // 兑换码
+}
+
+// 兑换成功
+message RewardKeyUseResponse{
+	
+}
+
+/**************************** 运营消息 ******************************/
+// 角色封印
+message AccountSealResponse {
+	required int32 OpenTime = 1;  // 小于0表示永久封印，大于0表示封印截止日期
+}
+
+message ChatForbidStateRequest {
+}
+
+message ChatForbidStateResponse {
+	required int32 AllowTime = 1; // 0表示可以发言，小于0表示永久禁言，大于0表示禁言截止日期
+}
+
+/**************************** 调查问卷 ******************************/
+
+message SubmitSurveyRequest {
+	
+}
+
+message SubmitSurveyResponse {
+	required Loots loots = 1; // 问卷调查奖励
+}
+
+/**************************** 限时道具 ******************************/
+
+message ItemTimeOutRequest {
+	repeated int32 itemid_list = 1; // 道具列表
+}
+
+message ItemTimeOutResponse {
+	repeated int32 itemid_list = 1; // 道具列表
+}
+
+message FasionTimeOutRequest {
+	repeated int32 HorseIdList = 1; // 战马Id列表
+}
+
+message FasionTimeOutResponse {
+	repeated int32 HorseIdList = 1; // 战马Id列表
+}
+
+
+/**************************** 武将战力宝盒相关消息start ******************************/
+/// C->S主动请求三类武将总战力
+message HeroTotalFightByTypeRequest {
+	
+}
+
+/// S->C返回三类武将总战力 (上线时，主动请求时下发)
+message HeroTotalFightByTypeResponse {
+	optional uint32 ZhanJianTotalFight = 1; // 战将类武将总战力
+	optional uint32 MengShiTotalFight = 2; // 猛士类武将总战力
+	optional uint32 WuShiTotalFight = 3; // 巫师类武将总战力
+}
+/**************************** 武将战力宝盒相关消息end ******************************/
+
+/**************************** 黑市相关消息start ******************************/
+/// 黑市商品数据(非消息)
+message BlackMarketItem {
+	optional int32 PriceType = 1;			// 价格类型: 0,金币 1,钻石 2,竞技场 3,炼化  4,赛马 5,远征
+	optional int32 ItemCid = 2;				// 物品配置ID
+	optional int32 Price = 3;				// 价格
+	optional int32 IsBuyed = 4;				// 是否已购买 0,未买 1,已买
+}
+
+/// C->S 客户端请求刷新黑市商品列表
+message BlackMarketManualRefreshRequest {
+}
+
+/// S->C 服务器返回黑市商品商品列表(下发时机: 1,手动请求刷新 2,内部检测条件满足)
+message BlackMarketItemListResponse {
+	repeated BlackMarketItem items = 1;			// 商品列表
+	optional int32 ManualRefreshCost = 2;		// 手动刷新花费钻石数
+	optional int32 EndTime = 3;					// 持续时间(秒)
+	optional int32 IsJustOpen = 4;				// 是否刚刚开启 (0, 否 1,是)
+}
+
+/// C->S 客户端请求请求购买黑市商品
+message BlackMarketBuyRequest {
+	optional int32 ItemCid = 1;					// 物品ConfigID
+}
+
+/// S->C 服务器返回黑市商品购买结果(下发时机: 1,收到购买请求)
+message BlackMarketBuyResponse {
+	optional int32 ItemCid = 1;					// 物品ConfigId
+}
+/**************************** 黑市相关消息end ******************************/
+
+/**************************** 帮会排行榜相关消息start ******************************/
+/// C->S 客户端请求帮会排行数据
+message TongSortRequest {
+}
+
+/// 帮会排行条目(非消息)
+message TongSortItem {
+	optional int32 Place = 1;			// 排名(从1开始算)
+	optional int32 TongId = 2;			// 帮会id
+	optional string TongName = 3;		// 帮会名字
+	optional string MasterName = 4;		// 帮主名字
+	optional int32 Fight = 5;			// 帮会战斗力
+}
+
+/// S->C 服务器返回帮会排行榜数据
+message TongSortResponse {
+	optional TongSortItem self = 1;		// 自己所在帮会数据(TongId==0,表示没有家族)
+	repeated TongSortItem items = 2;	// 排行列表
+}
+/**************************** 帮会排行榜相关消息end ******************************/
+
+/**************************** 武将排行榜相关消息start ******************************/
+/// C->S 客户端请求帮会排行数据
+message HeroSortRequest {
+}
+
+/// 帮会排行条目(非消息)
+message HeroSortItem {
+	optional int32 Place = 1;		// 排名(从1开始算)
+	optional int32 HeroCid = 2;		// 武将cid
+	optional string KingName = 3;	// 主公名字
+	optional int32 HorseCid = 4;	// 武将马cid
+	optional int32 Fight = 5;		// 武将战斗力
+}
+
+/// S->C 服务器返回帮会排行榜数据
+message HeroSortResponse {
+	optional HeroSortItem self = 1;		// 自己出征阵容中战力最高的武将数据
+	repeated HeroSortItem items = 2;	// 排行列表
+}
+/**************************** 武将排行榜相关消息end ******************************/
+
+/**************************** 计费相关消息 ******************************/
+
+// C->S计费私密参数请求
+message PayPrivateRequest {
+}
+
+// C->S计费私密参数回复
+message PayPrivateResponse {
+	required string privateparam = 1; // 私密参数
+}
+
+// S->C计费返回
+message PayResponse {
+	required string Bid = 1; // 商品Bid
+}

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item Rank="1" Type1RankUpRes="1,10000,4,50" Type2RankUpRes="1,10000,5,50" Type3RankUpRes="1,10000,6,50" Type1DecomposeRes="" Type2DecomposeRes="" Type3DecomposeRes="" />
+     <item Rank="2" Type1RankUpRes="1,30000,4,100" Type2RankUpRes="1,30000,5,100" Type3RankUpRes="1,30000,6,100" Type1DecomposeRes="4,50" Type2DecomposeRes="5,50" Type3DecomposeRes="6,50" />
+     <item Rank="3" Type1RankUpRes="1,70000,4,200" Type2RankUpRes="1,70000,5,200" Type3RankUpRes="1,70000,6,200" Type1DecomposeRes="4,150" Type2DecomposeRes="5,150" Type3DecomposeRes="6,150" />
+     <item Rank="4" Type1RankUpRes="1,150000,4,400" Type2RankUpRes="1,150000,5,400" Type3RankUpRes="1,150000,6,400" Type1DecomposeRes="4,350" Type2DecomposeRes="5,350" Type3DecomposeRes="6,350" />
+     <item Rank="5" Type1RankUpRes="1,300000,4,1000" Type2RankUpRes="1,300000,5,1000" Type3RankUpRes="1,300000,6,1000" Type1DecomposeRes="4,750" Type2DecomposeRes="5,750" Type3DecomposeRes="6,750" />
+     <item Rank="6" Type1RankUpRes="" Type2RankUpRes="" Type3RankUpRes="" Type1DecomposeRes="4,1750" Type2DecomposeRes="5,1750" Type3DecomposeRes="6,1750" />
+</Config>

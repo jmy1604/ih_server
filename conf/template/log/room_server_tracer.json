@@ -1,0 +1,26 @@
+{
+	"filters":
+	[
+		{
+			"enable":"true",
+			"tag":"stdout",
+			"type":"console",
+			"level":"INFO",
+			"property":null
+		},
+		{
+			"enable":"true",
+			"tag":"file",
+			"type":"file",
+			"level":"DEBUG",
+			"property":
+			[
+				{ "name":"logdir", "value":"../logs/room_server" },
+				{ "name":"filename", "value":"room_trace" },
+				{ "name":"filesuffix", "value":"txt" },
+				{ "name":"format", "value":"<%T><%L><%S>%M" },
+				{ "name":"rotate", "value":"true" }
+			]
+		}		
+	]
+}

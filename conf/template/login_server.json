@@ -1,0 +1,15 @@
+{
+	"ServerId":1,
+	"InnerVersion":"1.0.0",
+	"ServerName":"my_login_server",
+	"ListenClientIP":"192.168.1.250:35000",
+	
+	"ListenMatchIP":"192.168.1.250:35001",
+	"MaxMatchConnections":300,
+	"LogConfigDir":"../conf/log/login_server_tracer.json",
+	
+	"CenterServerIP":"192.168.1.250:30000",
+	"RedisServerIP" : "127.0.0.1:6379",
+	
+	"VERIFY_EXPIRATION": 600
+}

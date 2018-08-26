@@ -1,0 +1,499 @@
+syntax = "proto2";
+package db;
+
+
+message LimitShopItem{
+	optional int32 CommodityId=1;
+	optional int32 LeftNum=2;
+}
+
+message GuildStageDamageItem{
+	optional int32 AttackerId=1;
+	optional int32 Damage=2;
+}
+
+message PlayerInfo{
+	optional int32 Lvl=1;
+	optional int32 Exp=2;
+	optional int32 CreateUnix=3;
+	optional int32 Gold=4;
+	optional int32 Diamond=5;
+	optional int32 LastDialyTaskUpUinx=6;
+	optional string Icon=7;
+	optional int32 LastLogout=9;
+	optional int32 LastLogin=10;
+	optional int32 VipLvl=16;
+	optional int32 Head=17;
+}
+
+message PlayerGlobal{
+	optional int32 CurrentRoleId=1;
+}
+
+message PlayerItem{
+	optional int32 Id=1;
+	optional int32 Count=2;
+}
+
+message PlayerItemList{
+	repeated PlayerItem List=1;
+}
+
+message PlayerRole{
+	optional int32 Id=1;
+	optional int32 TableId=2;
+	optional int32 Rank=3;
+	optional int32 Level=4;
+	repeated int32 Attr=5;
+	repeated int32 Equip=6;
+	optional int32 IsLock=7;
+	optional int32 State=8;
+}
+
+message PlayerRoleList{
+	repeated PlayerRole List=1;
+}
+
+message PlayerRoleHandbook{
+	repeated int32 Role=1;
+}
+
+message PlayerBattleTeam{
+	repeated int32 DefenseMembers=2;
+	repeated int32 CampaignMembers=3;
+}
+
+message PlayerCampaignCommon{
+	optional int32 CurrentCampaignId=1;
+	optional int32 HangupLastDropStaticIncomeTime=2;
+	optional int32 HangupLastDropRandomIncomeTime=3;
+	optional int32 HangupCampaignId=4;
+	optional int32 LastestPassedCampaignId=5;
+	optional int32 RankSerialId=6;
+}
+
+message PlayerCampaign{
+	optional int32 CampaignId=1;
+}
+
+message PlayerCampaignList{
+	repeated PlayerCampaign List=1;
+}
+
+message PlayerCampaignStaticIncome{
+	optional int32 ItemId=1;
+	optional int32 ItemNum=2;
+}
+
+message PlayerCampaignStaticIncomeList{
+	repeated PlayerCampaignStaticIncome List=1;
+}
+
+message PlayerCampaignRandomIncome{
+	optional int32 ItemId=1;
+	optional int32 ItemNum=2;
+}
+
+message PlayerCampaignRandomIncomeList{
+	repeated PlayerCampaignRandomIncome List=1;
+}
+
+message PlayerNotifyState{
+	optional int32 ModuleType=1;
+}
+
+message PlayerNotifyStateList{
+	repeated PlayerNotifyState List=1;
+}
+
+message PlayerMailCommon{
+	optional int32 CurrId=1;
+	optional int32 LastSendPlayerMailTime=2;
+}
+
+message PlayerMail{
+	optional int32 Id=1;
+	optional int32 Type=2;
+	optional string Title=3;
+	optional string Content=4;
+	optional int32 SendUnix=5;
+	repeated int32 AttachItemIds=6;
+	repeated int32 AttachItemNums=7;
+	optional int32 IsRead=8;
+	optional int32 IsGetAttached=11;
+	optional int32 SenderId=12;
+	optional string SenderName=13;
+}
+
+message PlayerMailList{
+	repeated PlayerMail List=1;
+}
+
+message PlayerBattleSave{
+	optional int32 Id=1;
+	optional int32 Side=2;
+	optional int32 SaveTime=3;
+}
+
+message PlayerBattleSaveList{
+	repeated PlayerBattleSave List=1;
+}
+
+message PlayerTalent{
+	optional int32 Id=1;
+	optional int32 Level=2;
+}
+
+message PlayerTalentList{
+	repeated PlayerTalent List=1;
+}
+
+message PlayerTowerCommon{
+	optional int32 CurrId=1;
+	optional int32 Keys=2;
+	optional int32 LastGetNewKeyTime=3;
+}
+
+message PlayerTower{
+	optional int32 Id=1;
+}
+
+message PlayerTowerList{
+	repeated PlayerTower List=1;
+}
+
+message PlayerDraw{
+	optional int32 Type=1;
+	optional int32 LastDrawTime=2;
+}
+
+message PlayerDrawList{
+	repeated PlayerDraw List=1;
+}
+
+message PlayerGoldHand{
+	optional int32 LastRefreshTime=1;
+	repeated int32 LeftNum=2;
+}
+
+message PlayerShop{
+	optional int32 Id=1;
+	optional int32 LastFreeRefreshTime=2;
+	optional int32 LastAutoRefreshTime=3;
+	optional int32 CurrAutoId=4;
+}
+
+message PlayerShopList{
+	repeated PlayerShop List=1;
+}
+
+message PlayerShopItem{
+	optional int32 Id=1;
+	optional int32 ShopItemId=2;
+	optional int32 LeftNum=3;
+	optional int32 ShopId=4;
+}
+
+message PlayerShopItemList{
+	repeated PlayerShopItem List=1;
+}
+
+message PlayerArena{
+	optional int32 RepeatedWinNum=1;
+	optional int32 RepeatedLoseNum=2;
+	optional int32 Score=3;
+	optional int32 UpdateScoreTime=4;
+	optional int32 MatchedPlayerId=5;
+	optional int32 HistoryTopRank=6;
+	optional int32 FirstGetTicket=7;
+	optional int32 LastTicketsRefreshTime=8;
+	optional int32 SerialId=9;
+}
+
+message PlayerEquip{
+	optional int32 TmpSaveLeftSlotRoleId=1;
+	optional int32 TmpLeftSlotItemId=2;
+}
+
+message PlayerActiveStageCommon{
+	optional int32 LastRefreshTime=1;
+	optional int32 GetPointsDay=2;
+	optional int32 WithdrawPoints=3;
+}
+
+message PlayerActiveStage{
+	optional int32 Type=1;
+	optional int32 CanChallengeNum=2;
+	optional int32 PurchasedNum=3;
+}
+
+message PlayerActiveStageList{
+	repeated PlayerActiveStage List=1;
+}
+
+message PlayerFriendCommon{
+	optional int32 LastRecommendTime=1;
+	optional int32 LastBossRefreshTime=2;
+	optional int32 FriendBossTableId=3;
+	optional int32 FriendBossHpPercent=4;
+	repeated int32 AttackBossPlayerList=5;
+	optional int32 LastGetStaminaTime=6;
+	optional int32 AssistRoleId=7;
+}
+
+message PlayerFriend{
+	optional int32 PlayerId=1;
+	optional int32 LastGivePointsTime=2;
+	optional int32 GetPoints=3;
+}
+
+message PlayerFriendList{
+	repeated PlayerFriend List=1;
+}
+
+message PlayerFriendRecommend{
+	optional int32 PlayerId=1;
+}
+
+message PlayerFriendRecommendList{
+	repeated PlayerFriendRecommend List=1;
+}
+
+message PlayerFriendAsk{
+	optional int32 PlayerId=1;
+}
+
+message PlayerFriendAskList{
+	repeated PlayerFriendAsk List=1;
+}
+
+message PlayerFriendBoss{
+	optional int32 MonsterPos=1;
+	optional int32 MonsterId=2;
+	optional int32 MonsterHp=3;
+}
+
+message PlayerFriendBossList{
+	repeated PlayerFriendBoss List=1;
+}
+
+message PlayerTaskCommon{
+	optional int32 LastRefreshTime=1;
+}
+
+message PlayerTask{
+	optional int32 Id=1;
+	optional int32 Value=2;
+	optional int32 State=3;
+}
+
+message PlayerTaskList{
+	repeated PlayerTask List=1;
+}
+
+message PlayerFinishedTask{
+	optional int32 Id=1;
+}
+
+message PlayerFinishedTaskList{
+	repeated PlayerFinishedTask List=1;
+}
+
+message PlayerDailyTaskAllDaily{
+	optional int32 CompleteTaskId=1;
+}
+
+message PlayerDailyTaskAllDailyList{
+	repeated PlayerDailyTaskAllDaily List=1;
+}
+
+message PlayerExploreCommon{
+	optional int32 LastRefreshTime=1;
+	optional int32 CurrentId=2;
+}
+
+message PlayerExplore{
+	optional int32 Id=1;
+	optional int32 TaskId=2;
+	optional int32 State=3;
+	repeated int32 RoleCampsCanSel=4;
+	repeated int32 RoleTypesCanSel=5;
+	optional int32 RoleId4TaskTitle=6;
+	optional int32 NameId4TaskTitle=7;
+	optional int32 StartTime=8;
+	repeated int32 RoleIds=9;
+	optional int32 IsLock=10;
+	repeated int32 RandomRewards=11;
+}
+
+message PlayerExploreList{
+	repeated PlayerExplore List=1;
+}
+
+message PlayerExploreStory{
+	optional int32 TaskId=1;
+	optional int32 State=2;
+	repeated int32 RoleCampsCanSel=3;
+	repeated int32 RoleTypesCanSel=4;
+	optional int32 StartTime=5;
+	repeated int32 RoleIds=6;
+	repeated int32 RandomRewards=7;
+}
+
+message PlayerExploreStoryList{
+	repeated PlayerExploreStory List=1;
+}
+
+message PlayerFriendChatUnreadId{
+	optional int32 FriendId=1;
+	repeated int32 MessageIds=2;
+	optional int32 CurrMessageId=3;
+}
+
+message PlayerFriendChatUnreadIdList{
+	repeated PlayerFriendChatUnreadId List=1;
+}
+
+message PlayerFriendChatUnreadMessage{
+	optional int64 PlayerMessageId=1;
+	optional bytes Message=2;
+	optional int32 SendTime=3;
+	optional int32 IsRead=4;
+}
+
+message PlayerFriendChatUnreadMessageList{
+	repeated PlayerFriendChatUnreadMessage List=1;
+}
+
+message PlayerHeadItem{
+	optional int32 Id=1;
+}
+
+message PlayerHeadItemList{
+	repeated PlayerHeadItem List=1;
+}
+
+message PlayerSuitAward{
+	optional int32 Id=1;
+	optional int32 AwardTime=2;
+}
+
+message PlayerSuitAwardList{
+	repeated PlayerSuitAward List=1;
+}
+
+message PlayerChat{
+	optional int32 Channel=1;
+	optional int32 LastChatTime=2;
+	optional int32 LastPullTime=3;
+	optional int32 LastMsgIndex=4;
+}
+
+message PlayerChatList{
+	repeated PlayerChat List=1;
+}
+
+message PlayerAnouncement{
+	optional int32 LastSendTime=1;
+}
+
+message PlayerFirstDrawCard{
+	optional int32 Id=1;
+	optional int32 Drawed=2;
+}
+
+message PlayerFirstDrawCardList{
+	repeated PlayerFirstDrawCard List=1;
+}
+
+message PlayerGuild{
+	optional int32 Id=1;
+	optional int32 JoinTime=2;
+	optional int32 QuitTime=3;
+	optional int32 SignTime=4;
+	optional int32 Position=5;
+	optional int32 DonateNum=6;
+	optional int32 LastAskDonateTime=7;
+}
+
+message PlayerGuildStage{
+	optional int32 RespawnNum=1;
+	optional int32 RespawnState=2;
+	optional int32 LastRefreshTime=3;
+}
+
+message PlayerRoleMaxPower{
+	repeated int32 RoleIds=1;
+}
+
+message BattleSaveData{
+	optional bytes Data=1;
+}
+
+message TowerFightSaveData{
+	optional bytes Data=1;
+}
+
+message TowerRankingListPlayers{
+	repeated int32 Ids=1;
+}
+
+message ArenaSeasonData{
+	optional int32 LastDayResetTime=1;
+	optional int32 LastSeasonResetTime=2;
+}
+
+message GuildMember{
+	optional int32 PlayerId=1;
+}
+
+message GuildMemberList{
+	repeated GuildMember List=1;
+}
+
+message GuildAskList{
+	optional int32 PlayerId=1;
+}
+
+message GuildAskListList{
+	repeated GuildAskList List=1;
+}
+
+message GuildLog{
+	optional int32 Id=1;
+	optional int32 LogType=2;
+	optional int32 PlayerId=3;
+	optional int32 Time=4;
+}
+
+message GuildLogList{
+	repeated GuildLog List=1;
+}
+
+message GuildAskDonate{
+	optional int32 PlayerId=1;
+	optional int32 ItemId=2;
+	optional int32 ItemNum=3;
+	optional int32 AskTime=4;
+}
+
+message GuildAskDonateList{
+	repeated GuildAskDonate List=1;
+}
+
+message GuildStage{
+	optional int32 BossId=1;
+	optional int32 HpPercent=3;
+	optional int32 BossPos=4;
+	optional int32 BossHP=5;
+}
+
+message GuildStageDamageLog{
+	optional int32 AttackerId=1;
+	optional int32 Damage=2;
+}
+
+message GuildStageDamageLogList{
+	repeated GuildStageDamageLog List=1;
+}
+

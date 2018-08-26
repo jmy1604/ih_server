@@ -1,0 +1,13 @@
+package db_login;
+
+
+message GameUserData {
+	optional int32 ServerID = 1;
+	optional string RoleName = 2;
+	optional int32 RoleLevel = 3;
+	optional string RoleIcon = 4;
+}
+
+message GameUsersData {
+	repeated GameUserData Datas = 1;
+}

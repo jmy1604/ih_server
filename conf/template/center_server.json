@@ -1,0 +1,19 @@
+{
+	"LogConfigPath":"../conf/log/center_server_tracer.json",
+	"ListenLoginIP":"192.168.1.250:30000",
+	"MaxLoginConntions":1000,
+	"ListenHallIP":"192.168.1.250:30001",
+	"MaxHallConntions":1000,
+	"GmIP":"192.168.1.250:30002",
+	"HallServerCfgDir":"../conf/hall_server_group.json",
+	
+	"MYSQL_NAME":"center_server_mm",
+	"MYSQL_IP":"127.0.0.1:3306",
+	"MYSQL_ACCOUNT":"root",
+	"MYSQL_PWD":"",
+	"DBCST_MIN":300,
+	"DBCST_MAX":350,
+	"DBPM_MIN":0,
+	"DBPM_MAX":10000,
+	"MYSQL_COPY_PATH":"../dbcopy/"
+}

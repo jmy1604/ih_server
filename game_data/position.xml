@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<Config name="\Data\位置定义.xlsx">
+	<item Pos="0" Name="全球"/>
+	<item Pos="1" Name="中国"/>
+	<item Pos="2" Name="美国"/>
+</Config>

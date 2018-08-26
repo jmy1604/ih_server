@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item Level="1" Exp="15" Members="15" />
+     <item Level="2" Exp="32" Members="16" />
+     <item Level="3" Exp="51" Members="17" />
+     <item Level="4" Exp="72" Members="18" />
+     <item Level="5" Exp="95" Members="19" />
+     <item Level="6" Exp="120" Members="20" />
+     <item Level="7" Exp="147" Members="21" />
+     <item Level="8" Exp="176" Members="22" />
+     <item Level="9" Exp="207" Members="23" />
+     <item Level="10" Exp="240" Members="24" />
+     <item Level="11" Exp="275" Members="25" />
+     <item Level="12" Exp="312" Members="26" />
+     <item Level="13" Exp="351" Members="27" />
+     <item Level="14" Exp="392" Members="28" />
+     <item Level="15" Exp="435" Members="29" />
+     <item Level="16" Exp="0" Members="30" />
+</Config>

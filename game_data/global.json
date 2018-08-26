@@ -1,0 +1,110 @@
+{
+	"InitRoles":[1051,1,1,1052,1,1,1053,1,1,1054,1,1,1055,1,1,1056,1,1,2051,1,1,2052,1,1,2053,1,1,2054,1,1,2055,1,1,2056,1,1,3051,1,1,3052,1,1,3053,1,1,3054,1,1,3055,1,1,3056,1,1,4051,1,1,4052,1,1,4053,1,1,4054,1,1,4055,1,1,4056,1,1,5051,1,1,5052,1,1,5053,1,1,5054,1,1,5055,1,1,5056,1,1,6051,1,1,6052,1,1,6053,1,1,6054,1,1,6055,1,1,6056,1,1],
+	"InitItems":[],
+	"InitDiamond":100000,
+	"InitCoin":100000000,
+	
+	"InitEnergy":30,
+	"MaxEnergy":60,
+	"EnergyAdd":20,
+	
+	"HeartbeatInterval":180,
+	
+	"MaxRoleCount": 300,
+	
+	"MailTitleBytes":32,
+	"MailContentBytes":240,
+	"MailMaxCount":100,
+	"MailNormalExistDays":7,
+	"MailAttachExistDays":15,
+	"MailPlayerSendCooldown":30,
+	
+	"PlayerBattleRecordMaxCount":10,
+	
+	"TowerKeyMax": 10,
+	"TowerKeyGetInterval": 60,
+	"TowerKeyId": 8,
+	
+	"ItemLeftSlotOpenLevel": 1,
+	"LeftSlotDropId": 200001,
+	
+	"ArenaTicketItemId": 18,
+	"ArenaTicketsDay": 5,
+	"ArenaTicketRefreshTime": "08:00:00",
+	"ArenaEnterLevel": 1,
+	"ArenaGetTopRankNum": 50,
+	"ArenaMatchPlayerNum": 20,
+	"ArenaRepeatedWinNum": 2,
+	"ArenaLoseRepeatedNum": 1,
+	"ArenaHighGradeStart": 3,
+	"ArenaSeasonDays": 1,
+	"ArenaDayResetTime": "14:59:00",
+	"ArenaSeasonResetTime": "15:00:00",
+	
+	"ActiveStageRefreshTime": "00:00:00",
+	"ActiveStageChallengeNumOfDay": 100,
+	"ActiveStageChallengeNumPrice": 100,
+	"ActiveStagePurchaseNum": 10,
+	
+	"FriendMaxNum": 30,
+	"FriendRecommendNum": 10,
+	"FriendPointItemId": 9,
+	"FriendPointsOnceGive": 20,
+	"FriendStaminaItemId": 12,
+	"FriendStaminaLimit": 10,
+	"FriendStartStamina": 10,
+	"FriendStaminaResumeOnePointNeedHours": 2,
+	"FriendBossAttackCostStamina": 1,
+	"FriendBossAttackCooldown": 3600,
+	"FriendRefreshTime": "00:00:00",
+	"FriendSearchBossRefreshHours": 1,
+	"FriendAssistPointsGet": 10,
+	"FriendPointsGetLimitDay": 100,
+	
+	"DailyTaskRefreshTime": "00:00:00",
+	
+	"ExploreTaskRefreshCostDiamond": 10,
+	"ExploreTaskRefreshTime": "00:00:00",
+	
+	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
+	"AppleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
+	"FaceBookLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
+	"ApplePayUrl":"https://buy.itunes.apple.com/verifyReceipt",
+	"ApplePaySandBoxUrl":"https://sandbox.itunes.apple.com/verifyReceipt",
+	
+	"MaxNameLen":32,
+	"ChgNameCost":[0,10,20,30,40,50],
+	"FirstPayReward":6801,
+	
+	"WorldChatMaxMsgNum": 200,
+	"WorldChatPullMaxMsgNum": 50,
+	"WorldChatPullMsgCooldown": 3,
+	"WorldChatMsgMaxBytes": 200,
+	"WorldChatMsgExistTime": 100,
+	
+	"AnouncementMaxNum": 1000,
+	"AnouncementSendCooldown": 15,
+	"AnouncementSendMaxNum": 10,
+	"AnouncementExistTime": 10,
+	
+	"GuildOpenLevel": 3,
+	"GuildNameLength": 64,
+	"GuildCreateCostGem": 1000,
+	"GuildChangeNameCostGem": 2000,
+	"GuildSignReward": [20,10],
+	"GuildSignAddExp": 1,
+	"GuildMailSendIntervalSecs": 30,
+	"GuildRecruitIntervalSecs": 5,
+	"GuildAskDonateCDSecs": 25200,
+	"GuildQuitAskJoinCDSecs": 25200,
+	"GuildDonateLimitDay": 180,
+	"GuildStageResetCDSecs": 172800,
+	"GuildStageResurrectionGem": [0,100,200,300,400,500,600,700,800,900,1000],
+	"GuildDismissWaitingSeconds": 7200,
+	"GuildSignRefreshTime":"00:00:00",
+	"GuildAskDonateExistSeconds": 36000,
+	"GuildDonateRefreshTime":"00:00:00",
+	"GuildStageRefreshTime":"00:00:00",
+	
+	"TalentResetCostDiamond": 10000
+}

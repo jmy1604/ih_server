@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item Index="1" RankingMin="1" RankingMax="1" DayRewardList="3,50,13,300" SeasonRewardList="3,500,13,3000" />
+     <item Index="2" RankingMin="2" RankingMax="2" DayRewardList="3,47,13,280" SeasonRewardList="3,450,13,2600" />
+     <item Index="3" RankingMin="3" RankingMax="3" DayRewardList="3,44,13,260" SeasonRewardList="3,400,13,2200" />
+     <item Index="4" RankingMin="4" RankingMax="4" DayRewardList="3,41,13,240" SeasonRewardList="3,350,13,1800" />
+     <item Index="5" RankingMin="5" RankingMax="5" DayRewardList="3,38,13,220" SeasonRewardList="3,300,13,1400" />
+     <item Index="6" RankingMin="6" RankingMax="10" DayRewardList="3,35,13,200" SeasonRewardList="3,250,13,1000" />
+     <item Index="7" RankingMin="11" RankingMax="20" DayRewardList="3,32,13,180" SeasonRewardList="3,200,13,800" />
+     <item Index="8" RankingMin="21" RankingMax="50" DayRewardList="3,29,13,160" SeasonRewardList="3,150,13,600" />
+     <item Index="9" RankingMin="51" RankingMax="100" DayRewardList="3,26,13,140" SeasonRewardList="3,120,13,500" />
+     <item Index="10" RankingMin="101" RankingMax="200" DayRewardList="3,23,13,120" SeasonRewardList="3,90,13,400" />
+     <item Index="11" RankingMin="201" RankingMax="500" DayRewardList="3,20,13,100" SeasonRewardList="3,70,13,300" />
+     <item Index="12" RankingMin="501" RankingMax="1000" DayRewardList="3,17,13,80" SeasonRewardList="3,50,13,200" />
+     <item Index="13" RankingMin="1001" RankingMax="2000" DayRewardList="3,14,13,60" SeasonRewardList="3,40,13,120" />
+     <item Index="14" RankingMin="2001" RankingMax="5000" DayRewardList="3,11,13,40" SeasonRewardList="3,30,13,80" />
+     <item Index="15" RankingMin="5001" RankingMax="99999" DayRewardList="3,8,13,20" SeasonRewardList="3,20,13,40" />
+</Config>

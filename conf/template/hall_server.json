@@ -1,0 +1,28 @@
+{
+	"ServerId":1,
+	"InnerVersion":"1.0.0",
+	"ServerName":"wjxz_hall_server_1",
+	"ListenClientInIP":"192.168.1.250:30100",
+	"ListenClientOutIP":"192.168.1.250:30100",
+	"MaxClientConnections":10000,
+	"MaxRoomConnections":10000,
+	"RpcServerIP":"192.168.1.250:31000",
+	"ListenRpcServerIP":"192.168.1.250:31001",
+	
+	"CenterServerIP":"192.168.1.250:30001",
+	"LogConfigDir":"../conf/log/hall_server_tracer.json",
+	"RecvMaxMSec":3000000,
+	"SendMaxMSec":3000000,
+	
+	"RedisServerIP":"127.0.0.1:6379",
+	
+	"MYSQL_NAME":"wjxz_hall_server_1",
+	"MYSQL_IP":"127.0.0.1:3306",
+	"MYSQL_ACCOUNT":"root",
+	"MYSQL_PWD":"",
+	"DBCST_MIN":300,
+	"DBCST_MAX":350,
+	"DBPM_MIN":0,
+	"DBPM_MAX":10000,
+	"MYSQL_COPY_PATH":"../dbcopy/"
+}

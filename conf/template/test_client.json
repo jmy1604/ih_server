@@ -1,0 +1,10 @@
+{
+	"LoginServerIP":"192.168.1.250:35000",
+	"LogConfigDir":"../conf/log/test_client_tracer.json",
+	"LoginUrl":"https://192.168.1.250:35000/login?account=%v&password=%v",
+	"SelectServerUrl":"https://192.168.1.250:35000/select_server?account=%v&token=%v&server_id=%v",
+	"AccountPrefix":"test",
+	"AccountStartIndex":1,
+	"AccountNum":1,
+	"UseHttps":true
+}

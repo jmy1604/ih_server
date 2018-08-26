@@ -1,0 +1,1 @@
+dbc.exe "go" "center_db_def.json" "proto_prefix.txt" "..\proto\db_center.proto" "code_prefix_center.txt" "..\src\center_server\a_db_tables.go"

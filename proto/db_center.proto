@@ -1,0 +1,21 @@
+syntax = "proto2";
+package db;
+
+
+message IdNum{
+	optional int32 Id=1;
+	optional int32 Num=2;
+}
+
+message ServerRewardRewardInfo{
+	optional int32 RewardId=1;
+	repeated IdNum Items=2;
+	optional string Channel=3;
+	optional int32 EndUnix=4;
+	optional string Content=5;
+}
+
+message ServerRewardRewardInfoList{
+	repeated ServerRewardRewardInfo List=1;
+}
+

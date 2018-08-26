@@ -1,0 +1,283 @@
+syntax = "proto3";
+
+package msg.client_message_id;
+
+enum MSGID {
+	NONE									= 0;
+	C2S_TEST_COMMAND 						= 1; // 测试 C2S_TEST_COMMAND
+	C2S_HEARTBEAT 							= 2; // 心跳
+	S2C_HEARTBEAT							= 3; // 心跳返回
+	S2C_STATE_NOTIFY						= 4; // 红点状态通知
+	C2S_DATA_SYNC_REQUEST					= 5; // 请求数据同步
+	
+	C2S_LOGIN_REQUEST 						= 10000; // 登陆请求
+	S2C_LOGIN_RESPONSE 						= 10001; // 登陆请求返回  S2CLoginResponse
+	S2C_OTHER_PLACE_LOGIN 					= 10002; // 其他地方登陆
+	C2S_SELECT_SERVER_REQUEST 				= 10003; // 选择服务器
+	S2C_SELECT_SERVER_RESPONSE  			= 10004; // 选择服务器返回 S2CSelectServerResponse
+	
+	C2S_ENTER_GAME_REQUEST					= 10020; // 进入游戏 C2SEnterGameRequest
+	S2C_ENTER_GAME_RESPONSE					= 10021; // 进入游戏返回 S2CEnterGameResponse
+	S2C_ENTER_GAME_COMPLETE_NOTIFY 			= 10022; // 进入游戏完成 S2CEnterGameCompleteNotify
+	C2S_LEAVE_GAME_REQUEST					= 10023; // 离开游戏 C2SLeaveGameRequest
+	S2C_LEAVE_GAME_RESPONSE					= 10024; // 离开游戏返回 S2CLeaveGameResponse
+	S2C_PLAYER_INFO_RESPONSE				= 10025; // 玩家信息 S2CPlayerInfoResponse
+	
+	C2S_ROLES_REQUEST						= 10050; // 角色请求同步 C2SRolesRequest
+	S2C_ROLES_RESPONSE						= 10051; // 角色请求不同返回 S2CRolesResponse
+	S2C_ROLES_CHANGE_NOTIFY					= 10052; // 角色更新 S2CRolesChangeNotify
+	C2S_ROLE_ATTRS_REQUEST					= 10053; // 角色属性请求 C2SRoleAttrsRequest
+	S2C_ROLE_ATTRS_RESPONSE					= 10054; // 角色属性请求返回 S2CRoleAttrsResponse
+	C2S_ROLE_LEVELUP_REQUEST			    = 10055; // 请求角色升级 C2SRoleLevelUpRequest
+	S2C_ROLE_LEVELUP_RESPONSE				= 10056; // 请求角色升级返回 S2CRoleLevelUpResponse
+	C2S_ROLE_RANKUP_REQUEST					= 10057; // 请求角色升阶 C2SRoleRankUpRequest
+	S2C_ROLE_RANKUP_RESPONSE				= 10058; // 请求角色升阶返回 S2CRoleRankUpResponse
+	C2S_ROLE_DECOMPOSE_REQUEST				= 10059; // 请求角色分解 C2SRoleDecomposeRequest
+	S2C_ROLE_DECOMPOSE_RESPONSE				= 10060; // 请求角色分解返回 S2CRoleDecomposeResponse
+	C2S_ROLE_FUSION_REQUEST					= 10061; // 请求角色合成 C2SRoleFusionRequest
+	S2C_ROLE_FUSION_RESPONSE				= 10062; // 请求角色合成返回 S2CRoleFusionResponse
+	C2S_ROLE_LOCK_REQUEST				 	= 10063; // 请求角色锁定 C2SRoleLockRequest
+	S2C_ROLE_LOCK_RESPONSE					= 10064; // 请求角色锁定返回 S2CRoleLockResponse
+	C2S_ROLE_HANDBOOK_REQUEST				= 10065; // 请求角色图鉴 C2SRoleHandbookRequest
+	S2C_ROLE_HANDBOOK_RESPONSE				= 10066; // 请求角色图鉴返回 S2CRoleHandbookResponse
+	C2S_ROLE_LEFTSLOT_OPEN_REQUEST			= 10067; // 请求角色左槽开启 C2SRoleLeftSlotOpenRequest
+	S2C_ROLE_LEFTSLOT_OPEN_RESPONSE			= 10068; // 请求角色左槽开启返回 S2CRoleLeftSlotOpenResponse
+	C2S_ROLE_ONEKEY_EQUIP_REQUEST			= 10069; // 请求一键穿戴 C2SRoleOneKeyEquipRequest
+	S2C_ROLE_ONEKEY_EQUIP_RESPONSE			= 10070; // 请求一键穿戴返回 S2CRoleOneKeyEquipResponse
+	C2S_ROLE_ONEKEY_UNEQUIP_REQUEST			= 10071; // 请求一键脱装 C2SRoleOneKeyUnequipRequest
+	S2C_ROLE_ONEKEY_UNEQUIP_RESPONSE		= 10072; // 请求一键脱装返回 S2CRoleOneKeyUnequipResponse
+	C2S_ROLE_LEFTSLOT_RESULT_SAVE_REQUEST	= 10073; // 请求左槽结果保存 C2SRoleLeftSlotResultSaveRequest
+	S2C_ROLE_LEFTSLOT_RESULT_SAVE_RESPONSE	= 10074; // 请求左槽结果保存返回 S2CRoleLeftSlotResultSaveResponse
+	C2S_ROLE_LEFTSLOT_RESULT_CANCEL_REQUEST = 10075; // 请求左槽结果取消 C2SRoleLeftSlotResultCancelRequest
+	S2C_ROLE_LEFTSLOT_RESULT_CANCEL_RESPONSE= 10076; // 请求左槽结果取消返回 S2CRoleLeftSlotResultCancelResponse
+	
+	C2S_BATTLE_RESULT_REQUEST				= 10100; // 战斗结果请求 C2SBattleResultRequest
+	S2C_BATTLE_RESULT_RESPONSE				= 10101; // 战斗结果请求返回 S2CBattleResultResponse
+	C2S_BATTLE_RECORD_REQUEST				= 10102; // 录像数据请求 C2SBattleRecordRequest
+	S2C_BATTLE_RECORD_RESPONSE              = 10103; // 录像数据请求返回 S2CBattleRecordResponse
+	C2S_BATTLE_RECORD_LIST_REQUEST			= 10104; // 录像数据列表请求 C2SBattleRecordListRequest
+	S2C_BATTLE_RECORD_LIST_RESPONSE			= 10105; // 录像数据列表返回 S2CBattleRecordListResponse
+	C2S_BATTLE_RECORD_DELETE_REQUEST		= 10106; // 录像删除请求 C2SBattleRecordDeleteRequest
+	S2C_BATTLE_RECORD_DELETE_RESPONSE		= 10107; // 录像删除返回 S2CBattleRecordDeleteResponse
+	S2C_BATTLE_RANDOM_REWARD_NOTIFY			= 10108; // 战斗随机奖励 S2CBattleRandomRewardNotify
+	
+	C2S_SET_TEAM_REQUEST					= 10200; // 设置阵营 C2SSetTeamRequest
+	S2C_SET_TEAM_RESPONSE					= 10201; // 设置阵营返回 S2CSetTeamResponse
+	S2C_TEAMS_RESPONSE						= 10202; // 所有阵容列表返回 S2CTeamsResponse
+	
+	C2S_ITEMS_SYNC_REQUEST					= 10300; // 请求物品同步 C2SItemsSyncRequest
+	S2C_ITEMS_SYNC							= 10301; // 进入游戏物品同步 S2CItemsSync
+	S2C_ITEMS_UPDATE						= 10302; // 物品更新 S2CItemsUpdate
+	C2S_ITEM_FUSION_REQUEST					= 10303; // 物品合成 C2SItemFusionRequest
+	S2C_ITEM_FUSION_RESPONSE				= 10304; // 物品合成返回 S2CItemFusionResponse
+	C2S_ITEM_SELL_REQUEST					= 10305; // 出售物品 C2SItemSellRequest
+	S2C_ITEM_SELL_RESPONSE					= 10306; // 出售物品返回 S2CItemSellResponse
+	C2S_ITEM_EQUIP_REQUEST				    = 10307; // 请求装备物品 C2SItemEquipRequest
+	S2C_ITEM_EQUIP_RESPONSE				 	= 10308; // 请求装备物品返回 S2CItemEquipResponse
+	C2S_ITEM_UNEQUIP_REQUEST			 	= 10309; // 请求卸载物品 C2SItemUnequipRequest
+	S2C_ITEM_UNEQUIP_RESPONSE				= 10310; // 请求卸载物品返回 S2CItemUnequipResponse
+	C2S_ITEM_UPGRADE_REQUEST			    = 10311; // 请求物品升级 C2SItemUpgradeRequest
+	S2C_ITEM_UPGRADE_RESPONSE				= 10312; // 请求物品升级返回 S2CItemUpgradeResponse
+	C2S_ITEM_ONEKEY_UPGRADE_REQUEST			= 10313; // 请求一键合成装备 C2SItemOneKeyUpgradeRequest
+	S2C_ITEM_ONEKEY_UPGRADE_RESPONSE		= 10314; // 请求一键合成装备返回 S2CItemOneKeyUpgradeResponse
+	
+	C2S_CAMPAIGN_DATA_REQUEST				= 10400; // 请求战役数据 C2SCampaignDataRequest
+	S2C_CAMPAIGN_DATA_RESPONSE				= 10401; // 战役数据返回 S2CCampaignDataResponse
+	C2S_CAMPAIGN_HANGUP_INCOME_REQUEST		= 10402; // 战役挂机收益请求 C2SCampaignHangupIncomeRequest
+	S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE		= 10403; // 战役挂机收益返回 S2CCampaignHangupIncomeResponse
+	C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST  = 10404; // 设置挂机战役ID C2SBattleSetHangupCampaignRequest
+	S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE = 10405; // 设置挂机战役ID返回 S2CBattleSetHangupCampaignResponse
+	
+	C2S_MAIL_SEND_REQUEST					= 10500; // 请求发送邮件 C2SMailSendRequest
+	S2C_MAIL_SEND_RESPONSE					= 10501; // 发送邮件返回 S2CMailSendResponse
+	C2S_MAIL_LIST_REQUEST 					= 10502; // 请求邮件列表 C2SMailListRequest
+	S2C_MAIL_LIST_RESPONSE 					= 10503; // 邮件列表返回 S2CMailListResponse
+	C2S_MAIL_DETAIL_REQUEST					= 10504; // 请求邮件详细内容 C2SMailDetailRequest
+	S2C_MAIL_DETAIL_RESPONSE				= 10505; // 邮件详细内容返回 S2CMailDetailResponse
+	C2S_MAIL_GET_ATTACHED_ITEMS_REQUEST		= 10506; // 请求邮件附件获取 C2SMailGetAttachedItemsRequest
+	S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE	= 10507; // 邮件附件获取返回 S2CMailGetAttachedItemsResponse
+	C2S_MAIL_DELETE_REQUEST					= 10508; // 请求删除邮件 C2SMailDeleteRequest
+	S2C_MAIL_DELETE_RESPONSE				= 10509; // 删除邮件返回 S2CMailDeleteResponse
+	S2C_MAILS_NEW_NOTIFY					= 10510; // 新邮件通知 S2CMailsNewNotify
+	
+	C2S_TALENT_UP_REQUEST					= 10600; // 请求天赋升级 C2STalentUpRequest
+	S2C_TALENT_UP_RESPONSE					= 10601; // 天赋升级返回 S2CTalentUpResponse
+	C2S_TALENT_LIST_REQUEST					= 10602; // 请求天赋列表 C2STalentListRequest
+	S2C_TALENT_LIST_RESPONSE				= 10603; // 天赋列表返回 S2CTalentListResponse
+	C2S_TALENT_RESET_REQUEST				= 10604; // 天赋重置 C2STalentResetRequest
+	S2C_TALENT_RESET_RESPONSE				= 10605; // 天赋重置返回 S2CTalentResetResponse
+	
+	C2S_TOWER_DATA_REQUEST					= 10700; // 爬塔数据请求 C2STowerDataRequest
+	S2C_TOWER_DATA_RESPONSE					= 10701; // 爬塔数据返回 S2CTowerDataResponse
+	C2S_TOWER_RECORDS_INFO_REQUEST			= 10702; // 爬塔录像信息请求 C2STowerRecordsInfoRequest
+	S2C_TOWER_RECORDS_INFO_RESPONSE			= 10703; // 爬塔录像信息返回 S2CTowerRecordsInfoResponse
+	C2S_TOWER_RECORD_DATA_REQUEST			= 10704; // 爬塔录像具体数据 C2STowerRecordDataRequest
+	S2C_TOWER_RECORD_DATA_RESPONSE			= 10705; // 爬塔录像具体数据返回 S2CTowerRecordDataResponse
+	C2S_TOWER_RANKING_LIST_REQUEST			= 10706; // 爬塔排行榜请求 C2STowerRankingListRequest
+	S2C_TOWER_RANKING_LIST_RESPONSE			= 10707; // 爬塔排行榜请求返回 S2CTowerRankingListResponse
+	
+	C2S_DRAW_CARD_REQUEST				 	= 10800; // 请求抽卡 C2SDrawCardRequest
+	S2C_DRAW_CARD_RESPONSE					= 10801; // 请求抽卡返回 S2CDrawCardResponse
+	C2S_DRAW_DATA_REQUEST					= 10802; // 请求抽卡数据 C2SDrawDataRequest
+	S2C_DRAW_DATA_RESPONSE					= 10803; // 请求抽卡数据返回 S2CDrawDataResponse
+	
+	C2S_TOUCH_GOLD_REQUEST					= 10900; // 请求点金 C2STouchGoldRequest
+	S2C_TOUCH_GOLD_RESPONSE					= 10901; // 请求点金返回 S2CTouchGoldResponse
+	C2S_GOLD_HAND_DATA_REQUEST				= 10902; // 请求点金手数据 C2SGoldHandDataRequest
+	S2C_GOLD_HAND_DATA_RESPONSE			 	= 10903; // 请求点金手数据返回 S2CGoldHandDataResponse
+	
+	C2S_SHOP_DATA_REQUEST					= 11000; // 请求商店数据 C2SShopDataRequest
+	S2C_SHOP_DATA_RESPONSE					= 11001; // 请求商店数据返回 S2CShopDataResponse
+	C2S_SHOP_BUY_ITEM_REQUEST				= 11002; // 请求商店购买 C2SShopBuyItemRequest
+	S2C_SHOP_BUY_ITEM_RESPONSE				= 11003; // 请求商店购买返回 S2CShopBuyItemResponse
+	C2S_SHOP_REFRESH_REQUEST				= 11004; // 请求商店刷新 C2SShopRefreshRequest
+	S2C_SHOP_REFRESH_RESPONSE				= 11005; // 请求商店刷新返回 S2CShopRefreshResponse
+	S2C_SHOP_AUTO_REFRESH_NOTIFY			= 11006; // 商店定时自动刷新通知 S2CShopAutoRefreshNotify
+	
+	C2S_RANK_LIST_REQUEST					= 11100; // 请求排行榜 C2SRankListRequest
+	S2C_RANK_LIST_RESPONSE					= 11101; // 排行榜返回 S2CRankListResponse
+	
+	C2S_ARENA_DATA_REQUEST					= 11200; // 请求竞技场数据 C2SArenaDataRequest
+	S2C_ARENA_DATA_RESPONSE					= 11201; // 请求竞技场数据返回 S2CAreaDataResponse
+	C2S_ARENA_PLAYER_DEFENSE_TEAM_REQUEST   = 11202; // 请求竞技场玩家阵容 C2SArenaPlayerDefenseTeamRequest
+	S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE  = 11203; // 请求竞技场玩家阵容返回 S2CArenaPlayerDefenseTeamResponse
+	C2S_ARENA_MATCH_PLAYER_REQUEST			= 11204; // 请求竞技场匹配 C2SArenaMatchPlayerRequest
+	S2C_ARENA_MATCH_PLAYER_RESPONSE			= 11205; // 请求竞技场匹配返回 S2CArenaMatchPlayerResponse
+	S2C_ARENA_GRADE_REWARD_NOTIFY			= 11206; // 段位奖励通知 S2CArenaGradeRewardNotify
+	
+	C2S_ACTIVE_STAGE_DATA_REQUEST			= 11300; // 请求活动副本数据 C2SActiveStageDataRequest
+	S2C_ACTIVE_STAGE_DATA_RESPONSE			= 11301; // 活动副本数据返回 S2CActiveStageDataResponse
+	C2S_ACTIVE_STAGE_BUY_CHALLENGE_NUM_REQUEST = 11302; // 请求购买活动副本挑战次数 C2SActiveStageChallengeNumBuyRequest
+	S2C_ACTIVE_STAGE_BUY_CHALLENGE_NUM_RESPONSE = 11303; // 购买活动副本挑战次数返回 S2CActiveStageChallengeNumBuyResponse
+	S2C_ACTIVE_STAGE_REFRESH_NOTIFY			= 11304; // 活动副本刷新通知 S2CActiveStageRefreshNotify
+	C2S_ACTIVE_STAGE_SELECT_ASSIST_ROLE_REQUEST= 11305; // 活动副本选择好友角色助战 C2SActiveStageSelectAssistRoleRequest
+	S2C_ACTIVE_STAGE_SELECT_ASSIST_ROLE_RESPONSE = 11306; // 活动副本选择好友助战返回 S2CActiveStageSelectAssistRoleResponse
+	C2S_ACTIVE_STAGE_ASSIST_ROLE_LIST_REQUEST = 11307; // 活动副本获取好友的助战角色列表 C2SFriendsAssistRoleListRequest
+	S2C_ACTIVE_STAGE_ASSIST_ROLE_LIST_RESPONSE = 11308; // 活动副本获取好友助战角色列表返回 S2CFriendAssistRoleListResponse
+	
+	C2S_FRIEND_RECOMMEND_REQUEST			= 11400; // 请求好友推荐 C2SFriendRecommendRequest
+	S2C_FRIEND_RECOMMEND_RESPONSE			= 11401; // 好友推荐返回 S2CFriendRecommendResponse
+	C2S_FRIEND_LIST_REQUEST 				= 11402; // 请求好友列表 C2SFriendListRequest
+	S2C_FRIEND_LIST_RESPONSE				= 11403; // 好友列表返回 S2CFriendListResponse
+	C2S_FRIEND_ASK_REQUEST					= 11404; // 请求申请好友 C2SFriendAskRequest
+	S2C_FRIEND_ASK_RESPONSE					= 11405; // 申请好友返回 S2CFriendFriendAskResponse
+	C2S_FRIEND_ASK_PLAYER_LIST_REQUEST		= 11406; // 请求获得好友申请列表 C2SFriendAskPlayerListRequest
+	S2C_FRIEND_ASK_PLAYER_LIST_RESPONSE     = 11407; // 获得好友申请列表返回 S2CFriendAskPlayerListResponse
+	S2C_FRIEND_ASK_PLAYER_LIST_ADD_NOTIFY	= 11408; // 好友列表增加通知 S2CFriendAskPlayerListAddNotify
+	C2S_FRIEND_AGREE_REQUEST				= 11409; // 请求同意添加好友 C2SFriendAgreeRequest
+	S2C_FRIEND_AGREE_RESPONSE				= 11410; // 同意添加好友返回 S2CFriendAgreeResponse
+	S2C_FRIEND_LIST_ADD_NOTIFY				= 11411; // 好友列表增加通知 S2CFriendListAddNotify
+	C2S_FRIEND_REFUSE_REQUEST				= 11412; // 请求拒绝添加好友 C2SFriendRefuseRequest
+	S2C_FRIEND_REFUSE_RESPONSE				= 11413; // 拒绝添加好友返回 S2CFriendRefuseResponse
+	C2S_FRIEND_REMOVE_REQUEST				= 11414; // 请求删除好友 C2SFriendRemoveRequest
+	S2C_FRIEND_REMOVE_RESPONSE				= 11415; // 删除好友返回 S2CFriendRemoveResponse
+	C2S_FRIEND_GIVE_POINTS_REQUEST			= 11416; // 请求赠送友情点 C2SFriendGivePointsRequest
+	S2C_FRIEND_GIVE_POINTS_RESPONSE			= 11417; // 赠送友情点返回 S2CFriendGivePointsResponse
+	C2S_FRIEND_GET_POINTS_REQUEST			= 11418; // 请求领取友情点 C2SFriendGetPointsRequest
+	S2C_FRIEND_GET_POINTS_RESPONSE			= 11419; // 领取友情点返回 S2CFriendGetPointsResponse
+	C2S_FRIEND_SEARCH_BOSS_REQUEST			= 11420; // 请求搜索好友BOSS C2SFriendSearchBossRequest
+	S2C_FRIEND_SEARCH_BOSS_RESPONSE			= 11421; // 返回搜索好友BOSS S2CFriendSearchBossResponse
+	C2S_FRIENDS_BOSS_LIST_REQUEST			= 11422; // 请求好友BOSS列表 C2SFriendsBossListRequest
+	S2C_FRIENDS_BOSS_LIST_RESPONSE			= 11423; // 好友BOSS列表返回 S2CFriendsBossListResponse
+	C2S_FRIEND_BOSS_ATTACK_LIST_REQUEST		= 11424; // 获取好友BOSS助战列表 C2SFriendBossAttackListRequest
+	S2C_FRIEND_BOSS_ATTACK_LIST_RESPONSE	= 11425; // 获取好友BOSS助战列表返回 S2CFriendBossAttackListResponse
+	C2S_FRIEND_DATA_REQUEST					= 11426; // 好友相关数据 C2SFriendDataRequest
+	S2C_FRIEND_DATA_RESPONSE				= 11427; // 好友相关数据返回 S2CFriendDataResponse
+	//S2C_FRIEND_BOSS_ATTACK_REWARD_NOTIFY	= 11428; // 好友BOSS击打奖励通知 S2CFriendBossAttackRewardNotify
+	C2S_FRIEND_SET_ASSIST_ROLE_REQUEST		= 11429; // 设置助战角色给好友 C2SFriendSetAssistRoleRequest
+	S2C_FRIEND_SET_ASSIST_ROLE_RESPONSE		= 11430; // 设置助战角色返回 S2CFriendSetAssistRoleResponse
+	C2S_FRIEND_GIVE_AND_GET_POINTS_REQUEST  = 11431; // 一键收发友情点 C2SFriendGiveAndGetPointsRequest
+	C2S_FRIEND_GET_ASSIST_POINTS_REQUEST	= 11432; // 助战获取友情点 C2SFriendGetAssistPointsRequest
+	S2C_FRIEND_GET_ASSIST_POINTS_RESPONSE	= 11433; // 助战获取友情点返回 S2CFriendGetAssistPointsResponse
+	
+	C2S_TASK_DATA_REQUEST					= 11500; // 请求任务数据 C2STaskDataRequest
+	S2C_TASK_DATA_RESPONSE					= 11501; // 任务数据返回 S2CTaskDataResponse
+	S2C_TASK_VALUE_NOTIFY					= 11502; // 任务数据通知 S2CTaskValueNotify
+	C2S_TASK_REWARD_REQUEST					= 11503; // 请求任务奖励 C2STaskRewardRequest
+	S2C_TASK_REWARD_RESPONSE				= 11504; // 任务奖励返回 S2CTaskRewardResponse
+	
+	C2S_EXPLORE_DATA_REQUEST				= 11600; // 请求探索任务数据 C2SExploreDataRequest
+	S2C_EXPLORE_DATA_RESPONSE				= 11601; // 探索任务数据返回 S2CExploreDataResponse
+	C2S_EXPLORE_SEL_ROLE_REQUEST			= 11602; // 选择探索角色 C2SExploreSelRoleRequest
+	S2C_EXPLORE_SEL_ROLE_RESPONSE			= 11603; // 选择探索角色返回 S2CExploreSelRoleResponse
+	C2S_EXPLORE_START_REQUEST				= 11604; // 开始探索 C2SExploreStartRequest
+	S2C_EXPLORE_START_RESPONSE				= 11605; // 开始探索返回 S2CExploreStartResponse
+	C2S_EXPLORE_SPEEDUP_REQUEST				= 11606; // 加速任务 C2SExploreSpeedupRequest
+	S2C_EXPLORE_SPEEDUP_RESPONSE			= 11607; // 加速任务返回 S2CExploreSpeedupResponse
+	C2S_EXPLORE_REFRESH_REQUEST				= 11608; // 刷新探索任务 C2SExploreRefreshRequest
+	S2C_EXPLORE_REFRESH_RESPONSE			= 11609; // 刷新探索任务返回 S2CExploreRefreshResponse
+	S2C_EXPLORE_AUTO_REFRESH_NOTIFY			= 11610; // 自动刷新通知 S2CExploreAutoRefreshNotify
+	C2S_EXPLORE_LOCK_REQUEST				= 11611; // 锁定探索任务 C2SExploreLockRequest
+	S2C_EXPLORE_LOCK_RESPONSE				= 11612; // 锁定探索任务返回 S2CExploreLockResponse
+	C2S_EXPLORE_GET_REWARD_REQUEST			= 11613; // 探索任务奖励 C2SExploreGetRewardRequest
+	S2C_EXPLORE_GET_REWARD_RESPONSE			= 11614; // 探索任务奖励返回 S2CExploreGetRewardResponse
+	S2C_EXPLORE_STORY_NEW_NOTIFY			= 11615; // 剧情探索任务通知 S2CExploreStoryNewNotify
+	S2C_EXPLORE_REMOVE_NOTIFY				= 11616; // 剧情任务删除通知 S2CExploreRemoveNotify
+	
+	C2S_CHAT_REQUEST                  		= 11700; // 聊天请求 C2SChatRequest
+	S2C_CHAT_RESPONSE						= 11701; // 聊天返回 S2CChatResponse
+	C2S_CHAT_MSG_PULL_REQUEST				= 11702; // 拉取聊天消息 C2SChatMsgPullRequest
+	S2C_CHAT_MSG_PULL_RESPONSE				= 11703; // 拉取聊天消息返回 S2CChatPullMsgResponse
+	
+	C2S_GUILD_DATA_REQUEST					= 11800; // 公会数据 C2SGuildDataRequest
+	S2C_GUILD_DATA_RESPONSE					= 11801; // 公会数据返回 S2CGuildDataResponse
+	C2S_GUILD_SEARCH_REQUEST				= 11802; // 搜索公会 C2SGuildSearchRequest
+	S2C_GUILD_SEARCH_RESPONSE				= 11803; // 搜索公会返回 S2CGuildSearchResponse
+	C2S_GUILD_RECOMMEND_REQUEST				= 11804; // 推荐公会 C2SGuildRecommendRequest
+	S2C_GUILD_RECOMMEND_RESPONSE			= 11805; // 推荐公会返回 S2CGuildRecommendResponse
+	C2S_GUILD_CREATE_REQUEST				= 11806; // 创建公会 C2SGuildCreateRequest
+	S2C_GUILD_CREATE_RESPONSE				= 11807; // 创建公会返回 S2CGuildCreateResponse
+	C2S_GUILD_DISMISS_REQUEST				= 11808; // 解散公会 C2SGuildDismissRequest
+	S2C_GUILD_DISMISS_RESPONSE				= 11809; // 解散公会返回 S2CGuildDismissResponse
+	C2S_GUILD_CANCEL_DISMISS_REQUEST		= 11810; // 取消解散公会 C2SGuildCancelDismissRequest
+	S2C_GUILD_CANCEL_DISMISS_RESPONSE		= 11811; // 取消解散公会返回 S2CGuildCancelDismissResponse
+	S2C_GUILD_DELETE_NOTIFY					= 11812; // 公会删除通知 S2CGuildDeleteNotify
+	C2S_GUILD_INFO_MODIFY_REQUEST			= 11813; // 公会信息修改 C2SGuildInfoModifyRequest
+	S2C_GUILD_INFO_MODIFY_RESPONSE			= 11814; // 公会信息修改返回 S2CGuildInfoModifyResponse
+	C2S_GUILD_ANOUNCEMENT_REQUEST			= 11815; // 公会修改公告 C2SGuildAnouncementRequest
+	S2C_GUILD_ANOUNCEMENT_RESPONSE			= 11816; // 公会修改公告返回 S2CGuildAnouncementResponse
+	C2S_GUILD_MEMBERS_REQUEST				= 11817; // 公会成员列表 C2SGuildMembersRequest
+	S2C_GUILD_MEMBERS_RESPONSE				= 11818; // 公会成员列表返回 S2CGuildMembersResponse
+	C2S_GUILD_ASK_LIST_REQUEST				= 11819; // 公会申请列表 C2SGuildAskListRequest
+	S2C_GUILD_ASK_LIST_RESPONSE				= 11820; // 公会申请列表返回 S2CGuildAskListResponse
+	C2S_GUILD_ASK_JOIN_REQUEST				= 11821; // 申请加入公会 C2SGuildAskJoinRequest
+	S2C_GUILD_ASK_JOIN_RESPONSE				= 11822; // 申请加入公会返回 S2CGuildAskJoinResponse
+	C2S_GUILD_AGREE_JOIN_REQUEST			= 11823; // 同意加入公会 C2SGuildAgreeJoinRequest
+	S2C_GUILD_AGREE_JOIN_RESPONSE			= 11824; // 同意加入公会返回 S2CGuildAgreeJoinResponse
+	S2C_GUILD_AGREE_JOIN_NOTIFY				= 11825; // 同意加入公会通知 S2CGuildAgreeJoinNotify
+	C2S_GUILD_QUIT_REQUEST					= 11826; // 主动退出公会 C2SGuildQuitRequest
+	S2C_GUILD_QUIT_RESPONSE					= 11827; // 退出公会返回 S2C_GUILD_QUIT_RESPONSE
+	C2S_GUILD_LOGS_REQUEST					= 11828; // 公会日志 C2SGuildLogsRequest
+	S2C_GUILD_LOGS_RESPONSE					= 11829; // 公会日志返回 S2CGuildLogsResponse
+	C2S_GUILD_SIGN_IN_REQUEST				= 11830; // 公会签到 C2SGuildSignRequest
+	S2C_GUILD_SIGN_IN_RESPONSE				= 11831; // 公会签到返回 S2CGuildSignResponse
+	C2S_GUILD_SET_OFFICER_REQUEST			= 11832; // 公会任免官员 C2SGuildSetOfficerRequest
+	S2C_GUILD_SET_OFFICER_RESPONSE			= 11833; // 公会任免官员返回 S2CGuildSetOfficerResponse
+	S2C_GUILD_SET_OFFICER_NOTIFY			= 11834; // 公会任命罢免通知 S2CGuildSetOfficerNotify
+	C2S_GUILD_KICK_MEMBER_REQUEST			= 11835; // 公会驱逐会员 C2SGuildKickMemberRequest
+	S2C_GUILD_KICK_MEMBER_RESPONSE			= 11836; // 公会驱逐会员返回 S2CGuildKickMemberResponse
+	S2C_GUILD_KICK_MEMBER_NOTIFY			= 11837; // 公会驱逐会员通知 S2CGuildKickMemberNotify
+	C2S_GUILD_CHANGE_PRESIDENT_REQUEST		= 11838; // 公会转让会长 C2SGuildChangePresidentRequest
+	S2C_GUILD_CHANGE_PRESIDENT_RESPONSE		= 11839; // 公会转让会长返回 S2CGuildChangePresidentResponse
+	S2C_GUILD_CHANGE_PRESIDENT_NOTIFY		= 11840; // 公会转让会长通知 S2CGuildChangePresidentNotify
+	C2S_GUILD_RECRUIT_REQUEST				= 11841; // 公会招募 C2SGuildRecruitRequest
+	S2C_GUILD_RECRUIT_RESPONSE				= 11842; // 公会招募返回 S2CGuildRecruitResponse
+	C2S_GUILD_ASK_DONATE_REQUEST			= 11843; // 公会请求捐赠 C2SGuildAskDonateRequest
+	S2C_GUILD_ASK_DONATE_RESPONSE			= 11844; // 公会请求招募返回 S2CGuildAskDonateResponse
+	C2S_GUILD_DONATE_REQUEST				= 11845; // 公会捐赠 C2SGuildDonateRequest
+	S2C_GUILD_DONATE_RESPONSE				= 11846; // 公会捐赠返回 S2CGuildDonateResponse
+	S2C_GUILD_DONATE_ITEM_NOTIFY			= 11847; // 公会通知请求捐赠物品变化 S2CGuildDonateItemNotify
+	C2S_GUILD_DONATE_LIST_REQUEST			= 11848; // 公会捐赠列表 C2SGuildDonateListRequest
+	S2C_GUILD_DONATE_LIST_RESPONSE			= 11849; // 公会捐赠列表 S2CGuildDonateListResponse
+	
+	C2S_GUILD_STAGE_DATA_REQUEST			= 11900; // 公会副本数据 C2SGuildStageDataRequest
+	S2C_GUILD_STAGE_DATA_RESPONSE			= 11901; // 公会副本数据返回 S2CGuildStageDataResponse
+	C2S_GUILD_STAGE_RANK_LIST_REQUEST		= 11902; // 公会副本排行榜 C2SGuildStageRankListRequest
+	S2C_GUILD_STAGE_RANK_LIST_RESPONSE		= 11903; // 公会副本排行榜返回 S2CGuildStageRankListResponse
+	C2S_GUILD_STAGE_PLAYER_RESPAWN_REQUEST  = 11904; // 公会副本玩家复活 C2SGuildStagePlayerRespawnRequest
+	S2C_GUILD_STAGE_PLAYER_RESPAWN_RESPONSE = 11905; // 公会副本玩家复活返回 S2CGuildStagePlayerRespawnResponse
+	C2S_GUILD_STAGE_RESET_REQUEST			= 11906; // 公会副本重置 C2SGuildStageResetRequest
+	S2C_GUILD_STAGE_RESET_RESPONSE			= 11907; // 公会副本重置返回 S2CGuildStageResetResponse
+	S2C_GUILD_STAGE_RESET_NOTIFY			= 11908; // 公会副本数据重置通知 S2CGuildStageResetNotify
+	S2C_GUILD_STAGE_AUTO_REFRESH_NOTIFY		= 11909; // 公会副本数据自动刷新通知 S2CGuildStageAutoRefreshNotify
+}

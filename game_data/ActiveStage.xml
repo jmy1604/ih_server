@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item ID="1" Type="1" PlayerLevelCond="20" StageID="4001" PlayerLevelSuggestion="20" />
+     <item ID="2" Type="1" PlayerLevelCond="20" StageID="4002" PlayerLevelSuggestion="35" />
+     <item ID="3" Type="1" PlayerLevelCond="20" StageID="4003" PlayerLevelSuggestion="50" />
+     <item ID="4" Type="1" PlayerLevelCond="35" StageID="4004" PlayerLevelSuggestion="65" />
+     <item ID="5" Type="1" PlayerLevelCond="50" StageID="4005" PlayerLevelSuggestion="80" />
+     <item ID="6" Type="1" PlayerLevelCond="65" StageID="4006" PlayerLevelSuggestion="95" />
+     <item ID="7" Type="1" PlayerLevelCond="80" StageID="4007" PlayerLevelSuggestion="110" />
+     <item ID="8" Type="1" PlayerLevelCond="90" StageID="4008" PlayerLevelSuggestion="125" />
+     <item ID="9" Type="1" PlayerLevelCond="110" StageID="4009" PlayerLevelSuggestion="140" />
+     <item ID="10" Type="1" PlayerLevelCond="125" StageID="4010" PlayerLevelSuggestion="155" />
+     <item ID="101" Type="2" PlayerLevelCond="25" StageID="4101" PlayerLevelSuggestion="25" />
+     <item ID="102" Type="2" PlayerLevelCond="25" StageID="4102" PlayerLevelSuggestion="40" />
+     <item ID="103" Type="2" PlayerLevelCond="25" StageID="4103" PlayerLevelSuggestion="55" />
+     <item ID="104" Type="2" PlayerLevelCond="40" StageID="4104" PlayerLevelSuggestion="70" />
+     <item ID="105" Type="2" PlayerLevelCond="55" StageID="4105" PlayerLevelSuggestion="85" />
+     <item ID="106" Type="2" PlayerLevelCond="70" StageID="4106" PlayerLevelSuggestion="100" />
+     <item ID="107" Type="2" PlayerLevelCond="85" StageID="4107" PlayerLevelSuggestion="115" />
+     <item ID="108" Type="2" PlayerLevelCond="95" StageID="4108" PlayerLevelSuggestion="130" />
+     <item ID="109" Type="2" PlayerLevelCond="115" StageID="4109" PlayerLevelSuggestion="145" />
+     <item ID="110" Type="2" PlayerLevelCond="130" StageID="4110" PlayerLevelSuggestion="160" />
+     <item ID="201" Type="3" PlayerLevelCond="30" StageID="4201" PlayerLevelSuggestion="30" />
+     <item ID="202" Type="3" PlayerLevelCond="30" StageID="4202" PlayerLevelSuggestion="45" />
+     <item ID="203" Type="3" PlayerLevelCond="30" StageID="4203" PlayerLevelSuggestion="60" />
+     <item ID="204" Type="3" PlayerLevelCond="45" StageID="4204" PlayerLevelSuggestion="75" />
+     <item ID="205" Type="3" PlayerLevelCond="60" StageID="4205" PlayerLevelSuggestion="90" />
+     <item ID="206" Type="3" PlayerLevelCond="75" StageID="4206" PlayerLevelSuggestion="105" />
+     <item ID="207" Type="3" PlayerLevelCond="90" StageID="4207" PlayerLevelSuggestion="120" />
+     <item ID="208" Type="3" PlayerLevelCond="100" StageID="4208" PlayerLevelSuggestion="135" />
+     <item ID="209" Type="3" PlayerLevelCond="120" StageID="4209" PlayerLevelSuggestion="150" />
+     <item ID="210" Type="3" PlayerLevelCond="135" StageID="4210" PlayerLevelSuggestion="165" />
+</Config>

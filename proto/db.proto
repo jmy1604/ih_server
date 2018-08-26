@@ -1,0 +1,1349 @@
+package db;
+
+
+message HeroDesireParam{
+	optional int32 TargetValue=1;
+	optional int32 Value1=2;
+	optional int32 Value2=3;
+}
+
+message LootItem{
+	optional int32 ItemConfigId=1;
+	optional int32 Count=2;
+}
+
+message Loot{
+	optional int32 Diamonds=1;
+	optional int32 Gold=2;
+	repeated LootItem Items=3;
+}
+
+message HeroDesireData{
+	optional int32 DesireId=1;
+	optional int32 DesireState=2;
+	repeated HeroDesireParam DesireParams=3;
+}
+
+message RoninData{
+	optional int32 RoninResetTime=2;
+	optional int32 HeroConfigId=3;
+	optional HeroDesireData DesireData=4;
+	optional int32 FightCount=5;
+	optional int32 DayResetSaveTime=6;
+}
+
+message CruiseOutHeroData{
+	optional int32 HeroConfigId=1;
+	optional int32 HorseConfigId=2;
+	optional int32 Heart=3;
+	optional int32 AppearTime=4;
+	optional HeroDesireData DesireData=5;
+	optional int32 FightCount=6;
+}
+
+message CruiseExistHeroData{
+	optional int32 HeroId=1;
+	optional int32 Heart=2;
+	optional int32 SatisfiedDesiresCount=3;
+	optional int32 CanAwardCount=4;
+	optional int32 SoulStoneId=7;
+	optional int32 SoulStoneNum=8;
+	repeated HeroDesireData DesiresData=9;
+}
+
+message CruiseExistHeroContinuousDays{
+	optional int32 HeroId=1;
+	optional int32 Days=2;
+	optional int32 LastAwardTime=3;
+}
+
+message ShopItem{
+	optional int32 ConfigId=1;
+	optional int32 PurchasedCount=2;
+}
+
+message ArenaFightAction{
+	optional int32 HeroIndex=1;
+	optional float Time=2;
+	optional int32 ActionType=3;
+	optional int32 ActionValue=4;
+}
+
+message SmallRankRecord{
+	optional int32 Rank=1;
+	optional int32 Id=2;
+	optional int32 Val=3;
+}
+
+message WbossPDmg{
+	optional int32 PlayerId=1;
+	optional int32 Dmg=2;
+	optional int32 CurCount=3;
+}
+
+message WbossPPup{
+	optional int32 PlayerId=1;
+	optional int32 GPowUpCount=2;
+	optional int32 DPowUpCount=3;
+	optional int32 PowUpPercent=4;
+}
+
+message WbossPFCd{
+	optional int32 PlayerId=1;
+	optional int32 CDCount=2;
+}
+
+message HorseShowLT3Record{
+	optional int32 Rank=1;
+	optional int32 Id=2;
+	optional int32 ParisedNum=3;
+	optional int32 OnShowHorseId=4;
+	optional Loot Reward=5;
+	optional int32 ConfigId=6;
+	optional int32 Color=7;
+	optional int32 Texture=8;
+	optional int32 TextureColor=9;
+	optional int32 Suit=13;
+	optional int32 Mane=14;
+	optional int32 QualityConfigId=15;
+	optional int32 ManeColor=16;
+}
+
+message HorseColorCombo{
+	optional int32 BodyColor=1;
+	optional int32 HairColor=2;
+	optional int32 Tatto=3;
+	optional int32 TattoColor=4;
+	optional int32 ComboType=5;
+}
+
+message MatchedHorseDetail{
+	optional int32 OwnerId=1;
+	optional string OwnerName=2;
+	optional int32 HorseId=3;
+	optional int32 HorseConfigId=4;
+	optional int32 HorseLevel=5;
+	optional int32 HorseStar=6;
+	optional int32 Color=7;
+	optional int32 TextureId=8;
+	optional int32 TextureColor=9;
+	optional int32 StateValue=10;
+	optional int32 StateType=11;
+	optional int32 HeroConfigId=12;
+	optional int32 HeroQualityConfigId=13;
+	optional int32 Fashion=14;
+	optional int32 Suit=15;
+	optional int32 Mane=16;
+	optional int32 ManeColor=17;
+	optional int32 HorseQualityConfigId=18;
+	optional int32 IsBot=19;
+}
+
+message BlackMarketItem{
+	optional int32 ConfigId=1;
+	optional int32 Buyed=2;
+}
+
+message SystemMailData{
+	optional bytes Data=1;
+}
+
+message WBossRanksRankInfo{
+	optional int32 LastResetDay=1;
+	optional int32 LastRewardDay=2;
+	optional int32 CurBossId=3;
+	optional int32 CurBossHp=4;
+	optional int32 KillerId=5;
+}
+
+message WBossRanksDmgRanks{
+	repeated SmallRankRecord Records=1;
+}
+
+message PlayerInfo{
+	optional int32 LastLoginTime=6;
+	optional int32 LastOnlineTime=7;
+	optional string Name=10;
+	optional string Icon=11;
+	optional int32 Female=12;
+	optional int32 GuildId=13;
+	optional int32 Level=14;
+	optional int32 LevelExp=15;
+	optional int32 Gold=17;
+	optional int32 GoldChangeCount=18;
+	optional int32 Chicken=19;
+	optional int32 ChickenTime=20;
+	optional int32 ChickenBoughtCount=21;
+	optional int32 Spirit=22;
+	optional int32 SpiritTime=23;
+	optional int32 SpiritBoughtCount=24;
+	optional int32 VipLevel=25;
+	optional int32 VipExp=26;
+	optional int32 CampaignLastDialogGroup=33;
+	optional int32 MissionResetTime=34;
+	repeated int32 BuildingLevels=35;
+	optional int32 ChickenDailyRewardLastGotTime=38;
+	optional int32 CampaignLastResetTime=39;
+	optional int32 GoldBuyCountLastResetTime=40;
+	optional int32 ChickenBuyCountLastResetTime=41;
+	optional int32 SpiritBuyCountLastResetTime=42;
+	repeated int32 AssistSlotList=47;
+	optional int32 TakeFriendSpriteTimes=50;
+	optional int32 LastTakeFriendSpriteTime=51;
+	optional int32 Soul=52;
+	optional int32 LimitVipEndDay=53;
+	optional int32 LimitVipLevel=54;
+}
+
+message PlayerSkillData{
+	optional int32 SkillPoints=1;
+	optional int32 SkillPointsFullRemainSeconds=2;
+	optional int32 SkillPointsLastSaveTime=3;
+	optional int32 SkillPointsBuyNumOneDay=4;
+	optional int32 RecoverOneSkillPointNeedSeconds=5;
+	optional int32 SkillPointsBuyNumResetTime=6;
+}
+
+message PlayerFountainData{
+	optional int32 GoldNotFirst=1;
+	optional int32 GoldFreeUsedCount=2;
+	optional int32 GoldFreeSaveTime=3;
+	optional int32 GoldFreeRemainSeconds=4;
+	optional int32 DiamondNotFirst=5;
+	optional int32 DiamondPurchasedCount=6;
+	optional int32 DiamondFreeSaveTime=7;
+	optional int32 DiamondFreeRemainSeconds=8;
+	optional int32 GoldFreeCountResetSaveTime=9;
+	optional int32 DiamondDrawCount=10;
+	optional int32 DiamondTenDrawCount=11;
+}
+
+message PlayerFountainGoldDrawCounter{
+	optional int32 FountainItemType=1;
+	optional int32 Count=2;
+}
+
+message PlayerFountainGoldDrawCounterList{
+	repeated PlayerFountainGoldDrawCounter List=1;
+}
+
+message PlayerFountainDiamondDrawCounter{
+	optional int32 FountainItemType=1;
+	optional int32 Count=2;
+}
+
+message PlayerFountainDiamondDrawCounterList{
+	repeated PlayerFountainDiamondDrawCounter List=1;
+}
+
+message PlayerFountainSoulDrawCounter{
+	optional int32 FountainItemType=1;
+	optional int32 Count=2;
+}
+
+message PlayerFountainSoulDrawCounterList{
+	repeated PlayerFountainSoulDrawCounter List=1;
+}
+
+message PlayerCampaignLevel{
+	optional int32 ConfigId=1;
+	optional int32 State=2;
+	optional int32 Mission_1=3;
+	optional int32 Mission_2=4;
+	optional int32 Mission_3=5;
+	optional int32 DiffReduceCount=10;
+}
+
+message PlayerCampaignLevelList{
+	repeated PlayerCampaignLevel List=1;
+}
+
+message PlayerCampaignLevelHard{
+	optional int32 ConfigId=1;
+	optional int32 Mission_1=3;
+	optional int32 Mission_2=4;
+	optional int32 Mission_3=5;
+	optional int32 CountNow=6;
+	optional int32 CountBuy=7;
+	optional int32 ResetTime=8;
+}
+
+message PlayerCampaignLevelHardList{
+	repeated PlayerCampaignLevelHard List=1;
+}
+
+message PlayerItemBonusCounter{
+	optional int32 ConfigId=1;
+	repeated int32 Counts=2;
+}
+
+message PlayerItemBonusCounterList{
+	repeated PlayerItemBonusCounter List=1;
+}
+
+message PlayerCampaignChapter{
+	optional int32 Index=1;
+	optional int32 Passed=2;
+	optional int32 Stars=3;
+	optional int32 RewardGoted_1=4;
+	optional int32 RewardGoted_2=5;
+	optional int32 RewardGoted_3=6;
+	optional int32 PassedAllStars=7;
+}
+
+message PlayerCampaignChapterList{
+	repeated PlayerCampaignChapter List=1;
+}
+
+message PlayerCampaignChapterHard{
+	optional int32 ChapterID=1;
+	optional int32 Passed=2;
+	optional int32 Stars=3;
+	optional int32 RewardGoted_1=4;
+	optional int32 RewardGoted_2=5;
+	optional int32 RewardGoted_3=6;
+}
+
+message PlayerCampaignChapterHardList{
+	repeated PlayerCampaignChapterHard List=1;
+}
+
+message PlayerBattleGroup{
+	optional int32 Type=1;
+	repeated int32 Heros=2;
+	repeated int32 Helpers=3;
+	repeated int32 Horses=4;
+}
+
+message PlayerBattleGroupList{
+	repeated PlayerBattleGroup List=1;
+}
+
+message PlayerCardRewardSeq{
+	optional int32 SystemId=1;
+	optional int32 Seq=2;
+}
+
+message PlayerCardRewardSeqList{
+	repeated PlayerCardRewardSeq List=1;
+}
+
+message PlayerCardRewardCounter{
+	optional int32 ConfigId=1;
+	optional int32 Seq=2;
+}
+
+message PlayerCardRewardCounterList{
+	repeated PlayerCardRewardCounter List=1;
+}
+
+message PlayerHero{
+	optional int32 HeroId=1;
+	optional int32 ConfigId=2;
+	optional int32 Stars=3;
+	optional int32 StarsExp=4;
+	optional int32 Level=5;
+	optional int32 LevelExp=6;
+	repeated int32 HorsesId=7;
+	optional int32 WeaponConfigId=8;
+	optional int32 ArmorConfigId=9;
+	optional int32 NecknessConfigId=10;
+	optional int32 RingConfigId=11;
+	optional int32 QualityConfigId=15;
+	optional int32 WeaponLevel=16;
+	optional int32 ArmorLevel=17;
+	optional int32 NecknessLevel=18;
+	optional int32 RingLevel=19;
+	optional int32 RelatedWeaponId=20;
+	optional int32 SoulStar=21;
+	repeated float CurSoulPropAdd=22;
+	repeated int32 SkillsLevel=23;
+	optional int32 FightTraceTime=24;
+}
+
+message PlayerHeroList{
+	repeated PlayerHero List=1;
+}
+
+message PlayerHorse{
+	optional int32 HorseId=1;
+	optional int32 ConfigId=2;
+	optional int32 Stars=3;
+	optional int32 StarsExp=4;
+	optional int32 Level=5;
+	optional int32 LevelExp=6;
+	optional int32 ColorId=7;
+	optional int32 TextureId=8;
+	optional int32 TextureColor=9;
+	optional int32 State=12;
+	optional int32 StateType=13;
+	optional int32 RuneConfigId=14;
+	optional int32 StateSaveTime=15;
+	optional int32 Fashion=16;
+	optional int32 Suit=17;
+	optional int32 Mane=18;
+	optional int32 QualityConfigId=19;
+	optional int32 ShuangxiuNum=20;
+	optional int32 PurchasedShuangxiuNum=21;
+	optional int32 ResetShuangxiuNumTime=22;
+	optional int32 ManeColor=23;
+	optional int32 BridleConfigId=25;
+	optional int32 ArmorConfigId=26;
+	optional int32 SaddleConfigId=27;
+	optional int32 ShoesConfigId=28;
+	optional int32 BridleLevel=29;
+	optional int32 ArmorLevel=30;
+	optional int32 SaddleLevel=31;
+	optional int32 ShoesLevel=32;
+	repeated int32 BridlePropAddtion=33;
+	repeated int32 ArmorPropAddtion=34;
+	repeated int32 SaddlePropAddtion=35;
+	repeated int32 ShoesPropAddtion=36;
+	optional int32 BridleXiLianTimes=37;
+	optional int32 ArmorXiLianTimes=38;
+	optional int32 SaddleXiLianTimes=39;
+	optional int32 ShoesXiLianTimes=40;
+	optional int32 Racingwin=41;
+	optional int32 Racingtotal=42;
+	optional int32 Suitability_Total=43;
+	optional int32 Suitability_Dune=44;
+	optional int32 Suitability_Stone=45;
+	optional int32 Suitability_Briar=46;
+	optional int32 SuChgNum=47;
+	optional int32 FashionEndTime=48;
+}
+
+message PlayerHorseList{
+	repeated PlayerHorse List=1;
+}
+
+message PlayerItem{
+	optional int32 ItemId=1;
+	optional int32 ConfigId=2;
+	optional int32 Count=3;
+	optional int32 EndTime=4;
+	optional int32 GetTime=5;
+}
+
+message PlayerItemList{
+	repeated PlayerItem List=1;
+}
+
+message PlayerMission{
+	optional int32 ConfigId=1;
+	optional int32 State=2;
+	optional int32 Value=3;
+}
+
+message PlayerMissionList{
+	repeated PlayerMission List=1;
+}
+
+message PlayerFinishedMission{
+	optional int32 ConfigId=1;
+}
+
+message PlayerFinishedMissionList{
+	repeated PlayerFinishedMission List=1;
+}
+
+message PlayerDailyMission{
+	optional int32 ConfigId=1;
+	optional int32 State=2;
+	optional int32 Value=3;
+}
+
+message PlayerDailyMissionList{
+	repeated PlayerDailyMission List=1;
+}
+
+message PlayerArenaMission{
+	optional int32 ConfigId=1;
+	optional int32 State=2;
+	optional int32 Value=3;
+}
+
+message PlayerMail{
+	optional int32 MailId=1;
+	optional int32 SendTime=2;
+	optional int32 DeleteTime=3;
+	optional int32 Template=4;
+	optional int32 Readed=5;
+	optional bytes Data=6;
+}
+
+message PlayerMailList{
+	repeated PlayerMail List=1;
+}
+
+message PlayerDailyRewardData{
+	repeated int32 Days=1;
+	optional int32 SignedDaysNum=2;
+	optional int32 Month=3;
+	optional int32 LastSignedTime=4;
+	optional int32 RemainNum=5;
+	optional int32 LastUseVIPLevel=6;
+}
+
+message PlayerSevenDayMissionState{
+	optional int32 StartTime=1;
+	optional int32 DayNum=2;
+	repeated int32 Progress=3;
+	optional int32 CostChicken=4;
+}
+
+message PlayerSevenDayMissions{
+	optional int32 ConfigId=1;
+	optional int32 State=2;
+	optional int32 Value=3;
+	optional int32 DayIndex=4;
+}
+
+message PlayerSevenDayMissionsList{
+	repeated PlayerSevenDayMissions List=1;
+}
+
+message PlayerFundsData{
+	optional int32 IsPurchased=1;
+	repeated int32 ConfigId=2;
+	repeated int32 RewardState=3;
+}
+
+message PlayerOnlineReward{
+	optional int32 StartTime=1;
+	repeated int32 RewardConfigIds=2;
+	optional int32 NextRewardConfigId=3;
+	optional int32 RemainSeconds=4;
+	optional int32 LastResetTime=5;
+}
+
+message PlayerHorseHouse{
+	optional int32 AttackedNum=2;
+	optional int32 UseArenaDefenceGroup=3;
+	optional int32 FirstBattleFighted=4;
+	optional int32 Bonus=5;
+	optional int32 LastResetTime=6;
+	optional int32 LastDrawTime=7;
+	optional int32 LastBeAttacked=8;
+}
+
+message PlayerHorseHouseAttackRecord{
+	optional int32 OtherPlayerId=1;
+	optional int32 AttackNum=2;
+	optional string OtherPlayerName=3;
+	optional int32 AttackTime=4;
+	optional int32 OtherHorseId=5;
+	repeated int32 AttackNumByStar=6;
+}
+
+message PlayerHorseHouseAttackRecordList{
+	repeated PlayerHorseHouseAttackRecord List=1;
+}
+
+message PlayerRobInfo{
+	optional int32 UseArenaDefenceGroup=3;
+	optional int32 InviteCountResetTime=2;
+	optional int32 RobCounter=4;
+}
+
+message PlayerRobScorll{
+	optional int32 ScrollId=1;
+	optional int32 Level=2;
+	optional int32 LevelExp=3;
+	optional int32 CombineStartTime=4;
+	optional int32 CombineSpeedupTime=5;
+	optional int32 ProduceUpdateTime=6;
+	optional int32 ProducePieceConfigId=7;
+	optional int32 ProduceClicked=8;
+	optional int32 ProduceInviteTime_0=9;
+	optional int32 ProduceInviteId_0=10;
+	optional int32 ProduceInviteLevel_0=11;
+	optional int32 ProduceInviteTime_1=12;
+	optional int32 ProduceInviteId_1=13;
+	optional int32 ProduceInviteLevel_1=14;
+	optional int32 ProduceElapsedSecond=15;
+	optional int32 ProduceRemainSecond=16;
+}
+
+message PlayerRobScorllList{
+	repeated PlayerRobScorll List=1;
+}
+
+message PlayerRobPiece{
+	optional int32 PieceId=1;
+	optional int32 NextRobCount=2;
+	optional int32 NextRobCounter=3;
+}
+
+message PlayerRobPieceList{
+	repeated PlayerRobPiece List=1;
+}
+
+message PlayerRobRecord{
+	optional int32 RecordId=1;
+	optional int32 PlayerId=2;
+	optional int32 PieceConfigId=3;
+	optional int32 Time=4;
+	optional int32 Viewed=5;
+}
+
+message PlayerRobRecordList{
+	repeated PlayerRobRecord List=1;
+}
+
+message PlayerRobTrap{
+	optional int32 PieceConfigId=1;
+	optional int32 ItemConfigId=2;
+	optional int32 ItemCount=3;
+}
+
+message PlayerRobTrapList{
+	repeated PlayerRobTrap List=1;
+}
+
+message PlayerRobInviteCount{
+	optional int32 FriendId=1;
+	optional int32 Count=2;
+}
+
+message PlayerRobInviteCountList{
+	repeated PlayerRobInviteCount List=1;
+}
+
+message PlayerArenaInfo{
+	optional int32 Gold=1;
+	optional int32 TopRank=2;
+	optional int32 Wins=3;
+	optional int32 Section=4;
+	optional int32 Score=5;
+	optional int32 InUpSection=6;
+	repeated int32 SkillsLevel=7;
+	repeated int32 UpFightResults=8;
+	optional int32 GoldGeneratedLast=9;
+	optional int32 GoldGenerateStartTime=10;
+	optional int32 LastFightTime=11;
+	optional int32 UpFightNum=12;
+	optional int32 LeftFightNum=13;
+	optional int32 DailyResetTime=14;
+	optional int32 TotalFightNum=15;
+	optional int32 BuyNumOfFight=16;
+	optional int32 BuyNumOfResetCD=17;
+	optional int32 NumOfResetCD=18;
+}
+
+message PlayerArenaCacheData{
+	repeated int32 MatchedFightersId=1;
+	repeated int32 MatchedFightersForce=2;
+	repeated int32 MatchedFightersRank=3;
+	optional int32 MatchedFightersNum=4;
+	optional int32 FightType=5;
+	optional int32 FightForce=6;
+	optional int32 OpponentId=7;
+	optional bytes RecordData=8;
+}
+
+message PlayerArenaRecord{
+	optional int32 RecordId=1;
+	optional int32 Time=2;
+	optional int32 Win=3;
+	optional int32 OldRank=4;
+	optional int32 NewRank=5;
+	optional bytes Data=6;
+	optional int32 Revenged=7;
+	repeated ArenaFightAction Action=8;
+}
+
+message PlayerArenaRecordList{
+	repeated PlayerArenaRecord List=1;
+}
+
+message PlayerResDungeonChapter{
+	optional int32 Chapter=1;
+	optional int32 Times=2;
+	optional int32 LastChallengeTime=3;
+}
+
+message PlayerResDungeonChapterList{
+	repeated PlayerResDungeonChapter List=1;
+}
+
+message PlayerResDungeonLevel{
+	optional int32 ConfigId=1;
+	optional int32 State=2;
+}
+
+message PlayerResDungeonLevelList{
+	repeated PlayerResDungeonLevel List=1;
+}
+
+message PlayerGuildState{
+	optional int32 Systype=1;
+	optional int32 SysStep=2;
+}
+
+message PlayerGuildStateList{
+	repeated PlayerGuildState List=1;
+}
+
+message PlayerGuildInfo{
+	optional int32 FirstBattleFighted=1;
+}
+
+message PlayerHorseHouseCacheMatchedHorses{
+	optional int32 MatchedNum=1;
+	repeated int32 MatchedHorseOwnersForce=2;
+	repeated MatchedHorseDetail MatchedHorsesDetail=3;
+}
+
+message PlayerHorseHouseCacheFightData{
+	optional int32 IsFightWin=1;
+	optional int32 SelfHorseId=2;
+	optional int32 OpponentId=3;
+	optional int32 OpponentHorseId=4;
+	optional int32 OpenCardIndex=5;
+	optional int32 OpenCardFightRate=6;
+	optional int32 FightForce=7;
+	optional int32 OpponentIndex=8;
+}
+
+message PlayerHorseHouseCacheColor{
+	optional int32 ColorState=1;
+	optional HorseColorCombo ColorCombo=2;
+}
+
+message PlayerHorseHouseCacheRoulinColor{
+	repeated int32 ColorStates=1;
+	repeated HorseColorCombo ColorCombos=2;
+	optional int32 CombosNum=3;
+}
+
+message PlayerHorseHouseDefenseRecord{
+	optional int32 RecordId=1;
+	optional int32 HorseId=2;
+	optional int32 HorseConfigId=3;
+	optional int32 OtherPlayerId=4;
+	optional int32 OtherHorseId=5;
+	optional int32 OtherHorseConfigId=6;
+	optional int32 FightTime=7;
+	optional int32 Result=8;
+	optional int32 Checked=9;
+}
+
+message PlayerHorseHouseDefenseRecordList{
+	repeated PlayerHorseHouseDefenseRecord List=1;
+}
+
+message PlayerMakeFriendRequest{
+	optional int32 PlayerId=1;
+	optional int32 RequestedTime=2;
+}
+
+message PlayerMakeFriendRequestList{
+	repeated PlayerMakeFriendRequest List=1;
+}
+
+message PlayerFriend{
+	optional int32 PlayerId=1;
+	optional int32 SpiriteTime=2;
+	optional int32 ReceiveSpirite=3;
+	optional int32 ReceiveSpiriteTime=4;
+	optional int32 NewFriend=5;
+}
+
+message PlayerFriendList{
+	repeated PlayerFriend List=1;
+}
+
+message PlayerChat{
+	optional int32 WorldSendCount=1;
+	optional int32 UpdateWorldCountTime=2;
+	optional int32 WorldCountDuration=3;
+	optional int32 WorldPayCount=4;
+}
+
+message PlayerRacing{
+	optional int32 Price=1;
+	optional int32 SelectHero=2;
+	optional int32 SelectHorse=3;
+	optional int32 Hero1=4;
+	optional int32 Horse1=5;
+	optional int32 Hero2=6;
+	optional int32 Horse2=7;
+	optional int32 Hero3=8;
+	optional int32 Horse3=9;
+	optional int32 Hero4=10;
+	optional int32 Horse4=11;
+	optional int32 Hero5=12;
+	optional int32 Horse5=13;
+	optional int32 Hero6=14;
+	optional int32 Horse6=15;
+	optional int32 Chg_Horseid=16;
+	optional int32 Chg_SuMax=17;
+	optional int32 Chg_SuTotal=18;
+	optional int32 Chg_SuDune=19;
+	optional int32 Chg_SuStone=20;
+	optional int32 Chg_SuBriar=21;
+	optional int32 Signle_TrackNum=22;
+	optional int32 Signle_TrackSec=23;
+}
+
+message PlayerShitInfo{
+	optional int32 LastDropTime=1;
+}
+
+message PlayerShit{
+	optional int32 ShitId=1;
+	optional int32 Offline=2;
+	optional float PosX=3;
+	optional float PosY=4;
+	optional float PosZ=5;
+}
+
+message PlayerShitList{
+	repeated PlayerShit List=1;
+}
+
+message PlayerCruiseHeroInfo{
+	optional RoninData Ronin=1;
+	repeated CruiseOutHeroData OutHeros=2;
+	repeated int32 OutHeroUsedDesiresId=3;
+	repeated CruiseExistHeroData ExistHeros=4;
+	optional int32 ExistHerosResetTime=5;
+	repeated int32 ExistHeroUsedDesiresId=6;
+	repeated CruiseExistHeroContinuousDays ExistHerosContinuousDays=7;
+	repeated int32 RoninUsedHero=8;
+	repeated int32 ExistHeroUsedHero=9;
+}
+
+message PlayerExpedition{
+	optional int32 ResetTime=1;
+	optional int32 Start=2;
+	optional int32 ChangeEventCount=3;
+	optional int32 Coin=4;
+	optional int32 EventRewardCount=5;
+	optional bytes EnemyStateInfo=6;
+}
+
+message PlayerExpeditionCustom{
+	optional int32 CustomId=1;
+	optional int32 ChapterConfig=2;
+	optional int32 ChapterIndex=3;
+	optional bytes HeroListInfo=4;
+	optional int32 FightSuccess=5;
+	optional int32 EventType=6;
+	optional int32 EventTrigger=7;
+	optional int32 SureChangeBuff=8;
+}
+
+message PlayerExpeditionCustomList{
+	repeated PlayerExpeditionCustom List=1;
+}
+
+message PlayerExpeditionEvent{
+	optional int32 EventType=1;
+	optional int32 EventValue=2;
+}
+
+message PlayerExpeditionEventList{
+	repeated PlayerExpeditionEvent List=1;
+}
+
+message PlayerExpeditionTempEvent{
+	optional int32 EventType=1;
+	optional int32 EventValue=2;
+}
+
+message PlayerExpeditionTempEventList{
+	repeated PlayerExpeditionTempEvent List=1;
+}
+
+message PlayerExpeditionHeroState{
+	optional int32 HeroConfig=1;
+	optional float PercentLife=2;
+}
+
+message PlayerExpeditionHeroStateList{
+	repeated PlayerExpeditionHeroState List=1;
+}
+
+message PlayerHistoryHighForce{
+	optional int32 HighForce=1;
+	optional bytes HerosInfo=2;
+}
+
+message PlayerShopsData{
+	optional int32 ShopType=1;
+	optional int32 NotFirstPurchase=2;
+	optional int32 RefreshSaveTime=3;
+	optional int32 RefreshRemainSeconds=4;
+	repeated ShopItem Items=5;
+	optional int32 ResetCount=6;
+}
+
+message PlayerShopsDataList{
+	repeated PlayerShopsData List=1;
+}
+
+message PlayerShopCacheData{
+	optional int32 RefreshCount=1;
+}
+
+message PlayerGuideData{
+	optional int32 HeroAllEquipmentLevelUp=1;
+	optional int32 HeroFirstEquipmentCombo=2;
+	optional int32 HeroSecondEquipmentCombo=3;
+	optional int32 HeroThirdEquipmentCombo=4;
+	optional int32 HeroFourthEquipmentCombo=5;
+}
+
+message PlayerTongData{
+	optional int32 TongId=1;
+	optional int32 RequestJoinCount=2;
+	optional int32 RequestJoinTime=3;
+	optional int32 RecommandTime=4;
+	optional int32 WeekContribute=5;
+	optional int32 TotalContribute=6;
+	optional int32 DonateCount=7;
+	optional int32 DonateTime=8;
+	optional int32 DonateCoin=9;
+	optional int32 RedPacketPoint=10;
+	optional int32 LastPersonDungeonTime=11;
+	optional int32 DiamondRedPacketCount=12;
+	optional int32 DiamondRedPacketTime=13;
+}
+
+message PlayerTongRedPacket{
+	optional int32 GroupId=1;
+	optional int32 NextCanRandCount=2;
+}
+
+message PlayerTongRedPacketList{
+	repeated PlayerTongRedPacket List=1;
+}
+
+message PlayerTongRedPacketEffectCost{
+	optional int32 Index=1;
+	optional int32 TypeId=2;
+}
+
+message PlayerTongRedPacketEffectCostList{
+	repeated PlayerTongRedPacketEffectCost List=1;
+}
+
+message PlayerTongRedPacketEffectAdd{
+	optional int32 Index=1;
+	optional int32 TypeId=2;
+}
+
+message PlayerTongRedPacketEffectAddList{
+	repeated PlayerTongRedPacketEffectAdd List=1;
+}
+
+message PlayerTongPersonalDungeon{
+	optional int32 TypeId=1;
+	optional int32 Count=2;
+	optional int32 NextCanPlayTime=3;
+	optional int32 PassedDiffictLevel=4;
+}
+
+message PlayerTongPersonalDungeonList{
+	repeated PlayerTongPersonalDungeon List=1;
+}
+
+message PlayerPersonChatRecord{
+	optional int32 Index=1;
+	optional int32 SenderId=2;
+	optional int32 MsgType=3;
+	optional string MsgContent=4;
+	optional int32 ReceiverId=5;
+	optional int32 SendTime=6;
+}
+
+message PlayerPersonChatRecordList{
+	repeated PlayerPersonChatRecord List=1;
+}
+
+message PlayerRequestJoinTong{
+	optional int32 TongId=1;
+	optional int32 JoinTime=2;
+}
+
+message PlayerRequestJoinTongList{
+	repeated PlayerRequestJoinTong List=1;
+}
+
+message PlayerTongRedPacketPointEffectCost{
+	optional int32 Index=1;
+	optional int32 TypeId=2;
+}
+
+message PlayerTongRedPacketPointEffectCostList{
+	repeated PlayerTongRedPacketPointEffectCost List=1;
+}
+
+message PlayerTongRedPacketPointEffectAdd{
+	optional int32 Index=1;
+	optional int32 TypeId=2;
+}
+
+message PlayerTongRedPacketPointEffectAddList{
+	repeated PlayerTongRedPacketPointEffectAdd List=1;
+}
+
+message PlayerHorseAwakeMission{
+	optional int32 AwakeConfigId=1;
+	optional int32 HeroId=2;
+	optional int32 HorseId=3;
+	optional int32 MissionIndex=4;
+	optional int32 MissionId=5;
+	optional int32 MissionState=6;
+	optional int32 MissionValue=7;
+	optional int32 MissionChainState=8;
+	optional int32 MissionFightLevel=9;
+}
+
+message PlayerHorseAwakeCombo{
+	optional int32 ComboId=1;
+	optional int32 HorseId=2;
+	optional int32 AwakeConfigId=3;
+	optional int32 HeroId=4;
+	optional int32 Closeness=5;
+	optional int32 ClosenessExp=6;
+	optional int32 SkillLevel=7;
+}
+
+message PlayerHorseAwakeComboList{
+	repeated PlayerHorseAwakeCombo List=1;
+}
+
+message PlayerBetaWelfareInfo{
+	optional int32 LoginCount=1;
+	optional int32 LastLoginDay=2;
+	repeated int32 FinishedIds=3;
+	optional int32 HorseMlCount=4;
+	optional int32 FinalLvel=5;
+	optional int32 FinalStar=6;
+	optional int32 FinalFasion=7;
+	optional int32 FinalHorseNum=8;
+	optional int32 FinalHeroNum=9;
+	optional int32 FinalMLNum=10;
+	optional int32 FinalPower=11;
+}
+
+message PlayerExplorationData{
+	optional int32 JMYTCount=1;
+	optional int32 JMYTCountTime=2;
+	optional int32 UpdateQMQKCountTime=3;
+	optional int32 UpdateQJQBInfoTime=4;
+	optional int32 UpdateLBSXInfoTime=5;
+	optional int32 UpdateRMKZInfoTime=6;
+	optional int32 LJYYCoin=7;
+	optional int32 QMQKCount=8;
+	optional int32 LJYYCount=9;
+	optional int32 UpdateLJYYCountTime=10;
+	optional int32 UpdateLJYYGoodsTime=11;
+	repeated int32 LJYYRandGoods=12;
+	repeated int32 LJYYBuyGoodsState=13;
+	optional int32 XLTXCount=14;
+	optional int32 UpdateXLTXCountTime=15;
+	optional int32 XLTXCanPlayTimePoint=16;
+}
+
+message PlayerExplorationJinMaYuTang{
+	optional int32 ConfigId=1;
+	optional int32 Mission_1=2;
+	optional int32 Mission_2=3;
+	optional int32 Mission_3=4;
+}
+
+message PlayerExplorationJinMaYuTangList{
+	repeated PlayerExplorationJinMaYuTang List=1;
+}
+
+message PlayerExplorationQiuMaQingKuang{
+	optional int32 ConfigId=1;
+	optional int32 Mission_1=2;
+	optional int32 Mission_2=3;
+	optional int32 Mission_3=4;
+	optional int32 GainHalfReward=5;
+	optional int32 GainFullReward=6;
+}
+
+message PlayerExplorationQiuMaQingKuangList{
+	repeated PlayerExplorationQiuMaQingKuang List=1;
+}
+
+message PlayerExplorationQiJingQiuBao{
+	optional int32 ConfigId=1;
+	optional int32 PlayCount=2;
+	repeated int32 HeroGroup=3;
+	optional int32 StartTime=4;
+	optional int32 DiamondSpeed=5;
+}
+
+message PlayerExplorationQiJingQiuBaoList{
+	repeated PlayerExplorationQiJingQiuBao List=1;
+}
+
+message PlayerExplorationLiBaShanXi{
+	optional int32 ConfigId=1;
+	optional int32 PlayCount=2;
+	optional int32 FightComplete=3;
+	repeated int32 HeroGroup=4;
+	optional int32 StartTime=5;
+	optional int32 DiamondSpeed=6;
+}
+
+message PlayerExplorationLiBaShanXiList{
+	repeated PlayerExplorationLiBaShanXi List=1;
+}
+
+message PlayerExplorationRongMaKongZong{
+	optional int32 ConfigId=1;
+	optional int32 PlayCount=2;
+	repeated int32 HeroGroup=3;
+	optional int32 StartTime=4;
+	optional int32 DiamondSpeed=5;
+}
+
+message PlayerExplorationRongMaKongZongList{
+	repeated PlayerExplorationRongMaKongZong List=1;
+}
+
+message PlayerSessionKeyInfo{
+	optional string SessionKey=1;
+}
+
+message PlayerHorseShowInfo{
+	optional int32 EnterActDay=1;
+	optional int32 OnShowHorseId=2;
+	optional int32 LeftJudgeCount=3;
+	optional int32 BeParisedCount=4;
+	optional int32 DoJudgeCount=5;
+	optional int32 LastJudgeCdTime=6;
+	optional int32 LastSelfPariseDay=7;
+	optional int32 LastSelfFlowDay=8;
+	optional int32 CharmVal=9;
+	optional int32 LastLibRefTime=10;
+	repeated int32 CurJudgeIds=11;
+}
+
+message PlayerVipGift{
+	repeated int32 BuyedGifts=1;
+}
+
+message PlayerHorseShowAdds{
+	repeated int32 AddedPlayerIds=1;
+	optional int32 LastUpAddedDay=2;
+}
+
+message PlayerExplorationXunLongTanXueItem{
+	optional int32 ShopType=1;
+	optional int32 DoubleCount=2;
+}
+
+message PlayerExplorationXunLongTanXueItemList{
+	repeated PlayerExplorationXunLongTanXueItem List=1;
+}
+
+message PlayerWbossInfo{
+	optional int32 Dmg=1;
+	optional int32 CurCount=2;
+	optional int32 GPowUpCount=3;
+	optional int32 DPowUpCount=4;
+	optional int32 PowUpPercent=5;
+	optional int32 CDCount=6;
+	optional int32 UpYearDay=7;
+}
+
+message PlayerRewardKeyInfo{
+	repeated int32 UsedRewardTypes=1;
+}
+
+message PlayerBusinessData{
+	optional int32 OpenAccountTime=1;
+	optional string SealReason=2;
+	optional int32 AllowChatTime=3;
+	optional string ForbidChatReason=4;
+}
+
+message PlayerSurveyData{
+	optional string FinishTimeString=1;
+}
+
+message PlayerBlackMarketData{
+	optional int32 OpenTime=1;
+	optional int32 PhyVimVal=2;
+	optional int32 ManualRefreshCount=3;
+	repeated BlackMarketItem Items=4;
+}
+
+message PlayerBlackMarketCacheData{
+	optional int32 RefreshCount=1;
+}
+
+message PlayerPayData{
+	optional int32 PayPrivate=1;
+	optional int32 MonthVipType=2;
+	optional int32 EndDay=3;
+	optional int32 MonthCardType=4;
+	optional int32 MonthCardEndDay=5;
+}
+
+message TongTongData{
+	optional string Name=1;
+	optional int32 Level=2;
+	optional string RecruitNotice=3;
+	optional int32 OpenJoinLevel=4;
+	optional int32 JoinLevel=5;
+	optional string Announce=6;
+	optional int32 StopRecruit=7;
+	optional int32 NeedVerify=8;
+	optional int32 PresidentId=9;
+	optional int32 LevelExp=10;
+	optional int32 TongValid=11;
+	optional int32 FightTraceTime=12;
+}
+
+message TongTongMember{
+	optional int32 MemberId=1;
+	optional int32 PlayerId=2;
+	optional int32 Grade=3;
+}
+
+message TongTongMemberList{
+	repeated TongTongMember List=1;
+}
+
+message TongTongJoin{
+	optional int32 Id=1;
+	optional int32 PlayerId=2;
+	optional int32 JoinTime=3;
+}
+
+message TongTongJoinList{
+	repeated TongTongJoin List=1;
+}
+
+message TongTongWelfBuff{
+	optional int32 WelfId=1;
+	optional int32 OpenTime=2;
+}
+
+message TongTongWelfBuffList{
+	repeated TongTongWelfBuff List=1;
+}
+
+message TongTongNews{
+	optional int32 NewsIndex=1;
+	optional int32 NewsType=2;
+	optional bytes Params=3;
+	optional int32 NewsTime=4;
+}
+
+message TongTongNewsList{
+	repeated TongTongNews List=1;
+}
+
+message TongTongChatRecord{
+	optional int32 Index=1;
+	optional int32 SenderId=2;
+	optional int32 MsgType=3;
+	optional string MsgContent=4;
+	optional int32 SendTime=5;
+}
+
+message TongTongChatRecordList{
+	repeated TongTongChatRecord List=1;
+}
+
+message BetaWefareInfoActInfo{
+	optional int32 Index=1;
+	optional int32 StartUnixDay=2;
+	optional int32 IfHaveDoEnd=3;
+}
+
+message BetaWefareInfoHorseNumRank{
+	repeated SmallRankRecord Records=1;
+}
+
+message BetaWefareInfoHeroNumRank{
+	repeated SmallRankRecord Records=1;
+}
+
+message BetaWefareInfoStarNumRank{
+	repeated SmallRankRecord Records=1;
+}
+
+message BetaWefareInfoHorseMlNumRank{
+	repeated SmallRankRecord Records=1;
+}
+
+message BetaWefareInfoHorseFasionNumRank{
+	repeated SmallRankRecord Records=1;
+}
+
+message BetaWefareInfoFightPowerRank{
+	repeated SmallRankRecord Records=1;
+}
+
+message ExplorationInfoRandPropData{
+	optional int32 QJQBRandTime=1;
+	optional int32 LBSXRandTime=2;
+	optional int32 RMKZRandTime=3;
+	repeated int32 QJQBRandConfigs=4;
+	repeated int32 LBSXRandConfigs=5;
+	repeated int32 RMKZRandConfigs=6;
+}
+
+message ExplorationInfoQJQBRandInfo{
+	optional int32 ConfigId=1;
+	optional int32 PropConfigId=2;
+}
+
+message ExplorationInfoQJQBRandInfoList{
+	repeated ExplorationInfoQJQBRandInfo List=1;
+}
+
+message ExplorationInfoLBSXRandInfo{
+	optional int32 ConfigId=1;
+	optional int32 PropConfigId=2;
+}
+
+message ExplorationInfoLBSXRandInfoList{
+	repeated ExplorationInfoLBSXRandInfo List=1;
+}
+
+message ExplorationInfoRMKZRandInfo{
+	optional int32 ConfigId=1;
+	optional int32 PropConfigId=2;
+}
+
+message ExplorationInfoRMKZRandInfoList{
+	repeated ExplorationInfoRMKZRandInfo List=1;
+}
+
+message ExplorationInfoXLTXRandInfo{
+	optional int32 ShopType=1;
+	optional int32 RandItemTime=2;
+	repeated int32 CountList=3;
+	repeated int32 RandItemList=4;
+}
+
+message ExplorationInfoXLTXRandInfoList{
+	repeated ExplorationInfoXLTXRandInfo List=1;
+}
+
+message HorseShowHorseShowInfo{
+	optional int32 CurSwitchDay=1;
+	optional int32 CurActCount=2;
+}
+
+message HorseShowHorseShowRank{
+	repeated SmallRankRecord Records=1;
+}
+
+message HorseShowLastTop3{
+	repeated HorseShowLT3Record Records=1;
+}
+

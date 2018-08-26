@@ -1,0 +1,1 @@
+dbc.exe "go" "hallsvr_db_def.json" "proto_prefix.txt" "..\proto\db_hallsvr.proto" "code_prefix_hallsvr.txt" "..\src\hall_server\a_db_tables.go"

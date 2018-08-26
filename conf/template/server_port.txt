@@ -1,0 +1,5 @@
+Center Server IP: 监听 Login 30000 监听hall 30001 GM 36002
+
+HallServer: 从30100 开始 双为监听Client
+
+LoginServer: 从 35000开始 双为监听Client

@@ -1,0 +1,3 @@
+# The Go compiler is currently unable to produce read-only relocations
+# (it produces static binaries).
+statically-linked-binary usr/bin/protoc-gen-go

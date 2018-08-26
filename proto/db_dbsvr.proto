@@ -1,0 +1,30 @@
+package db;
+
+
+message PlayerInfo{
+	optional int32 MatchScore=1;
+	optional int32 Coin=2;
+	optional int32 Diamond=3;
+	optional int32 DayMatchRewardNum=4;
+	optional int32 LayMatchRewardTime=5;
+	optional int32 CurUseCardTeam=6;
+}
+
+message PlayerCard{
+	optional int32 ConfigId=1;
+	optional int32 CardCount=2;
+}
+
+message PlayerCardList{
+	repeated PlayerCard List=1;
+}
+
+message PlayerCardTeam{
+	optional int32 TeamId=1;
+	repeated int32 CardCfgIds=2;
+}
+
+message PlayerCardTeamList{
+	repeated PlayerCardTeam List=1;
+}
+

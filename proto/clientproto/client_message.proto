@@ -1,0 +1,311 @@
+package msg.client_message;
+
+//版本号
+enum E_VERSION{
+	E_VERSION_NUMBER=1101;
+}
+
+message S2CErrCode {
+	optional int32 ErrorCode = 1; // 错误码
+}
+
+message PlayerBaseInfo {
+	optional int32 MatchScore = 1; // 玩家基本
+	optional int32 Coins = 2; // 玩家金币
+	optional int32 Diamonds = 3; // 玩家钻石
+	optional int32 DayMatchRewardNum = 5; // 玩家今天领取匹配奖励次数
+	optional int32 CurUseCardTeam = 6; // 当前上阵卡组
+	optional int32 MyExp = 7; // 我的经验
+	optional int32 ArenaLvl = 8; // 竞技场等级
+}
+
+message PlayerCard {
+	optional int32 CardCfgId = 1; // 卡牌配置Id
+	optional int32 CardCount = 2; // 卡片经验
+	optional int32 CardLvl = 3; // 卡片等级
+}
+
+message CardTeam {
+	optional int32 TeamId = 1; // 卡组Id
+	repeated int32 CardIds = 2; // 卡组里面卡牌Id
+}
+
+message S2CCards {
+	repeated PlayerCard Cards = 1; // 卡牌信息
+}
+
+message S2CCardsTeams {
+	repeated CardTeam CardTeams = 1; // 卡组信息
+}
+
+
+message C2SLoginRequest {
+	optional string Acc = 1; // 账号
+	optional string Token = 2; // token
+}
+
+message S2CLoginResponse {
+	optional int64 PlayerId = 1; // 玩家Id
+	optional string Name = 2; // 玩家名称
+	optional PlayerBaseInfo BaseInfo = 3; // 玩家基础信息
+	repeated PlayerCard Cards = 4; // 卡牌信息
+	repeated CardTeam CardTeams = 5; // 卡组信息
+}
+
+/// 心跳消息
+message HeartBeat {
+	
+}
+
+/// 其它地方登录
+message S2COtherPlaceLogin {
+	
+}
+
+/// 匹配请求
+message C2SMatchReq {
+	optional int32 MatchType = 1; // 匹配类型
+}
+
+/// 匹配结果
+message S2CMatchRes {
+	optional int32 State = 1; // 匹配状态  0失败 1匹配中 2匹配成功
+	optional int32 RoomId = 2; // 房间Id
+	optional string RoomIP = 3; // 房间IP
+	optional int32 Token = 4; // 临时Token
+	optional int32 BFighting = 5; // 是否在比赛中
+}
+
+/// 比赛结果
+message S2CFightResult {
+	optional int32 Result = 1; // 比赛结果 0平 1赢 2输
+	optional int32 CurScore = 2; // 当前积分
+	optional int32 CurCoins = 3; // 当前金币
+	optional int32 MyTowers = 4; // 我方摧毁塔数
+	optional int32 OpTowers = 5; // 敌方摧毁塔数
+}
+
+/// 取消匹配
+message C2SMatchCancel {
+	
+}
+
+/// 取消匹配结果
+message S2CMatchCancel {
+	
+}
+
+///===================================================
+
+message C2SEnterRoomReq {
+	optional int64 Id = 1; // 玩家Id
+	optional int32 Token =2; // 玩家Token
+}
+
+message S2CNpcAdd {
+	optional int32 Id = 1; // npc动态Id
+	optional int32 CfgId = 2; // npc配置Id
+	optional int32 CurHP = 3; // 当前血量
+	optional float CurX = 4; // 当前X坐标
+	optional float CurY = 5; // 当前Y坐标
+	optional float TargetX = 7; // 目标X
+	optional float TargetY = 8; // 目标Y
+	optional int32 PlayerIdx = 9; // 玩家编号
+	optional int32 LeftMSec = 10; // 剩余结束激活时间
+}
+
+message S2CEnterRoomRes {
+	optional int32 MyPlayerIdx = 1; // 我的玩家编号
+	optional int32 OpScore =2; // 对手积分
+	optional int32 OpLvl = 3; // 对手等级
+	optional string OpName = 4; // 对手名称
+	optional string OpGuidName = 5; // 对手部落名称
+	optional int32 CurPoints = 6; // 当前圣水
+	optional int32 NextCardid = 7; // 下一张卡Id
+	repeated int32 SlotCards = 8; // 卡槽中卡片id
+	repeated S2CNpcAdd Npcs = 9; // NPC信息
+	optional int32 LeftSec = 10; // 剩余时间
+	repeated int32 OpCardCfgIds = 11; // 对手的卡片Id
+}
+
+message C2SEnterRoomReady {
+	
+}
+
+message S2CMultiNpcAdd {
+	repeated S2CNpcAdd Npcs = 1; // NPC信息
+}
+
+message C2SUseCard {
+	optional int32 Idx = 1; // 使用第几张卡片
+	optional float X = 2; // x坐标
+	optional float Y = 3; // y坐标
+}
+
+message S2CUseCardRes {
+	optional int32 Idx = 1; // 使用第几张卡片
+	optional int32 State = 2; // 使用结果 0 失败 1 成功
+	optional int32 CurPoint = 3; // 当前圣水 使用成功时有效
+}
+
+message S2CCardLoadEnd {
+	optional int32 Idx = 1; // 哪张卡被使用
+	optional int32 NextCardid = 2; // 下一个张卡的Id
+}
+
+message S2CFightEnd {
+	optional int32 State = 1; // 结束状态
+}
+
+message S2CPointChg {
+	optional int32 Point = 1; // 当前点数
+}
+
+message NpcMoveInfo {
+	optional int32 Id = 1; // npc动态Id
+	optional float CurX = 2; // 当前X坐标
+	optional float CurY = 3; // 当前Y坐标
+	optional float TargetX = 4; // 目标X
+	optional float TargetY = 5; // 目标Y
+}
+
+message S2CNpcSync {
+	repeated NpcMoveInfo NpcMoves = 1; // 坐标点数
+}
+
+message S2CNpcRelocate {
+	optional int32 Id = 1; // npc动态Id
+	optional float CurX = 2; // 当前X坐标
+	optional float CurY = 3; // 当前Y坐标
+	optional float TargetX = 4; // 目标X
+	optional float TargetY = 5; // 目标Y
+	optional int32 Type = 6; // 重新定位原因 1为挤人 2为跳跃
+}
+
+message S2CMultiNpcRelocate {
+	repeated S2CNpcRelocate NpcMoves = 1; // Npc信息
+}
+
+message S2CNpcRemove {
+	repeated int32 NpcIds = 1; // NpcId
+}
+
+message S2CCastSkill {
+	optional int32 NpcId = 1; // Npc唯一Id
+	optional int32 SkillId = 2; // 技能Id
+	optional int32 TgtId = 3; // 目标Id
+	optional float TgtX = 4; // 目标X
+	optional float TgtY = 5; // 目标Y
+}
+
+message S2CSkillEffect {
+	optional int32 SkillId = 1; // 技能Id
+	optional int32 SrcNpcId = 2; // 起点NpcId
+	optional int32 TgtNpcId = 3; // 终点NpcId
+	optional float TgtX = 4; // 终点X
+	optional float TgtY = 5; // 终点Y
+	optional int32 CardId = 6; // 卡片Id
+}
+
+message S2CNpcHpChg {
+	optional int32 NpcId = 1; // Npc唯一Id
+	optional int32 CurHP = 2; // Npc当前HP
+}
+
+message S2CMultiNpcHpChg {
+	repeated S2CNpcHpChg HpChgs = 1; // Npc的血量变化
+}
+
+message S2CAddBuff {
+	optional int32 BuffId = 1; // buffid
+	optional int32 NpcId = 2; // buff所在Npc Id
+}
+
+message S2CMultiNpcBuffAdd {
+	repeated S2CAddBuff Buffs = 1; // NpcBuff
+}
+
+message S2CRemoveBuff {
+	optional int32 BuffId = 1; // buffid
+	optional int32 NpcId = 2; // buffid所在Npc Id
+}
+
+message S2CMultiNpcBuffRemove {
+	repeated S2CRemoveBuff Buffs = 2; // Npcbuff
+}
+
+//===============================================================
+
+message C2SChgCurTeam {
+	optional int32 TeamId = 1; // 需要换成的卡组Id
+}
+
+message S2CChgCurTeam {
+	optional int32 TeamId = 1; // 当前卡组Id
+}
+
+message C2SSetCardToTeam {
+	optional int32 CardCfgId = 1; // 卡片Id
+	optional int32 TeamId = 2; // 卡组Id
+	optional int32 SlotIdx = 3; // 放到卡组的那个位置
+}
+
+message S2CTeamCardsChg {
+	optional int32 TeamId = 1; // 卡组Id
+	optional int32 CardCfgIds = 2; // 卡片Id
+}
+
+message S2CArenaLvl {
+	optional int32 ArenaLvl = 1; // 当前竞技场等级 
+}
+
+message C2SCardLvlUp {
+	optional int32 CardCfgId = 1; // 卡片Id	
+}
+
+message S2CCardLvlUp {
+	optional int32 CardCfgId = 1; // 卡片id
+	optional int32 CardLvl = 2; // 卡片等级
+	optional int32 CardCount = 3; // 卡片数目
+	optional int32 MyExp = 4; // 我的当前经验
+}
+
+message S2CPlayerLvlUp {
+	optional int32 Lvl = 1; // 当前等级
+	optional int32 Exp = 2; // 当前经验
+}
+
+message S2CPlayerExpUp {
+	optional int32 Exp = 1; // 当前经验
+}
+
+message C2SBuyChest {
+	optional int32 ChestId = 1; // 宝箱Id
+}
+
+message S2CBuyChest {
+	optional int32 CurCoins = 1; // 当前金币数
+	optional int32 CurDiamond =2; // 当前钻石
+	repeated PlayerCard NewCards = 3; // 获得的卡片Id
+}
+
+message S2CSellCard {
+	optional int32 CardId = 1; // 卡片Id
+	optional int32 BuyNum = 2; // 购买次数 
+	optional int32 Pos = 3; // 位置
+}
+
+message S2CSellingCards {
+	repeated S2CSellCard SellCards = 1; // 出售的卡片
+}
+
+message C2SBuyCard {
+	optional int32 CardPos = 1; // 购买卡片的位置
+	optional int32 BuyNum = 2; // 购买卡片的数量
+}
+
+message S2CBuyCard {
+	optional int32 CardPos = 1; // 购买卡片的位置
+	optional int32 BuyNum = 2; // 买到的卡片数量
+	optional int32 CurCoin = 3; // 当前的金币数量
+}
