@@ -46,7 +46,7 @@ func (this *TalentTableMgr) Init() bool {
 }
 
 func (this *TalentTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Talent.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Talent.xml")
 	if nil != err {
 		log.Error("TalentTableMgr read file err[%s] !", err.Error())
 		return false

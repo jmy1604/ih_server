@@ -42,7 +42,7 @@ func (this *CampaignTableMgr) Init() bool {
 }
 
 func (this *CampaignTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Campaign.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Campaign.xml")
 	if nil != err {
 		log.Error("CampaignTableMgr read file err[%s] !", err.Error())
 		return false

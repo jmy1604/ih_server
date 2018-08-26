@@ -1,8 +1,9 @@
 cd ..
 cd ..
+cd ..
 cd bin
 start test_client.exe
 cd ..
-cd src/_
+cd src/ih_server/_
 
 exit

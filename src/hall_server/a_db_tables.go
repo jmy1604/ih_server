@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/golang/protobuf/proto"
+	_ "ih_server/third_party/mysql"
 	"database/sql"
 	"errors"
 	"fmt"

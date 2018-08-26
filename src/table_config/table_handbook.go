@@ -29,7 +29,7 @@ func (this *HandbookTableMgr) Init() bool {
 }
 
 func (this *HandbookTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Fieldguide.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Fieldguide.xml")
 	if nil != err {
 		log.Error("HandbookTableMgr read file err[%s] !", err.Error())
 		return false

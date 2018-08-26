@@ -35,7 +35,7 @@ func main() {
 		server.Shutdown()
 	}()
 
-	config_file := "../conf/login_server.json"
+	config_file := "../run/ih_server/conf/login_server.json"
 	if len(os.Args) > 1 {
 		arg_config_file := flag.String("f", "", "config file path")
 		if nil != arg_config_file && "" != *arg_config_file {
@@ -56,7 +56,7 @@ func main() {
 		return
 	}
 
-	server_list.ReadConfig("../conf/server_list.json")
+	server_list.ReadConfig("../run/ih_server/conf/server_list.json")
 
 	// 加载日志配置
 	log.Init("", config.LogConfigDir, true)

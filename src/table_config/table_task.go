@@ -92,7 +92,7 @@ func (this *TaskTableMgr) Init() bool {
 }
 
 func (this *TaskTableMgr) LoadTask() bool {
-	content, err := ioutil.ReadFile("../game_data/Mission.xml")
+	content, err := ioutil.ReadFile("../src/ih_server/game_data/Mission.xml")
 	if nil != err {
 		log.Error("TaskTableMgr LoadTask read file error !")
 		return false

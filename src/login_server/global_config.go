@@ -30,7 +30,7 @@ type GlobalConfig struct {
 var global_config GlobalConfig
 
 func global_config_load() bool {
-	data, err := ioutil.ReadFile("../game_data/global.json")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/global.json")
 	if nil != err {
 		log.Error("global_config_load failed to readfile err(%s)!", err.Error())
 		return false

@@ -64,7 +64,7 @@ func (this *LoginServer) Start(use_https bool) bool {
 	}
 
 	if use_https {
-		go this.StartHttps("../conf/server.crt", "../conf/server.key")
+		go this.StartHttps("../src/ih_server/conf/server.crt", "../src/ih_server/conf/server.key")
 	} else {
 		go this.StartHttp()
 	}

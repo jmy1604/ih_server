@@ -58,7 +58,7 @@ func (this *FusionTableMgr) Init() bool {
 }
 
 func (this *FusionTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Fusion.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Fusion.xml")
 	if nil != err {
 		log.Error("FusionTableMgr read file err[%s] !", err.Error())
 		return false

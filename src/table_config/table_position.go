@@ -28,7 +28,7 @@ type PositionTable struct {
 }
 
 func (this *PositionTable) Init() bool {
-	data, err := ioutil.ReadFile("../game_data/position.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/position.xml")
 	if nil != err {
 		log.Error("PositionTable Init failed to read file(%s)", err.Error())
 		return false
@@ -61,7 +61,7 @@ func (this *PositionTable) Init() bool {
 }
 
 func (this *PositionTable) InitIpMop() bool {
-	err := ip17mon.Init("../game_data/17monipdb.dat")
+	err := ip17mon.Init("../src/ih_server/game_data/17monipdb.dat")
 	if nil != err {
 		log.Error("PositionTable InitIpMop failed [%s]", err.Error())
 		return false

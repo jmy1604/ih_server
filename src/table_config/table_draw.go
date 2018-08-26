@@ -35,7 +35,7 @@ func (this *DrawTableMgr) Init() bool {
 }
 
 func (this *DrawTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Extract.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Extract.xml")
 	if nil != err {
 		log.Error("DrawTableMgr read file err[%s] !", err.Error())
 		return false

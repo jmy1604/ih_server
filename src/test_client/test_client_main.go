@@ -32,7 +32,7 @@ func main() {
 		test_client.Shutdown()
 	}()
 
-	config_file := "../conf/test_client.json"
+	config_file := "../run/ih_server/conf/test_client.json"
 	if len(os.Args) > 1 {
 		arg_config_file := flag.String("f", "", "config file path")
 		if nil != arg_config_file && "" != *arg_config_file {

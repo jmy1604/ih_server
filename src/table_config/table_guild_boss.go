@@ -51,7 +51,7 @@ func (this *GuildBossTableMgr) Init() bool {
 }
 
 func (this *GuildBossTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/GuildBoss.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/GuildBoss.xml")
 	if nil != err {
 		log.Error("GuildBossTableMgr read file err[%s] !", err.Error())
 		return false

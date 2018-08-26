@@ -30,7 +30,7 @@ func (this *TowerTableMgr) Init() bool {
 }
 
 func (this *TowerTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Tower.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Tower.xml")
 	if nil != err {
 		log.Error("TowerTableMgr read file err[%s] !", err.Error())
 		return false

@@ -33,7 +33,7 @@ func (this *LevelUpTableMgr) Init() bool {
 }
 
 func (this *LevelUpTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/LevelUp.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/LevelUp.xml")
 	if nil != err {
 		log.Error("LevelUpTableMgr read file err[%s] !", err.Error())
 		return false

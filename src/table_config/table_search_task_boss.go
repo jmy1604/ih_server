@@ -36,7 +36,7 @@ func (this *SearchTaskBossTableMgr) Init() bool {
 }
 
 func (this *SearchTaskBossTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/SearchTaskBoss.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/SearchTaskBoss.xml")
 	if nil != err {
 		log.Error("SearchTaskBossTableMgr read file err[%s] !", err.Error())
 		return false

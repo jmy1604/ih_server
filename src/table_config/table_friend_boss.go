@@ -38,7 +38,7 @@ func (this *FriendBossTableMgr) Init() bool {
 }
 
 func (this *FriendBossTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/FriendBoss.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/FriendBoss.xml")
 	if nil != err {
 		log.Error("FriendBossTableMgr read file err[%s] !", err.Error())
 		return false

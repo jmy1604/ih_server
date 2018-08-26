@@ -53,7 +53,7 @@ type ShopItemTableManager struct {
 }
 
 func (this *ShopItemTableManager) Init() bool {
-	data, err := ioutil.ReadFile("../game_data/ShopItem.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/ShopItem.xml")
 	if nil != err {
 		log.Error("ShopItemTableManager Load read file err[%s] !", err.Error())
 		return false

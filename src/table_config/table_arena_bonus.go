@@ -34,7 +34,7 @@ func (this *ArenaBonusTableMgr) Init() bool {
 }
 
 func (this *ArenaBonusTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/ArenaRankingBonus.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/ArenaRankingBonus.xml")
 	if nil != err {
 		log.Error("ArenaBonusTableMgr read file err[%s] !", err.Error())
 		return false

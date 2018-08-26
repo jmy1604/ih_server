@@ -37,7 +37,7 @@ func (this *DropManager) Init() bool {
 }
 
 func (this *DropManager) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Drop.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Drop.xml")
 	if nil != err {
 		log.Error("DropManager load read file failed[%s] !", err.Error())
 		return false

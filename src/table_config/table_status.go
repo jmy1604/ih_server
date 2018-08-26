@@ -41,7 +41,7 @@ func (this *StatusTableMgr) Init() bool {
 }
 
 func (this *StatusTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Status.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Status.xml")
 	if nil != err {
 		log.Error("StatusTableMgr read file err[%s] !", err.Error())
 		return false

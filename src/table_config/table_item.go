@@ -43,7 +43,7 @@ func (this *ItemTableMgr) Init() bool {
 }
 
 func (this *ItemTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Item.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Item.xml")
 	if nil != err {
 		log.Error("ItemTableMgr read file err[%s] !", err.Error())
 		return false

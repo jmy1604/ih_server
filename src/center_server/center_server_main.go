@@ -109,7 +109,7 @@ func main() {
 		time.Sleep(time.Second * 5)
 	}()
 
-	config_file := "../conf/center_server.json"
+	config_file := "../run/ih_server/conf/center_server.json"
 	if len(os.Args) > 1 {
 		arg_config_file := flag.String("f", "", "config file path")
 		if nil != arg_config_file && "" != *arg_config_file {

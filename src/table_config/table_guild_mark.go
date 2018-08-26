@@ -28,7 +28,7 @@ func (this *GuildMarkTableMgr) Init() bool {
 }
 
 func (this *GuildMarkTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/GuildMark.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/GuildMark.xml")
 	if nil != err {
 		log.Error("GuildMarkTableMgr read file err[%s] !", err.Error())
 		return false

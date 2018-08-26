@@ -48,7 +48,7 @@ func (this *PassTableMgr) Init() bool {
 }
 
 func (this *PassTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Stage.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Stage.xml")
 	if nil != err {
 		log.Error("PassTableMgr read file err[%s] !", err.Error())
 		return false

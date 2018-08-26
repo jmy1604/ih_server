@@ -62,7 +62,7 @@ func (this *SearchTaskTableMgr) Init() bool {
 }
 
 func (this *SearchTaskTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/SearchTask.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/SearchTask.xml")
 	if nil != err {
 		log.Error("SearchTaskTableMgr read file err[%s] !", err.Error())
 		return false

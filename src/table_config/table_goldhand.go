@@ -35,7 +35,7 @@ func (this *GoldHandTableMgr) Init() bool {
 }
 
 func (this *GoldHandTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/GoldHand.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/GoldHand.xml")
 	if nil != err {
 		log.Error("GoldHandTableMgr read file err[%s] !", err.Error())
 		return false

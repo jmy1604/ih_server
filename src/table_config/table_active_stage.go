@@ -32,7 +32,7 @@ func (this *ActiveStageTableMgr) Init() bool {
 }
 
 func (this *ActiveStageTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/ActiveStage.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/ActiveStage.xml")
 	if nil != err {
 		log.Error("ActiveStageTableMgr read file err[%s] !", err.Error())
 		return false

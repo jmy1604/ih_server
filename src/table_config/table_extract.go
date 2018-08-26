@@ -33,7 +33,7 @@ func (this *ExtractTableManager) Init() bool {
 }
 
 func (this *ExtractTableManager) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/extract.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/extract.xml")
 	if nil != err {
 		log.Error("ExtractTableManager load read file failed[%s] !", err.Error())
 		return false

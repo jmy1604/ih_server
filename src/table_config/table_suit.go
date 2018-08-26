@@ -36,7 +36,7 @@ func (this *SuitTableMgr) Init() bool {
 }
 
 func (this *SuitTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/Suit.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Suit.xml")
 	if nil != err {
 		log.Error("SuitTableMgr read file err[%s] !", err.Error())
 		return false

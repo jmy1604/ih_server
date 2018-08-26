@@ -32,7 +32,7 @@ func (this *GuildDonateTableMgr) Init() bool {
 }
 
 func (this *GuildDonateTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/GuildDonate.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/GuildDonate.xml")
 	if nil != err {
 		log.Error("GuildDonateTableMgr read file err[%s] !", err.Error())
 		return false

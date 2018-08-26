@@ -273,7 +273,7 @@ func main() {
 
 	var temp_i int32
 
-	config_file := "../conf/hall_server.json"
+	config_file := "../run/ih_server/conf/hall_server.json"
 	if len(os.Args) > 1 {
 		arg_config_file := flag.String("f", "", "config file path")
 		if arg_config_file != nil && *arg_config_file == "" {
@@ -315,7 +315,7 @@ func main() {
 	}
 
 	// 配置加载
-	if !global_config.Init("../game_data/global.json") {
+	if !global_config.Init("../src/ih_server/game_data/global.json") {
 		log.Error("global_config_load failed !")
 		return
 	} else {

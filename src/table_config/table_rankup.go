@@ -40,7 +40,7 @@ func (this *RankUpTableMgr) Init() bool {
 }
 
 func (this *RankUpTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/RankUp.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/RankUp.xml")
 	if nil != err {
 		log.Error("RankUpTableMgr read file err[%s] !", err.Error())
 		return false

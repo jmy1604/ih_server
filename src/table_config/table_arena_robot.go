@@ -34,7 +34,7 @@ func (this *ArenaRobotTableMgr) Init() bool {
 }
 
 func (this *ArenaRobotTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/ArenaRobot.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/ArenaRobot.xml")
 	if nil != err {
 		log.Error("ArenaRobotTableMgr read file err[%s] !", err.Error())
 		return false

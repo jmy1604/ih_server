@@ -116,7 +116,7 @@ func (this *HallServer) Start(use_https bool) (err error) {
 	go this.Run()
 
 	if use_https {
-		msg_handler_mgr.StartHttps("../conf/server.crt", "../conf/server.key")
+		msg_handler_mgr.StartHttps("../run/ih_server/conf/server.crt", "../run/ih_server/conf/server.key")
 	} else {
 		msg_handler_mgr.StartHttp()
 	}

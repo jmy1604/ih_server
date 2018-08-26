@@ -35,7 +35,7 @@ func (this *ItemUpgradeTableMgr) Init() bool {
 }
 
 func (this *ItemUpgradeTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/ItemUpgrade.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/ItemUpgrade.xml")
 	if nil != err {
 		log.Error("ItemUpgradeTableMgr read file err[%s] !", err.Error())
 		return false

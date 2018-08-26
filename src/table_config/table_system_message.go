@@ -31,7 +31,7 @@ func (this *SysMsgTableMgr) Init() bool {
 }
 
 func (this *SysMsgTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/SysMessage.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/SysMessage.xml")
 	if nil != err {
 		log.Error("CropTableMgr read file err[%s] !", err.Error())
 		return false

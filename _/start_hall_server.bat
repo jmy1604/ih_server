@@ -1,9 +1,10 @@
 cd ..
 cd ..
+cd ..
 cd bin
 start hall_server.exe
 cd ..
-cd src/_
+cd src/ih_server/_
 
 exit
 

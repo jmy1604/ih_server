@@ -32,7 +32,7 @@ func (this *GuildLevelUpTableMgr) Init() bool {
 }
 
 func (this *GuildLevelUpTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/GuildLevelUp.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/GuildLevelUp.xml")
 	if nil != err {
 		log.Error("GuildLevelUpTableMgr read file err[%s] !", err.Error())
 		return false

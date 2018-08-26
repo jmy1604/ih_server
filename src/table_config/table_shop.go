@@ -26,7 +26,7 @@ type ShopTableManager struct {
 }
 
 func (this *ShopTableManager) Init() bool {
-	data, err := ioutil.ReadFile("../game_data/Shop.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/Shop.xml")
 	if nil != err {
 		log.Error("ShopTableManager Load read file err[%s] !", err.Error())
 		return false

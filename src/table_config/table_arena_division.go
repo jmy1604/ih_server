@@ -36,7 +36,7 @@ func (this *ArenaDivisionTableMgr) Init() bool {
 }
 
 func (this *ArenaDivisionTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/ArenaDivision.xml")
+	data, err := ioutil.ReadFile("../src/ih_server/game_data/ArenaDivision.xml")
 	if nil != err {
 		log.Error("ArenaDivisionTableMgr read file err[%s] !", err.Error())
 		return false

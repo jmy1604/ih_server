@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	data, err := ioutil.ReadFile("../conf/all_config.json.template")
+	data, err := ioutil.ReadFile("../run/ih_server/conf/all_config.json.template")
 	if err != nil {
 		fmt.Printf("读取配置文件失败 %v", err)
 		return
