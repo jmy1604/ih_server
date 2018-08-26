@@ -2198,7 +2198,7 @@ func (this *dbGlobalTable) check_create_table() (err error) {
 	}
 	_, hasCurrentPlayerId := columns["CurrentPlayerId"]
 	if !hasCurrentPlayerId {
-		_, err = this.m_dbc.Exec("ALTER TABLE Global ADD COLUMN CurrentPlayerId int(11)")
+		_, err = this.m_dbc.Exec("ALTER TABLE Global ADD COLUMN CurrentPlayerId int(11) DEFAULT 0")
 		if err != nil {
 			log.Error("ADD COLUMN CurrentPlayerId failed")
 			return
