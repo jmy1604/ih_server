@@ -1,7 +1,7 @@
 package main
 
 import (
-	"libs/log"
+	"ih_server/libs/log"
 	"os"
 	"os/signal"
 	"syscall"
