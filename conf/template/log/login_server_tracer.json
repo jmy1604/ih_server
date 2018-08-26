@@ -15,7 +15,7 @@
 			"level":"TRACE",
 			"property":
 			[
-				{ "name":"logdir", "value":"../logs/login_server" },
+				{ "name":"logdir", "value":"../run/ih_server/logs/login_server" },
 				{ "name":"filename", "value":"login_trace" },
 				{ "name":"filesuffix", "value":"txt" },
 				{ "name":"format", "value":"<%T><%L><%S>%M" },
