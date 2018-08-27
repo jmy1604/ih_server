@@ -2,6 +2,6 @@
 	"LogConfigFile" : "rpc_server_tracer.json",
 	"ListenIP" : "192.168.1.250:31000",
 	"MaxConntions" : 100,
-	"HallServerGroupConfigDir" : "hall_server_group.json",
+	"HallServerGroupConfigFile" : "hall_server_group.json",
 	"RedisServerIP" : "127.0.0.1:6379"
 }
