@@ -1,4 +1,4 @@
-cd ../bin
+cd ../../../bin
 export cur_dir=`pwd`
 export cur_server_id=`ps aux | grep center_server | grep $cur_dir | awk '{print $2}'`
 if [ -z $cur_server_id ] ; then

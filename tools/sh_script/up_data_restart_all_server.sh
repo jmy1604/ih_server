@@ -3,7 +3,7 @@ sh ./kill_all_server.sh
 
 sleep 5s
 
-cd ../bin
+cd ../../../bin
 nohup `pwd`/center_server &
 sleep 1s
 nohup `pwd`/rpc_server &
