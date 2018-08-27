@@ -1,37 +1,19 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
-	"fmt"
+	_ "encoding/json"
+	_ "flag"
+	_ "fmt"
 	"ih_server/libs/log"
-	"io/ioutil"
-	"os"
+	"ih_server/src/server_config"
+	_ "io/ioutil"
+	_ "os"
 	"time"
 )
 
-type ServerConfig struct {
-	LogConfigPath     string // 日志配置文件地址
-	ListenLoginIP     string // 监听LoginServer
-	MaxLoginConntions int32  // 最大Login连接数
-	ListenHallIP      string // 监听HallServer的IP
-	MaxHallConntions  int32  // 最大Hall连接数
-	GmIP              string // GM命令的地址
-	HallServerCfgDir  string // 大厅配置文件地址
-
-	MYSQL_NAME    string
-	MYSQL_IP      string
-	MYSQL_ACCOUNT string
-	MYSQL_PWD     string
-	DBCST_MIN     int
-	DBCST_MAX     int
-
-	MYSQL_COPY_PATH string
-}
-
 var dbc DBC
 var dbc_account AccountDBC
-var config ServerConfig
+var config server_config.CenterServerConfig
 var shutingdown bool
 
 func g_init() bool {
@@ -57,13 +39,6 @@ func g_init() bool {
 	} else {
 		log.Event("初始化：signal mgr init succeed ！", nil)
 	}
-
-	/*if !hall_group_mgr.Init() {
-		log.Error("hall_group_mgr init failed !")
-		return false
-	} else {
-		log.Event("初始化：hall_group_mgr init succeed !", nil)
-	}*/
 
 	if !hall_agent_mgr.Init() {
 		log.Error("hall_agent_mgr init failed")
@@ -109,34 +84,14 @@ func main() {
 		time.Sleep(time.Second * 5)
 	}()
 
-	config_file := "../run/ih_server/conf/center_server.json"
-	if len(os.Args) > 1 {
-		arg_config_file := flag.String("f", "", "config file path")
-		if nil != arg_config_file && "" != *arg_config_file {
-			flag.Parse()
-			fmt.Printf("配置参数 %v", *arg_config_file)
-			config_file = *arg_config_file
-		}
-	}
-
-	data, err := ioutil.ReadFile(config_file)
-	if err != nil {
-		fmt.Printf("读取配置文件失败 %v", err)
+	if !server_config.ServerConfigLoad("center_server.json", &config) {
+		log.Error("载入CenterServer配置失败")
 		return
 	}
-	err = json.Unmarshal(data, &config)
-	if err != nil {
-		fmt.Printf("解析配置文件失败 %v", err)
-		return
-	}
-
-	// 加载日志配置
-	log.Init("", config.LogConfigPath, true)
-	defer log.Close()
 
 	log.Event("配置:监听LoginServer地址", config.ListenLoginIP)
 	log.Event("配置:监听HallServer地址", config.ListenHallIP)
-	log.Event("配置:日志配置目录", config.LogConfigPath)
+	log.Event("配置:日志配置文件", config.LogConfigFile)
 
 	/*log.Event("连接数据库", config.MYSQL_NAME, log.Property{"地址", config.MYSQL_IP})
 	err = dbc.Conn(config.MYSQL_NAME, config.MYSQL_IP, config.MYSQL_ACCOUNT, config.MYSQL_PWD, config.MYSQL_COPY_PATH)

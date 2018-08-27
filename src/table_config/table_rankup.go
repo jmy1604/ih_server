@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -31,16 +32,20 @@ type RankUpTableMgr struct {
 	Array []*XmlRankUpItem
 }
 
-func (this *RankUpTableMgr) Init() bool {
-	if !this.Load() {
+func (this *RankUpTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("RankUpTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *RankUpTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/RankUp.xml")
+func (this *RankUpTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "RankUp.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("RankUpTableMgr read file err[%s] !", err.Error())
 		return false

@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -42,16 +43,20 @@ type GuildBossTableMgr struct {
 	Array []*XmlGuildBossItem
 }
 
-func (this *GuildBossTableMgr) Init() bool {
-	if !this.Load() {
+func (this *GuildBossTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("GuildBossTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *GuildBossTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/GuildBoss.xml")
+func (this *GuildBossTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "GuildBoss.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("GuildBossTableMgr read file err[%s] !", err.Error())
 		return false

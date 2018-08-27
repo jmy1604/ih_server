@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/json"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -106,8 +107,9 @@ type GlobalConfig struct {
 	AnouncementExistTime    int32 // 公告存在时间
 }
 
-func (this *GlobalConfig) Init(conf_path string) bool {
-	data, err := ioutil.ReadFile(conf_path)
+func (this *GlobalConfig) Init(config_file string) bool {
+	config_path := server_config.GetGameDataPathFile(config_file)
+	data, err := ioutil.ReadFile(config_path)
 	if nil != err {
 		log.Error("GlobalConfigManager::Init failed to readfile err(%s)!", err.Error())
 		return false

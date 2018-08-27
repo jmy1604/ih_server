@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -26,16 +27,20 @@ type DrawTableMgr struct {
 	Array []*XmlDrawItem
 }
 
-func (this *DrawTableMgr) Init() bool {
-	if !this.Load() {
+func (this *DrawTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("DrawTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *DrawTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Extract.xml")
+func (this *DrawTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "Extract.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("DrawTableMgr read file err[%s] !", err.Error())
 		return false

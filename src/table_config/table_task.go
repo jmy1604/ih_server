@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -84,15 +85,19 @@ type TaskTableMgr struct {
 	//level_tasks      map[int32][]*XmlTaskItem   // 等级对应的任务
 }
 
-func (this *TaskTableMgr) Init() bool {
-	if !this.LoadTask() {
+func (this *TaskTableMgr) Init(table_file string) bool {
+	if !this.LoadTask(table_file) {
 		return false
 	}
 	return true
 }
 
-func (this *TaskTableMgr) LoadTask() bool {
-	content, err := ioutil.ReadFile("../src/ih_server/game_data/Mission.xml")
+func (this *TaskTableMgr) LoadTask(table_file string) bool {
+	if table_file == "" {
+		table_file = "Mission.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	content, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("TaskTableMgr LoadTask read file error !")
 		return false

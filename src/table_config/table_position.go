@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"ih_server/libs/ipmop"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -27,8 +28,12 @@ type PositionTable struct {
 	Name2Item map[string]*XmlPositionItem
 }
 
-func (this *PositionTable) Init() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/position.xml")
+func (this *PositionTable) Init(table_file string) bool {
+	if table_file == "" {
+		table_file = "position.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("PositionTable Init failed to read file(%s)", err.Error())
 		return false

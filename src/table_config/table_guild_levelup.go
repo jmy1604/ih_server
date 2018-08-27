@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -23,16 +24,20 @@ type GuildLevelUpTableMgr struct {
 	MaxMemberNum int32
 }
 
-func (this *GuildLevelUpTableMgr) Init() bool {
-	if !this.Load() {
+func (this *GuildLevelUpTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("GuildLevelUpTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *GuildLevelUpTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/GuildLevelUp.xml")
+func (this *GuildLevelUpTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "GuildLevelUp.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("GuildLevelUpTableMgr read file err[%s] !", err.Error())
 		return false

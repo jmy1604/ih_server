@@ -7,6 +7,7 @@ import (
 	"ih_server/libs/socket"
 	"ih_server/libs/timer"
 	"ih_server/libs/utils"
+	"ih_server/src/server_config"
 	"ih_server/src/table_config"
 	"sync"
 	"time"
@@ -116,7 +117,9 @@ func (this *HallServer) Start(use_https bool) (err error) {
 	go this.Run()
 
 	if use_https {
-		msg_handler_mgr.StartHttps("../run/ih_server/conf/server.crt", "../run/ih_server/conf/server.key")
+		crt_path := server_config.GetConfPathFile("server.crt")
+		key_path := server_config.GetConfPathFile("server.key")
+		msg_handler_mgr.StartHttps(crt_path, key_path)
 	} else {
 		msg_handler_mgr.StartHttp()
 	}
@@ -260,7 +263,6 @@ var shop_table_mgr table_config.ShopTableManager
 var shopitem_table_mgr table_config.ShopItemTableManager
 var handbook_table_mgr table_config.HandbookTableMgr
 var suit_table_mgr table_config.SuitTableMgr
-var extract_table_mgr table_config.ExtractTableManager
 var position_table table_config.PositionTable
 
 var card_table_mgr table_config.CardTableMgr

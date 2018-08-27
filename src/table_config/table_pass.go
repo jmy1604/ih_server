@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -39,16 +40,20 @@ type PassTableMgr struct {
 	Array []*XmlPassItem
 }
 
-func (this *PassTableMgr) Init() bool {
-	if !this.Load() {
+func (this *PassTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("PassTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *PassTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Stage.xml")
+func (this *PassTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "Stage.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("PassTableMgr read file err[%s] !", err.Error())
 		return false

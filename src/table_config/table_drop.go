@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -29,15 +30,19 @@ type DropManager struct {
 	Map map[int32]*DropTypeLib
 }
 
-func (this *DropManager) Init() bool {
-	if !this.Load() {
+func (this *DropManager) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		return false
 	}
 	return true
 }
 
-func (this *DropManager) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Drop.xml")
+func (this *DropManager) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "Drop.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("DropManager load read file failed[%s] !", err.Error())
 		return false

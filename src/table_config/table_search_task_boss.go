@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 	"math/rand"
 )
@@ -27,16 +28,20 @@ type SearchTaskBossTableMgr struct {
 	Array  []*XmlSearchTaskBossItem
 }
 
-func (this *SearchTaskBossTableMgr) Init() bool {
-	if !this.Load() {
+func (this *SearchTaskBossTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("SearchTaskBossTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *SearchTaskBossTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/SearchTaskBoss.xml")
+func (this *SearchTaskBossTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "SearchTaskBoss.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("SearchTaskBossTableMgr read file err[%s] !", err.Error())
 		return false

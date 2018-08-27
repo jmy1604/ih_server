@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -27,16 +28,20 @@ type SuitTableMgr struct {
 	Array []*XmlSuitItem
 }
 
-func (this *SuitTableMgr) Init() bool {
-	if !this.Load() {
+func (this *SuitTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("SuitTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *SuitTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Suit.xml")
+func (this *SuitTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "Suit.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("SuitTableMgr read file err[%s] !", err.Error())
 		return false

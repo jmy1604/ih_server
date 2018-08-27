@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -60,16 +61,20 @@ type SkillTableMgr struct {
 	Array []*XmlSkillItem
 }
 
-func (this *SkillTableMgr) Init() bool {
-	if !this.Load() {
+func (this *SkillTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("SkillTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *SkillTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Skill.xml")
+func (this *SkillTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "Skill.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("SkillTableMgr read file err[%s] !", err.Error())
 		return false

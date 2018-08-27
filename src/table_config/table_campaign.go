@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -33,16 +34,20 @@ type CampaignTableMgr struct {
 	Difficulty2Campaigns map[int32][]int32
 }
 
-func (this *CampaignTableMgr) Init() bool {
-	if !this.Load() {
+func (this *CampaignTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("CampaignTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *CampaignTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Campaign.xml")
+func (this *CampaignTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "Campaign.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("CampaignTableMgr read file err[%s] !", err.Error())
 		return false

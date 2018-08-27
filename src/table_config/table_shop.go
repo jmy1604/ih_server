@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -25,8 +26,12 @@ type ShopTableManager struct {
 	shops_array []*XmlShopItem
 }
 
-func (this *ShopTableManager) Init() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Shop.xml")
+func (this *ShopTableManager) Init(table_file string) bool {
+	if table_file == "" {
+		table_file = "Shop.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("ShopTableManager Load read file err[%s] !", err.Error())
 		return false

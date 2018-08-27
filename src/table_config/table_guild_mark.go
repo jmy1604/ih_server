@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -19,16 +20,20 @@ type GuildMarkTableMgr struct {
 	Array []*XmlGuildMarkItem
 }
 
-func (this *GuildMarkTableMgr) Init() bool {
-	if !this.Load() {
+func (this *GuildMarkTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("GuildMarkTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *GuildMarkTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/GuildMark.xml")
+func (this *GuildMarkTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "GuildMark.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("GuildMarkTableMgr read file err[%s] !", err.Error())
 		return false

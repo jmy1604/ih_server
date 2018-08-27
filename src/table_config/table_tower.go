@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -21,16 +22,20 @@ type TowerTableMgr struct {
 	Array []*XmlTowerItem
 }
 
-func (this *TowerTableMgr) Init() bool {
-	if !this.Load() {
+func (this *TowerTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("TowerTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *TowerTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Tower.xml")
+func (this *TowerTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "Tower.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("TowerTableMgr read file err[%s] !", err.Error())
 		return false

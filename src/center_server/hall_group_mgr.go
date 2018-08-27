@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -44,9 +45,10 @@ func (this *HallGroupMgr) Init() bool {
 func (this *HallGroupMgr) load_hall_group_config() bool {
 	this.hall_groups = &HallGroups{}
 
-	data, err := ioutil.ReadFile(config.HallServerCfgDir)
+	hall_server_group_path := server_config.RuntimeRootDir + server_config.ConfigDir + config.HallServerGroupConfigFile
+	data, err := ioutil.ReadFile(hall_server_group_path)
 	if err != nil {
-		fmt.Printf("HallGroupMgr读取配置文件(%s)失败 %s %s", config.HallServerCfgDir, err)
+		fmt.Printf("HallGroupMgr读取配置文件(%s)失败 %s %s", hall_server_group_path, err)
 		return false
 	}
 	err = json.Unmarshal(data, this.hall_groups)

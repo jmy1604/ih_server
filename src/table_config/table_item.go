@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -34,16 +35,20 @@ type ItemTableMgr struct {
 	Array []*XmlItemItem
 }
 
-func (this *ItemTableMgr) Init() bool {
-	if !this.Load() {
+func (this *ItemTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("ItemTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *ItemTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Item.xml")
+func (this *ItemTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "Item.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("ItemTableMgr read file err[%s] !", err.Error())
 		return false

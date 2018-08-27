@@ -3,6 +3,7 @@ package table_config
 import (
 	"encoding/xml"
 	"ih_server/libs/log"
+	"ih_server/src/server_config"
 	"io/ioutil"
 )
 
@@ -49,16 +50,20 @@ type FusionTableMgr struct {
 	Array []*XmlFusionItem
 }
 
-func (this *FusionTableMgr) Init() bool {
-	if !this.Load() {
+func (this *FusionTableMgr) Init(table_file string) bool {
+	if !this.Load(table_file) {
 		log.Error("FusionTableMgr Init load failed !")
 		return false
 	}
 	return true
 }
 
-func (this *FusionTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../src/ih_server/game_data/Fusion.xml")
+func (this *FusionTableMgr) Load(table_file string) bool {
+	if table_file == "" {
+		table_file = "Fusion.xml"
+	}
+	table_path := server_config.GetGameDataPathFile(table_file)
+	data, err := ioutil.ReadFile(table_path)
 	if nil != err {
 		log.Error("FusionTableMgr read file err[%s] !", err.Error())
 		return false

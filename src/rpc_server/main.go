@@ -1,24 +1,17 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
+	_ "encoding/json"
+	_ "flag"
 	"fmt"
 	"ih_server/libs/log"
-	"io/ioutil"
-	"os"
+	"ih_server/src/server_config"
+	_ "io/ioutil"
+	_ "os"
 	"time"
 )
 
-type RpcServerConfig struct {
-	LogConfigPath    string
-	ListenIP         string
-	MaxConntions     int
-	HallServerCfgDir string
-	RedisServerIP    string
-}
-
-var rpc_config RpcServerConfig
+var rpc_config server_config.RpcServerConfig
 
 func main() {
 	defer func() {
@@ -31,7 +24,7 @@ func main() {
 		log.Close()
 	}()
 
-	config_file := "../run/ih_server/conf/rpc_server.json"
+	/*config_file := "../run/ih_server/conf/rpc_server.json"
 	if len(os.Args) > 1 {
 		arg_config_file := flag.String("f", "", "config file path")
 		if nil != arg_config_file && "" != *arg_config_file {
@@ -54,9 +47,14 @@ func main() {
 	}
 
 	// 加载日志配置
-	log.Init("", rpc_config.LogConfigPath, true)
+	log.Init("", rpc_config.LogConfigPath, true)*/
 
-	err = server.Init()
+	if !server_config.ServerConfigLoad("rpc_server.json", &rpc_config) {
+		fmt.Printf("载入RPC Server配置失败")
+		return
+	}
+
+	err := server.Init()
 	if err != nil {
 		log.Error("RPC Server init error[%v]", err.Error())
 		return
