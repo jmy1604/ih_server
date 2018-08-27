@@ -1,6 +1,6 @@
 call build_table_config.bat
-go install main/rpc_common
-go install main/rpc_server
+go install ih_server/src/rpc_common
+go install ih_server/src/rpc_server
 if errorlevel 1 goto exit
 
 if errorlevel 0 goto ok
