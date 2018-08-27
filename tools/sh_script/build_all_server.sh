@@ -10,3 +10,4 @@ go install -v -work ih_server/src/center_server
 go install -v -work ih_server/src/login_server
 go install -v -work ih_server/src/hall_server
 go install -v -work ih_server/src/rpc_server
+go install -v -work ih_server/src/test_client
