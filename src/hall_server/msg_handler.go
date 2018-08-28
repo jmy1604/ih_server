@@ -215,6 +215,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			if !atomic.CompareAndSwapInt32(&p.is_lock, 0, 1) {
+				log.Debug("Player[%v] send msg[%v] cant process, because prev msg is processing", p.Id, tmp_msg.GetMsgCode())
 				ret_code = int32(msg_client_message.E_ERR_PLAYER_SEND_TOO_FREQUENTLY)
 			} else {
 				p.bhandling = true

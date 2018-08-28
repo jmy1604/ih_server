@@ -621,6 +621,7 @@ func (this *Player) team_has_role(team_id int32, role_id int32) bool {
 }
 
 func (this *Player) decompose_role(role_ids []int32) int32 {
+	log.Debug("Player[%v] will decompose roles %v", this.Id, role_ids)
 	var num int32
 	this.tmp_cache_items = nil
 	for i := 0; i < len(role_ids); i++ {
