@@ -659,9 +659,9 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 			continue
 		}
 
-		for i := 0; i < len(card_data.DecomposeRes)/2; i++ {
-			item_id := card_data.DecomposeRes[2*i]
-			item_num := card_data.DecomposeRes[2*i+1]
+		for n := 0; n < len(card_data.DecomposeRes)/2; n++ {
+			item_id := card_data.DecomposeRes[2*n]
+			item_num := card_data.DecomposeRes[2*n+1]
 			this.add_resource(item_id, item_num)
 			if this.tmp_cache_items == nil {
 				this.tmp_cache_items = make(map[int32]int32)
@@ -677,9 +677,9 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 			continue
 		}
 		if levelup_data.CardDecomposeRes != nil {
-			for i := 0; i < len(levelup_data.CardDecomposeRes)/2; i++ {
-				item_id := levelup_data.CardDecomposeRes[2*i]
-				item_num := levelup_data.CardDecomposeRes[2*i+1]
+			for n := 0; n < len(levelup_data.CardDecomposeRes)/2; n++ {
+				item_id := levelup_data.CardDecomposeRes[2*n]
+				item_num := levelup_data.CardDecomposeRes[2*n+1]
 				this.add_resource(item_id, item_num)
 				if this.tmp_cache_items == nil {
 					this.tmp_cache_items = make(map[int32]int32)
@@ -690,12 +690,12 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 
 		rank_res := get_decompose_rank_res(table_id, rank)
 		if rank_res != nil {
-			for i := 0; i < len(rank_res)/2; i++ {
-				this.add_resource(rank_res[2*i], rank_res[2*i+1])
+			for n := 0; n < len(rank_res)/2; n++ {
+				this.add_resource(rank_res[2*n], rank_res[2*n+1])
 				if this.tmp_cache_items == nil {
 					this.tmp_cache_items = make(map[int32]int32)
 				}
-				this.tmp_cache_items[rank_res[2*i]] += rank_res[2*i+1]
+				this.tmp_cache_items[rank_res[2*n]] += rank_res[2*n+1]
 			}
 		}
 
