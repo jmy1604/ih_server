@@ -160,8 +160,11 @@ func (this *Player) add_talent_attr(team *BattleTeam) {
 		lvl, _ := this.db.Talents.GetLevel(all_tid[i])
 		t := talent_table_mgr.GetByIdLevel(all_tid[i], lvl)
 		if t == nil {
+			log.Error("Player[%v] talent[%v] level[%v] data not found", this.Id, all_tid[i], lvl)
 			continue
 		}
+
+		log.Debug("talent[%v] effect_cond[%v] attrs[%v] skills[%v] first_hand[%v]", all_tid[i], t.TalentEffectCond, t.TalentAttr, t.TalentSkillList, t.TeamSpeedBonus)
 		for j := 0; j < len(team.members); j++ {
 			m := team.members[j]
 			if m != nil && !m.is_dead() {
@@ -175,6 +178,8 @@ func (this *Player) add_talent_attr(team *BattleTeam) {
 				m.calculate_hp_attack_defense()
 			}
 		}
+
+		team.first_hand += t.TeamSpeedBonus
 	}
 }
 

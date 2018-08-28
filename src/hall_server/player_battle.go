@@ -150,6 +150,7 @@ type BattleTeam struct {
 	common_data  *BattleCommonData // 每回合战报
 	friend       *Player           // 用于好友BOSS
 	guild        *dbGuildRow       // 用于公会副本
+	first_hand   int32             // 先手值
 }
 
 // 利用玩家初始化
@@ -566,16 +567,31 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 	var self_index, target_index int32
 	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM || target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
-		for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
-			if this.UseSkill(self_index, target_team) >= 0 {
-				self_index += 1
-				break
+		if this.first_hand >= target_team.first_hand {
+			for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
+				if this.UseSkill(self_index, target_team) >= 0 {
+					self_index += 1
+					break
+				}
 			}
-		}
-		for ; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
-			if target_team.UseSkill(target_index, this) >= 0 {
-				target_index += 1
-				break
+			for ; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
+				if target_team.UseSkill(target_index, this) >= 0 {
+					target_index += 1
+					break
+				}
+			}
+		} else {
+			for ; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
+				if target_team.UseSkill(target_index, this) >= 0 {
+					target_index += 1
+					break
+				}
+			}
+			for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
+				if this.UseSkill(self_index, target_team) >= 0 {
+					self_index += 1
+					break
+				}
 			}
 		}
 	}
