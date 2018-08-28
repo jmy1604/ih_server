@@ -522,6 +522,11 @@ func (this *TeamMember) has_trigger_event(trigger_events []int32) bool {
 	return true
 }
 
+func (this *TeamMember) add_passive_skill(skill_id int32) {
+	this.add_passive_trigger(skill_id)
+	this.add_skill_attr(skill_id)
+}
+
 func (this *TeamMember) init_equip(equip_id int32) {
 	d := item_table_mgr.Get(equip_id)
 	if d == nil {
@@ -621,10 +626,13 @@ func (this *TeamMember) init_with_team(team *BattleTeam, id int32, pos int32) {
 	if this.energy == 0 {
 		this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
 	}
+	if team.player != nil {
+		team.player.add_talent_attr(team)
+	}
 	this.act_num = 0
 }
 
-func (this *TeamMember) init_all(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, extra_equips []int32) {
+func (this *TeamMember) init_all_no_calc(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, extra_equips []int32) {
 	this.init_with_team(team, id, pos)
 	if this.bufflist_arr != nil {
 		for i := 0; i < len(this.bufflist_arr); i++ {
@@ -639,11 +647,15 @@ func (this *TeamMember) init_all(team *BattleTeam, id int32, level int32, role_c
 	if team.player != nil {
 		team.player.role_update_suit_attr_power(id, true, false)
 	}
+}
+
+func (this *TeamMember) init_all(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, extra_equips []int32) {
+	this.init_all_no_calc(team, id, level, role_card, pos, extra_equips)
 	this.calculate_hp_attack_defense()
 }
 
 func (this *TeamMember) init_for_summon(user *TeamMember, team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {
-	this.init_all(team, id, level, role_card, pos, nil)
+	this.init_all_no_calc(team, id, level, role_card, pos, nil)
 	for i := 0; i < len(user.attrs); i++ {
 		this.attrs[i] = user.attrs[i]
 	}

@@ -173,9 +173,8 @@ func (this *Player) add_talent_attr(team *BattleTeam) {
 				}
 				m.add_attrs(t.TalentAttr)
 				for k := 0; k < len(t.TalentSkillList); k++ {
-					m.add_skill_attr(t.TalentSkillList[k])
+					m.add_passive_skill(t.TalentSkillList[k])
 				}
-				m.calculate_hp_attack_defense()
 			}
 		}
 
