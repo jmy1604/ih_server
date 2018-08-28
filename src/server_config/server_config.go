@@ -152,7 +152,8 @@ func (this *TestClientConfig) GetLogConfigFile() string {
 func _get_config_path(config_file string) (config_path string) {
 	if len(os.Args) > 1 {
 		arg_config_file := flag.String("f", "", "config file path")
-		if nil != arg_config_file && "" != *arg_config_file {
+		fmt.Printf("os.Args %v", os.Args)
+		if nil != arg_config_file {
 			flag.Parse()
 			fmt.Printf("配置参数 %v", *arg_config_file)
 			config_path = *arg_config_file
@@ -167,12 +168,12 @@ func ServerConfigLoad(config_file string, config ServerConfig) bool {
 	config_path := _get_config_path(config_file)
 	data, err := ioutil.ReadFile(config_path)
 	if err != nil {
-		fmt.Printf("读取配置文件失败 %v", err)
+		fmt.Printf("读取配置文件[%v]失败 %v", config_path, err)
 		return false
 	}
 	err = json.Unmarshal(data, config)
 	if err != nil {
-		fmt.Printf("解析配置文件失败 %v", err)
+		fmt.Printf("解析配置文件[%v]失败 %v", config_path, err)
 		return false
 	}
 
