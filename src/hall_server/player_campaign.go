@@ -246,8 +246,6 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		return
 	}
 
-	this.add_talent_attr(attack_team)
-
 	if this.target_stage_team == nil {
 		this.target_stage_team = &BattleTeam{}
 	}
@@ -269,6 +267,8 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 			}
 		}
 	}
+
+	this.add_talent_attr(attack_team)
 
 	if stage.PlayerCardMax > 0 && attack_team.MembersNum() > stage.PlayerCardMax {
 		log.Error("Player[%v] fight stage %v is limited with member num", this.Id, stage.Id)
