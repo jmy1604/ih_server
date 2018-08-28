@@ -701,10 +701,7 @@ func delete_mail_cmd(p *Player, args []string) int32 {
 }
 
 func talent_data_cmd(p *Player, args []string) int32 {
-	if p.get_talent_list() == nil {
-		return -1
-	}
-	return 1
+	return p.send_talent_list()
 }
 
 func up_talent_cmd(p *Player, args []string) int32 {

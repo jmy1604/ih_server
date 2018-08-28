@@ -141,7 +141,7 @@ func (this *TalentTableMgr) GetByIdLevel(talent_id, level int32) *XmlTalentItem 
 	if arr == nil {
 		return nil
 	}
-	if level < int32(0) || level > int32(len(arr)) {
+	if level < int32(1) || level > int32(len(arr)) {
 		return nil
 	}
 	return arr[level-1]

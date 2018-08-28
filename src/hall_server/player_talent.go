@@ -29,11 +29,21 @@ func (this *Player) get_talent_list() []*msg_client_message.TalentInfo {
 	return talents
 }
 
+func (this *Player) send_talent_list() int32 {
+	talents := this.get_talent_list()
+	response := &msg_client_message.S2CTalentListResponse{
+		Talents: talents,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_LIST_RESPONSE), response)
+	log.Debug("Player[%v] send talent list %v", this.Id, talents)
+	return 1
+}
+
 func (this *Player) up_talent(talent_id int32) int32 {
 	level, _ := this.db.Talents.GetLevel(talent_id)
-	talent := talent_table_mgr.GetByIdLevel(talent_id, level)
+	talent := talent_table_mgr.GetByIdLevel(talent_id, level+1)
 	if talent == nil {
-		log.Error("Talent[%v,%v] data not found", talent_id, level)
+		log.Error("Talent[%v,%v] data not found", talent_id, level+1)
 		return int32(msg_client_message.E_ERR_PLAYER_TALENT_NOT_FOUND)
 	}
 
@@ -42,16 +52,18 @@ func (this *Player) up_talent(talent_id int32) int32 {
 		return -1
 	}
 
-	prev_level, o := this.db.Talents.GetLevel(talent.PrevSkillCond)
-	if !o || prev_level < talent.PreSkillLevCond {
-		log.Error("Player[%v] up talent %v need prev talent[%v] level[%v]", this.Id, talent_id, talent.PrevSkillCond, talent.PreSkillLevCond)
-		return int32(msg_client_message.E_ERR_PLAYER_TALENT_UP_NEED_PREV_TALENT)
+	if talent.PrevSkillCond > 0 {
+		prev_level, o := this.db.Talents.GetLevel(talent.PrevSkillCond)
+		if !o || prev_level < talent.PreSkillLevCond {
+			log.Error("Player[%v] up talent %v need prev talent[%v] level[%v]", this.Id, talent_id, talent.PrevSkillCond, talent.PreSkillLevCond)
+			return int32(msg_client_message.E_ERR_PLAYER_TALENT_UP_NEED_PREV_TALENT)
+		}
 	}
 
 	// check cost
-	for i := 0; i < len(talent.Next.UpgradeCost)/2; i++ {
-		rid := talent.Next.UpgradeCost[2*i]
-		rct := talent.Next.UpgradeCost[2*i+1]
+	for i := 0; i < len(talent.UpgradeCost)/2; i++ {
+		rid := talent.UpgradeCost[2*i]
+		rct := talent.UpgradeCost[2*i+1]
 		if this.get_resource(rid) < rct {
 			log.Error("Player[%v] up talent[%v] not enough resource[%v]", this.Id, talent_id, rid)
 			return int32(msg_client_message.E_ERR_PLAYER_TALENT_UP_NOT_ENOUGH_RESOURCE)
@@ -59,9 +71,9 @@ func (this *Player) up_talent(talent_id int32) int32 {
 	}
 
 	// cost resource
-	for i := 0; i < len(talent.Next.UpgradeCost)/2; i++ {
-		rid := talent.Next.UpgradeCost[2*i]
-		rct := talent.Next.UpgradeCost[2*i+1]
+	for i := 0; i < len(talent.UpgradeCost)/2; i++ {
+		rid := talent.UpgradeCost[2*i]
+		rct := talent.UpgradeCost[2*i+1]
 		this.add_resource(rid, -rct)
 	}
 
@@ -82,6 +94,8 @@ func (this *Player) up_talent(talent_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_UP_RESPONSE), response)
 
+	log.Debug("Player[%v] update talent[%v] to level[%v]", this.Id, talent_id, level)
+
 	return 1
 }
 
@@ -99,17 +113,13 @@ func (this *Player) talent_reset(tag int32) int32 {
 	talent_ids := this.db.Talents.GetAllIndex()
 	for i := 0; i < len(talent_ids); i++ {
 		talent_id := talent_ids[i]
-		talent := talent_table_mgr.Get(talent_id)
-		if talent == nil {
-			continue
-		}
-		if talent.Tag != tag {
-			continue
-		}
 		level, _ := this.db.Talents.GetLevel(talent_id)
 		for l := int32(1); l <= level; l++ {
 			t := talent_table_mgr.GetByIdLevel(talent_id, l)
 			if t == nil {
+				continue
+			}
+			if t.Tag != tag {
 				continue
 			}
 			for n := 0; n < len(t.UpgradeCost)/2; n++ {
@@ -131,6 +141,8 @@ func (this *Player) talent_reset(tag int32) int32 {
 		CostDiamond: global_config.TalentResetCostDiamond,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_RESET_RESPONSE), response)
+
+	log.Debug("Player[%v] reset talents tag[%v], return items %v, cost diamond %v", this.Id, tag, items, response.GetCostDiamond())
 	return 1
 }
 
@@ -173,13 +185,7 @@ func C2STalentListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-
-	talents := p.get_talent_list()
-	response := &msg_client_message.S2CTalentListResponse{
-		Talents: talents,
-	}
-	p.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_LIST_RESPONSE), response)
-	return 1
+	return p.send_talent_list()
 }
 
 func C2STalentUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
