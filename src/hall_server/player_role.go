@@ -239,6 +239,7 @@ func (this *Player) delete_role(role_id int32) bool {
 			}
 		}
 	}
+
 	this.db.Roles.Remove(role_id)
 	if this.team_member_mgr != nil {
 		m := this.team_member_mgr[role_id]
@@ -247,6 +248,7 @@ func (this *Player) delete_role(role_id int32) bool {
 			team_member_pool.Put(m)
 		}
 	}
+
 	this.roles_id_change_info.id_remove(role_id)
 
 	// 更新排行榜
@@ -621,6 +623,9 @@ func (this *Player) team_has_role(team_id int32, role_id int32) bool {
 }
 
 func (this *Player) decompose_role(role_ids []int32) int32 {
+	if role_ids == nil {
+		return -1
+	}
 	log.Debug("Player[%v] will decompose roles %v", this.Id, role_ids)
 	var num int32
 	this.tmp_cache_items = nil
@@ -640,12 +645,8 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 			continue
 		}
 
-		/*if this.team_member_mgr[role_id] != nil {
-			log.Error("Player[%v] team has role[%v], cant decompose", this.Id, role_id)
-			return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
-		}*/
-
 		if this.role_is_using(role_id) {
+			log.Warn("Player[%v] role[%v] is busy, cant decompose", this.Id, role_id)
 			continue
 		}
 
@@ -820,6 +821,10 @@ func (this *Player) _return_role_resource(role_id int32) (items []*msg_client_me
 }
 
 func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][]int32) int32 {
+	if cost_role_ids == nil {
+		return -1
+	}
+
 	fusion := fusion_table_mgr.Get(fusion_id)
 	if fusion == nil {
 		log.Error("Fusion[%v] table data not found", fusion_id)
