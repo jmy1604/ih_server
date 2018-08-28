@@ -1498,10 +1498,12 @@ func (this *Player) guild_ask_donate(item_id int32) int32 {
 		ItemNum:  item.RequestNum,
 		AskTime:  int32(time.Now().Unix()),
 	})
+	this.db.Guild.SetLastAskDonateTime(int32(time.Now().Unix()))
 
 	response := &msg_client_message.S2CGuildAskDonateResponse{
-		ItemId:  item_id,
-		ItemNum: item.RequestNum,
+		ItemId:               item_id,
+		ItemNum:              item.RequestNum,
+		NextAskRemainSeconds: global_config.GuildAskDonateCDSecs,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_ASK_DONATE_RESPONSE), response)
 
@@ -1561,7 +1563,6 @@ func (this *Player) guild_donate(player_id int32) int32 {
 
 	// 已捐赠的分数
 	this.db.Guild.SetDonateNum(donate_num + item.LimitScore)
-	this.db.Guild.SetLastAskDonateTime(int32(time.Now().Unix()))
 
 	// 奖励
 	if item.DonateRewardItem != nil {

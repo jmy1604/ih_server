@@ -1762,6 +1762,7 @@ message C2SGuildAskDonateRequest {
 message S2CGuildAskDonateResponse {
 	int32 ItemId							= 1;
 	int32 ItemNum 							= 2;
+	int32 NextAskRemainSeconds				= 3; // 下次剩余时间
 }
 
 // 公会捐赠
