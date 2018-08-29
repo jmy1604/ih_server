@@ -979,6 +979,10 @@ func (this *Player) send_battle_team(tt int32, team_members []int32) {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SET_TEAM_RESPONSE), response)
 }
 
+const (
+	PVP_TEAM_MAX_MEMBER_NUM = 4
+)
+
 func (this *Player) fight(team_members []int32, battle_type, battle_param, assist_friend_id, assist_role_id, assist_pos int32) int32 {
 	if battle_type == 1 && this.Id == battle_param {
 		log.Error("Cant fight with self")
@@ -1127,7 +1131,7 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_da
 	if tt == BATTLE_ATTACK_TEAM {
 		//res = p.SetAttackTeam(req.TeamMembers)
 	} else if tt == BATTLE_DEFENSE_TEAM {
-		res = p.SetDefenseTeam(req.TeamMembers)
+		res = p.SetTeam(BATTLE_DEFENSE_TEAM, req.TeamMembers)
 	} else if tt == BATTLE_CAMPAIN_TEAM {
 		res = p.SetTeam(BATTLE_CAMPAIN_TEAM, req.TeamMembers)
 	} else {

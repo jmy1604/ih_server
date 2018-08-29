@@ -28,6 +28,7 @@ enum E_ERR {
 	PLAYER_BATTLE_RECORD_DATA_INVALID		= -10005; // 录像数据错误
 	PLAYER_TEAM_MEMBERS_IS_EMPTY		 	= -10006; // 阵型为空
 	PLAYER_TEAM_TYPE_INVALID                = -10007; // 阵型非法
+	PLAYER_PVP_TEAM_MEMBERS_TOO_MORE		= -10008; // PVP阵型人数过多
 	
 	// 物品装备
 	PLAYER_ITEM_NOT_FOUND					= -11000; // 物品找不到
