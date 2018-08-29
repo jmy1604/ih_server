@@ -626,9 +626,6 @@ func (this *TeamMember) init_with_team(team *BattleTeam, id int32, pos int32) {
 	if this.energy == 0 {
 		this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
 	}
-	if team.player != nil {
-		team.player.add_talent_attr(team)
-	}
 	this.act_num = 0
 }
 
@@ -646,6 +643,7 @@ func (this *TeamMember) init_all_no_calc(team *BattleTeam, id int32, level int32
 	this.init_attrs_equips_skills(level, role_card, extra_equips)
 	if team.player != nil {
 		team.player.role_update_suit_attr_power(id, true, false)
+		team.player.add_talent_attr(this)
 	}
 }
 

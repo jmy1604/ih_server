@@ -148,11 +148,7 @@ func (this *Player) talent_reset(tag int32) int32 {
 	return 1
 }
 
-func (this *Player) add_talent_attr(team *BattleTeam) {
-	if team.members == nil {
-		return
-	}
-
+func (this *Player) add_talent_attr(member *TeamMember) {
 	all_tid := this.db.Talents.GetAllIndex()
 	if all_tid == nil {
 		return
@@ -167,20 +163,19 @@ func (this *Player) add_talent_attr(team *BattleTeam) {
 		}
 
 		log.Debug("talent[%v] effect_cond[%v] attrs[%v] skills[%v] first_hand[%v]", all_tid[i], t.TalentEffectCond, t.TalentAttr, t.TalentSkillList, t.TeamSpeedBonus)
-		for j := 0; j < len(team.members); j++ {
-			m := team.members[j]
-			if m != nil && !m.is_dead() {
-				if !_skill_check_cond(m, t.TalentEffectCond) {
-					continue
-				}
-				m.add_attrs(t.TalentAttr)
-				for k := 0; k < len(t.TalentSkillList); k++ {
-					m.add_passive_skill(t.TalentSkillList[k])
-				}
+		if member != nil && !member.is_dead() {
+			if !_skill_check_cond(member, t.TalentEffectCond) {
+				continue
+			}
+			member.add_attrs(t.TalentAttr)
+			for k := 0; k < len(t.TalentSkillList); k++ {
+				member.add_passive_skill(t.TalentSkillList[k])
 			}
 		}
 
-		team.first_hand += t.TeamSpeedBonus
+		if member.team != nil {
+			member.team.first_hand += t.TeamSpeedBonus
+		}
 	}
 }
 

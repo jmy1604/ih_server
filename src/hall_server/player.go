@@ -628,7 +628,6 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 			log.Error("Player[%v] init defense team failed", player_id)
 			return -1
 		}
-		p.add_talent_attr(p.defense_team)
 
 		target_team_format = p.defense_team._format_members_for_msg()
 		target_team = p.defense_team
