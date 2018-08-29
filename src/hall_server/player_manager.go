@@ -449,6 +449,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 		p.check_and_send_items_change()
 		p.check_and_send_roles_change()
 	}
+	p.send_talent_list()
 	p.send_info()
 	p.send_teams()
 	p.notify_enter_complete()
