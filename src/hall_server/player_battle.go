@@ -165,7 +165,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 			p.tmp_teams = make(map[int32][]int32)
 		}
 		if p.tmp_teams[team_id] == nil {
-			p.tmp_teams[team_id] = p.db.BattleTeam.GetCampaignMembers() //p.db.BattleTeam.GetAttackMembers()
+			p.tmp_teams[team_id] = p.db.BattleTeam.GetCampaignMembers()
 		}
 		members = p.tmp_teams[team_id]
 	} else {
@@ -189,12 +189,12 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TEAM_MEMBERS_IS_EMPTY)
 	}
 
-	if this.members == nil {
-		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
-	}
 	this.player = p
 	this.team_type = team_id
 
+	if this.members == nil {
+		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
+	}
 	for i := 0; i < len(this.members); i++ {
 		if (i < len(members) && members[i] <= 0) || i >= len(members) {
 			this.members[i] = nil
@@ -208,8 +208,6 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 			continue
 		}
 		this.members[i] = m
-		// 装备BUFF增加属性
-		log.Debug("mem[%v]: id[%v] role_id[%v] role_rank[%v] max_hp[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.id, m.card.Id, m.card.Rank, m.attrs[ATTR_HP_MAX], m.hp, m.energy, m.attack, m.defense)
 	}
 	this.curr_attack = 0
 	this.side = side
@@ -225,6 +223,7 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 		log.Warn("Cant found stage %v", stage_id)
 		return false
 	}
+
 	if stage.Monsters == nil || len(stage.Monsters) == 0 {
 		return false
 	}

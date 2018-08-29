@@ -123,7 +123,10 @@ func (this *Player) talent_reset(tag int32) int32 {
 				continue
 			}
 			for n := 0; n < len(t.UpgradeCost)/2; n++ {
-				return_items[t.UpgradeCost[2*n]] += t.UpgradeCost[2*n+1]
+				rid := t.UpgradeCost[2*n]
+				rcnt := t.UpgradeCost[2*n+1]
+				return_items[rid] += rcnt
+				this.add_resource(rid, rcnt)
 			}
 			if this.db.Talents.HasIndex(talent_id) {
 				this.db.Talents.Remove(talent_id)

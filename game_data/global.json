@@ -95,7 +95,7 @@
 	"GuildSignAddExp": 1,
 	"GuildMailSendIntervalSecs": 30,
 	"GuildRecruitIntervalSecs": 5,
-	"GuildAskDonateCDSecs": 25200,
+	"GuildAskDonateCDSecs": 28800,
 	"GuildQuitAskJoinCDSecs": 25200,
 	"GuildDonateLimitDay": 180,
 	"GuildStageResetCDSecs": 172800,
