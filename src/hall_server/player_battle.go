@@ -191,6 +191,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 
 	this.player = p
 	this.team_type = team_id
+	this.first_hand = 0
 
 	if this.members == nil {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)

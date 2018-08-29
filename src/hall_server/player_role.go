@@ -288,12 +288,12 @@ func (this *Player) add_init_roles() {
 		if team == nil {
 			team = []int32{iid}
 		} else if len(team) < BATTLE_TEAM_MEMBER_MAX_NUM {
-			team = append(team, iid)
+			//team = append(team, iid)
 		}
 	}
 	//this.db.BattleTeam.SetAttackMembers(team)
-	this.db.BattleTeam.SetDefenseMembers(team)
-	this.db.BattleTeam.SetCampaignMembers(team)
+	//this.db.BattleTeam.SetDefenseMembers(team)
+	//this.db.BattleTeam.SetCampaignMembers(team)
 }
 
 func (this *Player) send_roles() {

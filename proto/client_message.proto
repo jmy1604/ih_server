@@ -460,6 +460,8 @@ message S2CBattleResultResponse {
 	int32 AssistPos							= 16; // 助战角色阵型位置
 	int32 SweepNum							= 17; // 扫荡次数
 	int32 ExtraValue						= 18; // 额外的数据       类型 5 该值就是好友BOSS血量百分比   类型 9 公会副本时为BOSS血量百分比
+	int32 MySpeedBonus						= 19; // 自己先手值
+	int32 TargetSpeedBonus					= 20; // 对方先手值
 }
 
 // 请求录像列表

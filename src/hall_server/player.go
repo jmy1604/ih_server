@@ -611,10 +611,12 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 	if this.attack_team == nil {
 		this.attack_team = &BattleTeam{}
 	}
-	if this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) < 0 {
+
+	res := this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0)
+	if res < 0 {
 		p.CancelDefensing()
 		log.Error("Player[%v] init attack team failed", this.Id)
-		return -1
+		return res
 	}
 
 	var target_team *BattleTeam
@@ -623,10 +625,11 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		if p.defense_team == nil {
 			p.defense_team = &BattleTeam{}
 		}
-		if p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1) < 0 {
+		res = p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1)
+		if res < 0 {
 			p.CancelDefensing()
 			log.Error("Player[%v] init defense team failed", player_id)
-			return -1
+			return res
 		}
 
 		target_team_format = p.defense_team._format_members_for_msg()
@@ -675,6 +678,8 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		TargetMemberCures:   members_cure[target_team.side],
 		BattleType:          battle_type,
 		BattleParam:         player_id,
+		MySpeedBonus:        this.attack_team.first_hand,
+		TargetSpeedBonus:    target_team.first_hand,
 	}
 	d := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
