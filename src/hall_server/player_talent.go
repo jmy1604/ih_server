@@ -201,3 +201,13 @@ func C2STalentUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	}
 	return p.up_talent(req.GetTalentId())
 }
+
+func C2STalentResetHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2STalentResetRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.talent_reset(req.GetTag())
+}
