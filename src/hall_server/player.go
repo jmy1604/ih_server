@@ -700,7 +700,7 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		}
 	}
 
-	//Output_S2CBattleResult(this, response)
+	Output_S2CBattleResult(this, response)
 	return 1
 }
 
@@ -747,7 +747,8 @@ func Output_S2CBattleResult(player *Player, m proto.Message) {
 	} else {
 		log.Debug("Player[%v] lost", player.Id)
 	}
-
+	log.Debug("My Speed Bonus %v", response.GetMySpeedBonus())
+	log.Debug("Target Speed Bonus %v", response.GetTargetSpeedBonus())
 	if response.MyTeam != nil {
 		log.Debug("My team:")
 		for i := 0; i < len(response.MyTeam); i++ {

@@ -165,7 +165,7 @@ func (this *Player) add_talent_attr(member *TeamMember) {
 			continue
 		}
 
-		log.Debug("talent[%v] effect_cond[%v] attrs[%v] skills[%v] first_hand[%v]", all_tid[i], t.TalentEffectCond, t.TalentAttr, t.TalentSkillList, t.TeamSpeedBonus)
+		//log.Debug("talent[%v] effect_cond[%v] attrs[%v] skills[%v] first_hand[%v]", all_tid[i], t.TalentEffectCond, t.TalentAttr, t.TalentSkillList, t.TeamSpeedBonus)
 		if member != nil && !member.is_dead() {
 			if !_skill_check_cond(member, t.TalentEffectCond) {
 				continue
@@ -175,10 +175,30 @@ func (this *Player) add_talent_attr(member *TeamMember) {
 				member.add_passive_skill(t.TalentSkillList[k])
 			}
 		}
+	}
+}
 
-		if member.team != nil {
-			member.team.first_hand += t.TeamSpeedBonus
+func (this *Player) calc_first_hand(team *BattleTeam) {
+	if team == nil {
+		return
+	}
+
+	team.first_hand = 0
+	ids := this.db.Talents.GetAllIndex()
+	if ids == nil {
+		return
+	}
+
+	for i := 0; i < len(ids); i++ {
+		id := ids[i]
+		lvl, _ := this.db.Talents.GetLevel(id)
+		t := talent_table_mgr.GetByIdLevel(id, lvl)
+		if t == nil {
+			log.Error("Player[%v] talent[%v] level[%v] data not found", this.Id, id, lvl)
+			continue
 		}
+		team.first_hand += t.TeamSpeedBonus
+		log.Debug("@@@@@ team[%v] add talent[%v] level[%v] first hand %v, total first hand %v", team.side, id, lvl, t.TeamSpeedBonus, team.first_hand)
 	}
 }
 

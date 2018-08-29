@@ -210,6 +210,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 		}
 		this.members[i] = m
 	}
+	p.calc_first_hand(this)
 	this.curr_attack = 0
 	this.side = side
 	this.temp_curr_id = p.db.Global.GetCurrentRoleId() + 1
