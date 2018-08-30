@@ -70,7 +70,7 @@ func new_role_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	var table_id, num int
+	var table_id, num, rank, level int
 	var err error
 	table_id, err = strconv.Atoi(args[0])
 	if err != nil {
@@ -79,9 +79,38 @@ func new_role_cmd(p *Player, args []string) int32 {
 	}
 
 	if len(args) > 1 {
-		num, err = strconv.Atoi(args[1])
+		level, err = strconv.Atoi(args[1])
 		if err != nil {
-			log.Error("转换角色数量[%v]错误[%v]", args[1], err.Error())
+			return -1
+		}
+		if level < 1 {
+			return -1
+		}
+	} else {
+		level = 1
+	}
+
+	if len(levelup_table_mgr.Array) < level {
+		log.Error("level[%v] greater max", level)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_IS_MAX)
+	}
+
+	if len(args) > 2 {
+		rank, err = strconv.Atoi(args[2])
+		if err != nil {
+			return -1
+		}
+		if rank < 1 || rank > len(rankup_table_mgr.Array) {
+			return -1
+		}
+	} else {
+		rank = 1
+	}
+
+	if len(args) > 3 {
+		num, err = strconv.Atoi(args[3])
+		if err != nil {
+			log.Error("转换角色数量[%v]错误[%v]", args[3], err.Error())
 			return -1
 		}
 	}
@@ -89,8 +118,9 @@ func new_role_cmd(p *Player, args []string) int32 {
 	if num == 0 {
 		num = 1
 	}
+
 	for i := 0; i < num; i++ {
-		p.new_role(int32(table_id), 1, 1)
+		p.new_role(int32(table_id), int32(rank), int32(level))
 	}
 	return 1
 }

@@ -210,6 +210,7 @@ enum E_ERR {
 	CHAT_SEND_MSG_BYTES_TOO_LONG 			= -26001; // 聊天消息超长
 	CHAT_CANT_SEND_WITH_NO_FREE				= -26002; // 聊天内部错误没有空闲的节点
 	CHAT_PULL_COOLING_DOWN       			= -26003; // 聊天拉取消息还在冷却中
+	CHAT_CHANNEL_CANT_GET					= -26004; // 无法获得聊天频道
 	
 	
 	// 充值

@@ -271,6 +271,10 @@ func (this *Player) pull_chat(channel int32) int32 {
 	} else if channel == CHAT_CHANNEL_GUILD {
 		guild_id := this.db.Guild.GetId()
 		chat_mgr = guild_manager.GetChatMgr(guild_id)
+		if chat_mgr == nil {
+			log.Error("Player[%v] get chat mgr by channel %v failed", channel)
+			return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
+		}
 	} else if channel == CHAT_CHANNEL_RECRUIT {
 		chat_mgr = &recruit_chat_mgr
 	} else {
