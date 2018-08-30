@@ -168,6 +168,7 @@ func (this *Player) NotifyTaskValue(notify_task *msg_client_message.S2CTaskValue
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_VALUE_NOTIFY), notify_task)
 }
 
+/*
 // 前置任务是否已完成
 func (this *Player) IsPrevTaskComplete(task *table_config.XmlTaskItem) bool {
 	// 没有前置任务
@@ -224,7 +225,7 @@ func (this *Player) IsPrevTaskCompleteById(task_id int32) bool {
 	}
 	return this.IsPrevTaskComplete(task)
 }
-
+*/
 // 任务是否完成
 func (this *Player) IsTaskComplete(task *table_config.XmlTaskItem) bool {
 	if task.Type == table_config.TASK_TYPE_DAILY {

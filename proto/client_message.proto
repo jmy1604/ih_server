@@ -1781,6 +1781,7 @@ message S2CGuildDonateResponse {
 	int32 ItemId							= 2; // 碎片
 	int32 ItemNum 							= 3; // 碎片数
 	int32 DonateNum							= 4; // 已捐赠数
+	bool  DonateOver						= 5; // 是否捐赠完毕
 }
 
 // 公会通知请求捐赠成员物品更新

@@ -1592,10 +1592,11 @@ func (this *Player) guild_donate(player_id int32) int32 {
 	}
 
 	response := &msg_client_message.S2CGuildDonateResponse{
-		PlayerId:  player_id,
-		ItemId:    item_id,
-		ItemNum:   item_num,
-		DonateNum: donate_num + item.LimitScore,
+		PlayerId:   player_id,
+		ItemId:     item_id,
+		ItemNum:    item_num,
+		DonateNum:  donate_num + item.LimitScore,
+		DonateOver: donate_over,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_RESPONSE), response)
 
