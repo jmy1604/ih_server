@@ -1429,12 +1429,24 @@ func guild_check_donate_list(guild *dbGuildRow) (changed bool) {
 	if all_ids == nil {
 		return
 	}
+
+	var notify msg_client_message.S2CGuildDonateItemNotify
 	for _, player_id := range all_ids {
 		ask_time, _ := guild.AskDonates.GetAskTime(player_id)
 		// 超时就删除
 		if GetRemainSeconds(ask_time, global_config.GuildAskDonateExistSeconds) <= 1 {
 			guild.AskDonates.Remove(player_id)
 			changed = true
+
+			// 通知被捐赠者
+			player := player_mgr.GetPlayerById(player_id)
+			if player == nil {
+				continue
+			}
+			notify.ItemNum, _ = guild.AskDonates.GetItemNum(player_id)
+			notify.ItemId, _ = guild.AskDonates.GetItemId(player_id)
+			notify.DonateOver = false
+			player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_ITEM_NOTIFY), &notify)
 		}
 	}
 	return
@@ -1583,11 +1595,9 @@ func (this *Player) guild_donate(player_id int32) int32 {
 
 	// 通知被捐赠者
 	notify := &msg_client_message.S2CGuildDonateItemNotify{
-		DonatePlayerId: this.Id,
-		DonateNum:      response.GetDonateNum(),
-		ItemId:         item_id,
-		ItemNum:        response.GetItemNum(),
-		DonateOver:     donate_over,
+		ItemId:     item_id,
+		ItemNum:    response.GetItemNum(),
+		DonateOver: donate_over,
 	}
 	player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_ITEM_NOTIFY), notify)
 

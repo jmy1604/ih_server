@@ -1785,11 +1785,9 @@ message S2CGuildDonateResponse {
 
 // 公会通知请求捐赠成员物品更新
 message S2CGuildDonateItemNotify {
-	int32 DonatePlayerId					= 1; // 捐赠玩家
-	int32 DonateNum							= 2; // 捐赠数
-	int32 ItemId							= 3; // 物品ID
-	int32 ItemNum							= 4; // 物品总数
-	bool  DonateOver						= 5; // 是否捐赠完毕
+	int32 ItemId							= 1; // 物品ID
+	int32 ItemNum							= 2; // 物品总数
+	bool  DonateOver						= 3; // 是否捐赠完毕
 }
 
 // 公会捐赠列表

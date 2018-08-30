@@ -380,12 +380,6 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TASK_NOT_FOUND)
 	}
 
-	/*plvl := p.db.Info.GetLvl()
-	if plvl < task_cfg.MinLevel || plvl > task_cfg.MaxLevel {
-		log.Error("player level %v is not range for %v-%v", plvl, task_cfg.MinLevel, task_cfg.MaxLevel)
-		return int32(msg_client_message.E_ERR_TASK_LEVEL_NOT_ENOUGH)
-	}*/
-
 	cur_val, _ := p.db.Tasks.GetValue(task_id)
 	if cur_val < task_cfg.CompleteNum {
 		log.Error("Player[%v] task %v not finished(%d < %d)", p.Id, task_id, cur_val, task_cfg.CompleteNum)
