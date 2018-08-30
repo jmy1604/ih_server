@@ -1554,10 +1554,11 @@ func (this *Player) guild_donate(player_id int32) int32 {
 	var donate_over bool
 	item_num, _ := guild.AskDonates.GetItemNum(player_id)
 	if item_num+1 >= item.RequestNum {
-		player.add_resource(item_id, 1)
+		player.add_resource(item_id, item_num)
 		guild.AskDonates.Remove(player_id)
 		donate_over = true
 	} else {
+		this.add_resource(item_id, -1)
 		guild.AskDonates.SetItemNum(player_id, item_num+1)
 	}
 
