@@ -1,6 +1,6 @@
-export GOPATH=/root/wjxz_server
+#!/bin/bash
+export GOPATH=$(pwd)/../../..
 set -x
-svn up
 go install -v -work github.com/gomodule/redigo/internal
 go install -v -work github.com/gomodule/redigo/redisx
 go install -v -work github.com/gomodule/redigo/redis
