@@ -1553,13 +1553,16 @@ func (this *Player) guild_donate(player_id int32) int32 {
 
 	var donate_over bool
 	item_num, _ := guild.AskDonates.GetItemNum(player_id)
-	if item_num+1 >= item.RequestNum {
-		player.add_resource(item_id, item_num)
+	if item_num < item.RequestNum {
+		this.add_resource(item_id, -1)
+		item_num += 1
+		guild.AskDonates.SetItemNum(player_id, item_num)
+	}
+
+	if item_num >= item.RequestNum {
+		player.add_resource(item_id, item.RequestNum)
 		guild.AskDonates.Remove(player_id)
 		donate_over = true
-	} else {
-		this.add_resource(item_id, -1)
-		guild.AskDonates.SetItemNum(player_id, item_num+1)
 	}
 
 	// 已捐赠的分数
@@ -1573,7 +1576,7 @@ func (this *Player) guild_donate(player_id int32) int32 {
 	response := &msg_client_message.S2CGuildDonateResponse{
 		PlayerId:  player_id,
 		ItemId:    item_id,
-		ItemNum:   item_num + 1,
+		ItemNum:   item_num,
 		DonateNum: donate_num + item.LimitScore,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_RESPONSE), response)
