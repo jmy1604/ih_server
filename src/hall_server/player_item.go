@@ -756,6 +756,9 @@ func (this *Player) items_one_key_upgrade(item_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_ONEKEY_UPGRADE_RESPONSE), response)
 
+	// 更新任务
+	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_FORGE_EQUIP_NUM, false, 0, 1)
+
 	log.Debug("Player[%v] item one key upgrade result: %v", this.Id, response)
 
 	return 1

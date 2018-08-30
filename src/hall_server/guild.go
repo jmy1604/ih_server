@@ -1495,7 +1495,7 @@ func (this *Player) guild_ask_donate(item_id int32) int32 {
 	guild.AskDonates.Add(&dbGuildAskDonateData{
 		PlayerId: this.Id,
 		ItemId:   item_id,
-		ItemNum:  item.RequestNum,
+		ItemNum:  0,
 		AskTime:  int32(time.Now().Unix()),
 	})
 	this.db.Guild.SetLastAskDonateTime(int32(time.Now().Unix()))
