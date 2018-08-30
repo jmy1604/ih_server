@@ -1435,18 +1435,24 @@ func guild_check_donate_list(guild *dbGuildRow) (changed bool) {
 		ask_time, _ := guild.AskDonates.GetAskTime(player_id)
 		// 超时就删除
 		if GetRemainSeconds(ask_time, global_config.GuildAskDonateExistSeconds) <= 1 {
-			guild.AskDonates.Remove(player_id)
-			changed = true
 
 			// 通知被捐赠者
 			player := player_mgr.GetPlayerById(player_id)
 			if player == nil {
 				continue
 			}
-			notify.ItemNum, _ = guild.AskDonates.GetItemNum(player_id)
-			notify.ItemId, _ = guild.AskDonates.GetItemId(player_id)
+
+			item_id, _ := guild.AskDonates.GetItemId(player_id)
+			item_num, _ := guild.AskDonates.GetItemNum(player_id)
+			player.add_resource(item_id, item_num)
+			guild.AskDonates.Remove(player_id)
+
+			notify.ItemNum = item_num
+			notify.ItemId = item_id
 			notify.DonateOver = false
 			player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_ITEM_NOTIFY), &notify)
+
+			changed = true
 		}
 	}
 	return
