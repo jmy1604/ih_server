@@ -63,6 +63,10 @@ func (this *dbPlayerTaskColumn) FillTaskMsg(p *Player, task_type int32) *msg_cli
 			continue
 		}
 
+		if val.Value >= task.CompleteNum && val.State == TASK_STATE_DOING {
+			val.State = TASK_STATE_COMPLETE
+		}
+
 		if task.Type != task_type {
 			continue
 		}
@@ -75,9 +79,7 @@ func (this *dbPlayerTaskColumn) FillTaskMsg(p *Player, task_type int32) *msg_cli
 		tmp_item.Id = val.Id
 		tmp_item.Value = val.Value
 		tmp_item.State = val.State
-		if tmp_item.Value >= task.CompleteNum && tmp_item.State == TASK_STATE_DOING {
-			tmp_item.State = TASK_STATE_COMPLETE
-		}
+
 		ret_msg.TaskList = append(ret_msg.TaskList, tmp_item)
 	}
 
