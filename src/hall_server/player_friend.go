@@ -214,13 +214,6 @@ func (this *Player) _check_friend_data_refresh(friend *Player, now_time int32) (
 }
 
 func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info *msg_client_message.FriendInfo) {
-	offline_seconds := int32(0)
-	if !p.is_login {
-		offline_seconds = now_time - p.db.Info.GetLastLogout()
-	}
-	//last_give_time, _ := this.db.Friends.GetLastGivePointsTime(p.Id)
-	//remain_seconds := utils.GetRemainSeconds2NextDayTime(last_give_time, global_config.FriendRefreshTime)
-	//get_points, _ := p.db.Friends.GetGetPoints(this.Id)
 	remain_seconds, get_points := this._check_friend_data_refresh(p, now_time)
 	friend_info = &msg_client_message.FriendInfo{
 		Id:                      p.Id,
@@ -228,7 +221,7 @@ func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info 
 		Level:                   p.db.Info.GetLvl(),
 		Head:                    p.db.Info.GetHead(),
 		IsOnline:                p.is_login,
-		OfflineSeconds:          offline_seconds,
+		OfflineSeconds:          p._get_offline_seconds(),
 		RemainGivePointsSeconds: remain_seconds,
 		BossId:                  p.db.FriendCommon.GetFriendBossTableId(),
 		BossHpPercent:           p.get_friend_boss_hp_percent(),
