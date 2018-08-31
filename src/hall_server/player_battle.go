@@ -843,15 +843,13 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	this.OnFinish()
 	target_team.OnFinish()
 
-	if !is_win {
-		// 好友BOSS血量更新
-		if target_team.friend != nil {
-			target_team.UpdateFriendBossHP()
-		}
-		// 公会副本BOSS血量更新
-		if target_team.guild != nil {
-			target_team.UpdateGuildStageBossHP()
-		}
+	// 好友BOSS血量更新
+	if target_team.friend != nil {
+		target_team.UpdateFriendBossHP()
+	}
+	// 公会副本BOSS血量更新
+	if target_team.guild != nil {
+		target_team.UpdateGuildStageBossHP()
 	}
 
 	// 扫荡
