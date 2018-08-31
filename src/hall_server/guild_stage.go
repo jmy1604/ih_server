@@ -388,6 +388,8 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 				log.Error("Player[%v] fight guild stage %v win, init next stage %v failed %v", this.Id, boss_id, next_guild_stage.Id, err)
 				return err
 			}
+		} else {
+			guild.Stage.SetBossId(0)
 		}
 	} else {
 		// 状态置成等待复活
