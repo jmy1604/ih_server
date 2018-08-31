@@ -734,9 +734,12 @@ func (this *BattleTeam) UpdateFriendBossHP() {
 		boss = this.members[i]
 	}
 	if boss != nil {
-		percent := int32(100 * int64(boss.hp) / int64(boss.attrs[ATTR_HP_MAX]))
-		if percent <= 0 {
-			percent = 1
+		var percent int32
+		if boss.hp > 0 {
+			percent = int32(100 * int64(boss.hp) / int64(boss.attrs[ATTR_HP_MAX]))
+			if percent <= 0 {
+				percent = 1
+			}
 		}
 		this.friend.db.FriendCommon.SetFriendBossHpPercent(percent)
 		log.Debug("!!!!!!!!!!!!!!!!!!!!!!!! Update player[%v] friend boss hp percent %v", this.friend.Id, percent)
@@ -766,9 +769,12 @@ func (this *BattleTeam) UpdateGuildStageBossHP() {
 		return
 	}
 	this.guild.Stage.SetBossHP(boss.hp)
-	percent := int32(100 * int64(boss.hp) / int64(boss.attrs[ATTR_HP_MAX]))
-	if percent <= 0 {
-		percent = 1
+	var percent int32
+	if boss.hp > 0 {
+		percent = int32(100 * int64(boss.hp) / int64(boss.attrs[ATTR_HP_MAX]))
+		if percent <= 0 {
+			percent = 1
+		}
 	}
 	this.guild.Stage.SetHpPercent(percent)
 	log.Debug("!!!!!!!!!!!!!!!!!!!!!!!! Update guild[%v] stage boss hp percent %v", this.guild.GetId(), percent)
