@@ -81,7 +81,7 @@
 	"WorldChatPullMsgCooldown": 3,
 	"WorldChatMsgMaxBytes": 200,
 	"WorldChatMsgExistTime": 100,
-	"WorldChatSendMsgCooldown": 180,
+	"WorldChatSendMsgCooldown": 10,
 	
 	"GuildChatMaxMsgNum": 200,
 	"GuildChatPullMaxMsgNum": 50,
