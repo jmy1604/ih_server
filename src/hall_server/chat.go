@@ -41,12 +41,9 @@ func (this *ChatItemFactory) New() interface{} {
 	return &ChatItem{}
 }
 
-type PlayerWorldChatData struct {
+type PlayerChatData struct {
 	curr_msg       *ChatItem
 	curr_send_time int32
-}
-
-type PlayerGuildChatData struct {
 }
 
 type ChatMgr struct {
@@ -163,11 +160,32 @@ func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message
 	if msg_num > this.msg_num {
 		msg_num = this.msg_num
 	}
-	msg := player.world_chat_data.curr_msg
+
+	var msg *ChatItem
+	if this.channel == CHAT_CHANNEL_WORLD {
+		msg = player.world_chat_data.curr_msg
+	} else if this.channel == CHAT_CHANNEL_GUILD {
+		msg = player.guild_chat_data.curr_msg
+	} else if this.channel == CHAT_CHANNEL_RECRUIT {
+		msg = player.recruit_chat_data.curr_msg
+	} else {
+		log.Error("Unknown chat channel %v for pull chat with player %v", this.channel, player.Id)
+		return
+	}
+
 	if msg == nil {
 		msg = this.chat_msg_head
 	} else {
-		if msg.send_time != player.world_chat_data.curr_send_time {
+		var curr_send_time int32
+		if this.channel == CHAT_CHANNEL_WORLD {
+			curr_send_time = player.world_chat_data.curr_send_time
+		} else if this.channel == CHAT_CHANNEL_GUILD {
+			curr_send_time = player.guild_chat_data.curr_send_time
+		} else {
+			curr_send_time = player.recruit_chat_data.curr_send_time
+		}
+
+		if msg.send_time != curr_send_time {
 			msg = this.chat_msg_head
 		} else {
 			msg = msg.next
@@ -180,7 +198,17 @@ func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message
 		if msg == nil {
 			break
 		}
-		if now_time-msg.send_time >= global_config.WorldChatMsgExistTime*60 {
+
+		var chat_exist_time int32
+		if this.channel == CHAT_CHANNEL_WORLD {
+			chat_exist_time = global_config.WorldChatMsgExistTime
+		} else if this.channel == CHAT_CHANNEL_GUILD {
+			chat_exist_time = global_config.GuildChatMsgExistTime
+		} else {
+			chat_exist_time = global_config.RecruitChatMsgExistTime
+		}
+
+		if now_time-msg.send_time >= chat_exist_time*60 {
 			msg = msg.next
 			continue
 		}
@@ -195,8 +223,16 @@ func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message
 		}
 		chat_items = append(chat_items, item)
 
-		player.world_chat_data.curr_msg = msg
-		player.world_chat_data.curr_send_time = msg.send_time
+		if this.channel == CHAT_CHANNEL_WORLD {
+			player.world_chat_data.curr_msg = msg
+			player.world_chat_data.curr_send_time = msg.send_time
+		} else if this.channel == CHAT_CHANNEL_GUILD {
+			player.guild_chat_data.curr_msg = msg
+			player.guild_chat_data.curr_send_time = msg.send_time
+		} else {
+			player.recruit_chat_data.curr_msg = msg
+			player.recruit_chat_data.curr_send_time = msg.send_time
+		}
 		msg = msg.next
 	}
 
@@ -210,18 +246,22 @@ func (this *Player) chat(channel int32, content []byte) int32 {
 	if channel == CHAT_CHANNEL_WORLD {
 		max_bytes = global_config.WorldChatMsgMaxBytes
 		chat_mgr = &world_chat_mgr
+		cooldown_seconds = global_config.WorldChatSendMsgCooldown
 	} else if channel == CHAT_CHANNEL_GUILD {
-		max_bytes = global_config.WorldChatMsgMaxBytes
+		max_bytes = global_config.GuildChatMsgMaxBytes
 		guild_id := this.db.Guild.GetId()
 		chat_mgr = guild_manager.GetChatMgr(guild_id)
 		if chat_mgr == nil {
 			log.Error("Player[%v] no guild chat channel", this.Id)
 			return -1
 		}
+		cooldown_seconds = global_config.GuildChatSendMsgCooldown
 	} else if channel == CHAT_CHANNEL_RECRUIT {
-		max_bytes = global_config.GuildRecruitContentMaxBytes
+		max_bytes = global_config.RecruitChatMsgMaxBytes
 		chat_mgr = &recruit_chat_mgr
+		cooldown_seconds = global_config.RecruitChatSendMsgCooldown
 	} else {
+		log.Error("Player[%v] chat with unknown channel %v", this.Id, channel)
 		return -1
 	}
 
@@ -275,9 +315,12 @@ func (this *Player) pull_chat(channel int32) int32 {
 			log.Error("Player[%v] get chat mgr by channel %v failed", channel)
 			return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
 		}
+		pull_msg_cooldown = global_config.GuildChatPullMsgCooldown
 	} else if channel == CHAT_CHANNEL_RECRUIT {
 		chat_mgr = &recruit_chat_mgr
+		pull_msg_cooldown = global_config.RecruitChatPullMsgCooldown
 	} else {
+		log.Error("Player[%v] pull chat with unknown channel %v", this.Id, channel)
 		return -1
 	}
 

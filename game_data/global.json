@@ -81,6 +81,21 @@
 	"WorldChatPullMsgCooldown": 3,
 	"WorldChatMsgMaxBytes": 200,
 	"WorldChatMsgExistTime": 100,
+	"WorldChatSendMsgCooldown": 180,
+	
+	"GuildChatMaxMsgNum": 200,
+	"GuildChatPullMaxMsgNum": 50,
+	"GuildChatPullMsgCooldown": 3,
+	"GuildChatMsgMaxBytes": 200,
+	"GuildChatMsgExistTime": 100,
+	"GuildChatSendMsgCooldown": 180,
+	
+	"RecruitChatMaxMsgNum": 200,
+	"RecruitChatPullMaxMsgNum": 50,
+	"RecruitChatPullMsgCooldown": 3,
+	"RecruitChatMsgMaxBytes": 50,
+	"RecruitChatMsgExistTime": 100,
+	"RecruitChatSendMsgCooldown": 5,
 	
 	"AnouncementMaxNum": 1000,
 	"AnouncementSendCooldown": 15,
@@ -94,7 +109,6 @@
 	"GuildSignReward": [20,10],
 	"GuildSignAddExp": 1,
 	"GuildMailSendIntervalSecs": 30,
-	"GuildRecruitIntervalSecs": 5,
 	"GuildAskDonateCDSecs": 28800,
 	"GuildQuitAskJoinCDSecs": 25200,
 	"GuildDonateLimitDay": 180,
@@ -105,7 +119,6 @@
 	"GuildAskDonateExistSeconds": 36000,
 	"GuildDonateRefreshTime":"00:00:00",
 	"GuildStageRefreshTime":"00:00:00",
-	"GuildRecruitContentMaxBytes":50,
 	
 	"TalentResetCostDiamond": 10000
 }

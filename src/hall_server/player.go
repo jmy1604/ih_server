@@ -124,7 +124,9 @@ type Player struct {
 	assist_role_pos        int32                                 // 助战角色位置
 	assist_friend          *Player                               // 助战好友
 	assist_member          *TeamMember                           // 助战成员
-	world_chat_data        PlayerWorldChatData                   // 世界聊天缓存数据
+	world_chat_data        PlayerChatData                        // 世界聊天缓存数据
+	guild_chat_data        PlayerChatData                        // 公会聊天缓存
+	recruit_chat_data      PlayerChatData                        // 招募聊天缓存
 	anouncement_data       PlayerAnouncementData                 // 公告缓存数据
 	inited                 bool                                  // 是否已初始化
 	is_logout              bool                                  // 是否已下线

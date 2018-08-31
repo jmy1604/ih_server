@@ -70,8 +70,6 @@ type GlobalConfig struct {
 	GuildSignReward                      []int32 // 公会签到奖励
 	GuildSignAddExp                      int32   // 公会签到奖励经验
 	GuildMailSendIntervalSecs            int32   // 公会邮件发送间隔
-	GuildRecruitIntervalSecs             int32   // 公会招募间隔
-	GuildRecruitContentMaxBytes          int32   // 公会招募内容最大长度
 	GuildAskDonateCDSecs                 int32   // 公会请求捐献CD
 	GuildQuitAskJoinCDSecs               int32   // 公会退出再加入的CD
 	GuildDonateLimitDay                  int32   // 公会每天捐献上限
@@ -100,6 +98,21 @@ type GlobalConfig struct {
 	WorldChatPullMsgCooldown int32 // 世界聊天拉取CD
 	WorldChatMsgMaxBytes     int32 // 世界聊天消息最大长度
 	WorldChatMsgExistTime    int32 // 世界聊天消息存在时间
+	WorldChatSendMsgCooldown int32 // 世界聊天冷却时间
+
+	GuildChatMaxMsgNum       int32 // 公会聊天最大消息数
+	GuildChatPullMaxMsgNum   int32 // 公会聊天拉取的消息数量最大值
+	GuildChatPullMsgCooldown int32 // 公会聊天拉取CD
+	GuildChatMsgMaxBytes     int32 // 公会聊天消息最大长度
+	GuildChatMsgExistTime    int32 // 公会聊天消息存在时间
+	GuildChatSendMsgCooldown int32 // 公会聊天冷却时间
+
+	RecruitChatMaxMsgNum       int32 // 招募聊天最大消息数
+	RecruitChatPullMaxMsgNum   int32 // 招募聊天拉取的消息数量最大值
+	RecruitChatPullMsgCooldown int32 // 招募聊天拉取CD
+	RecruitChatMsgMaxBytes     int32 // 招募聊天消息最大长度
+	RecruitChatMsgExistTime    int32 // 招募聊天消息存在时间
+	RecruitChatSendMsgCooldown int32 // 招募聊天冷却时间
 
 	AnouncementMaxNum       int32 // 公告最大数量
 	AnouncementSendCooldown int32 // 公告发送间隔冷却时间(分钟)

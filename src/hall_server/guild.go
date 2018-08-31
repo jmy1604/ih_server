@@ -1370,7 +1370,7 @@ func (this *Player) guild_recruit(content []byte) int32 {
 
 	now_time := int32(time.Now().Unix())
 	last_recruit_time := guild.GetLastRecruitTime()
-	if (now_time - last_recruit_time) < global_config.GuildRecruitIntervalSecs {
+	if (now_time - last_recruit_time) < global_config.RecruitChatSendMsgCooldown {
 		log.Error("Player[%v] recruit too frequently", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_RECRUIT_IS_COOLDOWN)
 	}
