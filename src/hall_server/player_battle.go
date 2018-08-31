@@ -290,9 +290,15 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 						m.attrs[ATTR_HP] = boss_hp
 						m.hp = boss_hp
 					} else {
-						boss_hp = int32(int64(m.attrs[ATTR_HP_MAX]) * int64(hp_percent) / 100)
-						m.attrs[ATTR_HP] = boss_hp
-						m.hp = boss_hp
+						if hp_percent == 0 {
+							boss_hp = -1
+							m.attrs[ATTR_HP] = boss_hp
+							m.hp = boss_hp
+						} else {
+							boss_hp = int32(int64(m.attrs[ATTR_HP_MAX]) * int64(hp_percent) / 100)
+							m.attrs[ATTR_HP] = boss_hp
+							m.hp = boss_hp
+						}
 					}
 				}
 			}
