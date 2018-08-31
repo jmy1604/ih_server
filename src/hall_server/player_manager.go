@@ -439,7 +439,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 		p.pos = position_table.GetPosByIP(ip_port[0])
 	}
 
-	p.bhandling = true
+	//p.bhandling = true
 
 	p.send_enter_game(acc, p.Id)
 	p.OnLogin()

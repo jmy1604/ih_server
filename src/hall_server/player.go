@@ -77,8 +77,8 @@ type Player struct {
 	db            *dbPlayerRow
 	pos           int32
 
-	is_lock            int32
-	bhandling          bool
+	is_lock int32
+	//bhandling          bool
 	msg_items          []*PlayerMsgItem
 	msg_items_lock     *sync.Mutex
 	cur_msg_items_len  int32
@@ -129,7 +129,7 @@ type Player struct {
 	recruit_chat_data      PlayerChatData                        // 招募聊天缓存
 	anouncement_data       PlayerAnouncementData                 // 公告缓存数据
 	inited                 bool                                  // 是否已初始化
-	is_logout              bool                                  // 是否已下线
+	is_login               bool                                  // 是否在线
 	sweep_num              int32                                 // 扫荡次数
 	curr_sweep             int32                                 // 已扫荡次数
 	role_power_ranklist    *utils.ShortRankList                  // 角色战力排行
@@ -252,7 +252,7 @@ func (this *Player) PopCurMsgData() []byte {
 	this.msg_items_lock.Lock()
 	defer this.msg_items_lock.Unlock()
 
-	this.bhandling = false
+	//this.bhandling = false
 
 	out_bytes := make([]byte, this.total_msg_data_len)
 	tmp_len := int32(0)
@@ -317,7 +317,7 @@ func (this *Player) OnCreate() {
 }
 
 func (this *Player) OnInit() {
-	this.is_logout = false
+	this.is_login = true
 	if this.inited {
 		return
 	}
@@ -355,12 +355,12 @@ func (this *Player) OnLogout() {
 	// 离线时结算挂机收益
 	this.hangup_income_get(0, true)
 	this.hangup_income_get(1, true)
-	this.is_logout = true
+	this.is_login = false
 	log.Info("玩家[%d] 登出 ！！", this.Id)
 }
 
 func (this *Player) IsOffline() bool {
-	return this.is_logout
+	return !this.is_login
 }
 
 func (this *Player) send_enter_game(acc string, id int32) {
@@ -628,8 +628,10 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 
 	res := this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0)
 	if res < 0 {
-		p.CancelDefensing()
-		log.Error("Player[%v] init attack team failed", this.Id)
+		if p != nil {
+			p.CancelDefensing()
+		}
+		log.Error("Player[%v] init attack team failed, err %v", this.Id, res)
 		return res
 	}
 

@@ -775,15 +775,24 @@ func (this *Player) guild_anouncement(content string) int32 {
 	return 1
 }
 
-func (this *Player) _format_guild_member_to_msg() (msg *msg_client_message.GuildMember) {
-	var last_online_time int32
-	now_time := int32(time.Now().Unix())
-	if this.is_logout {
-		last_online_time = now_time - this.db.Info.GetLastLogout()
-		if last_online_time < 0 {
-			last_online_time = 0
+func (this *Player) _get_offline_seconds() int32 {
+	var offline_seconds int32
+	if !this.is_login {
+		last_login := this.db.Info.GetLastLogin()
+		last_logout := this.db.Info.GetLastLogout()
+		if last_logout < last_login {
+			return 0
+		}
+		now_time := int32(time.Now().Unix())
+		offline_seconds = now_time - last_logout
+		if offline_seconds < 0 {
+			offline_seconds = 0
 		}
 	}
+	return offline_seconds
+}
+
+func (this *Player) _format_guild_member_to_msg() (msg *msg_client_message.GuildMember) {
 	var next_sign_remain_seconds int32
 	next_sign_remain_seconds = utils.GetRemainSeconds2NextDayTime(this.db.Guild.GetSignTime(), global_config.GuildSignRefreshTime)
 	msg = &msg_client_message.GuildMember{
@@ -792,7 +801,7 @@ func (this *Player) _format_guild_member_to_msg() (msg *msg_client_message.Guild
 		Level:                 this.db.Info.GetLvl(),
 		Head:                  this.db.Info.GetHead(),
 		Position:              this.db.Guild.GetPosition(),
-		LastOnlineTime:        last_online_time,
+		LastOnlineTime:        this._get_offline_seconds(),
 		NextSignRemainSeconds: next_sign_remain_seconds,
 		JoinTime:              this.db.Guild.GetJoinTime(),
 	}

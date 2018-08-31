@@ -66,7 +66,7 @@ func (this *FriendRecommendMgr) CheckAndAddPlayer(player_id int32) bool {
 	}
 
 	now_time := int32(time.Now().Unix())
-	if now_time-p.db.Info.GetLastLogout() > 24*3600*2 && p.is_logout {
+	if now_time-p.db.Info.GetLastLogout() > 24*3600*2 && !p.is_login {
 		return false
 	}
 
@@ -122,7 +122,7 @@ func (this *FriendRecommendMgr) Run() {
 				if p == nil {
 					continue
 				}
-				if (now_time-p.db.Info.GetLastLogout() >= 2*24*3600 && p.is_logout) || p.db.Friends.NumAll() >= global_config.FriendMaxNum {
+				if (now_time-p.db.Info.GetLastLogout() >= 2*24*3600 && !p.is_login) || p.db.Friends.NumAll() >= global_config.FriendMaxNum {
 					delete(this.player_ids, this.players_array[i])
 					this.players_array[i] = this.players_array[player_num-1]
 					player_num -= 1
@@ -215,7 +215,7 @@ func (this *Player) _check_friend_data_refresh(friend *Player, now_time int32) (
 
 func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info *msg_client_message.FriendInfo) {
 	offline_seconds := int32(0)
-	if p.is_logout {
+	if !p.is_login {
 		offline_seconds = now_time - p.db.Info.GetLastLogout()
 	}
 	//last_give_time, _ := this.db.Friends.GetLastGivePointsTime(p.Id)
@@ -227,7 +227,7 @@ func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info 
 		Name:                    p.db.GetName(),
 		Level:                   p.db.Info.GetLvl(),
 		Head:                    p.db.Info.GetHead(),
-		IsOnline:                !p.is_logout,
+		IsOnline:                p.is_login,
 		OfflineSeconds:          offline_seconds,
 		RemainGivePointsSeconds: remain_seconds,
 		BossId:                  p.db.FriendCommon.GetFriendBossTableId(),

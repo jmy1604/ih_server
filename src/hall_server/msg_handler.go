@@ -171,29 +171,6 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//req := reflect.New(handlerinfo.typ).Interface().(proto.Message)
-	/*req := client_msgid2msg(uint16(tmp_msg.GetMsgCode()))
-	if req == nil {
-		return
-	}
-	err = proto.Unmarshal(tmp_msg.Data, req)
-	if nil != err {
-		log.Error("client_msg_handler unmarshal sub msg failed err(%s) !", err.Error())
-		return
-	}*/
-
-	//log.Debug("[接收] [玩家%d:%v] [%s] ", tmp_msg.GetPlayerId(), tmp_msg.GetMsgCode() /*req.String()*/, tmp_msg.GetData())
-
-	/*
-		pid := tmp_msg.GetPlayerId()
-		if nil == player_mgr.GetPlayerById(pid) {
-			log.Error("client_msg_handler player_mgr failed to getplayerbyid[%d] !", pid)
-			return
-		}
-	*/
-
-	//log.Info("handlerinfo.if_player_msg %d", handlerinfo.if_player_msg)
-
 	var p *Player
 	var ret_code int32
 	if handlerinfo.if_player_msg {
@@ -218,10 +195,9 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 				log.Debug("Player[%v] send msg[%v] cant process, because prev msg is processing", p.Id, tmp_msg.GetMsgCode())
 				ret_code = int32(msg_client_message.E_ERR_PLAYER_SEND_TOO_FREQUENTLY)
 			} else {
-				p.bhandling = true
 				p.b_base_prop_chg = false
 				p.OnInit()
-				ret_code = handlerinfo.player_msg_handler(w, r, p /*req*/, tmp_msg.GetData())
+				ret_code = handlerinfo.player_msg_handler(w, r, p, tmp_msg.GetData())
 				data = p.PopCurMsgData()
 				if USE_CONN_TIMER_WHEEL == 0 {
 					conn_timer_mgr.Insert(p.Id)
@@ -282,7 +258,6 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 
 		if nil == data || len(data) < 4 {
 			//log.Error("client_msg_handler PopCurMsgDataError nil or len[%d] error", len(data))
-			//return
 			res2cli.ErrorCode = ret_code
 		} else {
 			//log.Trace("client_msg_handler pop data %v", data)
@@ -304,9 +279,5 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 			log.Error("client_msg_handler write data 2 failed err[%s] ret %d", err.Error(), iret)
 			return
 		}
-
-		//log.Info("write http resp data normal %v len", final_data, len(final_data))
 	}
-
-	return
 }
