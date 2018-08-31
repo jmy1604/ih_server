@@ -495,7 +495,7 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 	rank, _ := this.db.Roles.GetRank(role_id)
 	card := card_table_mgr.GetRankCard(table_id, rank)
 	if card != nil {
-		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_LEVELUP_ROLE_WITH_CAMP, false, card.Camp, 1)
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_LEVELUP_ROLE_WITH_CAMP, false, card.Camp, up_num)
 	}
 
 	log.Debug("Player[%v] role[%v] up to level[%v]", this.Id, role_id, lvl+up_num)
