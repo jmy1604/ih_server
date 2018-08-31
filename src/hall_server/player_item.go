@@ -64,27 +64,35 @@ func (this *Player) add_item(id int32, count int32) bool {
 		return false
 	}
 
+	if count < 0 {
+		return false
+	}
+
+	var curr_count int32
 	if !this.db.Items.HasIndex(id) {
 		this.db.Items.Add(&dbPlayerItemData{
 			Id:    id,
 			Count: count,
 		})
+		curr_count = count
 	} else {
-		this.db.Items.IncbyCount(id, count)
+		old_count, _ := this.db.Items.GetCount(id)
+		if old_count+count < 0 {
+			this.db.Items.SetCount(id, math.MaxInt32)
+			curr_count = math.MaxInt32
+		} else {
+			curr_count = this.db.Items.IncbyCount(id, count)
+		}
 	}
 
 	if this.items_changed_info == nil {
 		this.items_changed_info = make(map[int32]int32)
 	}
-	if d, o := this.items_changed_info[id]; !o {
-		this.items_changed_info[id] = count
-	} else {
-		this.items_changed_info[id] = d + count
-	}
+	this.items_changed_info[id] = curr_count
 
 	// 更新任务
 	if item.EquipType > 0 {
-		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_QUALITY_EQUIPS_NUM, false, item.Quality, 1)
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_QUALITY_EQUIPS_NUM, false, item.Quality, count)
 	}
 
 	return true
