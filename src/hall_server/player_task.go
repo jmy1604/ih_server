@@ -67,6 +67,10 @@ func (this *dbPlayerTaskColumn) FillTaskMsg(p *Player, task_type int32) *msg_cli
 			continue
 		}
 
+		if task.Prev > 0 && this.m_data[task.Prev] != nil {
+			continue
+		}
+
 		tmp_item = &msg_client_message.TaskData{}
 		tmp_item.Id = val.Id
 		tmp_item.Value = val.Value
@@ -134,30 +138,6 @@ func (this *Player) IsPrevAchieveReward(task *table_config.XmlTaskItem) bool {
 	return true
 }
 
-func (this *Player) check_add_next_task(task *table_config.XmlTaskItem, add_val int32) {
-	if task.Next <= 0 {
-		return
-	}
-	next_task := task_table_mgr.GetTask(task.Next)
-	if next_task == nil {
-		return
-	}
-	if this.db.Tasks.HasIndex(task.Next) {
-		return
-	}
-
-	if next_task.EventId != task.EventId || task.EventId == table_config.TASK_COMPLETE_TYPE_PASS_CAMPAIGN {
-		add_val = 0
-	}
-
-	update, cur_val, cur_state := this.SingleTaskUpdate(next_task, add_val)
-	if update {
-		notify := &msg_client_message.S2CTaskValueNotify{}
-		this.NotifyTaskValue(notify, task.Next, cur_val, cur_state)
-		log.Debug("Player[%v] add new task %v, reuse add_val %v", this.Id, task.Next, add_val)
-	}
-}
-
 // ============================================================================
 
 func (this *Player) NotifyTaskValue(notify_task *msg_client_message.S2CTaskValueNotify, task_id, value, state int32) {
@@ -168,64 +148,6 @@ func (this *Player) NotifyTaskValue(notify_task *msg_client_message.S2CTaskValue
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_VALUE_NOTIFY), notify_task)
 }
 
-/*
-// 前置任务是否已完成
-func (this *Player) IsPrevTaskComplete(task *table_config.XmlTaskItem) bool {
-	// 没有前置任务
-	if task.Prev == 0 {
-		return true
-	}
-
-	var prev_task *table_config.XmlTaskItem
-	if task.Type == table_config.TASK_TYPE_DAILY {
-		prev_task = task_table_mgr.GetTaskMap()[task.Prev]
-		// 前置任务不存在
-		if prev_task == nil {
-			return true
-		}
-		prev_task_data := this.db.Tasks.Get(task.Prev)
-		// 前置任务未开始
-		if prev_task_data == nil {
-			log.Debug("任务(%v)前置任务(%v)未开始", task.Id, prev_task.Id)
-			return false
-		}
-		// 前置任务未完成
-		if prev_task.CompleteNum != prev_task_data.Value {
-			log.Debug("任务(%v)前置任务(%v)未完成", task.Id, prev_task.Id)
-			return false
-		}
-	} else if task.Type == table_config.TASK_TYPE_ACHIVE {
-		prev_task = task_table_mgr.GetTaskMap()[task.Prev]
-		// 前置任务不存在
-		if prev_task == nil {
-			return true
-		}
-		prev_task_data := this.db.Tasks.Get(task.Prev)
-		// 前置任务未开始
-		if prev_task_data == nil {
-			//log.Debug("任务(%v)前置任务(%v)未开始", task.Id, prev_task.Id)
-			return false
-		}
-		// 前置任务未完成
-		if prev_task.CompleteNum != prev_task_data.Value {
-			//log.Debug("任务(%v)前置任务(%v)未完成", task.Id, prev_task.Id)
-			return false
-		}
-	} else {
-		return false
-	}
-
-	return true
-}
-
-func (this *Player) IsPrevTaskCompleteById(task_id int32) bool {
-	task := task_table_mgr.GetTask(task_id)
-	if task == nil {
-		return false
-	}
-	return this.IsPrevTaskComplete(task)
-}
-*/
 // 任务是否完成
 func (this *Player) IsTaskComplete(task *table_config.XmlTaskItem) bool {
 	if task.Type == table_config.TASK_TYPE_DAILY {
@@ -322,46 +244,75 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 		return
 	}
 
-	var tmp_taskcfg *table_config.XmlTaskItem
+	var taskcfg *table_config.XmlTaskItem
 	for idx = 0; idx < ftasks.GetCount(); idx++ {
-		tmp_taskcfg = ftasks.GetArray()[idx]
+		taskcfg = ftasks.GetArray()[idx]
 
-		if !this.db.Tasks.HasIndex(tmp_taskcfg.Id) {
+		if !this.db.Tasks.HasIndex(taskcfg.Id) {
 			continue
 		}
 
 		// 已完成
-		if this.IsTaskComplete(tmp_taskcfg) {
+		if this.IsTaskComplete(taskcfg) {
 			continue
 		}
 
 		// 事件参数
-		if tmp_taskcfg.EventParam > 0 {
+		if taskcfg.EventParam > 0 {
 			if if_not_less {
-				if event_param < tmp_taskcfg.EventParam {
+				if event_param < taskcfg.EventParam {
 					continue
 				}
 			} else {
 				// 参数不一致
-				if event_param != tmp_taskcfg.EventParam {
+				if event_param != taskcfg.EventParam {
 					continue
 				}
 			}
 		}
 
 		var updated bool
-		if tmp_taskcfg.Type == table_config.TASK_TYPE_DAILY && cur_state == TASK_STATE_COMPLETE {
+		if taskcfg.Type == table_config.TASK_TYPE_DAILY && cur_state == TASK_STATE_COMPLETE {
 			// 所有日常任务更新
-			this.WholeDailyTaskUpdate(tmp_taskcfg, notify_task)
+			this.WholeDailyTaskUpdate(taskcfg, notify_task)
 		} else {
-			updated, cur_val, cur_state = this.SingleTaskUpdate(tmp_taskcfg, value)
+			updated, cur_val, cur_state = this.SingleTaskUpdate(taskcfg, value)
 		}
 
-		if updated {
-			this.NotifyTaskValue(notify_task, tmp_taskcfg.Id, cur_val, cur_state)
-			log.Info("Player[%v] Task[%v] EventParam[%v] Progress[%v/%v] FinishType(%v) Complete(%v)", this.Id, tmp_taskcfg.Id, event_param, cur_val, tmp_taskcfg.CompleteNum, complete_type, cur_state)
+		if updated && !(taskcfg.Prev > 0 && this.db.Tasks.HasIndex(taskcfg.Prev)) {
+			this.NotifyTaskValue(notify_task, taskcfg.Id, cur_val, cur_state)
+			log.Info("Player[%v] Task[%v] EventParam[%v] Progress[%v/%v] FinishType(%v) Complete(%v)", this.Id, taskcfg.Id, event_param, cur_val, taskcfg.CompleteNum, complete_type, cur_state)
 		}
 	}
+}
+
+func (this *Player) check_notify_next_task(task *table_config.XmlTaskItem) {
+	if task.Next <= 0 {
+		return
+	}
+	next_task := task_table_mgr.GetTask(task.Next)
+	if next_task == nil {
+		return
+	}
+
+	/*if this.db.Tasks.HasIndex(task.Next) {
+		return
+	}*/
+
+	/*if next_task.EventId != task.EventId || task.EventId == table_config.TASK_COMPLETE_TYPE_PASS_CAMPAIGN {
+		add_val = 0
+	}*/
+
+	if !this.db.Tasks.HasIndex(task.Next) {
+		return
+	}
+
+	v, _ := this.db.Tasks.GetValue(task.Next)
+	s, _ := this.db.Tasks.GetState(task.Next)
+
+	notify := &msg_client_message.S2CTaskValueNotify{}
+	this.NotifyTaskValue(notify, task.Next, v, s)
+	log.Debug("Player[%v] notify new task %v value %v state %v", this.Id, task.Next, v, s)
 }
 
 func (p *Player) task_get_reward(task_id int32) int32 {
@@ -396,6 +347,8 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 	}
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_REWARD_RESPONSE), response)
 
+	log.Debug("Player[%v] get task %v reward", p.Id, task_id)
+
 	if task_cfg.Type == table_config.TASK_TYPE_ACHIVE {
 		if task_cfg.Next > 0 {
 			p.db.Tasks.Remove(task_id)
@@ -404,7 +357,7 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 			p.db.FinishedTasks.Add(&data)
 
 			// 后置任务
-			p.check_add_next_task(task_cfg, cur_val)
+			p.check_notify_next_task(task_cfg)
 		}
 	}
 

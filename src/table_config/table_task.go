@@ -129,6 +129,9 @@ func (this *TaskTableMgr) LoadTask(table_file string) bool {
 		}
 
 		tmp_item.Rewards = rewards
+		if tmp_item.CompleteNum <= 0 {
+			tmp_item.CompleteNum = 1
+		}
 
 		this.task_map[tmp_item.Id] = tmp_item
 		this.task_array = append(this.task_array, tmp_item)
@@ -143,9 +146,9 @@ func (this *TaskTableMgr) LoadTask(table_file string) bool {
 				this.all_daily_task = tmp_item
 			}
 		} else {
-			if tmp_item.Prev == 0 {
-				this.start_achieve_tasks = append(this.start_achieve_tasks, tmp_item)
-			}
+			//if tmp_item.Prev == 0 {
+			this.start_achieve_tasks = append(this.start_achieve_tasks, tmp_item)
+			//}
 		}
 
 		/*if tmp_item.Type != TASK_TYPE_DAILY {
