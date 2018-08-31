@@ -155,9 +155,13 @@ func all_roles_cmd(p *Player, args []string) int32 {
 		rank = 1
 	}
 
+	var curr_base_id int32
 	for _, c := range card_table_mgr.Array {
-		for i := 0; i < num; i++ {
-			p.new_role(c.Id, int32(rank), int32(level))
+		if c.Id != curr_base_id {
+			for i := 0; i < num; i++ {
+				p.new_role(c.Id, int32(rank), int32(level))
+			}
+			curr_base_id = c.Id
 		}
 	}
 	return 1
