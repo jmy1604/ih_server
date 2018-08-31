@@ -143,7 +143,7 @@ func (this *ShortRankList) Delete(key interface{}) bool {
 		return false
 	}
 
-	for i := idx; i < this.curr_num; i++ {
+	for i := idx; i < this.curr_num-1; i++ {
 		this.items[i] = this.items[i+1]
 	}
 	this.items[this.curr_num-1] = nil
