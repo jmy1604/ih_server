@@ -352,6 +352,7 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_GUILD_CREATE_REQUEST), C2SGuildCreateHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_GUILD_CANCEL_DISMISS_REQUEST), C2SGuildCancelDismissHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_GUILD_INFO_MODIFY_REQUEST), C2SGuildInfoModifyHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_GUILD_ANOUNCEMENT_REQUEST), C2SGuildSetAnouncementHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_GUILD_MEMBERS_REQUEST), C2SGuildMembersHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_GUILD_ASK_JOIN_REQUEST), C2SGuildAskJoinHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_GUILD_AGREE_JOIN_REQUEST), C2SGuildAgreeJoinHandler)

@@ -371,7 +371,11 @@ func (this *GuildManager) Recommend(player_id int32) (err int32, guild_ids []int
 }
 
 func (this *GuildManager) Search(key string) (guild_ids []int32) {
-	guild_id, _ := strconv.Atoi(key)
+	guild_id, err := strconv.Atoi(key)
+	if err != nil {
+		log.Error("!!!! search key %v must be number", key)
+		return
+	}
 
 	this.guild_ids_locker.RLock()
 	defer this.guild_ids_locker.RUnlock()
@@ -567,6 +571,8 @@ func (this *Player) send_guild_data() int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DATA_RESPONSE), response)
 
 	log.Debug("Player[%v] guild data %v", this.Id, response)
+
+	this.send_guild_donate_list(guild)
 
 	return 1
 }
@@ -1684,6 +1690,16 @@ func C2SGuildInfoModifyHandler(w http.ResponseWriter, r *http.Request, p *Player
 	}
 
 	return p.guild_info_modify(req.GetNewGuildName(), req.GetNewGuildLogo())
+}
+
+func C2SGuildSetAnouncementHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuildAnouncementRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed, err(%v)", err.Error())
+		return -1
+	}
+	return p.guild_anouncement(req.GetContent())
 }
 
 func C2SGuildMembersHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
