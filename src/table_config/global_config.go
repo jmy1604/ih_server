@@ -10,7 +10,7 @@ import (
 type GlobalConfig struct {
 	InitRoles                            []int32 // 初始角色
 	InitItems                            []int32 // 初始物品
-	InitItem_len                         int32   // 初始物品长度
+	InitHeads                            []int32 // 初始头像
 	InitDiamond                          int32   // 初始钻石
 	InitCoin                             int32   // 初始金币
 	InitEnergy                           int32   // 初始怒气

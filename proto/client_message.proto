@@ -19,6 +19,7 @@ enum E_ERR {
 	PLAYER_GOLD_NOT_ENOUGH					= -11; // 金币不足
 	PLAYER_DIAMOND_NOT_ENOUGH				= -12; // 钻石不足
 	PLAYER_NAME_TOO_LONG					= -13; // 昵称过长
+	PLAYER_HEAD_TABLE_DATA_NOT_FOUND		= -14; // 头像配置不存在
 	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败
@@ -364,6 +365,15 @@ message C2SPlayerChangeNameRequest {
 
 message S2CPlayerChangeNameResponse {
 	string NewName					= 1;
+}
+
+// 换头像
+message C2SPlayerChangeHeadRequest {
+	int32 NewHead					= 1;
+}
+
+message S2CPlayerChangeHeadResponse {
+	int32 NewHead					= 1;
 }
 
 //----------------------------------- 战斗 -----------------------------------

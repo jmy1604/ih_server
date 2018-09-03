@@ -43,7 +43,6 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_
 	last_time := this.db.TowerCommon.GetLastGetNewKeyTime()
 	if last_time == 0 {
 		keys = global_config.TowerKeyMax
-		this.set_resource(global_config.TowerKeyId, keys)
 		last_time = now_time
 		this.db.TowerCommon.SetLastGetNewKeyTime(now_time)
 		next_remain_seconds = global_config.TowerKeyGetInterval

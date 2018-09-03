@@ -24,6 +24,8 @@ enum MSGID {
 	S2C_PLAYER_INFO_RESPONSE				= 10025; // 玩家信息 S2CPlayerInfoResponse
 	C2S_PLAYER_CHANGE_NAME_REQUEST			= 10026; // 玩家改名 C2SPlayerChangeNameRequest
 	S2C_PLAYER_CHANGE_NAME_RESPONSE			= 10027; // 玩家改名返回 S2CPlayerChangeNameResponse
+	C2S_PLAYER_CHANGE_HEAD_REQUEST			= 10028; // 换头像 C2SPlayerChangeHeadRequest
+	S2C_PLAYER_CHANGE_HEAD_RESPONSE			= 10029; // 换头像返回 S2CPlayerChangeHeadResponse
 	
 	C2S_ROLES_REQUEST						= 10050; // 角色请求同步 C2SRolesRequest
 	S2C_ROLES_RESPONSE						= 10051; // 角色请求不同返回 S2CRolesResponse

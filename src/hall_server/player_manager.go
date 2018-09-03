@@ -231,6 +231,7 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), C2SHeartbeatHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_DATA_SYNC_REQUEST), C2SDataSyncHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_PLAYER_CHANGE_NAME_REQUEST), C2SPlayerChangeNameHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_PLAYER_CHANGE_HEAD_REQUEST), C2SPlayerChangeHeadHandler)
 
 	// 战役
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST), C2SFightHandler)
@@ -539,4 +540,14 @@ func C2SPlayerChangeNameHandler(w http.ResponseWriter, r *http.Request, p *Playe
 		NewName: req.GetNewName(),
 	})
 	return 1
+}
+
+func C2SPlayerChangeHeadHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SPlayerChangeHeadRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.change_head(req.GetNewHead())
 }

@@ -89,6 +89,8 @@ func (this *Player) add_item(id int32, count int32) bool {
 			} else {
 				curr_count = this.db.Items.IncbyCount(id, count)
 			}
+		} else {
+			curr_count = count
 		}
 	}
 

@@ -6,6 +6,7 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
+	"math/rand"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -306,6 +307,13 @@ func (this *Player) OnCreate() {
 	this.db.Info.IncbyDiamond(global_config.InitDiamond)
 	this.db.Info.IncbyGold(global_config.InitCoin)
 	this.db.SetName(this.Account) // 昵称用默认账号名
+	if global_config.InitHeads != nil && len(global_config.InitHeads) > 0 {
+		for i := 0; i < len(global_config.InitHeads); i++ {
+			this.add_resource(global_config.InitHeads[i], 1)
+		}
+		r := rand.Int31n(int32(len(global_config.InitHeads)))
+		this.db.Info.SetHead(global_config.InitHeads[r])
+	}
 
 	return
 }
@@ -719,6 +727,25 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 	}
 
 	Output_S2CBattleResult(this, response)
+	return 1
+}
+
+func (this *Player) change_head(new_head int32) int32 {
+	head := item_table_mgr.Get(new_head)
+	if head == nil {
+		log.Error("head[%v] table data not found", new_head)
+		return int32(msg_client_message.E_ERR_PLAYER_HEAD_TABLE_DATA_NOT_FOUND)
+	}
+
+	if head.Type != ITEM_TYPE_HEAD {
+		log.Error("item[%v] type is not head", new_head)
+		return -1
+	}
+
+	this.db.Info.SetHead(new_head)
+
+	log.Error("Player[%v] changed to head[%v]", this.Id, new_head)
+
 	return 1
 }
 
