@@ -18,6 +18,7 @@ enum E_ERR {
 	PLAYER_SEND_TOO_FREQUENTLY				= -10; // 发送消息太频繁
 	PLAYER_GOLD_NOT_ENOUGH					= -11; // 金币不足
 	PLAYER_DIAMOND_NOT_ENOUGH				= -12; // 钻石不足
+	PLAYER_NAME_TOO_LONG					= -13; // 昵称过长
 	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败
@@ -354,6 +355,15 @@ message S2CPlayerInfoResponse {
 	int32 SysTime					= 8; // 系统时间
 	int32 GuildId					= 9; // 公会ID
 	string GuildName				= 10; // 公会名
+}
+
+// 改名
+message C2SPlayerChangeNameRequest {
+	string NewName					= 1;
+}
+
+message S2CPlayerChangeNameResponse {
+	string NewName					= 1;
 }
 
 //----------------------------------- 战斗 -----------------------------------

@@ -297,12 +297,6 @@ func (this *Player) Send(msg_id uint16, msg proto.Message) (msg_data []byte) {
 }
 
 func (this *Player) OnCreate() {
-	// 随机初始名称
-	tmp_acc := this.Account
-	if len(tmp_acc) > 6 {
-		tmp_acc = string([]byte(tmp_acc)[0:6])
-	}
-
 	// 初始成就任务
 	this.first_gen_achieve_tasks()
 

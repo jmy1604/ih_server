@@ -230,6 +230,7 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), C2STestCommandHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), C2SHeartbeatHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_DATA_SYNC_REQUEST), C2SDataSyncHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_PLAYER_CHANGE_NAME_REQUEST), C2SPlayerChangeNameHandler)
 
 	// 战役
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST), C2SFightHandler)
@@ -519,5 +520,23 @@ func C2SDataSyncHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	if req.Campaigns {
 		p.send_campaigns()
 	}
+	return 1
+}
+
+func C2SPlayerChangeNameHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SPlayerChangeNameRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	if len(req.GetNewName()) > int(global_config.MaxNameLen) {
+		log.Error("Player[%v] change new name[%v] is too long", p.Id, req.GetNewName())
+		return int32(msg_client_message.E_ERR_PLAYER_NAME_TOO_LONG)
+	}
+	p.db.SetName(req.GetNewName())
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_CHANGE_NAME_RESPONSE), &msg_client_message.S2CPlayerChangeNameResponse{
+		NewName: req.GetNewName(),
+	})
 	return 1
 }

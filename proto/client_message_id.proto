@@ -22,6 +22,8 @@ enum MSGID {
 	C2S_LEAVE_GAME_REQUEST					= 10023; // 离开游戏 C2SLeaveGameRequest
 	S2C_LEAVE_GAME_RESPONSE					= 10024; // 离开游戏返回 S2CLeaveGameResponse
 	S2C_PLAYER_INFO_RESPONSE				= 10025; // 玩家信息 S2CPlayerInfoResponse
+	C2S_PLAYER_CHANGE_NAME_REQUEST			= 10026; // 玩家改名 C2SPlayerChangeNameRequest
+	S2C_PLAYER_CHANGE_NAME_RESPONSE			= 10027; // 玩家改名返回 S2CPlayerChangeNameResponse
 	
 	C2S_ROLES_REQUEST						= 10050; // 角色请求同步 C2SRolesRequest
 	S2C_ROLES_RESPONSE						= 10051; // 角色请求不同返回 S2CRolesResponse
