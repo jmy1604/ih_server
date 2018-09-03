@@ -91,6 +91,7 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 
 	this.roles_id_change_info.id_add(role.Id)
 
+	// 图鉴
 	handbook := this.db.RoleHandbook.GetRole()
 	if handbook == nil {
 		this.db.RoleHandbook.SetRole([]int32{role_id})
@@ -113,6 +114,9 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 			this.db.RoleHandbook.SetRole(handbook)
 		}
 	}
+
+	// 头像
+	this.add_item(card.HeadItem, 1)
 
 	// 更新任务
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_STAR_ROLES, false, card.Rarity, 1)
@@ -145,8 +149,10 @@ func (this *Player) rand_role() int32 {
 	r := rand.Intn(c)
 	cr := r
 	table_id := int32(0)
+	var card *table_config.XmlCardItem
 	for {
-		table_id = card_table_mgr.Array[r%c].Id
+		card = card_table_mgr.Array[r%c]
+		table_id = card.Id
 		if !this.has_role(table_id) {
 			break
 		}
@@ -170,6 +176,12 @@ func (this *Player) rand_role() int32 {
 
 		this.roles_id_change_info.id_add(id)
 		log.Debug("Player[%v] rand role[%v]", this.Id, table_id)
+
+		// 头像
+		this.add_item(card.HeadItem, 1)
+
+		// 更新任务
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_STAR_ROLES, false, card.Rarity, 1)
 
 		// 更新排行榜
 		this.UpdateRolePowerRank(id)

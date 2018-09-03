@@ -18,6 +18,7 @@ const (
 	ITEM_TYPE_EQUIP    = 2 // 装备
 	ITEM_TYPE_COST     = 3 // 消耗品
 	ITEM_TYPE_PIECE    = 4 // 碎片
+	ITEM_TYPE_HEAD     = 5 // 头像
 )
 
 // 其他属性
@@ -68,6 +69,10 @@ func (this *Player) add_item(id int32, count int32) bool {
 		return false
 	}
 
+	if item.Type == ITEM_TYPE_HEAD {
+		count = 1
+	}
+
 	var curr_count int32
 	if !this.db.Items.HasIndex(id) {
 		this.db.Items.Add(&dbPlayerItemData{
@@ -76,12 +81,14 @@ func (this *Player) add_item(id int32, count int32) bool {
 		})
 		curr_count = count
 	} else {
-		old_count, _ := this.db.Items.GetCount(id)
-		if old_count+count < 0 {
-			this.db.Items.SetCount(id, math.MaxInt32)
-			curr_count = math.MaxInt32
-		} else {
-			curr_count = this.db.Items.IncbyCount(id, count)
+		if item.Type != ITEM_TYPE_HEAD {
+			old_count, _ := this.db.Items.GetCount(id)
+			if old_count+count < 0 {
+				this.db.Items.SetCount(id, math.MaxInt32)
+				curr_count = math.MaxInt32
+			} else {
+				curr_count = this.db.Items.IncbyCount(id, count)
+			}
 		}
 	}
 

@@ -38,6 +38,7 @@ type XmlCardItem struct {
 	DecomposeRes      []int32
 	BattlePower       int32 `xml:"BattlePower,attr"`
 	BattlePowerGrowth int32 `xml:"BattlePowerGrowth,attr"`
+	HeadItem          int32 `xml:"HeadItem,attr"`
 }
 
 type XmlCardConfig struct {
