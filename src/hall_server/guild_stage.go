@@ -389,7 +389,7 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 				return err
 			}
 		} else {
-			guild.Stage.SetBossId(0)
+			guild.Stage.SetBossId(-1)
 		}
 	} else {
 		// 状态置成等待复活
