@@ -388,6 +388,11 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TASK_NOT_COMPLETE)
 	}
 
+	for i := 0; i < len(task_cfg.Rewards)/2; i++ {
+		rid := task_cfg.Rewards[2*i]
+		rcnt := task_cfg.Rewards[2*i+1]
+		p.add_resource(rid, rcnt)
+	}
 	p.db.Tasks.SetState(task_id, TASK_STATE_REWARD)
 	notify_task := &msg_client_message.S2CTaskValueNotify{}
 	p.NotifyTaskValue(notify_task, task_id, cur_val, TASK_STATE_REWARD)
