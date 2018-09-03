@@ -19,7 +19,6 @@ message PlayerInfo{
 	optional int32 Gold=4;
 	optional int32 Diamond=5;
 	optional int32 LastDialyTaskUpUinx=6;
-	optional string Icon=7;
 	optional int32 LastLogout=9;
 	optional int32 LastLogin=10;
 	optional int32 VipLvl=16;
@@ -285,6 +284,7 @@ message PlayerTask{
 	optional int32 Id=1;
 	optional int32 Value=2;
 	optional int32 State=3;
+	optional int32 Param=4;
 }
 
 message PlayerTaskList{

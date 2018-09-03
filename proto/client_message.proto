@@ -348,11 +348,12 @@ message S2CPlayerInfoResponse {
 	int32 Exp						= 2; // 经验
 	int32 Gold						= 3; // 金币
 	int32 Diamond					= 4; // 钻石
-	string Icon						= 5; // 头像
+	int32 Icon						= 5; // 头像
 	int32 VipLevel					= 6; // VIP等级
 	string Name						= 7; // 昵称
 	int32 SysTime					= 8; // 系统时间
 	int32 GuildId					= 9; // 公会ID
+	int32 GuildName					= 10; // 公会名
 }
 
 //----------------------------------- 战斗 -----------------------------------

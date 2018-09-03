@@ -126,7 +126,6 @@ func (this *Player) rpc_update_base_info() *rpc_common.H2H_BaseInfoResult {
 	args.FromPlayerId = this.Id
 	args.Nick = this.db.GetName()
 	args.Level = this.db.Info.GetLvl()
-	args.Head = this.db.Info.GetIcon()
 	rpc_client.Call("H2H_PlayerProc.UpdateBaseInfo", args, result)
 	if result.Error < 0 {
 		log.Error("RPC Update Player[%v] base info error[%v]", this.Id, result.Error)
@@ -706,7 +705,6 @@ func (p *Player) rpc_world_chat(content []byte) (result *rpc_common.H2H_WorldCha
 	args.FromPlayerId = p.Id
 	args.FromPlayerLevel = p.db.Info.GetLvl()
 	args.FromPlayerName = p.db.GetName()
-	args.FromPlayerHead = p.db.Info.GetIcon()
 	args.ChatContent = content
 
 	result = &rpc_common.H2H_WorldChatResult{}

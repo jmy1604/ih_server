@@ -35,7 +35,6 @@ func (this *R2H_PlayerProc) GetInfoToSearch(args *rpc_common.R2H_SearchPlayer, r
 		err_str := fmt.Sprintf("RPC R2H_PlayerProc @@@ Not found player[%v], get player info failed", args.Id)
 		return errors.New(err_str)
 	}
-	reply.Head = p.db.Info.GetIcon()
 	reply.Nick = p.db.GetName()
 	reply.Level = p.db.Info.GetLvl()
 
@@ -106,7 +105,6 @@ func (this *R2H_FriendProc) AgreeAddFriend(args *rpc_common.R2H_AgreeAddFriend, 
 	reply.AgreePlayerName = p.db.GetName()
 	reply.AgreePlayerLevel = p.db.Info.GetLvl()
 	reply.AgreePlayerVipLevel = p.db.Info.GetVipLvl()
-	reply.AgreePlayerHead = p.db.Info.GetIcon()
 	reply.AgreePlayerLastLogin = p.db.Info.GetLastLogin()
 
 	log.Debug("RPC R2H_FriendProc @@@ Player[%v] agreed add friend[%v]", args.PlayerId, args.AgreePlayerId)
@@ -284,7 +282,6 @@ func (this *R2H_PlayerStageInfoProc) Do(args *rpc_common.R2H_PlayerStageInfoReq,
 	if p == nil {
 		return errors.New("无法找到玩家[%v]数据")
 	}
-	result.Head = p.db.Info.GetIcon()
 	result.Level = p.db.Info.GetLvl()
 	result.Nick = p.db.GetName()
 	log.Info("获取玩家[%v]的关卡[%v]信息[%v]", args.PlayerId, args.StageId, *result)

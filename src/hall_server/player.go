@@ -394,7 +394,7 @@ func (this *Player) send_info() {
 		Exp:      this.db.Info.GetExp(),
 		Gold:     this.db.Info.GetGold(),
 		Diamond:  this.db.Info.GetDiamond(),
-		Icon:     this.db.Info.GetIcon(),
+		Icon:     this.db.Info.GetHead(),
 		VipLevel: this.db.Info.GetVipLvl(),
 		Name:     this.db.GetName(),
 		SysTime:  int32(time.Now().Unix()),

@@ -296,7 +296,6 @@ type dbPlayerInfoData struct{
 	Gold int32
 	Diamond int32
 	LastDialyTaskUpUinx int32
-	Icon string
 	LastLogout int32
 	LastLogin int32
 	VipLvl int32
@@ -312,7 +311,6 @@ func (this* dbPlayerInfoData)from_pb(pb *db.PlayerInfo){
 	this.Gold = pb.GetGold()
 	this.Diamond = pb.GetDiamond()
 	this.LastDialyTaskUpUinx = pb.GetLastDialyTaskUpUinx()
-	this.Icon = pb.GetIcon()
 	this.LastLogout = pb.GetLastLogout()
 	this.LastLogin = pb.GetLastLogin()
 	this.VipLvl = pb.GetVipLvl()
@@ -327,7 +325,6 @@ func (this* dbPlayerInfoData)to_pb()(pb *db.PlayerInfo){
 	pb.Gold = proto.Int32(this.Gold)
 	pb.Diamond = proto.Int32(this.Diamond)
 	pb.LastDialyTaskUpUinx = proto.Int32(this.LastDialyTaskUpUinx)
-	pb.Icon = proto.String(this.Icon)
 	pb.LastLogout = proto.Int32(this.LastLogout)
 	pb.LastLogin = proto.Int32(this.LastLogin)
 	pb.VipLvl = proto.Int32(this.VipLvl)
@@ -341,7 +338,6 @@ func (this* dbPlayerInfoData)clone_to(d *dbPlayerInfoData){
 	d.Gold = this.Gold
 	d.Diamond = this.Diamond
 	d.LastDialyTaskUpUinx = this.LastDialyTaskUpUinx
-	d.Icon = this.Icon
 	d.LastLogout = this.LastLogout
 	d.LastLogin = this.LastLogin
 	d.VipLvl = this.VipLvl
@@ -1265,6 +1261,7 @@ type dbPlayerTaskData struct{
 	Id int32
 	Value int32
 	State int32
+	Param int32
 }
 func (this* dbPlayerTaskData)from_pb(pb *db.PlayerTask){
 	if pb == nil {
@@ -1273,6 +1270,7 @@ func (this* dbPlayerTaskData)from_pb(pb *db.PlayerTask){
 	this.Id = pb.GetId()
 	this.Value = pb.GetValue()
 	this.State = pb.GetState()
+	this.Param = pb.GetParam()
 	return
 }
 func (this* dbPlayerTaskData)to_pb()(pb *db.PlayerTask){
@@ -1280,12 +1278,14 @@ func (this* dbPlayerTaskData)to_pb()(pb *db.PlayerTask){
 	pb.Id = proto.Int32(this.Id)
 	pb.Value = proto.Int32(this.Value)
 	pb.State = proto.Int32(this.State)
+	pb.Param = proto.Int32(this.Param)
 	return
 }
 func (this* dbPlayerTaskData)clone_to(d *dbPlayerTaskData){
 	d.Id = this.Id
 	d.Value = this.Value
 	d.State = this.State
+	d.Param = this.Param
 	return
 }
 type dbPlayerFinishedTaskData struct{
@@ -2471,19 +2471,6 @@ func (this *dbPlayerInfoColumn)SetLastDialyTaskUpUinx(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetLastDialyTaskUpUinx")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.LastDialyTaskUpUinx = v
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerInfoColumn)GetIcon( )(v string ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetIcon")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.Icon
-	return
-}
-func (this *dbPlayerInfoColumn)SetIcon(v string){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetIcon")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.Icon = v
 	this.m_changed = true
 	return
 }
@@ -7062,6 +7049,28 @@ func (this *dbPlayerTaskColumn)SetState(id int32,v int32)(has bool){
 		return
 	}
 	d.State = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerTaskColumn)GetParam(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTaskColumn.GetParam")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Param
+	return v,true
+}
+func (this *dbPlayerTaskColumn)SetParam(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerTaskColumn.SetParam")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Param = v
 	this.m_changed = true
 	return true
 }

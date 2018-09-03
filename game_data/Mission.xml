@@ -71,30 +71,6 @@
      <item Id="21088" Type="2" EventId="207" EventParam="6" CompleteNum="5" Prev="21087" Next="21089" Reward="1,300000,3,300" Hyperlink="0" />
      <item Id="21089" Type="2" EventId="207" EventParam="7" CompleteNum="1" Prev="21088" Next="21090" Reward="1,600000,3,400" Hyperlink="0" />
      <item Id="21090" Type="2" EventId="207" EventParam="7" CompleteNum="5" Prev="21089" Next="" Reward="1,1000000,3,500" Hyperlink="0" />
-     <item Id="21091" Type="2" EventId="208" EventParam="1" CompleteNum="20" Prev="" Next="21092" Reward="1,5000,3,30" Hyperlink="0" />
-     <item Id="21092" Type="2" EventId="208" EventParam="1" CompleteNum="50" Prev="21091" Next="21093" Reward="1,30000,3,90" Hyperlink="0" />
-     <item Id="21093" Type="2" EventId="208" EventParam="1" CompleteNum="100" Prev="21092" Next="21094" Reward="1,80000,3,150" Hyperlink="0" />
-     <item Id="21094" Type="2" EventId="208" EventParam="1" CompleteNum="160" Prev="21093" Next="" Reward="1,300000,3,300" Hyperlink="0" />
-     <item Id="21101" Type="2" EventId="208" EventParam="1" CompleteNum="20" Prev="" Next="21102" Reward="1,5000,3,30" Hyperlink="0" />
-     <item Id="21102" Type="2" EventId="208" EventParam="1" CompleteNum="50" Prev="21101" Next="21103" Reward="1,30000,3,90" Hyperlink="0" />
-     <item Id="21103" Type="2" EventId="208" EventParam="1" CompleteNum="100" Prev="21102" Next="21104" Reward="1,80000,3,150" Hyperlink="0" />
-     <item Id="21104" Type="2" EventId="208" EventParam="1" CompleteNum="160" Prev="21103" Next="" Reward="1,300000,3,300" Hyperlink="0" />
-     <item Id="21111" Type="2" EventId="208" EventParam="1" CompleteNum="20" Prev="" Next="21112" Reward="1,5000,3,30" Hyperlink="0" />
-     <item Id="21112" Type="2" EventId="208" EventParam="1" CompleteNum="50" Prev="21111" Next="21113" Reward="1,30000,3,90" Hyperlink="0" />
-     <item Id="21113" Type="2" EventId="208" EventParam="1" CompleteNum="100" Prev="21112" Next="21114" Reward="1,80000,3,150" Hyperlink="0" />
-     <item Id="21114" Type="2" EventId="208" EventParam="1" CompleteNum="160" Prev="21113" Next="" Reward="1,300000,3,300" Hyperlink="0" />
-     <item Id="21121" Type="2" EventId="208" EventParam="1" CompleteNum="20" Prev="" Next="21122" Reward="1,5000,3,30" Hyperlink="0" />
-     <item Id="21122" Type="2" EventId="208" EventParam="1" CompleteNum="50" Prev="21121" Next="21123" Reward="1,30000,3,90" Hyperlink="0" />
-     <item Id="21123" Type="2" EventId="208" EventParam="1" CompleteNum="100" Prev="21122" Next="21124" Reward="1,80000,3,150" Hyperlink="0" />
-     <item Id="21124" Type="2" EventId="208" EventParam="1" CompleteNum="160" Prev="21123" Next="" Reward="1,300000,3,300" Hyperlink="0" />
-     <item Id="21131" Type="2" EventId="208" EventParam="1" CompleteNum="20" Prev="" Next="21132" Reward="1,5000,3,30" Hyperlink="0" />
-     <item Id="21132" Type="2" EventId="208" EventParam="1" CompleteNum="50" Prev="21131" Next="21133" Reward="1,30000,3,90" Hyperlink="0" />
-     <item Id="21133" Type="2" EventId="208" EventParam="1" CompleteNum="100" Prev="21132" Next="21134" Reward="1,80000,3,150" Hyperlink="0" />
-     <item Id="21134" Type="2" EventId="208" EventParam="1" CompleteNum="160" Prev="21133" Next="" Reward="1,300000,3,300" Hyperlink="0" />
-     <item Id="21141" Type="2" EventId="208" EventParam="1" CompleteNum="20" Prev="" Next="21142" Reward="1,5000,3,30" Hyperlink="0" />
-     <item Id="21142" Type="2" EventId="208" EventParam="1" CompleteNum="50" Prev="21141" Next="21143" Reward="1,30000,3,90" Hyperlink="0" />
-     <item Id="21143" Type="2" EventId="208" EventParam="1" CompleteNum="100" Prev="21142" Next="21144" Reward="1,80000,3,150" Hyperlink="0" />
-     <item Id="21144" Type="2" EventId="208" EventParam="1" CompleteNum="160" Prev="21143" Next="" Reward="1,300000,3,300" Hyperlink="0" />
      <item Id="21151" Type="2" EventId="209" EventParam="" CompleteNum="1" Prev="" Next="21152" Reward="3,500" Hyperlink="0" />
      <item Id="21152" Type="2" EventId="209" EventParam="" CompleteNum="2" Prev="21151" Next="21153" Reward="3,1000" Hyperlink="0" />
      <item Id="21153" Type="2" EventId="209" EventParam="" CompleteNum="3" Prev="21152" Next="21154" Reward="3,2000" Hyperlink="0" />

@@ -86,6 +86,49 @@ func (this *dbPlayerTaskColumn) FillTaskMsg(p *Player, task_type int32) *msg_cli
 	return ret_msg
 }
 
+func (this *Player) fill_task_msg(task_type int32) (task_list []*msg_client_message.TaskData) {
+	tasks := task_table_mgr.GetTasks(task_type)
+	if tasks == nil {
+		return
+	}
+
+	for i := 0; i < len(tasks); i++ {
+		t := tasks[i]
+		if !this.db.Tasks.HasIndex(t.Id) {
+			if !this.db.FinishedTasks.HasIndex(t.Id) {
+				this.db.Tasks.Add(&dbPlayerTaskData{
+					Id: t.Id,
+				})
+			}
+			continue
+		}
+
+		v, _ := this.db.Tasks.GetValue(t.Id)
+		s, _ := this.db.Tasks.GetState(t.Id)
+		if this.db.Tasks.HasIndex(t.Id) {
+			if v >= t.CompleteNum && s == TASK_STATE_DOING {
+				this.db.Tasks.SetState(t.Id, TASK_STATE_COMPLETE)
+			}
+		}
+
+		if t.Type != task_type {
+			continue
+		}
+
+		if t.Prev > 0 && this.db.Tasks.HasIndex(t.Prev) {
+			continue
+		}
+
+		task_list = append(task_list, &msg_client_message.TaskData{
+			Id:    t.Id,
+			Value: v,
+			State: s,
+		})
+	}
+
+	return
+}
+
 func (this *Player) ChkPlayerDailyTask() int32 {
 	remain_seconds := utils.GetRemainSeconds2NextDayTime(this.db.TaskCommon.GetLastRefreshTime(), global_config.DailyTaskRefreshTime)
 	if remain_seconds <= 0 {
@@ -101,7 +144,7 @@ func (this *Player) first_gen_achieve_tasks() {
 	if this.db.Tasks.NumAll() > 0 {
 		this.db.Tasks.Clear()
 	}
-	achieves := task_table_mgr.GetStartAchieveTasks()
+	achieves := task_table_mgr.GetAchieveTasks()
 	if achieves != nil {
 		for i := 0; i < len(achieves); i++ {
 			this.db.Tasks.Add(&dbPlayerTaskData{
@@ -112,17 +155,22 @@ func (this *Player) first_gen_achieve_tasks() {
 }
 
 func (this *Player) send_task(task_type int32) int32 {
+	var response msg_client_message.S2CTaskDataResponse
 	if task_type == 0 || task_type == table_config.TASK_TYPE_DAILY {
 		remain_seconds := this.ChkPlayerDailyTask()
-		response := this.db.Tasks.FillTaskMsg(this, table_config.TASK_TYPE_DAILY)
+		response.TaskType = table_config.TASK_TYPE_DAILY
+		response.TaskList = this.fill_task_msg(table_config.TASK_TYPE_DAILY)
+		//response := this.db.Tasks.FillTaskMsg(this, table_config.TASK_TYPE_DAILY)
 		response.DailyTaskRefreshRemainSeconds = remain_seconds
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), response)
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), &response)
 		log.Debug("Player[%v] daily tasks %v", this.Id, response)
 	}
 
 	if task_type == 0 || task_type == table_config.TASK_TYPE_ACHIVE {
-		response := this.db.Tasks.FillTaskMsg(this, table_config.TASK_TYPE_ACHIVE)
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), response)
+		response.TaskType = table_config.TASK_TYPE_ACHIVE
+		response.TaskList = this.fill_task_msg(table_config.TASK_TYPE_DAILY)
+		//response := this.db.Tasks.FillTaskMsg(this, table_config.TASK_TYPE_ACHIVE)
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), &response)
 		log.Debug("Player[%v] achive tasks %v", this.Id, response)
 	}
 

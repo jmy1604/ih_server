@@ -116,7 +116,6 @@
 						{"Type":"int32","Index":4,"Name":"Gold","Incby":true},
 						{"Type":"int32","Index":5,"Name":"Diamond","Incby":true},
 						{"Type":"int32","Index":6,"Name":"LastDialyTaskUpUinx"},
-						{"Type":"string","Index":7,"Name":"Icon"},
 						{"Type":"int32","Index":9,"Name":"LastLogout"},
 						{"Type":"int32","Index":10,"Name":"LastLogin"},
 						{"Type":"int32","Index":16,"Name":"VipLvl"},
@@ -526,7 +525,8 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"Value","Incby":true},
-						{"Type":"int32","Index":3,"Name":"State"}
+						{"Type":"int32","Index":3,"Name":"State"},
+						{"Type":"int32","Index":4,"Name":"Param"}
 					]
 				},
 				{

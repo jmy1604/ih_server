@@ -43,10 +43,8 @@ type TaskReward struct {
 }
 
 type XmlTaskItem struct {
-	Id   int32 `xml:"Id,attr"`
-	Type int32 `xml:"Type,attr"`
-	//MinLevel    int32  `xml:"MinLevel,attr"`
-	//MaxLevel    int32  `xml:"Maxlevel,attr"`
+	Id          int32  `xml:"Id,attr"`
+	Type        int32  `xml:"Type,attr"`
 	EventId     int32  `xml:"EventId,attr"`
 	EventParam  int32  `xml:"EventParam,attr"`
 	CompleteNum int32  `xml:"CompleteNum,attr"`
@@ -74,15 +72,14 @@ func (this *FinishTypeTasks) GetArray() []*XmlTaskItem {
 }
 
 type TaskTableMgr struct {
-	task_map            map[int32]*XmlTaskItem     // 任务map
-	task_array          []*XmlTaskItem             // 任务数组
-	task_array_len      int32                      // 数组长度
-	finish_tasks        map[int32]*FinishTypeTasks // 按完成条件组织任务数据
-	daily_task_map      map[int32]*XmlTaskItem     // 日常任务MAP
-	daily_task_array    []*XmlTaskItem             // 日程任务数组
-	all_daily_task      *XmlTaskItem               // 所有日常任务
-	start_achieve_tasks []*XmlTaskItem             // 初始成就任务
-	//level_tasks      map[int32][]*XmlTaskItem   // 等级对应的任务
+	task_map         map[int32]*XmlTaskItem     // 任务map
+	task_array       []*XmlTaskItem             // 任务数组
+	task_array_len   int32                      // 数组长度
+	finish_tasks     map[int32]*FinishTypeTasks // 按完成条件组织任务数据
+	daily_task_map   map[int32]*XmlTaskItem     // 日常任务MAP
+	daily_task_array []*XmlTaskItem             // 日程任务数组
+	all_daily_task   *XmlTaskItem               // 所有日常任务
+	achieve_tasks    []*XmlTaskItem             // 初始成就任务
 }
 
 func (this *TaskTableMgr) Init(table_file string) bool {
@@ -116,7 +113,6 @@ func (this *TaskTableMgr) LoadTask(table_file string) bool {
 	this.task_map = make(map[int32]*XmlTaskItem)
 	this.finish_tasks = make(map[int32]*FinishTypeTasks)
 	this.daily_task_map = make(map[int32]*XmlTaskItem)
-	//this.level_tasks = make(map[int32][]*XmlTaskItem)
 
 	var tmp_item *XmlTaskItem
 	for idx := int32(0); idx < tmp_len; idx++ {
@@ -146,17 +142,8 @@ func (this *TaskTableMgr) LoadTask(table_file string) bool {
 				this.all_daily_task = tmp_item
 			}
 		} else {
-			//if tmp_item.Prev == 0 {
-			this.start_achieve_tasks = append(this.start_achieve_tasks, tmp_item)
-			//}
+			this.achieve_tasks = append(this.achieve_tasks, tmp_item)
 		}
-
-		/*if tmp_item.Type != TASK_TYPE_DAILY {
-			if this.level_tasks[tmp_item.MinLevel] == nil {
-				this.level_tasks[tmp_item.MinLevel] = make([]*XmlTaskItem, 0)
-			}
-			this.level_tasks[tmp_item.MinLevel] = append(this.level_tasks[tmp_item.MinLevel], tmp_item)
-		}*/
 	}
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
@@ -164,7 +151,6 @@ func (this *TaskTableMgr) LoadTask(table_file string) bool {
 			this.finish_tasks[tmp_item.EventId].array = make([]*XmlTaskItem, 0, this.finish_tasks[tmp_item.EventId].count)
 		}
 		this.finish_tasks[tmp_item.EventId].array = append(this.finish_tasks[tmp_item.EventId].array, tmp_item)
-		//log.Info("finish type(%v) task %v, tasks count %v", tmp_item.EventId, *tmp_item, this.finish_tasks[tmp_item.EventId].count)
 	}
 
 	this.task_array_len = int32(len(this.task_array))
@@ -202,17 +188,19 @@ func (this *TaskTableMgr) GetFinishTasks() map[int32]*FinishTypeTasks {
 	return this.finish_tasks
 }
 
-/*func (this *TaskTableMgr) GetLevelTasks(level int32) []*XmlTaskItem {
-	if this.level_tasks == nil {
-		return nil
-	}
-	return this.level_tasks[level]
-}*/
-
 func (this *TaskTableMgr) GetDailyTasks() map[int32]*XmlTaskItem {
 	return this.daily_task_map
 }
 
-func (this *TaskTableMgr) GetStartAchieveTasks() []*XmlTaskItem {
-	return this.start_achieve_tasks
+func (this *TaskTableMgr) GetAchieveTasks() []*XmlTaskItem {
+	return this.achieve_tasks
+}
+
+func (this *TaskTableMgr) GetTasks(task_type int32) []*XmlTaskItem {
+	if task_type == TASK_TYPE_DAILY {
+		return this.daily_task_array
+	} else if task_type == TASK_TYPE_ACHIVE {
+		return this.achieve_tasks
+	}
+	return nil
 }
