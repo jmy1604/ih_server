@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item Id="20001" Type="1" EventId="101" EventParam="" CompleteNum="" Prev="" Next="" Reward="3100" Hyperlink="0" />
+     <item Id="20001" Type="1" EventId="101" EventParam="" CompleteNum="" Prev="" Next="" Reward="3,100" Hyperlink="0" />
      <item Id="20002" Type="1" EventId="102" EventParam="" CompleteNum="3" Prev="" Next="" Reward="13,20" Hyperlink="1" />
      <item Id="20003" Type="1" EventId="103" EventParam="" CompleteNum="3" Prev="" Next="" Reward="3,20" Hyperlink="2" />
      <item Id="20004" Type="1" EventId="104" EventParam="" CompleteNum="2" Prev="" Next="" Reward="3,20" Hyperlink="3" />
@@ -95,7 +95,7 @@
      <item Id="21142" Type="2" EventId="208" EventParam="1" CompleteNum="50" Prev="21141" Next="21143" Reward="1,30000,3,90" Hyperlink="0" />
      <item Id="21143" Type="2" EventId="208" EventParam="1" CompleteNum="100" Prev="21142" Next="21144" Reward="1,80000,3,150" Hyperlink="0" />
      <item Id="21144" Type="2" EventId="208" EventParam="1" CompleteNum="160" Prev="21143" Next="" Reward="1,300000,3,300" Hyperlink="0" />
-     <item Id="21151" Type="2" EventId="209" EventParam="" CompleteNum="1" Prev="" Next="21152" Reward="3500" Hyperlink="0" />
+     <item Id="21151" Type="2" EventId="209" EventParam="" CompleteNum="1" Prev="" Next="21152" Reward="3,500" Hyperlink="0" />
      <item Id="21152" Type="2" EventId="209" EventParam="" CompleteNum="2" Prev="21151" Next="21153" Reward="3,1000" Hyperlink="0" />
      <item Id="21153" Type="2" EventId="209" EventParam="" CompleteNum="3" Prev="21152" Next="21154" Reward="3,2000" Hyperlink="0" />
      <item Id="21154" Type="2" EventId="209" EventParam="" CompleteNum="4" Prev="21153" Next="" Reward="3,5000" Hyperlink="0" />
