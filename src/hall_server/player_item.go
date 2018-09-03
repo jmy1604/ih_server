@@ -69,35 +69,34 @@ func (this *Player) add_item(id int32, count int32) bool {
 		return false
 	}
 
-	if item.Type == ITEM_TYPE_HEAD {
-		count = 1
-	}
-
-	var curr_count int32
 	if !this.db.Items.HasIndex(id) {
+		if item.Type == ITEM_TYPE_HEAD {
+			count = 1
+		}
 		this.db.Items.Add(&dbPlayerItemData{
 			Id:    id,
 			Count: count,
 		})
-		curr_count = count
 	} else {
 		if item.Type != ITEM_TYPE_HEAD {
 			old_count, _ := this.db.Items.GetCount(id)
 			if old_count+count < 0 {
 				this.db.Items.SetCount(id, math.MaxInt32)
-				curr_count = math.MaxInt32
+				count = math.MaxInt32 - old_count
 			} else {
-				curr_count = this.db.Items.IncbyCount(id, count)
+				this.db.Items.IncbyCount(id, count)
 			}
 		} else {
-			curr_count = count
+			count = 0
 		}
 	}
 
 	if this.items_changed_info == nil {
 		this.items_changed_info = make(map[int32]int32)
 	}
-	this.items_changed_info[id] = curr_count
+	if count > 0 {
+		this.items_changed_info[id] = count
+	}
 
 	// 更新任务
 	if item.EquipType > 0 {
