@@ -74,7 +74,7 @@
 	"ApplePaySandBoxUrl":"https://sandbox.itunes.apple.com/verifyReceipt",
 	
 	"MaxNameLen":32,
-	"ChgNameCost":[0,10,20,30,40,50],
+	"ChgNameCost":[200],
 	"FirstPayReward":6801,
 	
 	"WorldChatMaxMsgNum": 200,
