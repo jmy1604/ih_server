@@ -95,12 +95,12 @@ func (this *Player) fill_task_msg(task_type int32) (task_list []*msg_client_mess
 	for i := 0; i < len(tasks); i++ {
 		t := tasks[i]
 		if !this.db.Tasks.HasIndex(t.Id) {
-			if !this.db.FinishedTasks.HasIndex(t.Id) {
-				this.db.Tasks.Add(&dbPlayerTaskData{
-					Id: t.Id,
-				})
+			if this.db.FinishedTasks.HasIndex(t.Id) {
+				continue
 			}
-			continue
+			this.db.Tasks.Add(&dbPlayerTaskData{
+				Id: t.Id,
+			})
 		}
 
 		v, _ := this.db.Tasks.GetValue(t.Id)
@@ -168,7 +168,7 @@ func (this *Player) send_task(task_type int32) int32 {
 
 	if task_type == 0 || task_type == table_config.TASK_TYPE_ACHIVE {
 		response.TaskType = table_config.TASK_TYPE_ACHIVE
-		response.TaskList = this.fill_task_msg(table_config.TASK_TYPE_DAILY)
+		response.TaskList = this.fill_task_msg(table_config.TASK_TYPE_ACHIVE)
 		//response := this.db.Tasks.FillTaskMsg(this, table_config.TASK_TYPE_ACHIVE)
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), &response)
 		log.Debug("Player[%v] achive tasks %v", this.Id, response)

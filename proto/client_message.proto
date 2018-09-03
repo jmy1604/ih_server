@@ -353,7 +353,7 @@ message S2CPlayerInfoResponse {
 	string Name						= 7; // 昵称
 	int32 SysTime					= 8; // 系统时间
 	int32 GuildId					= 9; // 公会ID
-	int32 GuildName					= 10; // 公会名
+	string GuildName				= 10; // 公会名
 }
 
 //----------------------------------- 战斗 -----------------------------------

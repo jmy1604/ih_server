@@ -389,16 +389,24 @@ func (this *Player) send_teams() {
 }
 
 func (this *Player) send_info() {
+	var guild_id int32
+	var guild_name string
+	guild := guild_manager._get_guild(this.Id, false)
+	if guild != nil {
+		guild_id = guild.GetId()
+		guild_name = guild.GetName()
+	}
 	response := &msg_client_message.S2CPlayerInfoResponse{
-		Level:    this.db.Info.GetLvl(),
-		Exp:      this.db.Info.GetExp(),
-		Gold:     this.db.Info.GetGold(),
-		Diamond:  this.db.Info.GetDiamond(),
-		Icon:     this.db.Info.GetHead(),
-		VipLevel: this.db.Info.GetVipLvl(),
-		Name:     this.db.GetName(),
-		SysTime:  int32(time.Now().Unix()),
-		GuildId:  this.db.Guild.GetId(),
+		Level:     this.db.Info.GetLvl(),
+		Exp:       this.db.Info.GetExp(),
+		Gold:      this.db.Info.GetGold(),
+		Diamond:   this.db.Info.GetDiamond(),
+		Icon:      this.db.Info.GetHead(),
+		VipLevel:  this.db.Info.GetVipLvl(),
+		Name:      this.db.GetName(),
+		SysTime:   int32(time.Now().Unix()),
+		GuildId:   guild_id,
+		GuildName: guild_name,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_INFO_RESPONSE), response)
 	log.Debug("Player[%v] info: %v", this.Id, response)
