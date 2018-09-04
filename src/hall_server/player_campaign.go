@@ -268,12 +268,7 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		}
 	}
 
-	self_member_num := attack_team.MembersNum()
-	if this.assist_role_id > 0 && this.assist_role_id >= 0 {
-		self_member_num -= 1
-	}
-
-	if stage.PlayerCardMax > 0 && self_member_num > stage.PlayerCardMax {
+	if stage.PlayerCardMax > 0 && attack_team.MembersNum() > stage.PlayerCardMax {
 		log.Error("Player[%v] fight stage %v is limited with member num", this.Id, stage.Id)
 		err = int32(msg_client_message.E_ERR_PLAYER_STAGE_ROLE_NUM_LIMITED)
 		return

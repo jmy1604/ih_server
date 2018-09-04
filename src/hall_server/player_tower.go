@@ -350,9 +350,11 @@ func (this *TowerRankingList) GetMsgs() (ranking_list []*msg_client_message.Towe
 		}
 
 		ranking_list = append(ranking_list, &msg_client_message.TowerRankInfo{
-			PlayerId:   this.player_list[i],
-			PlayerName: p.db.GetName(),
-			TowerId:    p.db.TowerCommon.GetCurrId(),
+			PlayerId:    this.player_list[i],
+			PlayerName:  p.db.GetName(),
+			TowerId:     p.db.TowerCommon.GetCurrId(),
+			PlayerLevel: p.db.Info.GetLvl(),
+			PlayerHead:  p.db.Info.GetHead(),
 		})
 	}
 	return

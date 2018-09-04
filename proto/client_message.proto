@@ -942,6 +942,7 @@ message TowerRankInfo {
 	string PlayerName						= 2;
 	int32 TowerId							= 3;
 	int32 PlayerLevel						= 4;
+	int32 PlayerHead						= 5;
 }
 message S2CTowerRankingListResponse {
 	repeated TowerRankInfo Ranks			= 1;
