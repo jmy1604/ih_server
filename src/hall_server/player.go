@@ -749,6 +749,11 @@ func (this *Player) change_head(new_head int32) int32 {
 
 	this.db.Info.SetHead(new_head)
 
+	response := &msg_client_message.S2CPlayerChangeHeadResponse{
+		NewHead: new_head,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_CHANGE_HEAD_RESPONSE), response)
+
 	log.Error("Player[%v] changed to head[%v]", this.Id, new_head)
 
 	return 1
