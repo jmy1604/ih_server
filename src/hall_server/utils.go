@@ -81,7 +81,7 @@ func GetFighterInfo(fighter_id int32) (name string, level, head, score, grade, p
 	if p != nil {
 		name = p.db.GetName()
 		level = p.db.Info.GetLvl()
-		head = 0
+		head = p.db.Info.GetHead()
 		score = p.db.Arena.GetScore()
 		power = p.get_defense_team_power()
 	} else {
