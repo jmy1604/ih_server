@@ -515,6 +515,10 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 		//this.db.Roles.SetIsLock(team[i], 1)
 	}
 
+	if this.assist_friend != nil {
+		team[this.assist_role_pos] = this.assist_role_id
+	}
+
 	if team_type == BATTLE_CAMPAIN_TEAM {
 		this.db.BattleTeam.SetCampaignMembers(team)
 	} else if team_type == BATTLE_DEFENSE_TEAM {
