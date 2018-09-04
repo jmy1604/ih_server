@@ -1059,7 +1059,7 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 			res := this.SetTeam(team_type, team_members)
 			if res < 0 {
 				this.assist_friend = nil
-				log.Error("Player[%v] set team[%v] failed", this.Id, team_type)
+				log.Error("Player[%v] set team[%v:%v] failed", this.Id, team_type, team_members)
 				return res
 			}
 		}
