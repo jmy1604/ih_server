@@ -340,6 +340,10 @@ func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos
 			return
 		}
 		equips, o = this.db.Roles.GetEquip(role_id)
+		if !o {
+			log.Error("Cant get equips by role id[%v]", role_id)
+			return
+		}
 	} else {
 		table_id, o = this.assist_friend.db.Roles.GetTableId(this.assist_role_id)
 		if !o {
@@ -354,6 +358,10 @@ func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos
 			return
 		}
 		equips, o = this.assist_friend.db.Roles.GetEquip(this.assist_role_id)
+		if !o {
+			log.Error("Player[%v] Cant get equips by assist friend[%v] role[%v]", this.Id, this.assist_friend.Id, this.assist_role_id)
+			return
+		}
 	}
 	role_card := card_table_mgr.GetRankCard(table_id, rank)
 	if role_card == nil {
