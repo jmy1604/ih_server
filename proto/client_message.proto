@@ -20,6 +20,7 @@ enum E_ERR {
 	PLAYER_DIAMOND_NOT_ENOUGH				= -12; // 钻石不足
 	PLAYER_NAME_TOO_LONG					= -13; // 昵称过长
 	PLAYER_HEAD_TABLE_DATA_NOT_FOUND		= -14; // 头像配置不存在
+	PLAYER_NO_SUCH_HEAD						= -15; // 没有该头像
 	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败

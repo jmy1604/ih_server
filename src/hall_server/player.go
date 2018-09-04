@@ -742,6 +742,11 @@ func (this *Player) change_head(new_head int32) int32 {
 		return -1
 	}
 
+	if this.get_resource(new_head) < 1 {
+		log.Error("Player[%v] no head %v", this.Id, new_head)
+		return int32(msg_client_message.E_ERR_PLAYER_NO_SUCH_HEAD)
+	}
+
 	this.db.Info.SetHead(new_head)
 
 	log.Error("Player[%v] changed to head[%v]", this.Id, new_head)
