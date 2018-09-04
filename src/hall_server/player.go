@@ -471,22 +471,21 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 	var member_num int32
 	used_id := make(map[int32]bool)
 	for i := 0; i < len(team); i++ {
-		if team[i] > 0 {
-			member_num += 1
+		if team[i] <= 0 {
+			continue
 		}
 
 		if this.assist_friend != nil {
 			if this.assist_role_pos == int32(i) {
 				continue
 			}
-		} else if team[i] <= 0 {
-			continue
 		}
 
 		if _, o := used_id[team[i]]; o {
 			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
 		}
 		used_id[team[i]] = true
+		member_num += 1
 	}
 
 	if team_type == BATTLE_ATTACK_TEAM || team_type == BATTLE_DEFENSE_TEAM {
@@ -499,12 +498,16 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
 			break
 		}
+
+		if team[i] <= 0 {
+			continue
+		}
+
 		if this.assist_friend != nil && this.assist_role_pos == int32(i) {
 			this.assist_friend.db.Roles.HasIndex(this.assist_role_id)
 			continue
-		} else if team[i] <= 0 {
-			continue
 		}
+
 		if !this.db.Roles.HasIndex(team[i]) {
 			log.Warn("Player[%v] not has role[%v] for set attack team", this.Id, team[i])
 			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
