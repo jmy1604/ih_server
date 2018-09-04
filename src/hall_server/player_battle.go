@@ -269,7 +269,7 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 
 			m := team_member_pool.Get()
 
-			m.init_all(this, 0, monster.Level, role_card, pos, monster.EquipID)
+			m.init_all(this, 0, monster.Level, role_card, pos, nil, monster.EquipID)
 
 			// 好友BOSS
 			if friend != nil {
@@ -345,7 +345,7 @@ func (this *BattleTeam) InitWithArenaRobot(robot *table_config.XmlArenaRobotItem
 
 		m := team_member_pool.Get()
 
-		m.init_all(this, 0, monster.Level, role_card, pos, monster.EquipID)
+		m.init_all(this, 0, monster.Level, role_card, pos, nil, monster.EquipID)
 		this.members[pos] = m
 	}
 

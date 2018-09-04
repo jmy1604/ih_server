@@ -542,14 +542,14 @@ func (this *TeamMember) init_equip(equip_id int32) {
 	log.Debug("@@@@@@@@@@@@@@############## team[%v] member[%v] init equip [%v] skill[%v] attrs[%v]", this.team.side, this.pos, equip_id, d.EquipSkill, d.EquipAttr)
 }
 
-func (this *TeamMember) init_equips() {
-	if this.team == nil || this.team.player == nil {
+func (this *TeamMember) init_equips(equips []int32) {
+	/*if this.team == nil || this.team.player == nil {
 		return
 	}
 	equips, o := this.team.player.db.Roles.GetEquip(this.id)
 	if !o {
 		return
-	}
+	}*/
 	if equips == nil || len(equips) == 0 {
 		return
 	}
@@ -583,7 +583,7 @@ func (this *TeamMember) calculate_hp_attack_defense() {
 	this.calculate_defense()
 }
 
-func (this *TeamMember) init_attrs_equips_skills(level int32, role_card *table_config.XmlCardItem, extra_equips []int32) {
+func (this *TeamMember) init_attrs_equips_skills(level int32, role_card *table_config.XmlCardItem, equips, extra_equips []int32) {
 	if this.attrs == nil {
 		this.attrs = make([]int32, ATTR_COUNT_MAX)
 	} else {
@@ -609,7 +609,8 @@ func (this *TeamMember) init_attrs_equips_skills(level int32, role_card *table_c
 	}
 
 	this.init_passive_data(role_card.PassiveSkillIds)
-	this.init_equips()
+	this.init_equips(equips)
+	this.init_equips(extra_equips)
 
 	if extra_equips != nil {
 		for _, eid := range extra_equips {
@@ -629,7 +630,7 @@ func (this *TeamMember) init_with_team(team *BattleTeam, id int32, pos int32) {
 	this.act_num = 0
 }
 
-func (this *TeamMember) init_all_no_calc(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, extra_equips []int32) {
+func (this *TeamMember) init_all_no_calc(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, equips, extra_equips []int32) {
 	this.init_with_team(team, id, pos)
 	if this.bufflist_arr != nil {
 		for i := 0; i < len(this.bufflist_arr); i++ {
@@ -640,20 +641,20 @@ func (this *TeamMember) init_all_no_calc(team *BattleTeam, id int32, level int32
 	this.hp = 0
 	this.attack = 0
 	this.defense = 0
-	this.init_attrs_equips_skills(level, role_card, extra_equips)
-	if team.player != nil {
+	this.init_attrs_equips_skills(level, role_card, equips, extra_equips)
+	if team != nil && team.player != nil {
 		team.player.role_update_suit_attr_power(id, true, false)
 		team.player.add_talent_attr(this)
 	}
 }
 
-func (this *TeamMember) init_all(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, extra_equips []int32) {
-	this.init_all_no_calc(team, id, level, role_card, pos, extra_equips)
+func (this *TeamMember) init_all(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, equips, extra_equips []int32) {
+	this.init_all_no_calc(team, id, level, role_card, pos, equips, extra_equips)
 	this.calculate_hp_attack_defense()
 }
 
 func (this *TeamMember) init_for_summon(user *TeamMember, team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {
-	this.init_all_no_calc(team, id, level, role_card, pos, nil)
+	this.init_all_no_calc(team, id, level, role_card, pos, nil, nil)
 	for i := 0; i < len(user.attrs); i++ {
 		this.attrs[i] = user.attrs[i]
 	}

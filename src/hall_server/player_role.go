@@ -316,6 +316,7 @@ func (this *Player) send_roles() {
 
 func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos int32) (m *TeamMember) {
 	var table_id, rank, level int32
+	var equips []int32
 	var o, use_assist bool
 
 	if this.assist_friend != nil && this.assist_role_id > 0 && this.assist_role_pos == pos {
@@ -338,6 +339,7 @@ func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos
 			log.Error("Cant get level by role id[%v]", role_id)
 			return
 		}
+		equips, o = this.db.Roles.GetEquip(role_id)
 	} else {
 		table_id, o = this.assist_friend.db.Roles.GetTableId(this.assist_role_id)
 		if !o {
@@ -351,6 +353,7 @@ func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos
 		if !o {
 			return
 		}
+		equips, o = this.assist_friend.db.Roles.GetEquip(this.assist_role_id)
 	}
 	role_card := card_table_mgr.GetRankCard(table_id, rank)
 	if role_card == nil {
@@ -376,14 +379,15 @@ func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos
 
 	if team == nil {
 		// 计算属性
-		m.init_attrs_equips_skills(level, role_card, nil)
+		m.init_attrs_equips_skills(level, role_card, equips, nil)
 		this.role_update_suit_attr_power(role_id, true, true)
 	} else {
 		// 初始化阵型
 		if use_assist {
 			role_id = -role_id
+			team = nil
 		}
-		m.init_all(team, role_id, level, role_card, pos, nil)
+		m.init_all(team, role_id, level, role_card, pos, equips, nil)
 	}
 	return
 }
