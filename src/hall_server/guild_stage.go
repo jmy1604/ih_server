@@ -292,7 +292,7 @@ func (this *Player) guild_stage_rank_list(boss_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
-	if guild.Stage.GetBossId() < boss_id {
+	if guild.Stage.GetBossId() > 0 && guild.Stage.GetBossId() < boss_id {
 		log.Error("Player[%v] cant get guild stage %v rank list", this.Id, boss_id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_CANT_GET_DMG_RANKLIST)
 	}

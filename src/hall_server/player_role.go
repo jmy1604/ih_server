@@ -393,7 +393,9 @@ func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos
 		// 初始化阵型
 		if use_assist {
 			role_id = -role_id
-			team = nil
+			team = &BattleTeam{
+				player: this.assist_friend,
+			}
 		}
 		m.init_all(team, role_id, level, role_card, pos, equips, nil)
 	}
