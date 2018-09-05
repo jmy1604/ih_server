@@ -36,29 +36,30 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_
 	tower_key_get_interval := global_config.TowerKeyGetInterval
 	//keys = this.db.TowerCommon.GetKeys()
 	keys = this.get_resource(global_config.TowerKeyId)
-	if keys >= tower_key_max {
-		return
-	}
-	now_time := int32(time.Now().Unix())
-	last_time := this.db.TowerCommon.GetLastGetNewKeyTime()
-	if last_time == 0 {
-		keys = global_config.TowerKeyMax
-		last_time = now_time
-		this.db.TowerCommon.SetLastGetNewKeyTime(now_time)
-		next_remain_seconds = global_config.TowerKeyGetInterval
-	} else {
-		keys_num := (now_time - last_time) / tower_key_get_interval
-		y := (now_time - last_time) % tower_key_get_interval
-		if keys_num > 0 {
-			keys += keys_num
+	if keys < tower_key_max {
+		now_time := int32(time.Now().Unix())
+		last_time := this.db.TowerCommon.GetLastGetNewKeyTime()
+		if last_time == 0 {
+			keys = global_config.TowerKeyMax
+			last_time = now_time
+			this.db.TowerCommon.SetLastGetNewKeyTime(now_time)
+			next_remain_seconds = global_config.TowerKeyGetInterval
+		} else {
+			keys_num := (now_time - last_time) / tower_key_get_interval
+			y := (now_time - last_time) % tower_key_get_interval
+			if keys_num > 0 {
+				keys += keys_num
+				if keys > tower_key_max {
+					keys = tower_key_max
+				}
+			}
+			if keys < tower_key_max {
+				next_remain_seconds = global_config.TowerKeyGetInterval - y
+			}
+			this.db.TowerCommon.SetLastGetNewKeyTime(now_time - y)
 		}
-
-		if keys > tower_key_max {
-			keys = tower_key_max
-		} else if keys < tower_key_max {
-			next_remain_seconds = global_config.TowerKeyGetInterval - y
-		}
-		this.db.TowerCommon.SetLastGetNewKeyTime(now_time - y)
+	} else if keys > tower_key_max {
+		keys = tower_key_max
 	}
 	this.set_resource(global_config.TowerKeyId, keys)
 	is_update = true
@@ -66,10 +67,10 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_
 }
 
 func (this *Player) check_and_send_tower_data() {
-	is_update, _, _ := this.check_tower_keys()
-	if is_update {
-		this.send_tower_data(false)
-	}
+	//is_update, _, _ := this.check_tower_keys()
+	//if is_update {
+	this.send_tower_data(true)
+	//}
 }
 
 func (this *Player) fight_tower(tower_id int32) int32 {
@@ -165,7 +166,7 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 		}
 	}
 
-	this.send_tower_data(false)
+	this.send_tower_data(true)
 
 	Output_S2CBattleResult(this, response)
 
@@ -186,10 +187,12 @@ func (this *Player) get_tower_records_info(tower_id int32) int32 {
 			continue
 		}
 		records = append(records, &msg_client_message.TowerFightRecord{
-			TowerFightId: tower_fight_id,
-			AttackerId:   attacker_id,
-			AttackerName: attacker.db.GetName(),
-			CreateTime:   row.GetSaveTime(),
+			TowerFightId:  tower_fight_id,
+			AttackerId:    attacker_id,
+			AttackerName:  attacker.db.GetName(),
+			CreateTime:    row.GetSaveTime(),
+			AttackerHead:  attacker.db.Info.GetHead(),
+			AttackerLevel: attacker.db.Info.GetLvl(),
 		})
 	}
 	response := &msg_client_message.S2CTowerRecordsInfoResponse{

@@ -921,6 +921,8 @@ message TowerFightRecord {
 	int32 AttackerId						= 2;
 	string AttackerName						= 3;
 	int32 CreateTime						= 4;
+	int32 AttackerHead						= 5;
+	int32 AttackerLevel						= 6;
 }
 message S2CTowerRecordsInfoResponse {
 	repeated TowerFightRecord Records		= 1;
