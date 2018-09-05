@@ -16,18 +16,19 @@ func get_tower_fight_id(tower_id, i int32) int32 {
 	return tower_id*10 + i
 }
 
-func (this *Player) send_tower_data(check bool) int32 {
+func (this *Player) send_tower_data(send bool) int32 {
 	var tower_keys, remain_seconds int32
-	if check {
-		_, tower_keys, remain_seconds = this.check_tower_keys()
+	var updated bool
+	updated, tower_keys, remain_seconds = this.check_tower_keys()
+	if send || updated {
+		response := &msg_client_message.S2CTowerDataResponse{
+			CurrTowerId:   this.db.TowerCommon.GetCurrId(),
+			TowerKeys:     tower_keys,
+			RemainSeconds: remain_seconds,
+		}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_TOWER_DATA_RESPONSE), response)
+		log.Debug("Player[%v] tower data %v", this.Id, response)
 	}
-	response := &msg_client_message.S2CTowerDataResponse{
-		CurrTowerId:   this.db.TowerCommon.GetCurrId(),
-		TowerKeys:     tower_keys,
-		RemainSeconds: remain_seconds,
-	}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_TOWER_DATA_RESPONSE), response)
-	log.Debug("Player[%v] tower data %v", this.Id, response)
 	return 1
 }
 
@@ -36,6 +37,7 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_
 	tower_key_get_interval := global_config.TowerKeyGetInterval
 	//keys = this.db.TowerCommon.GetKeys()
 	keys = this.get_resource(global_config.TowerKeyId)
+	old_keys := keys
 	if keys < tower_key_max {
 		now_time := int32(time.Now().Unix())
 		last_time := this.db.TowerCommon.GetLastGetNewKeyTime()
@@ -61,15 +63,17 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_
 	} else if keys > tower_key_max {
 		keys = tower_key_max
 	}
-	this.set_resource(global_config.TowerKeyId, keys)
-	is_update = true
+	if old_keys != keys {
+		this.set_resource(global_config.TowerKeyId, keys)
+		is_update = true
+	}
 	return
 }
 
 func (this *Player) check_and_send_tower_data() {
 	//is_update, _, _ := this.check_tower_keys()
 	//if is_update {
-	this.send_tower_data(true)
+	this.send_tower_data(false)
 	//}
 }
 
