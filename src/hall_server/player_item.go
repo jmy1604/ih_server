@@ -95,7 +95,17 @@ func (this *Player) add_item(id int32, count int32) bool {
 		this.items_changed_info = make(map[int32]int32)
 	}
 	if count > 0 {
-		this.items_changed_info[id] = count
+		d, o := this.items_changed_info[id]
+		if !o {
+			this.items_changed_info[id] = count
+		} else {
+			d += count
+			if d != 0 {
+				this.items_changed_info[id] = d
+			} else {
+				delete(this.items_changed_info, id)
+			}
+		}
 	}
 
 	// 更新任务
@@ -112,7 +122,7 @@ func (this *Player) del_item(id int32, count int32) bool {
 		return false
 	}
 
-	if c < count {
+	if count <= 0 || c < count {
 		return false
 	}
 
@@ -121,13 +131,19 @@ func (this *Player) del_item(id int32, count int32) bool {
 	} else {
 		this.db.Items.IncbyCount(id, -count)
 	}
+
 	if this.items_changed_info == nil {
 		this.items_changed_info = make(map[int32]int32)
 	}
 	if d, o := this.items_changed_info[id]; !o {
 		this.items_changed_info[id] = -count
 	} else {
-		this.items_changed_info[id] = d - count
+		d -= count
+		if d != 0 {
+			this.items_changed_info[id] = d
+		} else {
+			delete(this.items_changed_info, id)
+		}
 	}
 	return true
 }
@@ -251,7 +267,7 @@ func (this *Player) add_resource(id, count int32) bool {
 				res = false
 			}
 		} else {
-			if this.del_item(id, -count) {
+			if !this.del_item(id, -count) {
 				res = false
 			}
 		}
@@ -733,7 +749,7 @@ func (this *Player) item_one_key_upgrade(item_id int32, cost_items map[int32]int
 		for n := 0; n < len(item_upgrade.ResCondition)/2; n++ {
 			res_id := item_upgrade.ResCondition[2*n]
 			res_num := item_upgrade.ResCondition[2*n+1]
-			if res_num > 0 && res_id == item_id {
+			if res_num > 0 && res_id == next_item_id {
 				res_num -= 1
 			}
 			this.add_resource(res_id, -res_num)

@@ -201,6 +201,7 @@ func (this *Player) check_and_send_items_change() {
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEMS_UPDATE), &msg)
 		this.items_changed_info = nil
+		log.Debug("Player[%v] Items change %v", this.Id, msg)
 	}
 }
 
