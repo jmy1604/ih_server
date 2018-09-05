@@ -2062,6 +2062,14 @@ func test_short_rank_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func reset_tasks_cmd(p *Player, args []string) int32 {
+	p.db.Tasks.Clear()
+	p.db.Tasks.ResetDailyTask()
+	p.first_gen_achieve_tasks()
+	p.send_task(0)
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2189,6 +2197,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"guild_stage_reset":      guild_stage_reset_cmd,
 	"guild_stage_respawn":    guild_stage_respawn_cmd,
 	"test_short_rank":        test_short_rank_cmd,
+	"reset_tasks":            reset_tasks_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
