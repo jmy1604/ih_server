@@ -865,4 +865,6 @@ func Output_S2CBattleResult(player *Player, m proto.Message) {
 			}
 		}
 	}
+
+	log.Debug("Battle Result Response: %v", response)
 }
