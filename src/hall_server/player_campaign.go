@@ -302,16 +302,16 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 	return
 }
 
-func (this *Player) send_stage_reward(stage *table_config.XmlPassItem, reward_type int32) {
-	if stage.RewardList == nil || len(stage.RewardList) == 0 {
+func (this *Player) send_stage_reward(rewards []int32, reward_type int32) {
+	if rewards == nil || len(rewards) == 0 {
 		return
 	}
 
 	rewards_msg := &msg_client_message.S2CCampaignHangupIncomeResponse{}
 	// 奖励
-	for i := 0; i < len(stage.RewardList)/2; i++ {
-		item_id := stage.RewardList[2*i]
-		item_num := stage.RewardList[2*i+1]
+	for i := 0; i < len(rewards)/2; i++ {
+		item_id := rewards[2*i]
+		item_num := rewards[2*i+1]
 		this.add_resource(item_id, item_num)
 		rewards_msg.Rewards = append(rewards_msg.Rewards, &msg_client_message.ItemInfo{
 			ItemCfgId: item_id,
@@ -388,7 +388,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 
 	if is_win && !has_next_wave {
 		this.db.CampaignCommon.SetLastestPassedCampaignId(campaign_id)
-		this.send_stage_reward(stage, 2)
+		this.send_stage_reward(stage.RewardList, 2)
 		// 更新排名
 		this._update_campaign_rank_data(campaign_id, atomic.AddInt32(&campaign_rank_serial_id, 1))
 		// 更新任务 通过章节

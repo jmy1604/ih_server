@@ -416,11 +416,10 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
-	// 挑战奖励
-	this.add_resources(guild_stage.BattleReward)
 	if is_win && !has_next_wave {
 		// 关卡奖励
-		this.send_stage_reward(stage, 7)
+		rewards := append(stage.RewardList, guild_stage.BattleReward...)
+		this.send_stage_reward(rewards, 7)
 		// 排名奖励
 		guild_stage_manager.RankListReward(guild.GetId(), boss_id)
 	}

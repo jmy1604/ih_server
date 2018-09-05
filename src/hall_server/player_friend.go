@@ -902,7 +902,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 
 	// 最后一击
 	if is_win {
-		this.send_stage_reward(stage, 5)
+		this.send_stage_reward(stage.RewardList, 5)
 		SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Friend Boss Last Hit Reward", "Friend Boss Last Hit Reward", friend_boss_tdata.RewardLastHit)
 		SendMail2(nil, friend_id, MAIL_TYPE_SYSTEM, "Friend Boss Reward Owner", "Friend Boss Reward Owner", friend_boss_tdata.RewardOwner)
 	} else {

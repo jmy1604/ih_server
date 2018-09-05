@@ -1023,7 +1023,7 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 			IsStory: is_story,
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_REMOVE_NOTIFY), notify)
-		this.send_stage_reward(stage, 6)
+		this.send_stage_reward(stage.RewardList, 6)
 
 		// 更新任务
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_EXPLORE_NUM, false, 0, 1)
