@@ -58,7 +58,7 @@
 	"FriendBossAttackCostStamina": 1,
 	"FriendBossAttackCooldown": 3600,
 	"FriendRefreshTime": "00:00:00",
-	"FriendSearchBossRefreshHours": 1,
+	"FriendSearchBossRefreshMinutes": 1,
 	"FriendAssistPointsGet": 10,
 	"FriendPointsGetLimitDay": 100,
 	
