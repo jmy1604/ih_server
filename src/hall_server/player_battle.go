@@ -220,6 +220,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 
 // init with stage
 func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave int32, friend *Player, guild *dbGuildRow) bool {
+	this.player = nil
 	stage := stage_table_mgr.Get(stage_id)
 	if stage == nil {
 		log.Warn("Cant found stage %v", stage_id)
@@ -304,6 +305,8 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 			}
 
 			this.members[pos] = m
+
+			log.Debug("!!!!!!!!!!!!!! stage battle team member[%v]: %v", pos, *m)
 		}
 	}
 
@@ -313,7 +316,7 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 	return true
 }
 
-// init with stage
+// init with arena robot
 func (this *BattleTeam) InitWithArenaRobot(robot *table_config.XmlArenaRobotItem, side int32) bool {
 	if this.members == nil {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
