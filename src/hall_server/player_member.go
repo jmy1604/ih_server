@@ -611,12 +611,6 @@ func (this *TeamMember) init_attrs_equips_skills(level int32, role_card *table_c
 	this.init_passive_data(role_card.PassiveSkillIds)
 	this.init_equips(equips)
 	this.init_equips(extra_equips)
-
-	if extra_equips != nil {
-		for _, eid := range extra_equips {
-			this.init_equip(eid)
-		}
-	}
 }
 
 func (this *TeamMember) init_with_team(team *BattleTeam, id int32, pos int32) {

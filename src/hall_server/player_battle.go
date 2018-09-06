@@ -305,8 +305,6 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 			}
 
 			this.members[pos] = m
-
-			log.Debug("!!!!!!!!!!!!!! stage battle team member[%v]: %v", pos, *m)
 		}
 	}
 
