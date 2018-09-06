@@ -61,7 +61,7 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_
 			this.db.TowerCommon.SetLastGetNewKeyTime(now_time - y)
 		}
 	} else if keys > tower_key_max {
-		keys = tower_key_max
+		//keys = tower_key_max
 	}
 	if old_keys != keys {
 		this.set_resource(global_config.TowerKeyId, keys)
