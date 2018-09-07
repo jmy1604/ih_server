@@ -107,8 +107,6 @@ func (this *ShortRankList) Update(item ShortRankItem, add bool) bool {
 			return false
 		}
 
-		log.Debug("@@@@@@@@@@@@@@@ pos %v    idx %v    begin %v    end %v", pos, idx, b, e)
-
 		var the_item ShortRankItem
 		if pos != idx {
 			the_item = this.items[idx]
