@@ -51,7 +51,7 @@ func (this *ShortRankList) Update(item ShortRankItem, add bool) bool {
 
 	idx, o := this.keys_map[item.GetKey()]
 	if !o && this.curr_num >= this.max_num {
-		log.Error("Short Rank List length %v is max, cant insert new item", this.curr_num)
+		log.Warn("Short Rank List length %v is max, cant insert new item", this.curr_num)
 		return false
 	}
 
@@ -79,6 +79,11 @@ func (this *ShortRankList) Update(item ShortRankItem, add bool) bool {
 
 		this.curr_num += 1
 	} else {
+		if this.items[idx] == nil {
+			log.Error("!!!!!!!!!!!!! !!!!!!!!!!!!! !!!!!!!!!!!! Short Rank List idx[%v] item value is null", idx)
+			return false
+		}
+
 		if add {
 			item.Add(this.items[idx])
 		}

@@ -11,7 +11,7 @@ func rand31n_from_range(min, max int32) (bool, int32) {
 	} else if min == max {
 		return true, min
 	}
-	return true, (rand.Int31n(max-min) + min)
+	return true, (rand.Int31n(max-min+1) + min)
 }
 
 func randn_different(array []int32, n int32) (nums []int32) {

@@ -5,8 +5,10 @@ import (
 	"ih_server/libs/utils"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
+	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -2023,7 +2025,7 @@ func guild_stage_respawn_cmd(p *Player, args []string) int32 {
 }
 
 func test_short_rank_cmd(p *Player, args []string) int32 {
-	var items []*utils.TestShortRankItem = []*utils.TestShortRankItem{
+	/*var items []*utils.TestShortRankItem = []*utils.TestShortRankItem{
 		{Id: 1, Value: 1},
 		{Id: 2, Value: 2},
 		{Id: 3, Value: 3},
@@ -2044,12 +2046,22 @@ func test_short_rank_cmd(p *Player, args []string) int32 {
 		{Id: 4, Value: -1},
 		{Id: 4, Value: 3},
 		{Id: 8, Value: 8},
-	}
+	}*/
 
 	var rank_list utils.ShortRankList
-	rank_list.Init(10)
-	for _, item := range items {
-		rank_list.Update(item, true)
+	rank_list.Init(300)
+
+	var test_item utils.TestShortRankItem
+	rand.Seed(time.Now().Unix())
+	for i := 0; i < 30000; i++ {
+		o, id := rand31n_from_range(1, 300)
+		if !o {
+			log.Error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+			break
+		}
+		test_item.Id = id
+		_, test_item.Value = rand31n_from_range(10000, 10000000)
+		rank_list.Update(&test_item, false)
 	}
 
 	log.Debug("Test Short Rank Item List:")

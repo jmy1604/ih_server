@@ -7,13 +7,13 @@ import (
 )
 
 // 战力排行榜序号
-var role_power_rank_serial_id int32
+//var role_power_rank_serial_id int32
 var roles_power_rank_serial_id int32
 
 type RolePowerRankItem struct {
-	SerialId int32
-	Power    int32
-	RoleId   int32
+	//SerialId int32
+	Power  int32
+	RoleId int32
 }
 
 func (this *RolePowerRankItem) Less(item utils.ShortRankItem) bool {
@@ -24,9 +24,9 @@ func (this *RolePowerRankItem) Less(item utils.ShortRankItem) bool {
 	if this.Power < it.Power {
 		return true
 	} else if this.Power == it.Power {
-		if this.SerialId > it.SerialId {
+		/*if this.SerialId > it.SerialId {
 			return true
-		}
+		}*/
 	}
 	return false
 }
@@ -39,9 +39,9 @@ func (this *RolePowerRankItem) Greater(item utils.ShortRankItem) bool {
 	if this.Power > it.Power {
 		return true
 	} else if this.Power == it.Power {
-		if this.SerialId < it.SerialId {
+		/*if this.SerialId < it.SerialId {
 			return true
-		}
+		}*/
 	}
 	return false
 }
@@ -61,7 +61,7 @@ func (this *RolePowerRankItem) Assign(item utils.ShortRankItem) {
 	}
 	this.RoleId = it.RoleId
 	this.Power = it.Power
-	this.SerialId = it.SerialId
+	//this.SerialId = it.SerialId
 }
 
 func (this *RolePowerRankItem) Add(item utils.ShortRankItem) {
@@ -86,9 +86,9 @@ func (this *RolesPowerRankItem) Less(value interface{}) bool {
 	if this.Power < item.Power {
 		return true
 	} else if this.Power == item.Power {
-		if this.SerialId > item.SerialId {
+		/*if this.SerialId > item.SerialId {
 			return true
-		}
+		}*/
 	}
 	return false
 }
@@ -101,9 +101,9 @@ func (this *RolesPowerRankItem) Greater(value interface{}) bool {
 	if this.Power > item.Power {
 		return true
 	} else if this.Power == item.Power {
-		if this.SerialId < item.SerialId {
+		/*if this.SerialId < item.SerialId {
 			return true
-		}
+		}*/
 	}
 	return false
 }
@@ -132,7 +132,7 @@ func (this *RolesPowerRankItem) GetValue() interface{} {
 
 func (this *RolesPowerRankItem) SetValue(value interface{}) {
 	this.Power = value.(int32)
-	this.SerialId = atomic.AddInt32(&roles_power_rank_serial_id, 1)
+	//this.SerialId = atomic.AddInt32(&roles_power_rank_serial_id, 1)
 }
 
 func (this *RolesPowerRankItem) New() utils.SkiplistNode {
@@ -146,7 +146,7 @@ func (this *RolesPowerRankItem) Assign(node utils.SkiplistNode) {
 	}
 	this.PlayerId = n.PlayerId
 	this.Power = n.Power
-	this.SerialId = n.SerialId
+	//this.SerialId = n.SerialId
 }
 
 func (this *RolesPowerRankItem) CopyDataTo(node interface{}) {
@@ -156,7 +156,7 @@ func (this *RolesPowerRankItem) CopyDataTo(node interface{}) {
 	}
 	n.PlayerId = this.PlayerId
 	n.Power = this.Power
-	n.SerialId = this.SerialId
+	//n.SerialId = this.SerialId
 }
 
 // 更新排名
@@ -166,9 +166,9 @@ const (
 
 func (this *Player) _update_role_power_rank_info(role_id, power int32) {
 	var item = RolePowerRankItem{
-		RoleId:   role_id,
-		Power:    power,
-		SerialId: atomic.AddInt32(&role_power_rank_serial_id, 1),
+		RoleId: role_id,
+		Power:  power,
+		//SerialId: atomic.AddInt32(&role_power_rank_serial_id, 1),
 	}
 	this.role_power_ranklist.Update(&item, false)
 }
