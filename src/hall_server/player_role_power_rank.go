@@ -86,9 +86,9 @@ func (this *RolesPowerRankItem) Less(value interface{}) bool {
 	if this.Power < item.Power {
 		return true
 	} else if this.Power == item.Power {
-		/*if this.SerialId > item.SerialId {
+		if this.SerialId > item.SerialId {
 			return true
-		}*/
+		}
 	}
 	return false
 }
@@ -101,9 +101,9 @@ func (this *RolesPowerRankItem) Greater(value interface{}) bool {
 	if this.Power > item.Power {
 		return true
 	} else if this.Power == item.Power {
-		/*if this.SerialId < item.SerialId {
+		if this.SerialId < item.SerialId {
 			return true
-		}*/
+		}
 	}
 	return false
 }
@@ -132,7 +132,7 @@ func (this *RolesPowerRankItem) GetValue() interface{} {
 
 func (this *RolesPowerRankItem) SetValue(value interface{}) {
 	this.Power = value.(int32)
-	//this.SerialId = atomic.AddInt32(&roles_power_rank_serial_id, 1)
+	this.SerialId = atomic.AddInt32(&roles_power_rank_serial_id, 1)
 }
 
 func (this *RolesPowerRankItem) New() utils.SkiplistNode {
@@ -146,7 +146,7 @@ func (this *RolesPowerRankItem) Assign(node utils.SkiplistNode) {
 	}
 	this.PlayerId = n.PlayerId
 	this.Power = n.Power
-	//this.SerialId = n.SerialId
+	this.SerialId = n.SerialId
 }
 
 func (this *RolesPowerRankItem) CopyDataTo(node interface{}) {
@@ -156,7 +156,7 @@ func (this *RolesPowerRankItem) CopyDataTo(node interface{}) {
 	}
 	n.PlayerId = this.PlayerId
 	n.Power = this.Power
-	//n.SerialId = this.SerialId
+	n.SerialId = this.SerialId
 }
 
 // 更新排名
