@@ -14,31 +14,33 @@ const (
 )
 
 type XmlCardItem struct {
-	Id                int32  `xml:"ID,attr"`
-	Rank              int32  `xml:"Rank,attr"`
-	ClientId          int32  `xml:"ClientID,attr"`
-	MaxLevel          int32  `xml:"MaxLevel,attr"`
-	MaxRank           int32  `xml:"MaxRank,attr"`
-	Rarity            int32  `xml:"Rarity,attr"`
-	Type              int32  `xml:"Type,attr"`
-	Camp              int32  `xml:"Camp,attr"`
-	LabelStr          string `xml:"Label,attr"`
-	Label             []int32
-	BaseHP            int32  `xml:"BaseHP,attr"`
-	BaseAttack        int32  `xml:"BaseAttack,attr"`
-	BaseDefence       int32  `xml:"BaseDefence,attr"`
-	GrowthHP          int32  `xml:"GrowthHP,attr"`
-	GrowthAttack      int32  `xml:"GrowthAttack,attr"`
-	GrowthDefence     int32  `xml:"GrowthDefence,attr"`
-	NormalSkillID     int32  `xml:"NormalSkillID,attr"`
-	SuperSkillID      int32  `xml:"SuperSkillID,attr"`
-	PassiveSkillIDStr string `xml:"PassiveSkillID,attr"`
-	PassiveSkillIds   []int32
-	DecomposeResStr   string `xml:"DecomposeRes,attr"`
-	DecomposeRes      []int32
-	BattlePower       int32 `xml:"BattlePower,attr"`
-	BattlePowerGrowth int32 `xml:"BattlePowerGrowth,attr"`
-	HeadItem          int32 `xml:"HeadItem,attr"`
+	Id                   int32  `xml:"ID,attr"`
+	Rank                 int32  `xml:"Rank,attr"`
+	ClientId             int32  `xml:"ClientID,attr"`
+	MaxLevel             int32  `xml:"MaxLevel,attr"`
+	MaxRank              int32  `xml:"MaxRank,attr"`
+	Rarity               int32  `xml:"Rarity,attr"`
+	Type                 int32  `xml:"Type,attr"`
+	Camp                 int32  `xml:"Camp,attr"`
+	LabelStr             string `xml:"Label,attr"`
+	Label                []int32
+	BaseHP               int32  `xml:"BaseHP,attr"`
+	BaseAttack           int32  `xml:"BaseAttack,attr"`
+	BaseDefence          int32  `xml:"BaseDefence,attr"`
+	GrowthHP             int32  `xml:"GrowthHP,attr"`
+	GrowthAttack         int32  `xml:"GrowthAttack,attr"`
+	GrowthDefence        int32  `xml:"GrowthDefence,attr"`
+	NormalSkillID        int32  `xml:"NormalSkillID,attr"`
+	SuperSkillID         int32  `xml:"SuperSkillID,attr"`
+	PassiveSkillIDStr    string `xml:"PassiveSkillID,attr"`
+	PassiveSkillIds      []int32
+	DecomposeResStr      string `xml:"DecomposeRes,attr"`
+	DecomposeRes         []int32
+	BattlePower          int32  `xml:"BattlePower,attr"`
+	BattlePowerGrowth    int32  `xml:"BattlePowerGrowth,attr"`
+	HeadItem             int32  `xml:"HeadItem,attr"`
+	BagFullChangeItemStr string `xml:"BagFullChangeItem,attr"`
+	BagFullChangeItem    []int32
 }
 
 type XmlCardConfig struct {
@@ -108,6 +110,11 @@ func (this *CardTableMgr) Load(table_file string) bool {
 		tmp_item.Label = parse_xml_str_arr2(tmp_item.LabelStr, ",")
 		if tmp_item.Label == nil {
 			log.Error("CardTableMgr parse LabelStr with [%v] failed", tmp_item.LabelStr)
+			return false
+		}
+		tmp_item.BagFullChangeItem = parse_xml_str_arr2(tmp_item.BagFullChangeItemStr, ",")
+		if tmp_item.BagFullChangeItem == nil {
+			log.Error("CardTableMgr parse BagFullChangeItem with[%v] failed", tmp_item.BagFullChangeItem)
 			return false
 		}
 

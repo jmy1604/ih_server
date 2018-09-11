@@ -66,6 +66,7 @@ type Guild struct {
 	chat_mgr              *ChatMgr
 	stage_damage_list_map map[int32]*utils.ShortRankList
 	stage_fight_state     int32
+	locker                *sync.RWMutex
 }
 
 func (this *Guild) Init(id int32, name string) {
@@ -82,6 +83,7 @@ func (this *Guild) Init(id int32, name string) {
 		damage_list_map[boss_id] = rank_list
 	}
 	this.stage_damage_list_map = damage_list_map
+	this.locker = &sync.RWMutex{}
 }
 
 func (this *Guild) CanStageFight() bool {

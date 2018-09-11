@@ -52,7 +52,7 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, use
 			if nil != item_table_mgr.Map[tmp_item.DropItemID] {
 				if badd {
 					if !this.add_resource(tmp_item.DropItemID, num) {
-						log.Error("Player[%v] rand dropid[%d] not item or cat or building or item resource", this.Id, tmp_item.DropItemID)
+						log.Error("Player[%v] rand dropid[%d] not item resource", this.Id, tmp_item.DropItemID)
 						continue
 					}
 				}
@@ -60,9 +60,12 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, use
 				if card_table_mgr.GetCards(tmp_item.DropItemID) != nil {
 					if badd {
 						for j := int32(0); j < num; j++ {
-							if this.new_role(tmp_item.DropItemID, 1, 1) == 0 {
-								log.Error("Player[%v] rand dropid[%d] not item or cat or building or item resource", this.Id, tmp_item.DropItemID)
+							res := this.new_role(tmp_item.DropItemID, 1, 1)
+							if res == 0 {
+								log.Error("Player[%v] rand dropid[%d] not role resource", this.Id, tmp_item.DropItemID)
 								continue
+							} else {
+								log.Info("Player[%v] rand dropid[%v] transfer to piece because role bag is full", this.Id, tmp_item.DropItemID)
 							}
 						}
 					}

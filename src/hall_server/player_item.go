@@ -433,39 +433,35 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
 	}
 
+	if piece.ComposeType == 1 && this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+		log.Error("Player[%v] role bag is full, cant fusion", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_INVENTORY_NOT_ENOUGH_SPACE)
+	}
+
 	if piece.ComposeNum*fusion_num > piece_num {
 		log.Error("Player[%v] piece[%v] not enough to fusion", this.Id, piece_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_COUNT_NOT_ENOUGH_TO_FUSION)
 	}
 
-	var items []*msg_client_message.ItemInfo
-	for i := int32(0); i < fusion_num; i++ {
+	items := make(map[int32]int32)
+	i := int32(0)
+	for i < fusion_num {
 		o, item := this.drop_item_by_id(piece.ComposeDropID, true, nil)
 		if !o || item == nil {
 			log.Error("Player[%v] fusion item with piece[%v] and drop_id[%v] failed", this.Id, piece_id, piece.ComposeDropID)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
 		}
-		if items != nil || len(items) > 0 {
-			item_data := item_table_mgr.Get(item.Id)
-			j := 0
-			for ; j < len(items); j++ {
-				if item_data != nil && items[j].Id == item.Id {
-					items[j].Value += item.Value
-					break
-				}
-			}
-			if j >= len(items) {
-				items = append(items, item)
-			}
-		} else {
-			items = []*msg_client_message.ItemInfo{item}
+		items[item.Id] += item.Value
+		i++
+		if piece.ComposeType == 1 && this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+			break
 		}
 	}
 
-	this.del_item(piece_id, fusion_num*piece.ComposeNum)
+	this.del_item(piece_id, i*piece.ComposeNum)
 
 	response := &msg_client_message.S2CItemFusionResponse{
-		Items: items,
+		Items: Map2ItemInfos(items),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_FUSION_RESPONSE), response)
 

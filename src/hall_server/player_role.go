@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	ROLE_MAX_COUNT = 300
+	ROLE_MAX_COUNT = 500
 )
 
 const (
@@ -71,17 +71,21 @@ func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_m
 }
 
 func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
-	if this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
-		item_info := &msg_client_message.ItemInfo{Id: role_id, Value: 1}
-		SendMail(nil, this.Id, MAIL_TYPE_SYSTEM, "", "", []*msg_client_message.ItemInfo{item_info})
-		return -1
-	}
-
 	card := card_table_mgr.GetRankCard(role_id, rank)
 	if card == nil {
 		log.Error("Cant get role card by id[%v] rank[%v]", role_id, rank)
 		return 0
 	}
+
+	// 转成碎片
+	if this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+		if card.BagFullChangeItem != nil {
+			this.add_resources(card.BagFullChangeItem)
+		}
+		log.Debug("Player[%v] get new role[%v] to transfer to piece[%v] because role bag is full", this.Id, role_id, card.BagFullChangeItem)
+		return -1
+	}
+
 	var role dbPlayerRoleData
 	role.TableId = role_id
 	role.Id = this.db.Global.IncbyCurrentRoleId(1)
@@ -141,6 +145,12 @@ func (this *Player) has_role(id int32) bool {
 }
 
 func (this *Player) rand_role() int32 {
+	// 转成碎片
+	if this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+		log.Debug("Player[%v] rand new role failed because role bag is full", this.Id)
+		return -1
+	}
+
 	if card_table_mgr.Array == nil {
 		return 0
 	}
