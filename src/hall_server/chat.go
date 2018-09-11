@@ -328,8 +328,6 @@ func (this *Player) pull_chat(channel int32) int32 {
 	pull_time, _ := this.db.Chats.GetLastPullTime(channel)
 	if now_time-pull_time < pull_msg_cooldown {
 		log.Error("Player[%v] pull channel[%v] chat msg is cooling down", this.Id, channel)
-		//response := &msg_client_message.S2CChatMsgPullResponse{}
-		//this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_MSG_PULL_RESPONSE), response)
 		return int32(msg_client_message.E_ERR_CHAT_PULL_COOLING_DOWN)
 	}
 
