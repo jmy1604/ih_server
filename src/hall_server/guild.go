@@ -961,6 +961,9 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 			})
 			player.db.Guild.SetId(guild.GetId())
 			player.db.Guild.SetJoinTime(int32(time.Now().Unix()))
+
+			// 日志
+			push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_JOIN, player_id)
 		}
 
 		player.agree_join_guild_locker.Unlock()
@@ -988,9 +991,6 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 				GuildId:     guild.GetId(),
 			}
 			player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_NOTIFY), notify)
-
-			// 日志
-			push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_JOIN, player_id)
 		}
 	}
 
