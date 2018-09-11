@@ -450,7 +450,7 @@ message BattleRoundReports {
 	repeated BattleMemberBuff RemoveBuffs   = 3; // 回合结束的BUFF
 	repeated BattleFighter ChangedFighters	= 4; // 回合结束时BUFF影响的属性变化的成员
 	repeated int32 MyMembersEnergy			= 5; // 我方怒气
-	repeated int32 TargetMembersEnergy		= 6; // 地方怒气
+	repeated int32 TargetMembersEnergy		= 6; // 敌方怒气
 }
 
 // 请求战斗结果
