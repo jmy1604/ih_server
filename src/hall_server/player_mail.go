@@ -122,8 +122,8 @@ func _get_items_info_from(item_ids, item_nums []int32) (items []*msg_client_mess
 		}
 		for i := 0; i < l; i++ {
 			item := &msg_client_message.ItemInfo{
-				ItemCfgId: item_ids[i],
-				ItemNum:   item_nums[i],
+				Id:    item_ids[i],
+				Value: item_nums[i],
 			}
 			items = append(items, item)
 		}
@@ -244,8 +244,8 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 	if attached_items != nil {
 		items = make([]int32, 2*len(attached_items))
 		for i := 0; i < len(attached_items); i++ {
-			items[2*i] = attached_items[i].GetItemCfgId()
-			items[2*i+1] = attached_items[i].GetItemNum()
+			items[2*i] = attached_items[i].GetId()
+			items[2*i+1] = attached_items[i].GetValue()
 		}
 	}
 
@@ -464,8 +464,8 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_MAIL_NO_ATTACHED_ITEM)
 		}
 		for i := 0; i < len(items); i++ {
-			item_id := items[i].ItemCfgId
-			item_num := items[i].ItemNum
+			item_id := items[i].Id
+			item_num := items[i].Value
 			item := item_table_mgr.Get(item_id)
 			if item != nil {
 				this.add_resource(item_id, item_num)
@@ -489,7 +489,7 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 	}
 	response := &msg_client_message.S2CMailGetAttachedItemsResponse{
 		MailIds:       mail_ids,
-		AttachedItems: attached_items,
+		AttachedItems: Map2ItemInfos(attached_items),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE), response)
 

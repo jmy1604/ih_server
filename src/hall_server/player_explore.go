@@ -96,7 +96,7 @@ func (this *Player) _explore_gen_task_data(etask *table_config.XmlSearchTaskItem
 			log.Error("Player[%v] get explore task %v reward by drop id failed", this.Id, etask.Id)
 			return
 		}
-		random_rewards = []int32{item.ItemCfgId, item.ItemNum}
+		random_rewards = []int32{item.Id, item.Value}
 	}
 	return
 }
@@ -909,8 +909,8 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 			rnum := random_rewards[2*i+1]
 			this.add_resource(rid, rnum)
 			random_items = append(random_items, &msg_client_message.ItemInfo{
-				ItemCfgId: rid,
-				ItemNum:   rnum,
+				Id:    rid,
+				Value: rnum,
 			})
 		}
 	}

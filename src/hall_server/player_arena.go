@@ -418,7 +418,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 	}
 
 	var power int32
-	team := make(map[int32]*msg_client_message.PlayerTeamRole)
+	team := make([]*msg_client_message.PlayerTeamRole, BATTLE_TEAM_MEMBER_MAX_NUM)
 	if defense_team != nil {
 		for i := 0; i < len(defense_team); i++ {
 			m := defense_team[i]

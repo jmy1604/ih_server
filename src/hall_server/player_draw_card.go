@@ -69,9 +69,9 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, use
 				}
 			}
 
-			item = &msg_client_message.ItemInfo{ItemCfgId: tmp_item.DropItemID, ItemNum: num}
+			item = &msg_client_message.ItemInfo{Id: tmp_item.DropItemID, Value: num}
 			if this.tmp_cache_items != nil {
-				this.tmp_cache_items[tmp_item.DropItemID] += item.ItemNum
+				this.tmp_cache_items[tmp_item.DropItemID] += item.Value
 			}
 			break
 		}
@@ -160,7 +160,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 				log.Error("Player[%v] draw type[%v] with drop_id[%v] failed", this.Id, draw_type, did)
 				return -1
 			}
-			role_ids = append(role_ids, item.GetItemCfgId())
+			role_ids = append(role_ids, item.GetId())
 		}
 	}
 
@@ -235,7 +235,7 @@ func (this *Player) send_draw_data() int32 {
 	}
 
 	response := &msg_client_message.S2CDrawDataResponse{
-		FreeDrawRemainSeconds: free_secs,
+		FreeDrawRemainSeconds: Map2ItemInfos(free_secs),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_DRAW_DATA_RESPONSE), response)
 

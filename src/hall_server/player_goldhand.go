@@ -63,7 +63,7 @@ func (this *Player) send_gold_hand() int32 {
 	}
 	response := &msg_client_message.S2CGoldHandDataResponse{
 		RemainRefreshSeconds: remain_seconds,
-		LeftNums:             left_nums,
+		LeftNums:             Map2ItemInfos(left_nums),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GOLD_HAND_DATA_RESPONSE), response)
 	return 1

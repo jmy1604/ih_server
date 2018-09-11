@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ih_server/proto/gen_go/client_message"
 	"math/rand"
 	"time"
 )
@@ -111,5 +112,18 @@ func GetPlayerCampaignInfo(player_id int32) (name string, level, head, campaign_
 	level = p.db.Info.GetLvl()
 	head = p.db.Info.GetHead()
 	campaign_id = p.db.CampaignCommon.GetLastestPassedCampaignId()
+	return
+}
+
+func Map2ItemInfos(items map[int32]int32) (item_infos []*msg_client_message.ItemInfo) {
+	if items == nil {
+		return
+	}
+	for k, v := range items {
+		item_infos = append(item_infos, &msg_client_message.ItemInfo{
+			Id:    k,
+			Value: v,
+		})
+	}
 	return
 }

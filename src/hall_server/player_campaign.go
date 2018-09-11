@@ -314,8 +314,8 @@ func (this *Player) send_stage_reward(rewards []int32, reward_type int32) {
 		item_num := rewards[2*i+1]
 		this.add_resource(item_id, item_num)
 		rewards_msg.Rewards = append(rewards_msg.Rewards, &msg_client_message.ItemInfo{
-			ItemCfgId: item_id,
-			ItemNum:   item_num,
+			Id:    item_id,
+			Value: item_num,
 		})
 	}
 	rewards_msg.IncomeType = reward_type
@@ -446,8 +446,8 @@ func (this *Player) cache_campaign_static_income(item_id, item_num int32) *msg_c
 
 	item_num, _ = this.db.CampaignStaticIncomes.GetItemNum(item_id)
 	return &msg_client_message.ItemInfo{
-		ItemCfgId: item_id,
-		ItemNum:   item_num,
+		Id:    item_id,
+		Value: item_num,
 	}
 }
 
@@ -487,8 +487,8 @@ func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaig
 			for k, v := range tmp_cache_items {
 				if this.add_resource(k, v) {
 					incomes = append(incomes, &msg_client_message.ItemInfo{
-						ItemCfgId: k,
-						ItemNum:   v,
+						Id:    k,
+						Value: v,
 					})
 				}
 			}
@@ -510,8 +510,8 @@ func (this *Player) cache_campaign_random_income(item_id, item_num int32) *msg_c
 
 	item_num, _ = this.db.CampaignStaticIncomes.GetItemNum(item_id)
 	return &msg_client_message.ItemInfo{
-		ItemCfgId: item_id,
-		ItemNum:   item_num,
+		Id:    item_id,
+		Value: item_num,
 	}
 }
 
@@ -553,8 +553,8 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 		for k, v := range this.tmp_cache_items {
 			if this.add_resource(k, v) {
 				incomes = append(incomes, &msg_client_message.ItemInfo{
-					ItemCfgId: k,
-					ItemNum:   v,
+					Id:    k,
+					Value: v,
 				})
 			}
 		}

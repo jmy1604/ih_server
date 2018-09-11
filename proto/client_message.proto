@@ -267,8 +267,8 @@ message C2S_TEST_COMMAND {
 
 // 物品
 message ItemInfo {
-	int32 ItemCfgId 				= 1; // 配置物品
-	int32 ItemNum 					= 2; // 物品数目
+	int32 Id 						= 1; // 配置物品
+	int32 Value 					= 2; // 物品数目
 }
 
 // 登陆
@@ -449,8 +449,8 @@ message BattleRoundReports {
 	repeated BattleReportItem Reports		= 2; // 回合战报列表
 	repeated BattleMemberBuff RemoveBuffs   = 3; // 回合结束的BUFF
 	repeated BattleFighter ChangedFighters	= 4; // 回合结束时BUFF影响的属性变化的成员
-	map<int32,int32> MyMembersEnergy		= 5; // 我方怒气
-	map<int32,int32> TargetMembersEnergy	= 6; // 敌方怒气
+	repeated int32 MyMembersEnergy			= 5; // 我方怒气
+	repeated int32 TargetMembersEnergy		= 6; // 地方怒气
 }
 
 // 请求战斗结果
@@ -471,10 +471,10 @@ message S2CBattleResultResponse {
 	repeated BattleMemberItem TargetTeam	= 3; // 战斗前敌方阵容
 	repeated BattleReportItem EnterReports 	= 4; // 进场时战报，一般是被动技效果
 	repeated BattleRoundReports Rounds 		= 5; // 回合
-	map<int32, int32> MyMemberDamages		= 6; // 我方伤害统计
-	map<int32, int32> TargetMemberDamages 	= 7; // 敌方伤害统计
-	map<int32, int32> MyMemberCures			= 8; // 我方治疗统计
-	map<int32, int32> TargetMemberCures   	= 9; // 敌方治疗统计
+	repeated int32 MyMemberDamages			= 6; // 我方伤害统计
+	repeated int32 TargetMemberDamages		= 7; // 敌方伤害统计 
+	repeated int32 MyMemberCures			= 8; // 我方治疗统计
+	repeated int32 TargetMemberCures		= 9; // 敌方治疗统计
 	bool HasNextWave						= 10; // 关卡是否有下一波战斗
 	int32 NextCampaignId					= 11; // 下一个战役ID
 	int32 BattleType						= 12; // 战斗类型
@@ -638,7 +638,7 @@ message C2SItemUpgradeRequest {
 
 message S2CItemUpgradeResponse {
 	int32 RoleId							= 1; // 角色ID
-	map<int32,int32> NewItems				= 2; // 新生成的物品
+	repeated ItemInfo NewItems				= 2; // 新生成的物品
 }
 
 // 物品一键合成装备
@@ -648,8 +648,8 @@ message C2SItemOneKeyUpgradeRequest {
 
 message S2CItemOneKeyUpgradeResponse {
 	repeated int32 ItemIds					= 1; // 待合成的物品列表
-	map<int32,int32> CostItems				= 2; // 消耗的物品
-	map<int32,int32> ResultItems			= 3; // 生成的物品
+	repeated ItemInfo CostItems				= 2; // 消耗的物品
+	repeated ItemInfo ResultItems 			= 3; // 生成的物品
 }
 
 // ----------------------------------- 角色 ------------------------------------
@@ -667,6 +667,7 @@ message Role {
 	int32 Level						= 4;
 	bool IsLock						= 5; // 锁定
 	repeated int32 Equips           = 6; // 装备
+	int32 PlayerId					= 7; // 玩家ID
 }
 // 请求角色返回
 message S2CRolesResponse {
@@ -854,7 +855,7 @@ message C2SMailGetAttachedItemsRequest {
 }
 message S2CMailGetAttachedItemsResponse {
 	repeated int32 MailIds					= 1; // 邮件ID
-	map<int32,int32> AttachedItems			= 2; // 获得的附加物品   key: item_id  value: item_num
+	repeated ItemInfo AttachedItems			= 2; // 获得的附加物品   key: item_id  value: item_num
 }
 
 // 删除邮件
@@ -956,7 +957,7 @@ message C2SDrawDataRequest {
 }
 
 message S2CDrawDataResponse {
-	map<int32,int32> FreeDrawRemainSeconds	= 1; // 免费抽卡剩余时间    key 抽卡ID  value 抽卡剩余时间
+	repeated ItemInfo FreeDrawRemainSeconds	= 1; // 免费抽卡剩余时间    Id 抽卡ID  Value 抽卡剩余时间
 }
 
 // 请求抽卡
@@ -989,7 +990,7 @@ message C2SGoldHandDataRequest {
 
 message S2CGoldHandDataResponse {
 	int32 RemainRefreshSeconds				= 1; // 剩余刷新时间(秒)
-	map<int32,int32> LeftNums				= 2; // 剩余次数
+	repeated ItemInfo LeftNums				= 2; // 剩余次数     Id 点金类型   Value 剩余次数
 }
 
 // ---------------------------------- 商店 ------------------------------------
@@ -1104,7 +1105,7 @@ message S2CArenaPlayerDefenseTeamResponse {
 	int32 PlayerId							= 1;
 	int32 PlayerLevel						= 2;
 	int32 PlayerHead						= 3;
-	map<int32,PlayerTeamRole> DefenseTeam	= 4;
+	repeated PlayerTeamRole DefenseTeam		= 4;
 	int32 Power								= 5;
 	int32 GuildId							= 6;
 }
@@ -1135,12 +1136,13 @@ message C2SActiveStageDataRequest {
 }
 
 message ActiveStageData {
-	int32 RemainChallengeNum				= 1; // 剩余挑战次数
-	int32 RemainBuyChallengeNum				= 2; // 剩余购买次数
+	int32 StageType							= 1; // 类型
+	int32 RemainChallengeNum				= 2; // 剩余挑战次数
+	int32 RemainBuyChallengeNum				= 3; // 剩余购买次数
 }
 
 message S2CActiveStageDataResponse{
-	map<int32,ActiveStageData> StageData	= 1; // 返回活动副本数据   key 类型  value 数据
+	repeated ActiveStageData StageDatas		= 1; // 返回活动副本数据
 	int32 RemainSeconds4Refresh				= 2; // 刷新剩余秒数
 	int32 GetPointsDay						= 3; // 获得好友点数
 	int32 MaxChallengeNum					= 4; // 最大挑战次数
@@ -1165,7 +1167,7 @@ message C2SActiveStageAssistRoleListRequest {
 }
 
 message S2CActiveStageAssistRoleListResponse {
-	map<int32, Role> Roles					= 1; // key 好友ID  value 角色数据
+	repeated Role Roles						= 1; // 好友角色数据列表，好友ID在Role结构中
 }
 
 // ----------------------------------- 好友 -----------------------------------
@@ -1678,7 +1680,7 @@ message C2SGuildAgreeJoinRequest {
 }
 
 message S2CGuildAgreeJoinResponse {
-	map<int32,int32> Player2Res				= 1; // key: 玩家ID      value: 结果( >0 成功   <0 错误码)
+	repeated ItemInfo  Player2Res			= 1; // Id: 玩家ID      Value: 结果( >0 成功   <0 错误码)
 	bool IsRefuse							= 2; // 是否拒绝
 }
 

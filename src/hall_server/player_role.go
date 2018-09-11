@@ -72,7 +72,7 @@ func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_m
 
 func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 	if this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
-		item_info := &msg_client_message.ItemInfo{ItemCfgId: role_id, ItemNum: 1}
+		item_info := &msg_client_message.ItemInfo{Id: role_id, Value: 1}
 		SendMail(nil, this.Id, MAIL_TYPE_SYSTEM, "", "", []*msg_client_message.ItemInfo{item_info})
 		return -1
 	}
@@ -734,8 +734,8 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 	if this.tmp_cache_items != nil {
 		for k, v := range this.tmp_cache_items {
 			response.GetItems = append(response.GetItems, &msg_client_message.ItemInfo{
-				ItemCfgId: k,
-				ItemNum:   v,
+				Id:    k,
+				Value: v,
 			})
 		}
 		this.tmp_cache_items = nil
@@ -807,8 +807,8 @@ func (this *Player) _return_role_resource(role_id int32) (items []*msg_client_me
 		if d != nil {
 			for j := 0; j < len(d)/2; j++ {
 				items = append(items, &msg_client_message.ItemInfo{
-					ItemCfgId: d[2*j],
-					ItemNum:   d[2*j+1],
+					Id:    d[2*j],
+					Value: d[2*j+1],
 				})
 			}
 		}
@@ -826,8 +826,8 @@ func (this *Player) _return_role_resource(role_id int32) (items []*msg_client_me
 			}
 			for j := 0; j < len(d)/2; j++ {
 				items = append(items, &msg_client_message.ItemInfo{
-					ItemCfgId: d[2*j],
-					ItemNum:   d[2*j+1],
+					Id:    d[2*j],
+					Value: d[2*j+1],
 				})
 			}
 
@@ -836,7 +836,7 @@ func (this *Player) _return_role_resource(role_id int32) (items []*msg_client_me
 
 	if items != nil {
 		for _, item := range items {
-			this.add_resource(item.GetItemCfgId(), item.GetItemNum())
+			this.add_resource(item.GetId(), item.GetValue())
 		}
 	}
 
@@ -924,12 +924,12 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 	new_role_id := int32(0)
 	if fusion.FusionType == 1 {
 		new_role_id = main_role_id
-		this.db.Roles.SetTableId(main_role_id, item.ItemCfgId)
+		this.db.Roles.SetTableId(main_role_id, item.Id)
 		this.roles_id_change_info.id_update(main_role_id)
 		// 排行榜更新
 		this.UpdateRolePowerRank(main_role_id)
 	} else {
-		new_role_id = this.new_role(item.ItemCfgId, 1, 1)
+		new_role_id = this.new_role(item.Id, 1, 1)
 	}
 
 	// 返还升级升阶的资源
@@ -951,13 +951,13 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 	this.check_and_send_roles_change()
 
 	response := &msg_client_message.S2CRoleFusionResponse{
-		NewCardId: item.ItemCfgId,
+		NewCardId: item.Id,
 		RoleId:    new_role_id,
 		GetItems:  get_items,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_FUSION_RESPONSE), response)
 
-	log.Debug("Player[%v] fusion[%v] main_card[%v] get new role[%v] new card[%v], cost cards[%v]", this.Id, fusion_id, main_role_id, new_role_id, item.ItemCfgId, cost_role_ids)
+	log.Debug("Player[%v] fusion[%v] main_card[%v] get new role[%v] new card[%v], cost cards[%v]", this.Id, fusion_id, main_role_id, new_role_id, item.Id, cost_role_ids)
 
 	return 1
 }
@@ -1001,7 +1001,7 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 	if equips == nil || len(equips) == 0 {
 		equips = make([]int32, EQUIP_TYPE_MAX)
 	}
-	equips[EQUIP_TYPE_LEFT_SLOT] = left_item.GetItemCfgId()
+	equips[EQUIP_TYPE_LEFT_SLOT] = left_item.GetId()
 	this.db.Roles.SetEquip(role_id, equips)
 
 	this.roles_id_change_info.id_update(role_id)

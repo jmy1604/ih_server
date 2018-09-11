@@ -290,7 +290,7 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 	notify_task := &msg_client_message.S2CTaskValueNotify{}
 	ftasks := task_table_mgr.GetFinishTasks()[complete_type]
 	if nil == ftasks || ftasks.GetCount() == 0 {
-		log.Error("Task complete type %v no corresponding tasks", complete_type)
+		log.Warn("Task complete type %v no corresponding tasks", complete_type)
 		return
 	}
 

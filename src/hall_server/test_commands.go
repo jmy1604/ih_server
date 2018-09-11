@@ -683,8 +683,8 @@ func send_mail_cmd(p *Player, args []string) int32 {
 	var items []*msg_client_message.ItemInfo
 	if attach_item_id > 0 {
 		item := &msg_client_message.ItemInfo{
-			ItemCfgId: int32(attach_item_id),
-			ItemNum:   1,
+			Id:    int32(attach_item_id),
+			Value: 1,
 		}
 		items = []*msg_client_message.ItemInfo{item}
 	}

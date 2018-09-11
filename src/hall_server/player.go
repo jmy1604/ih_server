@@ -195,8 +195,8 @@ func (this *Player) check_and_send_items_change() {
 		var msg msg_client_message.S2CItemsUpdate
 		for k, v := range this.items_changed_info {
 			msg.ItemsAdd = append(msg.ItemsAdd, &msg_client_message.ItemInfo{
-				ItemCfgId: k,
-				ItemNum:   v,
+				Id:    k,
+				Value: v,
 			})
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEMS_UPDATE), &msg)
@@ -662,7 +662,7 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		res = p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1)
 		if res < 0 {
 			p.CancelDefensing()
-			log.Error("Player[%v] init defense team failed", player_id)
+			log.Error("Player[%v] init defense team failed, err %v", player_id, res)
 			return res
 		}
 
@@ -762,7 +762,7 @@ func (this *Player) change_head(new_head int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_CHANGE_HEAD_RESPONSE), response)
 
-	log.Error("Player[%v] changed to head[%v]", this.Id, new_head)
+	log.Debug("Player[%v] changed to head[%v]", this.Id, new_head)
 
 	return 1
 }

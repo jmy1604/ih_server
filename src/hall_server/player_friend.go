@@ -727,8 +727,8 @@ func (this *Player) battle_random_reward_notify(reward_items map[int32]int32, dr
 		var items []*msg_client_message.ItemInfo
 		for k, v := range reward_items {
 			items = append(items, &msg_client_message.ItemInfo{
-				ItemCfgId: k,
-				ItemNum:   v,
+				Id:    k,
+				Value: v,
 			})
 		}
 		var fake_items []int32
@@ -738,7 +738,7 @@ func (this *Player) battle_random_reward_notify(reward_items map[int32]int32, dr
 				if !o {
 					log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, drop_id)
 				}
-				fake_items = append(fake_items, item.ItemCfgId)
+				fake_items = append(fake_items, item.Id)
 			}
 		}
 		if items != nil {
@@ -870,7 +870,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 			if reward_items == nil {
 				reward_items = make(map[int32]int32)
 			}
-			reward_items[item.ItemCfgId] += item.ItemNum
+			reward_items[item.Id] += item.Value
 		}
 	}
 

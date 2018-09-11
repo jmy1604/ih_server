@@ -49,8 +49,8 @@ func (this *dbPlayerItemColumn) BuildMsg() (items []*msg_client_message.ItemInfo
 
 	for _, v := range this.m_data {
 		item := &msg_client_message.ItemInfo{
-			ItemCfgId: v.Id,
-			ItemNum:   v.Count,
+			Id:    v.Id,
+			Value: v.Count,
 		}
 		items = append(items, item)
 	}
@@ -446,11 +446,11 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
 		}
 		if items != nil || len(items) > 0 {
-			item_data := item_table_mgr.Get(item.ItemCfgId)
+			item_data := item_table_mgr.Get(item.Id)
 			j := 0
 			for ; j < len(items); j++ {
-				if item_data != nil && items[j].ItemCfgId == item.ItemCfgId {
-					items[j].ItemNum += item.ItemNum
+				if item_data != nil && items[j].Id == item.Id {
+					items[j].Value += item.Value
 					break
 				}
 			}
@@ -486,8 +486,8 @@ func (this *Player) item_to_resource(item_id int32) []*msg_client_message.ItemIn
 		for i := 0; i < len(item.SellReward)/2; i++ {
 			this.add_resource(item.SellReward[2*i], item.SellReward[2*i+1])
 			resources = append(resources, &msg_client_message.ItemInfo{
-				ItemCfgId: item.SellReward[2*i],
-				ItemNum:   item.SellReward[2*i+1],
+				Id:    item.SellReward[2*i],
+				Value: item.SellReward[2*i+1],
 			})
 		}
 	}
@@ -598,7 +598,7 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 		}
 	}
 
-	new_items := make(map[int32]int32)
+	var new_items []*msg_client_message.ItemInfo
 	if item.EquipType == EQUIP_TYPE_LEFT_SLOT || item.EquipType == EQUIP_TYPE_RELIC {
 		o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, false, nil)
 		if !o {
@@ -607,13 +607,13 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 		}
 		if item.EquipType == EQUIP_TYPE_LEFT_SLOT && upgrade_type == 3 {
 			this.db.Equip.SetTmpSaveLeftSlotRoleId(role_id)
-			this.db.Equip.SetTmpLeftSlotItemId(new_item.ItemCfgId)
+			this.db.Equip.SetTmpLeftSlotItemId(new_item.Id)
 		} else {
-			equips[item.EquipType] = new_item.ItemCfgId
+			equips[item.EquipType] = new_item.Id
 			this.db.Roles.SetEquip(role_id, equips)
 			this.roles_id_change_info.id_update(role_id)
 		}
-		new_items[new_item.ItemCfgId] = new_item.ItemNum
+		new_items = append(new_items, new_item)
 	} else {
 		for i := int32(0); i < item_num; i++ {
 			o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, true, nil)
@@ -622,7 +622,7 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 				return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
 			}
 			this.add_resource(item_id, -1)
-			new_items[new_item.ItemCfgId] += new_item.ItemNum
+			new_items = append(new_items, new_item)
 		}
 	}
 
@@ -784,8 +784,8 @@ func (this *Player) items_one_key_upgrade(item_ids []int32) int32 {
 
 	response := &msg_client_message.S2CItemOneKeyUpgradeResponse{
 		ItemIds:     item_ids,
-		CostItems:   cost_items,
-		ResultItems: result_items,
+		CostItems:   Map2ItemInfos(cost_items),
+		ResultItems: Map2ItemInfos(result_items),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_ONEKEY_UPGRADE_RESPONSE), response)
 

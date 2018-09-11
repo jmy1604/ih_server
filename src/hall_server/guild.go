@@ -963,7 +963,7 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 	}
 
 	response := &msg_client_message.S2CGuildAgreeJoinResponse{
-		Player2Res: player2res,
+		Player2Res: Map2ItemInfos(player2res),
 		IsRefuse:   is_refuse,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_RESPONSE), response)

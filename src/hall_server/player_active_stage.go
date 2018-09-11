@@ -34,26 +34,27 @@ func (this *Player) _active_stage_get_data(t int32) *msg_client_message.ActiveSt
 	remain_num, _ := this.db.ActiveStages.GetCanChallengeNum(t)
 	purchase_num, _ := this.db.ActiveStages.GetPurchasedNum(t)
 	return &msg_client_message.ActiveStageData{
+		StageType:             t,
 		RemainChallengeNum:    remain_num,
 		RemainBuyChallengeNum: global_config.ActiveStagePurchaseNum - purchase_num,
 	}
 }
 
 func (this *Player) _send_active_stage_data(typ int32) {
-	datas := make(map[int32]*msg_client_message.ActiveStageData)
+	var datas []*msg_client_message.ActiveStageData
 	if typ == 0 {
 		for _, t := range active_stage_types {
 			if this.db.ActiveStages.HasIndex(t) {
-				datas[t] = this._active_stage_get_data(t)
+				datas = append(datas, this._active_stage_get_data(t))
 			}
 		}
 	} else {
-		datas[typ] = this._active_stage_get_data(typ)
+		datas = []*msg_client_message.ActiveStageData{this._active_stage_get_data(typ)}
 	}
 
 	last_refresh := this.db.ActiveStageCommon.GetLastRefreshTime()
 	response := &msg_client_message.S2CActiveStageDataResponse{
-		StageData:             datas,
+		StageDatas:            datas,
 		MaxChallengeNum:       global_config.ActiveStageChallengeNumOfDay,
 		RemainSeconds4Refresh: utils.GetRemainSeconds2NextDayTime(last_refresh, global_config.ActiveStageRefreshTime),
 		ChallengeNumPrice:     global_config.ActiveStageChallengeNumPrice,
@@ -141,7 +142,7 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 }
 
 func (this *Player) active_stage_get_friends_assist_role_list() int32 {
-	roles := make(map[int32]*msg_client_message.Role)
+	var roles []*msg_client_message.Role
 	friend_ids := this.db.Friends.GetAllIndex()
 	if friend_ids != nil && len(friend_ids) > 0 {
 		for i := 0; i < len(friend_ids); i++ {
@@ -157,13 +158,14 @@ func (this *Player) active_stage_get_friends_assist_role_list() int32 {
 			level, _ := friend.db.Roles.GetLevel(role_id)
 			rank, _ := friend.db.Roles.GetRank(role_id)
 			equips, _ := friend.db.Roles.GetEquip(role_id)
-			roles[friend_ids[i]] = &msg_client_message.Role{
-				Id:      role_id,
-				TableId: table_id,
-				Level:   level,
-				Rank:    rank,
-				Equips:  equips,
-			}
+			roles = append(roles, &msg_client_message.Role{
+				Id:       role_id,
+				TableId:  table_id,
+				Level:    level,
+				Rank:     rank,
+				Equips:   equips,
+				PlayerId: friend_ids[i],
+			})
 		}
 	}
 	response := &msg_client_message.S2CActiveStageAssistRoleListResponse{

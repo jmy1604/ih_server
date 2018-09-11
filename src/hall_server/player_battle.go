@@ -23,29 +23,29 @@ type BattleCommonData struct {
 	changed_fighters []*msg_client_message.BattleFighter
 	round_num        int32
 	delay_skill_list *DelaySkillList
-	members_damage   []map[int32]int32
-	members_cure     []map[int32]int32
+	members_damage   [][]int32
+	members_cure     [][]int32
 }
 
 func (this *BattleCommonData) init_damage_data() {
 	if this.members_damage == nil {
-		this.members_damage = make([]map[int32]int32, 2)
+		this.members_damage = make([][]int32, 2)
 
 	}
 	if this.members_cure == nil {
-		this.members_cure = make([]map[int32]int32, 2)
+		this.members_cure = make([][]int32, 2)
 	}
 }
 
 func (this *BattleCommonData) reset_damage_data() {
 	if this.members_damage != nil {
 		for i := 0; i < len(this.members_damage); i++ {
-			this.members_damage[i] = make(map[int32]int32)
+			this.members_damage[i] = make([]int32, BATTLE_TEAM_MEMBER_MAX_NUM)
 		}
 	}
 	if this.members_cure != nil {
 		for i := 0; i < len(this.members_cure); i++ {
-			this.members_cure[i] = make(map[int32]int32)
+			this.members_cure[i] = make([]int32, BATTLE_TEAM_MEMBER_MAX_NUM)
 		}
 	}
 }
@@ -709,11 +709,11 @@ func (this *BattleTeam) MembersNum() (num int32) {
 	return
 }
 
-func (this *BattleTeam) GetMembersEnergy() (energy map[int32]int32) {
-	energy = make(map[int32]int32)
-	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+func (this *BattleTeam) GetMembersEnergy() (energys []int32) {
+	energys = make([]int32, BATTLE_TEAM_MEMBER_MAX_NUM)
+	for i := 0; i < len(energys); i++ {
 		if this.members[i] != nil && !this.members[i].is_dead() {
-			energy[i] = this.members[i].energy
+			energys[i] = this.members[i].energy
 		}
 	}
 	return
