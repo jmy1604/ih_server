@@ -908,6 +908,7 @@ func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
 			self_mem.add_attr(self_mem.temp_changed_attrs[1+2*i], -self_mem.temp_changed_attrs[1+2*i+1])
 		}
 		self_mem.temp_changed_attrs = nil
+		self_mem.temp_changed_attrs_used = 0
 	}
 }
 
