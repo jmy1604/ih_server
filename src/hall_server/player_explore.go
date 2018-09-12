@@ -916,16 +916,18 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 	}
 
 	// 触发关卡
-	var has_stage bool
+	var reward_stage_id int32
 	if rand.Int31n(10000) < task.BonusStageChance {
 		boss := explore_task_boss_mgr.Random(task.BonusStageListID)
 		if boss != nil {
 			if is_story {
 				this.db.ExploreStorys.SetState(id, EXPLORE_TASK_STATE_FIGHT_BOSS)
+				this.db.ExploreStorys.SetRewardStageId(id, boss.StageId)
 			} else {
 				this.db.Explores.SetState(id, EXPLORE_TASK_STATE_FIGHT_BOSS)
+				this.db.Explores.SetRewardStageId(id, boss.StageId)
 			}
-			has_stage = true
+			reward_stage_id = boss.StageId
 		}
 	} else {
 		this.explore_remove_task(id, is_story)
@@ -936,14 +938,14 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 	}
 
 	response := &msg_client_message.S2CExploreGetRewardResponse{
-		Id:             id,
-		IsStory:        is_story,
-		RandomItems:    random_items,
-		HasRewardStage: has_stage,
+		Id:            id,
+		IsStory:       is_story,
+		RandomItems:   random_items,
+		RewardStageId: reward_stage_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_GET_REWARD_RESPONSE), response)
 
-	log.Debug("Player[%v] explore task %v get reward, has stage %v", this.Id, id, has_stage)
+	log.Debug("Player[%v] explore task %v get reward, reward stage %v", this.Id, id, reward_stage_id)
 
 	return 1
 }
@@ -953,13 +955,15 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 		return 1
 	}
 
-	var task_id, state int32
+	var task_id, state, reward_stage_id int32
 	if is_story {
 		task_id = id
 		state, _ = this.db.ExploreStorys.GetState(id)
+		reward_stage_id, _ = this.db.ExploreStorys.GetRewardStageId(id)
 	} else {
 		task_id, _ = this.db.Explores.GetTaskId(id)
 		state, _ = this.db.Explores.GetState(id)
+		reward_stage_id, _ = this.db.Explores.GetRewardStageId(id)
 	}
 
 	task := explore_task_mgr.Get(task_id)
@@ -973,9 +977,9 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_NO_FIGHT_BOSS_STATE)
 	}
 
-	stage := stage_table_mgr.Get(task.BonusStageListID)
+	stage := stage_table_mgr.Get(reward_stage_id)
 	if stage == nil {
-		log.Error("explore fight stage %v not found", task.BonusStageListID)
+		log.Error("explore fight stage %v not found", reward_stage_id)
 		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
 	}
 

@@ -878,7 +878,7 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_po
 
 // 临时改变角色属性效果
 func skill_effect_temp_attrs(self_mem *TeamMember, effect []int32) {
-	if self_mem == nil {
+	if self_mem == nil || self_mem.temp_changed_attrs_used != 0 {
 		return
 	}
 	self_mem.temp_changed_attrs = effect
@@ -886,6 +886,8 @@ func skill_effect_temp_attrs(self_mem *TeamMember, effect []int32) {
 		self_mem.add_attr(effect[1+2*i], effect[1+2*i+1])
 	}
 	self_mem.temp_changed_attrs_used = 1
+
+	log.Debug("@@@@@@@@@@@@@@@@@@@@@ team[%v] member[%v] 增加了技能临时属性 %v", self_mem.team.side, self_mem.pos, effect)
 }
 
 // 设置临时属性已计算
@@ -895,6 +897,7 @@ func skill_effect_temp_attrs_used(self_mem *TeamMember) {
 	}
 	if self_mem.temp_changed_attrs_used == 1 {
 		self_mem.temp_changed_attrs_used = 2
+		log.Debug("@@@@@@@@@@@@@@@@@@@@@ team[%v] member[%v] 使用了技能临时属性", self_mem.team.side, self_mem.pos)
 	}
 }
 
@@ -907,8 +910,9 @@ func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
 		for i := 0; i < (len(self_mem.temp_changed_attrs)-1)/2; i++ {
 			self_mem.add_attr(self_mem.temp_changed_attrs[1+2*i], -self_mem.temp_changed_attrs[1+2*i+1])
 		}
-		self_mem.temp_changed_attrs = nil
 		self_mem.temp_changed_attrs_used = 0
+		log.Debug("@@@@@@@@@@@@@@@@@@@@@ team[%v] member[%v] 清空了技能临时属性 %v", self_mem.team.side, self_mem.pos, self_mem.temp_changed_attrs)
+		self_mem.temp_changed_attrs = nil
 	}
 }
 
@@ -1130,7 +1134,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					used = true
 					log.Debug("self_team[%v] member[%v] use skill[%v] to target team[%v] member[%v] 触发 buff[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos, buff_id)
 				} else {
-					log.Warn("@@@@@@@@@@@@@@@@@@@@ self_team[%v] member[%v] use skill[%v] add buff failed", self_team.side, self.pos, skill_data.Id)
+					log.Warn("self_team[%v] member[%v] use skill[%v] add buff failed", self_team.side, self.pos, skill_data.Id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_SUMMON {
 				// 召唤

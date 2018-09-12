@@ -1365,6 +1365,7 @@ type dbPlayerExploreData struct{
 	RoleIds []int32
 	IsLock int32
 	RandomRewards []int32
+	RewardStageId int32
 }
 func (this* dbPlayerExploreData)from_pb(pb *db.PlayerExplore){
 	if pb == nil {
@@ -1397,6 +1398,7 @@ func (this* dbPlayerExploreData)from_pb(pb *db.PlayerExplore){
 	for i, v := range pb.GetRandomRewards() {
 		this.RandomRewards[i] = v
 	}
+	this.RewardStageId = pb.GetRewardStageId()
 	return
 }
 func (this* dbPlayerExploreData)to_pb()(pb *db.PlayerExplore){
@@ -1424,6 +1426,7 @@ func (this* dbPlayerExploreData)to_pb()(pb *db.PlayerExplore){
 	for i, v := range this.RandomRewards {
 		pb.RandomRewards[i]=v
 	}
+	pb.RewardStageId = proto.Int32(this.RewardStageId)
 	return
 }
 func (this* dbPlayerExploreData)clone_to(d *dbPlayerExploreData){
@@ -1450,6 +1453,7 @@ func (this* dbPlayerExploreData)clone_to(d *dbPlayerExploreData){
 	for _ii, _vv := range this.RandomRewards {
 		d.RandomRewards[_ii]=_vv
 	}
+	d.RewardStageId = this.RewardStageId
 	return
 }
 type dbPlayerExploreStoryData struct{
@@ -1460,6 +1464,7 @@ type dbPlayerExploreStoryData struct{
 	StartTime int32
 	RoleIds []int32
 	RandomRewards []int32
+	RewardStageId int32
 }
 func (this* dbPlayerExploreStoryData)from_pb(pb *db.PlayerExploreStory){
 	if pb == nil {
@@ -1488,6 +1493,7 @@ func (this* dbPlayerExploreStoryData)from_pb(pb *db.PlayerExploreStory){
 	for i, v := range pb.GetRandomRewards() {
 		this.RandomRewards[i] = v
 	}
+	this.RewardStageId = pb.GetRewardStageId()
 	return
 }
 func (this* dbPlayerExploreStoryData)to_pb()(pb *db.PlayerExploreStory){
@@ -1511,6 +1517,7 @@ func (this* dbPlayerExploreStoryData)to_pb()(pb *db.PlayerExploreStory){
 	for i, v := range this.RandomRewards {
 		pb.RandomRewards[i]=v
 	}
+	pb.RewardStageId = proto.Int32(this.RewardStageId)
 	return
 }
 func (this* dbPlayerExploreStoryData)clone_to(d *dbPlayerExploreStoryData){
@@ -1533,6 +1540,7 @@ func (this* dbPlayerExploreStoryData)clone_to(d *dbPlayerExploreStoryData){
 	for _ii, _vv := range this.RandomRewards {
 		d.RandomRewards[_ii]=_vv
 	}
+	d.RewardStageId = this.RewardStageId
 	return
 }
 type dbPlayerFriendChatUnreadIdData struct{
@@ -7805,6 +7813,28 @@ func (this *dbPlayerExploreColumn)SetRandomRewards(id int32,v []int32)(has bool)
 	this.m_changed = true
 	return true
 }
+func (this *dbPlayerExploreColumn)GetRewardStageId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExploreColumn.GetRewardStageId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.RewardStageId
+	return v,true
+}
+func (this *dbPlayerExploreColumn)SetRewardStageId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExploreColumn.SetRewardStageId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.RewardStageId = v
+	this.m_changed = true
+	return true
+}
 type dbPlayerExploreStoryColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerExploreStoryData
@@ -8085,6 +8115,28 @@ func (this *dbPlayerExploreStoryColumn)SetRandomRewards(id int32,v []int32)(has 
 	for _ii, _vv := range v {
 		d.RandomRewards[_ii]=_vv
 	}
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExploreStoryColumn)GetRewardStageId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExploreStoryColumn.GetRewardStageId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.RewardStageId
+	return v,true
+}
+func (this *dbPlayerExploreStoryColumn)SetRewardStageId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExploreStoryColumn.SetRewardStageId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.RewardStageId = v
 	this.m_changed = true
 	return true
 }

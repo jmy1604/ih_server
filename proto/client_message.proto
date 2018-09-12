@@ -1485,7 +1485,7 @@ message S2CExploreGetRewardResponse {
 	int32 Id								= 1; // ID
 	bool IsStory							= 2; // 是否剧情任务
 	repeated ItemInfo RandomItems			= 3; // 随机奖励
-	bool HasRewardStage						= 4; // 是否有奖励关卡
+	int32 RewardStageId						= 4; // 奖励关卡
 }
 
 // 剧情探索任务通知

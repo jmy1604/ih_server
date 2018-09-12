@@ -582,7 +582,8 @@
 						{"Type":"int32","Index":8,"Name":"StartTime"},
 						{"Type":"int32","Index":9,"Name":"RoleIds","Repeated":true},
 						{"Type":"int32","Index":10,"Name":"IsLock"},
-						{"Type":"int32","Index":11,"Name":"RandomRewards","Repeated":true}
+						{"Type":"int32","Index":11,"Name":"RandomRewards","Repeated":true},
+						{"Type":"int32","Index":12,"Name":"RewardStageId"}
 					]
 				},
 				{
@@ -599,7 +600,8 @@
 						{"Type":"int32","Index":4,"Name":"RoleTypesCanSel","Repeated":true},
 						{"Type":"int32","Index":5,"Name":"StartTime"},
 						{"Type":"int32","Index":6,"Name":"RoleIds","Repeated":true},
-						{"Type":"int32","Index":7,"Name":"RandomRewards","Repeated":true}
+						{"Type":"int32","Index":7,"Name":"RandomRewards","Repeated":true},
+						{"Type":"int32","Index":8,"Name":"RewardStageId"}
 					]
 				},
 				{

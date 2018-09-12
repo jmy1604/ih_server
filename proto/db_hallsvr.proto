@@ -325,6 +325,7 @@ message PlayerExplore{
 	repeated int32 RoleIds=9;
 	optional int32 IsLock=10;
 	repeated int32 RandomRewards=11;
+	optional int32 RewardStageId=12;
 }
 
 message PlayerExploreList{
@@ -339,6 +340,7 @@ message PlayerExploreStory{
 	optional int32 StartTime=5;
 	repeated int32 RoleIds=6;
 	repeated int32 RandomRewards=7;
+	optional int32 RewardStageId=8;
 }
 
 message PlayerExploreStoryList{
