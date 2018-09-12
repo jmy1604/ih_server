@@ -1034,6 +1034,10 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				skill_effect_temp_attrs_used(self)
 				skill_effect_temp_attrs_used(target)
 
+				// 使用一次技能即清空临时属性
+				skill_effect_clear_temp_attrs(self)
+				skill_effect_clear_temp_attrs(target)
+
 				log.Debug("self_team[%v] member[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, target_dmg, target.hp, self_dmg, self.hp)
 
 				// 被动技，血量变化
@@ -1167,6 +1171,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				// ----------------------------------------------
 				used = true
+				log.Debug("self_team[%v] member[%v] use skill[%v] to add temp attrs to target team[%v] member[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos)
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL {
 				// 改变普通攻击技能ID
 				if effects[i][1] > 0 {
@@ -1247,10 +1252,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					used = true
 				}
 			}
-
-			// 使用一次技能即清空临时属性
-			skill_effect_clear_temp_attrs(self)
-			skill_effect_clear_temp_attrs(target)
 		}
 	}
 

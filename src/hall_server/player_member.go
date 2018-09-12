@@ -263,9 +263,9 @@ func (this *TeamMember) init_passive_data(skills []int32) {
 	}
 	for i := 0; i < len(skills); i++ {
 		if !this.add_passive_trigger(skills[i]) {
-			//log.Warn("Team[%v] member[%v] add passive skill[%v] failed", this.team.side, this.pos, skills[i])
+			log.Warn("Team[%v] member[%v] add passive skill[%v] failed", this.team.side, this.pos, skills[i])
 		} else {
-			//log.Debug("Team[%v] member[%v] add passive skill[%v]", this.team.side, this.pos, skills[i])
+			log.Debug("Team[%v] member[%v] add passive skill[%v]", this.team.side, this.pos, skills[i])
 		}
 	}
 }
