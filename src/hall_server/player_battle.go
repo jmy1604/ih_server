@@ -508,7 +508,7 @@ func (this *BattleTeam) UseSkillOnce(self_index int32, target_team *BattleTeam, 
 		return nil
 	}
 
-	log.Debug("team[%v] member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", this.side, self_index, is_enemy, target_pos, skill.Id)
+	log.Debug("team[%v] member[%v] find is_enemy[%v] target_team[%v] targets[%v] to use skill[%v]", this.side, self_index, is_enemy, target_team.side, target_pos, skill.Id)
 
 	if !is_enemy {
 		target_team = this
