@@ -234,7 +234,7 @@ type TeamMember struct {
 	temp_normal_skill       int32                             // 临时普通攻击
 	temp_super_skill        int32                             // 临时怒气攻击
 	use_temp_skill          bool                              // 是否使用临时技能
-	temp_changed_attrs      []int32                           // 临时改变的属性
+	temp_changed_attrs      map[int32]int32                   // 临时改变的属性
 	temp_changed_attrs_used int32                             // 临时改变属性计算状态 0 忽略 1 已初始化 2 已计算
 	passive_skills          map[int32]int32                   // 被动技
 	attacker                *TeamMember                       // 攻击者

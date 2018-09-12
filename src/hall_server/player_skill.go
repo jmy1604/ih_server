@@ -878,16 +878,21 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_po
 
 // 临时改变角色属性效果
 func skill_effect_temp_attrs(self_mem *TeamMember, effect []int32) {
-	if self_mem == nil || self_mem.temp_changed_attrs_used != 0 {
+	if self_mem == nil {
 		return
 	}
-	self_mem.temp_changed_attrs = effect
+	if self_mem.temp_changed_attrs == nil {
+		self_mem.temp_changed_attrs = make(map[int32]int32)
+	}
 	for i := 0; i < (len(effect)-1)/2; i++ {
-		self_mem.add_attr(effect[1+2*i], effect[1+2*i+1])
+		aid := effect[1+2*i]
+		avalue := effect[1+2*i+1]
+		self_mem.add_attr(aid, avalue)
+		self_mem.temp_changed_attrs[aid] += avalue
 	}
 	self_mem.temp_changed_attrs_used = 1
 
-	log.Debug("@@@@@@@@@@@@@@@@@@@@@ team[%v] member[%v] 增加了技能临时属性 %v", self_mem.team.side, self_mem.pos, effect)
+	log.Debug("@@@@@@@@@@@@@@@@@@@@@ team[%v] member[%v] 增加了技能临时属性 %v", self_mem.team.side, self_mem.pos, self_mem.temp_changed_attrs)
 }
 
 // 设置临时属性已计算
@@ -907,8 +912,8 @@ func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
 		return
 	}
 	if self_mem.temp_changed_attrs_used == 2 && self_mem.temp_changed_attrs != nil {
-		for i := 0; i < (len(self_mem.temp_changed_attrs)-1)/2; i++ {
-			self_mem.add_attr(self_mem.temp_changed_attrs[1+2*i], -self_mem.temp_changed_attrs[1+2*i+1])
+		for k, v := range self_mem.temp_changed_attrs {
+			self_mem.add_attr(k, -v)
 		}
 		self_mem.temp_changed_attrs_used = 0
 		log.Debug("@@@@@@@@@@@@@@@@@@@@@ team[%v] member[%v] 清空了技能临时属性 %v", self_mem.team.side, self_mem.pos, self_mem.temp_changed_attrs)
