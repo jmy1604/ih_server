@@ -605,7 +605,7 @@ func item_sell_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return p.sell_item(int32(item_id), int32(item_num))
+	return p.sell_item(int32(item_id), int32(item_num), true)
 }
 
 func fusion_role_cmd(p *Player, args []string) int32 {

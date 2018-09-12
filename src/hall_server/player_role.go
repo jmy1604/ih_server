@@ -228,19 +228,19 @@ func (this *Player) role_is_using(role_id int32) bool {
 	return false
 }
 
-func (this *Player) delete_role(role_id int32) bool {
+func (this *Player) delete_role(role_id int32) (deleted bool, get_items map[int32]int32) {
 	if !this.db.Roles.HasIndex(role_id) {
-		return false
+		return
 	}
 	is_lock, _ := this.db.Roles.GetIsLock(role_id)
 	if is_lock > 0 {
 		log.Warn("Player[%v] role[%v] is locked, cant delete", this.Id, role_id)
-		return false
+		return
 	}
 
 	if this.role_is_using(role_id) {
 		log.Warn("Player[%v] role[%v] is using, cant delete", this.Id, role_id)
-		return false
+		return
 	}
 
 	// 脱下装备
@@ -250,10 +250,19 @@ func (this *Player) delete_role(role_id int32) bool {
 			if equips[i] <= 0 {
 				continue
 			}
+			if get_items == nil {
+				get_items = make(map[int32]int32)
+			}
 			if int32(i) != EQUIP_TYPE_LEFT_SLOT {
 				this.add_item(equips[i], 1)
+				get_items[equips[i]] += 1
 			} else {
-				this.item_to_resource(equips[i])
+				items := this.item_to_resource(equips[i])
+				if items != nil {
+					for k, v := range items {
+						get_items[k] += v
+					}
+				}
 			}
 		}
 	}
@@ -272,7 +281,8 @@ func (this *Player) delete_role(role_id int32) bool {
 	// 更新排行榜
 	this.DeleteRolePowerRank(role_id)
 
-	return true
+	deleted = true
+	return
 }
 
 func (this *Player) check_and_send_roles_change() {
@@ -660,7 +670,7 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 	this.tmp_cache_items = nil
 	for i := 0; i < len(role_ids); i++ {
 		role_id := role_ids[i]
-		level, o := this.db.Roles.GetLevel(role_id)
+		_, o := this.db.Roles.GetLevel(role_id)
 		if !o {
 			log.Error("Player[%v] not have role[%v]", this.Id, role_id)
 			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
@@ -699,51 +709,27 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 			this.tmp_cache_items[item_id] += item_num
 		}
 
-		levelup_data := levelup_table_mgr.Get(level)
-		if levelup_data == nil {
-			role_ids[i] = 0
-			log.Error("Not found levelup[%v] data", level)
-			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_DATA_NOT_FOUND)
-			continue
-		}
-		if levelup_data.CardDecomposeRes != nil {
-			for n := 0; n < len(levelup_data.CardDecomposeRes)/2; n++ {
-				item_id := levelup_data.CardDecomposeRes[2*n]
-				item_num := levelup_data.CardDecomposeRes[2*n+1]
-				this.add_resource(item_id, item_num)
-				if this.tmp_cache_items == nil {
-					this.tmp_cache_items = make(map[int32]int32)
-				}
-				this.tmp_cache_items[item_id] += item_num
+		items_map := this._return_role_resource(role_id)
+		if items_map != nil {
+			for k, v := range items_map {
+				this.tmp_cache_items[k] += v
 			}
 		}
 
-		rank_res := get_decompose_rank_res(table_id, rank)
-		if rank_res != nil {
-			for n := 0; n < len(rank_res)/2; n++ {
-				this.add_resource(rank_res[2*n], rank_res[2*n+1])
-				if this.tmp_cache_items == nil {
-					this.tmp_cache_items = make(map[int32]int32)
-				}
-				this.tmp_cache_items[rank_res[2*n]] += rank_res[2*n+1]
+		deleted, tmp_items := this.delete_role(role_id)
+		if deleted {
+			for k, v := range tmp_items {
+				this.tmp_cache_items[k] += v
 			}
 		}
-
-		this.delete_role(role_id)
-		role_ids[i] = 0
 		num += 1
 	}
 
 	response := &msg_client_message.S2CRoleDecomposeResponse{
-		RoleIds: role_ids,
+		RoleIds:  role_ids,
+		GetItems: Map2ItemInfos(this.tmp_cache_items),
 	}
 	if this.tmp_cache_items != nil {
-		for k, v := range this.tmp_cache_items {
-			response.GetItems = append(response.GetItems, &msg_client_message.ItemInfo{
-				Id:    k,
-				Value: v,
-			})
-		}
 		this.tmp_cache_items = nil
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_DECOMPOSE_RESPONSE), response)
@@ -800,53 +786,48 @@ func (this *Player) check_fusion_role_cond(cost_role_ids []int32, cost_cond *tab
 }
 
 // 返还升级升阶消耗的资源
-func (this *Player) _return_role_resource(role_id int32) (items []*msg_client_message.ItemInfo) {
+func (this *Player) _return_role_resource(role_id int32) (items_map map[int32]int32) {
 	lvl, _ := this.db.Roles.GetLevel(role_id)
 	rank, _ := this.db.Roles.GetRank(role_id)
 
-	for i := int32(1); i < lvl; i++ {
-		levelup_data := levelup_table_mgr.Get(i)
-		if levelup_data == nil {
-			return
-		}
-		d := levelup_data.CardDecomposeRes
-		if d != nil {
-			for j := 0; j < len(d)/2; j++ {
-				items = append(items, &msg_client_message.ItemInfo{
-					Id:    d[2*j],
-					Value: d[2*j+1],
-				})
+	levelup_data := levelup_table_mgr.Get(lvl)
+	if levelup_data == nil {
+		return
+	}
+	d := levelup_data.CardDecomposeRes
+	if d != nil {
+		for j := 0; j < len(d)/2; j++ {
+			if items_map == nil {
+				items_map = make(map[int32]int32)
 			}
+			items_map[d[2*j]] = d[2*j+1]
 		}
 	}
 
-	for i := int32(1); i < rank; i++ {
-		rankup_data := rankup_table_mgr.Get(i)
-		if rankup_data == nil {
-			return
+	rankup_data := rankup_table_mgr.Get(rank)
+	if rankup_data == nil {
+		return
+	}
+	dd := [][]int32{rankup_data.Type1DecomposeRes, rankup_data.Type2DecomposeRes, rankup_data.Type3DecomposeRes}
+	for _, d := range dd {
+		if d == nil {
+			continue
 		}
-		dd := [][]int32{rankup_data.Type1DecomposeRes, rankup_data.Type2DecomposeRes, rankup_data.Type3DecomposeRes}
-		for _, d := range dd {
-			if d == nil {
-				continue
+		for j := 0; j < len(d)/2; j++ {
+			if items_map == nil {
+				items_map = make(map[int32]int32)
 			}
-			for j := 0; j < len(d)/2; j++ {
-				items = append(items, &msg_client_message.ItemInfo{
-					Id:    d[2*j],
-					Value: d[2*j+1],
-				})
-			}
-
+			items_map[d[2*j]] = d[2*j+1]
 		}
 	}
 
-	if items != nil {
-		for _, item := range items {
-			this.add_resource(item.GetId(), item.GetValue())
+	if items_map != nil {
+		for k, v := range items_map {
+			this.add_resource(k, v)
 		}
 	}
 
-	return
+	return items_map
 }
 
 func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][]int32) int32 {
@@ -939,11 +920,18 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 	}
 
 	// 返还升级升阶的资源
-	var get_items []*msg_client_message.ItemInfo
+	var get_items map[int32]int32
 	for i := 0; i < len(cost_role_ids); i++ {
 		for j := 0; j < len(cost_role_ids[i]); j++ {
 			items := this._return_role_resource(cost_role_ids[i][j])
-			get_items = append(get_items, items...)
+			if items != nil {
+				if get_items == nil {
+					get_items = make(map[int32]int32)
+				}
+				for k, v := range items {
+					get_items[k] += v
+				}
+			}
 			this.delete_role(cost_role_ids[i][j])
 		}
 	}
@@ -959,7 +947,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 	response := &msg_client_message.S2CRoleFusionResponse{
 		NewCardId: item.Id,
 		RoleId:    new_role_id,
-		GetItems:  get_items,
+		GetItems:  Map2ItemInfos(get_items),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_FUSION_RESPONSE), response)
 

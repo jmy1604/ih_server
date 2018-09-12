@@ -470,27 +470,26 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 	return 1
 }
 
-func (this *Player) item_to_resource(item_id int32) []*msg_client_message.ItemInfo {
+func (this *Player) item_to_resource(item_id int32) (items_map map[int32]int32) {
 	item := item_table_mgr.Get(item_id)
 	if item == nil {
 		log.Error("Cant found item[%v] table data", item_id)
 		return nil
 	}
 
-	var resources []*msg_client_message.ItemInfo
 	if item.SellReward != nil {
 		for i := 0; i < len(item.SellReward)/2; i++ {
 			this.add_resource(item.SellReward[2*i], item.SellReward[2*i+1])
-			resources = append(resources, &msg_client_message.ItemInfo{
-				Id:    item.SellReward[2*i],
-				Value: item.SellReward[2*i+1],
-			})
+			if items_map == nil {
+				items_map = make(map[int32]int32)
+			}
+			items_map[item.SellReward[2*i]] += item.SellReward[2*i+1]
 		}
 	}
-	return resources
+	return
 }
 
-func (this *Player) sell_item(item_id, item_num int32) int32 {
+func (this *Player) sell_item(item_id, item_num int32, send_msg bool) int32 {
 	if item_num <= 0 {
 		log.Error("Player[%v] cant sell item with num[%v]", this.Id, item_num)
 		return -1
@@ -514,11 +513,13 @@ func (this *Player) sell_item(item_id, item_num int32) int32 {
 		}
 	}
 
-	response := &msg_client_message.S2CItemSellResponse{
-		ItemId:  item_id,
-		ItemNum: item_num,
+	if send_msg {
+		response := &msg_client_message.S2CItemSellResponse{
+			ItemId:  item_id,
+			ItemNum: item_num,
+		}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_SELL_RESPONSE), response)
 	}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_SELL_RESPONSE), response)
 
 	log.Debug("Player[%v] sell item[%v,%v], get items[%v]", this.Id, item_id, item_num, item.SellReward)
 
@@ -810,7 +811,7 @@ func C2SItemSellHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.sell_item(req.GetItemId(), req.GetItemNum())
+	return p.sell_item(req.GetItemId(), req.GetItemNum(), true)
 }
 
 func C2SItemEquipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
