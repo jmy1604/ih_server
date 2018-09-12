@@ -473,7 +473,7 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 				if card_table_mgr.GetRankCard(item_id, 1) == nil {
 					continue
 				}
-				if this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+				if this.db.Roles.NumAll() >= global_config.MaxRoleCount {
 					continue
 				}
 				this.new_role(item_id, 1, 1)

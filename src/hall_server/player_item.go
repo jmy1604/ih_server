@@ -433,7 +433,7 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
 	}
 
-	if piece.ComposeType == 1 && this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+	if piece.ComposeType == 1 && this.db.Roles.NumAll() >= global_config.MaxRoleCount {
 		log.Error("Player[%v] role bag is full, cant fusion", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_INVENTORY_NOT_ENOUGH_SPACE)
 	}
@@ -453,7 +453,7 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 		}
 		items[item.Id] += item.Value
 		i++
-		if piece.ComposeType == 1 && this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+		if piece.ComposeType == 1 && this.db.Roles.NumAll() >= global_config.MaxRoleCount {
 			break
 		}
 	}

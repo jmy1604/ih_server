@@ -147,7 +147,7 @@ func (this *Player) _init() {
 	this.friend_ask_add_locker = &sync.Mutex{}
 	this.friend_add_locker = &sync.Mutex{}
 	this.role_power_ranklist = &utils.ShortRankList{}
-	this.role_power_ranklist.Init(ROLE_MAX_COUNT)
+	this.role_power_ranklist.Init(global_config.MaxRoleCount)
 	this.agree_join_guild_locker = &sync.Mutex{}
 }
 

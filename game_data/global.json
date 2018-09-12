@@ -11,7 +11,7 @@
 	
 	"HeartbeatInterval":180,
 	
-	"MaxRoleCount": 300,
+	"MaxRoleCount": 500,
 	
 	"MailTitleBytes":32,
 	"MailContentBytes":240,

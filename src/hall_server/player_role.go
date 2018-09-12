@@ -12,10 +12,6 @@ import (
 )
 
 const (
-	ROLE_MAX_COUNT = 500
-)
-
-const (
 	ROLE_STATE_NONE    = iota
 	ROLE_STATE_TEAM    = 1
 	ROLE_STATE_EXPLORE = 2
@@ -78,7 +74,7 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 	}
 
 	// 转成碎片
-	if this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+	if this.db.Roles.NumAll() >= global_config.MaxRoleCount {
 		if card.BagFullChangeItem != nil {
 			this.add_resources(card.BagFullChangeItem)
 		}
@@ -146,7 +142,7 @@ func (this *Player) has_role(id int32) bool {
 
 func (this *Player) rand_role() int32 {
 	// 转成碎片
-	if this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+	if this.db.Roles.NumAll() >= global_config.MaxRoleCount {
 		log.Debug("Player[%v] rand new role failed because role bag is full", this.Id)
 		return -1
 	}
