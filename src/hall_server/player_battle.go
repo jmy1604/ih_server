@@ -277,6 +277,11 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 				hp, _ := friend.db.FriendBosss.GetMonsterHp(pos)
 				max_hp, _ := friend.db.FriendBosss.GetMonsterMaxHp(pos)
 
+				// 新BOSS
+				if hp == 0 {
+					hp = m.attrs[ATTR_HP_MAX]
+				}
+
 				var hp_adjust bool
 				if max_hp != m.attrs[ATTR_HP_MAX] {
 					if max_hp > 0 {

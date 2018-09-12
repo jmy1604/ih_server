@@ -997,9 +997,6 @@ func (this *Player) get_friend_boss_hp_percent() int32 {
 		return 0
 	}
 	hp_percent := this.db.FriendCommon.GetFriendBossHpPercent()
-	if hp_percent == 0 {
-		hp_percent = 100
-	}
 	return hp_percent
 }
 
