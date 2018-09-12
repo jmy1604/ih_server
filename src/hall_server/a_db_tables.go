@@ -1215,6 +1215,7 @@ type dbPlayerFriendBossData struct{
 	MonsterPos int32
 	MonsterId int32
 	MonsterHp int32
+	MonsterMaxHp int32
 }
 func (this* dbPlayerFriendBossData)from_pb(pb *db.PlayerFriendBoss){
 	if pb == nil {
@@ -1223,6 +1224,7 @@ func (this* dbPlayerFriendBossData)from_pb(pb *db.PlayerFriendBoss){
 	this.MonsterPos = pb.GetMonsterPos()
 	this.MonsterId = pb.GetMonsterId()
 	this.MonsterHp = pb.GetMonsterHp()
+	this.MonsterMaxHp = pb.GetMonsterMaxHp()
 	return
 }
 func (this* dbPlayerFriendBossData)to_pb()(pb *db.PlayerFriendBoss){
@@ -1230,12 +1232,14 @@ func (this* dbPlayerFriendBossData)to_pb()(pb *db.PlayerFriendBoss){
 	pb.MonsterPos = proto.Int32(this.MonsterPos)
 	pb.MonsterId = proto.Int32(this.MonsterId)
 	pb.MonsterHp = proto.Int32(this.MonsterHp)
+	pb.MonsterMaxHp = proto.Int32(this.MonsterMaxHp)
 	return
 }
 func (this* dbPlayerFriendBossData)clone_to(d *dbPlayerFriendBossData){
 	d.MonsterPos = this.MonsterPos
 	d.MonsterId = this.MonsterId
 	d.MonsterHp = this.MonsterHp
+	d.MonsterMaxHp = this.MonsterMaxHp
 	return
 }
 type dbPlayerTaskCommonData struct{
@@ -6806,6 +6810,28 @@ func (this *dbPlayerFriendBossColumn)SetMonsterHp(id int32,v int32)(has bool){
 		return
 	}
 	d.MonsterHp = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerFriendBossColumn)GetMonsterMaxHp(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendBossColumn.GetMonsterMaxHp")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.MonsterMaxHp
+	return v,true
+}
+func (this *dbPlayerFriendBossColumn)SetMonsterMaxHp(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendBossColumn.SetMonsterMaxHp")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.MonsterMaxHp = v
 	this.m_changed = true
 	return true
 }

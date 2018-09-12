@@ -270,6 +270,7 @@ message PlayerFriendBoss{
 	optional int32 MonsterPos=1;
 	optional int32 MonsterId=2;
 	optional int32 MonsterHp=3;
+	optional int32 MonsterMaxHp=4;
 }
 
 message PlayerFriendBossList{

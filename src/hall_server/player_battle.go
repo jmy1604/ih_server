@@ -275,10 +275,26 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 			// 好友BOSS
 			if friend != nil {
 				hp, _ := friend.db.FriendBosss.GetMonsterHp(pos)
-				if hp > 0 {
-					m.attrs[ATTR_HP] = hp
-					m.hp = m.attrs[ATTR_HP]
+				max_hp, _ := friend.db.FriendBosss.GetMonsterMaxHp(pos)
+
+				var hp_adjust bool
+				if max_hp != m.attrs[ATTR_HP_MAX] {
+					if max_hp > 0 {
+						hp_adjust = true
+					}
+					friend.db.FriendBosss.SetMonsterMaxHp(pos, m.attrs[ATTR_HP_MAX])
 				}
+				if hp_adjust {
+					if hp > max_hp {
+						hp = max_hp
+					}
+					hp = int32(int64(hp) * int64(m.attrs[ATTR_HP_MAX]) / int64(max_hp))
+				} else if hp > m.attrs[ATTR_HP_MAX] {
+					hp = m.attrs[ATTR_HP_MAX]
+				}
+				friend.db.FriendBosss.SetMonsterHp(pos, hp)
+				m.attrs[ATTR_HP] = hp
+				m.hp = m.attrs[ATTR_HP]
 			} else if guild != nil {
 				// 公会副本
 				hp_percent := guild.Stage.GetHpPercent()
@@ -725,23 +741,25 @@ func (this *BattleTeam) UpdateFriendBossHP() {
 		return
 	}
 
+	var percent int32
 	var boss *TeamMember
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		if this.members[i] == nil {
+		m := this.members[i]
+		if m == nil {
 			continue
 		}
 		if !this.friend.db.FriendBosss.HasIndex(i) {
 			continue
 		}
-		if this.members[i].is_dead() {
+		if m.is_dead() {
 			this.friend.db.FriendBosss.Remove(i)
 			continue
 		}
-		this.friend.db.FriendBosss.SetMonsterHp(i, this.members[i].hp)
-		boss = this.members[i]
+		this.friend.db.FriendBosss.SetMonsterHp(i, m.hp)
+		this.friend.db.FriendBosss.SetMonsterMaxHp(i, m.attrs[ATTR_HP_MAX])
+		boss = m
 	}
 	if boss != nil {
-		var percent int32
 		if boss.hp > 0 {
 			percent = int32(100 * int64(boss.hp) / int64(boss.attrs[ATTR_HP_MAX]))
 			if percent <= 0 {

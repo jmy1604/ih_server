@@ -501,7 +501,8 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"MonsterPos"},
 						{"Type":"int32","Index":2,"Name":"MonsterId"},
-						{"Type":"int32","Index":3,"Name":"MonsterHp"}
+						{"Type":"int32","Index":3,"Name":"MonsterHp"},
+						{"Type":"int32","Index":4,"Name":"MonsterMaxHp"}
 					]
 				},
 				{
