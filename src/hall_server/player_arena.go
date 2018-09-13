@@ -418,7 +418,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 	}
 
 	var power int32
-	team := make([]*msg_client_message.PlayerTeamRole, BATTLE_TEAM_MEMBER_MAX_NUM)
+	var team []*msg_client_message.PlayerTeamRole
 	if defense_team != nil {
 		for i := 0; i < len(defense_team); i++ {
 			m := defense_team[i]
@@ -428,12 +428,12 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 			table_id, _ := p.db.Roles.GetTableId(m)
 			level, _ := p.db.Roles.GetLevel(m)
 			rank, _ := p.db.Roles.GetRank(m)
-			team[int32(i)] = &msg_client_message.PlayerTeamRole{
+			team = append(team, &msg_client_message.PlayerTeamRole{
 				TableId: table_id,
 				Pos:     int32(i),
 				Level:   level,
 				Rank:    rank,
-			}
+			})
 		}
 		power = p.get_defense_team_power()
 	} else {
@@ -442,12 +442,12 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 			if m == nil {
 				continue
 			}
-			team[m.Slot] = &msg_client_message.PlayerTeamRole{
+			team = append(team, &msg_client_message.PlayerTeamRole{
 				TableId: m.MonsterID,
 				Pos:     m.Slot,
 				Level:   m.Level,
 				Rank:    m.Rank,
-			}
+			})
 		}
 		power = robot.power
 	}
