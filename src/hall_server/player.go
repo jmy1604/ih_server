@@ -736,6 +736,8 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		}
 	}
 
+	this.battle_random_reward_notify(global_config.ArenaBattleRewardDropId)
+
 	Output_S2CBattleResult(this, response)
 	return 1
 }

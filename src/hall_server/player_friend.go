@@ -722,33 +722,29 @@ func (this *Player) cancel_friend_boss_fight() bool {
 }
 
 // 战斗随机奖励
-func (this *Player) battle_random_reward_notify(reward_items map[int32]int32, drop_id int32) {
-	if reward_items != nil {
-		var items []*msg_client_message.ItemInfo
-		for k, v := range reward_items {
-			items = append(items, &msg_client_message.ItemInfo{
-				Id:    k,
-				Value: v,
-			})
+func (this *Player) battle_random_reward_notify(drop_id int32) {
+	var items []*msg_client_message.ItemInfo
+	var fake_items []int32
+	for i := 0; i <= 2; i++ {
+		o, item := this.drop_item_by_id(drop_id, false, nil)
+		if !o {
+			log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, drop_id)
 		}
-		var fake_items []int32
-		if this.sweep_num == 0 {
-			for i := 0; i < 2; i++ {
-				o, item := this.drop_item_by_id(drop_id, false, nil)
-				if !o {
-					log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, drop_id)
-				}
-				fake_items = append(fake_items, item.Id)
-			}
+		if i == 0 {
+			this.add_resource(item.Id, item.Value)
+			items = []*msg_client_message.ItemInfo{item}
+		} else {
+			fake_items = append(fake_items, item.Id)
 		}
-		if items != nil {
-			notify := &msg_client_message.S2CBattleRandomRewardNotify{
-				Items:     items,
-				FakeItems: fake_items,
-			}
-			this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RANDOM_REWARD_NOTIFY), notify)
-			log.Debug("Player[%v] battle random reward %v", this.Id, notify)
+	}
+
+	if items != nil {
+		notify := &msg_client_message.S2CBattleRandomRewardNotify{
+			Items:     items,
+			FakeItems: fake_items,
 		}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RANDOM_REWARD_NOTIFY), notify)
+		log.Debug("Player[%v] battle random reward %v", this.Id, notify)
 	}
 }
 
@@ -827,7 +823,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	var my_team, target_team []*msg_client_message.BattleMemberItem
 	var enter_reports []*msg_client_message.BattleReportItem
 	var rounds []*msg_client_message.BattleRoundReports
-	var reward_items map[int32]int32
+	//var reward_items map[int32]int32
 	for ; n < fight_num; n++ {
 		err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave = this.FightInStage(5, stage, p, nil)
 		if err < 0 {
@@ -863,14 +859,14 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 				break
 			}
 		} else {
-			o, item := this.drop_item_by_id(friend_boss_tdata.ChallengeDropID, true, nil)
+			/*o, item := this.drop_item_by_id(friend_boss_tdata.ChallengeDropID, true, nil)
 			if !o {
 				log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, friend_boss_tdata.ChallengeDropID)
 			}
 			if reward_items == nil {
 				reward_items = make(map[int32]int32)
 			}
-			reward_items[item.Id] += item.Value
+			reward_items[item.Id] += item.Value*/
 		}
 	}
 
@@ -906,7 +902,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Friend Boss Last Hit Reward", "Friend Boss Last Hit Reward", friend_boss_tdata.RewardLastHit)
 		SendMail2(nil, friend_id, MAIL_TYPE_SYSTEM, "Friend Boss Reward Owner", "Friend Boss Reward Owner", friend_boss_tdata.RewardOwner)
 	} else {
-		this.battle_random_reward_notify(reward_items, friend_boss_tdata.ChallengeDropID)
+		this.battle_random_reward_notify(friend_boss_tdata.ChallengeDropID)
 	}
 
 	Output_S2CBattleResult(this, response)

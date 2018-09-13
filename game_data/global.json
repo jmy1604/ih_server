@@ -41,6 +41,7 @@
 	"ArenaSeasonDays": 1,
 	"ArenaDayResetTime": "14:59:00",
 	"ArenaSeasonResetTime": "15:00:00",
+	"ArenaBattleRewardDropId": 210001,
 	
 	"ActiveStageRefreshTime": "00:00:00",
 	"ActiveStageChallengeNumOfDay": 100,

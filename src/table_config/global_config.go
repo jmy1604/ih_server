@@ -42,6 +42,7 @@ type GlobalConfig struct {
 	ArenaSeasonDays                      int32   // 竞技场赛季天数
 	ArenaDayResetTime                    string  // 竞技场每天重置时间
 	ArenaSeasonResetTime                 string  // 竞技场赛季重置时间
+	ArenaBattleRewardDropId              int32   // 竞技场挑战奖励
 	ActiveStageRefreshTime               string  // 活动副本数据重置时间
 	ActiveStageChallengeNumOfDay         int32   // 活动副本重置挑战次数
 	ActiveStageChallengeNumPrice         int32   // 活动副本挑战次数购买价格
