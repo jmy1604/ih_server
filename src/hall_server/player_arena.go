@@ -444,7 +444,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 			}
 			team = append(team, &msg_client_message.PlayerTeamRole{
 				TableId: m.MonsterID,
-				Pos:     m.Slot,
+				Pos:     m.Slot - 1,
 				Level:   m.Level,
 				Rank:    m.Rank,
 			})
