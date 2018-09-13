@@ -892,7 +892,7 @@ func skill_effect_temp_attrs(self_mem *TeamMember, effect []int32) {
 	}
 	self_mem.temp_changed_attrs_used = 1
 
-	log.Debug("@@@@@@@@@@@@@@@@@@@@@ team[%v] member[%v] 增加了技能临时属性 %v", self_mem.team.side, self_mem.pos, self_mem.temp_changed_attrs)
+	log.Debug("team[%v] member[%v] 增加了技能临时属性 %v", self_mem.team.side, self_mem.pos, self_mem.temp_changed_attrs)
 }
 
 // 设置临时属性已计算
@@ -902,7 +902,7 @@ func skill_effect_temp_attrs_used(self_mem *TeamMember) {
 	}
 	if self_mem.temp_changed_attrs_used == 1 {
 		self_mem.temp_changed_attrs_used = 2
-		log.Debug("@@@@@@@@@@@@@@@@@@@@@ team[%v] member[%v] 使用了技能临时属性", self_mem.team.side, self_mem.pos)
+		log.Debug("team[%v] member[%v] 使用了技能临时属性", self_mem.team.side, self_mem.pos)
 	}
 }
 
@@ -916,7 +916,7 @@ func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
 			self_mem.add_attr(k, -v)
 		}
 		self_mem.temp_changed_attrs_used = 0
-		log.Debug("@@@@@@@@@@@@@@@@@@@@@ team[%v] member[%v] 清空了技能临时属性 %v", self_mem.team.side, self_mem.pos, self_mem.temp_changed_attrs)
+		log.Debug("team[%v] member[%v] 清空了技能临时属性 %v", self_mem.team.side, self_mem.pos, self_mem.temp_changed_attrs)
 		self_mem.temp_changed_attrs = nil
 	}
 }
@@ -954,6 +954,12 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	self := self_team.members[self_pos]
 	if self == nil {
 		return
+	}
+
+	if skill_data.Type != SKILL_TYPE_PASSIVE {
+		log.Debug("++++++++++++++++++++++ begin Team[%v] mem[%v] use skill[%v] to target_team[%v] target_pos[%v] ++++++++++++++++++++++++", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos)
+	} else {
+		log.Debug("====================== begin Team[%v] mem[%v] use passive skill[%v] to target_team[%v] target_pos[%v] =======================", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos)
 	}
 
 	var report, last_report *msg_client_message.BattleReportItem
@@ -1292,6 +1298,12 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 	if report != nil {
 		report.User.HP = self.hp
+	}
+
+	if skill_data.Type != SKILL_TYPE_PASSIVE {
+		log.Debug("++++++++++++++++++++++ end Team[%v] mem[%v] used skill[%v] target_team[%v] target_pos[%v] ++++++++++++++++++++++++++", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos)
+	} else {
+		log.Debug("====================== end Team[%v] mem[%v] used passive skill[%v] target_team[%v] target_pos[%v] ==========================", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos)
 	}
 
 	return

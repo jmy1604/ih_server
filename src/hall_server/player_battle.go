@@ -1030,7 +1030,7 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 		return -1
 	}
 
-	log.Debug("Player[%v] fight battle_type[%v], battle_param[%v], team members: %v, assist_friend_id: %v  assist_role_id: %v, assist_pos: %v", this.Id, battle_type, battle_param, team_members, assist_friend_id, assist_role_id, assist_pos)
+	log.Debug("Player[%v] fight battle_type[%v], battle_param[%v], sweep_num[%v], team members: %v, assist_friend_id: %v  assist_role_id: %v, assist_pos: %v", this.Id, battle_type, battle_param, this.sweep_num, team_members, assist_friend_id, assist_role_id, assist_pos)
 
 	// 助战
 	if assist_friend_id > 0 && this.db.Friends.HasIndex(assist_friend_id) {
