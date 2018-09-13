@@ -800,7 +800,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 
 	// 体力
 	var need_stamina int32
-	if p.sweep_num == 0 {
+	if this.sweep_num == 0 {
 		need_stamina = global_config.FriendBossAttackCostStamina
 	} else {
 		need_stamina = global_config.FriendBossAttackCostStamina * p.sweep_num
@@ -812,10 +812,10 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	}
 
 	var fight_num int32
-	if p.sweep_num == 0 {
+	if this.sweep_num == 0 {
 		fight_num = 1
 	} else {
-		fight_num = p.sweep_num
+		fight_num = this.sweep_num
 	}
 
 	var err, n int32
@@ -854,7 +854,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		if is_win {
 			p.db.FriendCommon.SetFriendBossTableId(0)
 			p.db.FriendCommon.SetFriendBossHpPercent(0)
-			if p.sweep_num > 0 {
+			if this.sweep_num > 0 {
 				n += 1
 				break
 			}
@@ -891,7 +891,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		HasNextWave:         has_next_wave,
 		BattleType:          5,
 		BattleParam:         friend_id,
-		SweepNum:            p.sweep_num,
+		SweepNum:            this.sweep_num,
 		ExtraValue:          p.get_friend_boss_hp_percent(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
@@ -993,6 +993,9 @@ func (this *Player) get_friend_boss_hp_percent() int32 {
 		return 0
 	}
 	hp_percent := this.db.FriendCommon.GetFriendBossHpPercent()
+	if hp_percent == 0 {
+		hp_percent = 100
+	}
 	return hp_percent
 }
 
