@@ -990,14 +990,14 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 			}
 
-			// 被动技，攻击计算伤害前触发
-			if skill_data.Type != SKILL_TYPE_PASSIVE && effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
-				passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos, true)
-			}
-
 			if effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
 				if target == nil || target.is_dead() || target.is_will_dead() {
 					continue
+				}
+
+				// 被动技，攻击计算伤害前触发
+				if skill_data.Type != SKILL_TYPE_PASSIVE {
+					passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos, true)
 				}
 
 				// 被动技，被击计算伤害前触发
@@ -1307,27 +1307,27 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 		return
 	}
 
-	if !skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
-		return
-	}
-
 	used := false
 	r := self.team.GetLastReport()
 	if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
 		if self.team.UseSkillOnce(self.pos, target_team, skill.Id) != nil {
 			used = true
 		}
-		if target_team != nil {
-			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side)
-		} else {
-			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
+		if used {
+			if target_team != nil {
+				log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side)
+			} else {
+				log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
+			}
 		}
 	} else {
 		used = skill_effect(self.team, self.pos, target_team, trigger_pos, skill)
-		if target_team != nil && trigger_pos != nil {
-			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side, trigger_pos)
-		} else {
-			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
+		if used {
+			if target_team != nil && trigger_pos != nil {
+				log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side, trigger_pos)
+			} else {
+				log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
+			}
 		}
 	}
 

@@ -503,12 +503,19 @@ func (this *BattleTeam) UseSkillOnce(self_index int32, target_team *BattleTeam, 
 	}
 
 	is_enemy, target_pos, skill := this.FindTargets(self, target_team, trigger_skill)
-	if target_pos == nil {
+	if target_pos == nil || skill == nil {
 		log.Warn("team[%v] member[%v] Cant find targets to attack", this.side, self_index)
 		return nil
 	}
 
 	log.Debug("team[%v] member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", this.side, self_index, is_enemy, target_pos, skill.Id)
+
+	if skill.Type == SKILL_TYPE_PASSIVE {
+		if !skill_check_cond(self, target_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+			log.Debug("BattleTeam[%v] member[%v] use skill[%v] to target team[%v] targets[%v] with condition1[%v] condition2[%v] check failed, self_team[%p] target_team[%p]", this.side, self_index, skill.Id, target_team.side, target_pos, skill.TriggerCondition1Str, skill.TriggerCondition2Str, this, target_team)
+			return nil
+		}
+	}
 
 	if !is_enemy {
 		target_team = this
