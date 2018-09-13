@@ -683,6 +683,11 @@ func (this *Player) explore_remove_task(id int32, is_story bool) {
 				this.db.Roles.SetState(role_id, ROLE_STATE_NONE)
 			}
 		}
+		notify := &msg_client_message.S2CExploreRemoveNotify{
+			Id:      id,
+			IsStory: is_story,
+		}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_REMOVE_NOTIFY), notify)
 	}
 }
 
@@ -1022,11 +1027,6 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 
 	if is_win && !has_next_wave {
 		this.explore_remove_task(id, is_story)
-		notify := &msg_client_message.S2CExploreRemoveNotify{
-			Id:      id,
-			IsStory: is_story,
-		}
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_REMOVE_NOTIFY), notify)
 		this.send_stage_reward(stage.RewardList, 6)
 
 		// 更新任务
