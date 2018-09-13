@@ -1321,18 +1321,6 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 
 	used := false
 	r := self.team.GetLastReport()
-	//if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
-	//	if self.team.UseSkillOnce(self.pos, target_team, skill.Id) != nil {
-	//		used = true
-	//	}
-	//	if used {
-	//		if target_team != nil {
-	//			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side)
-	//		} else {
-	//			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
-	//		}
-	//	}
-	//} else {
 	if !skill_check_cond(self, target_team, trigger_pos, skill.TriggerCondition1, skill.TriggerCondition2) {
 		log.Debug("BattleTeam[%v] member[%v] use skill[%v] to target team[%v] targets[%v] with condition1[%v] condition2[%v] check failed, self_team[%p] target_team[%p]", self.team.side, self.pos, skill.Id, target_team.side, trigger_pos, skill.TriggerCondition1Str, skill.TriggerCondition2Str, self.team, target_team)
 		return
@@ -1358,7 +1346,6 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 			r.HasCombo = true
 		}
 	}
-	//}
 
 	self.used_passive_trigger_count(trigger_event, skill.Id)
 	triggered = true
