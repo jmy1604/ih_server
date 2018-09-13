@@ -393,8 +393,8 @@ func (this *BattleTeam) RoundEnd() {
 	}
 }
 
-// find targets
-func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, trigger_skill int32) (is_enemy bool, pos []int32, skill *table_config.XmlSkillItem) {
+// 获得使用的技能
+func (this *BattleTeam) GetTheUseSkill(self *TeamMember, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
 	skill_id := int32(0)
 	if trigger_skill == 0 {
 		use_normal := true
@@ -447,9 +447,14 @@ func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, t
 
 	if trigger_skill > 0 && self.is_disable_attack() && skill.Type != SKILL_TYPE_PASSIVE {
 		log.Debug("############# Team[%v] member[%v] disable combo skill[%v]", this.side, self.pos, trigger_skill)
-		return
+		return nil
 	}
 
+	return
+}
+
+// find targets
+func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, skill *table_config.XmlSkillItem, passive_trigger_pos []int32) (pos []int32, is_enemy bool) {
 	if skill.Type == SKILL_TYPE_NORMAL {
 
 	} else if skill.Type == SKILL_TYPE_SUPER {
@@ -483,7 +488,7 @@ func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, t
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_SELF {
 		pos = skill_get_force_self_targets(self.pos, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_TRIGGER_OBJECT {
-
+		pos = passive_trigger_pos
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_CROPSE {
 
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_EMPTY_POS {
@@ -502,20 +507,19 @@ func (this *BattleTeam) UseSkillOnce(self_index int32, target_team *BattleTeam, 
 		return nil
 	}
 
-	is_enemy, target_pos, skill := this.FindTargets(self, target_team, trigger_skill)
-	if target_pos == nil || skill == nil {
+	skill = this.GetTheUseSkill(self, target_team, trigger_skill)
+	if skill == nil {
+		log.Warn("team[%v] member[%v] cant get the use skill", this.side, self_index)
+		return
+	}
+
+	target_pos, is_enemy := this.FindTargets(self, target_team, skill, nil)
+	if target_pos == nil {
 		log.Warn("team[%v] member[%v] Cant find targets to attack", this.side, self_index)
 		return nil
 	}
 
 	log.Debug("team[%v] member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", this.side, self_index, is_enemy, target_pos, skill.Id)
-
-	if skill.Type == SKILL_TYPE_PASSIVE {
-		if !skill_check_cond(self, target_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
-			log.Debug("BattleTeam[%v] member[%v] use skill[%v] to target team[%v] targets[%v] with condition1[%v] condition2[%v] check failed, self_team[%p] target_team[%p]", this.side, self_index, skill.Id, target_team.side, target_pos, skill.TriggerCondition1Str, skill.TriggerCondition2Str, this, target_team)
-			return nil
-		}
-	}
 
 	if !is_enemy {
 		target_team = this

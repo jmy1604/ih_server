@@ -593,7 +593,7 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 	return true
 }
 
-func skill_check_cond(self *TeamMember, target_pos []int32, target_team *BattleTeam, effect_cond1 []int32, effect_cond2 []int32) bool {
+func skill_check_cond(self *TeamMember, target_team *BattleTeam, target_pos []int32, effect_cond1 []int32, effect_cond2 []int32) bool {
 	if (effect_cond1 == nil || len(effect_cond1) == 0) && (effect_cond2 == nil || len(effect_cond2) == 0) {
 		return true
 	}
@@ -952,7 +952,7 @@ func _get_battle_report(report *msg_client_message.BattleReportItem, skill_id in
 func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) (used bool) {
 	effects := skill_data.Effects
 	self := self_team.members[self_pos]
-	if self == nil {
+	if self == nil || target_team == nil {
 		return
 	}
 
@@ -1003,7 +1003,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				// 被动技，攻击计算伤害前触发
 				if skill_data.Type != SKILL_TYPE_PASSIVE {
-					passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos, true)
+					passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
 				}
 
 				// 被动技，被击计算伤害前触发
@@ -1321,37 +1321,47 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 
 	used := false
 	r := self.team.GetLastReport()
-	if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
-		if self.team.UseSkillOnce(self.pos, target_team, skill.Id) != nil {
-			used = true
-		}
-		if used {
-			if target_team != nil {
-				log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side)
-			} else {
-				log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
-			}
-		}
-	} else {
-		used = skill_effect(self.team, self.pos, target_team, trigger_pos, skill)
-		if used {
-			if target_team != nil && trigger_pos != nil {
-				log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side, trigger_pos)
-			} else {
-				log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
-			}
-		}
+	//if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
+	//	if self.team.UseSkillOnce(self.pos, target_team, skill.Id) != nil {
+	//		used = true
+	//	}
+	//	if used {
+	//		if target_team != nil {
+	//			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side)
+	//		} else {
+	//			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
+	//		}
+	//	}
+	//} else {
+	if !skill_check_cond(self, target_team, trigger_pos, skill.TriggerCondition1, skill.TriggerCondition2) {
+		log.Debug("BattleTeam[%v] member[%v] use skill[%v] to target team[%v] targets[%v] with condition1[%v] condition2[%v] check failed, self_team[%p] target_team[%p]", self.team.side, self.pos, skill.Id, target_team.side, trigger_pos, skill.TriggerCondition1Str, skill.TriggerCondition2Str, self.team, target_team)
+		return
 	}
 
+	target_pos, is_enemy := self.team.FindTargets(self, target_team, skill, trigger_pos)
+	if target_pos == nil {
+		return
+	}
+
+	if !is_enemy {
+		target_team = self.team
+	}
+
+	used = skill_effect(self.team, self.pos, target_team, target_pos, skill)
 	if used {
+		if target_team != nil {
+			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side, target_pos)
+		} else {
+			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
+		}
 		if r != nil && is_combo {
 			r.HasCombo = true
 		}
 	}
+	//}
 
 	self.used_passive_trigger_count(trigger_event, skill.Id)
 	triggered = true
-
 	return
 }
 
