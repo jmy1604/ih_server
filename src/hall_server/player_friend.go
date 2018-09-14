@@ -762,7 +762,7 @@ func (this *Player) battle_random_reward_notify(drop_id, drop_num int32) {
 
 // 挑战好友BOSS
 func (this *Player) friend_boss_challenge(friend_id int32) int32 {
-	if this.sweep_num < 0 || this.sweep_num > 10 {
+	if this.sweep_num < 0 || this.sweep_num > global_config.FriendStaminaLimit {
 		return -1
 	}
 
@@ -911,8 +911,9 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		if this.sweep_num == 0 {
 			n = 0
 		}
-		this.battle_random_reward_notify(friend_boss_tdata.ChallengeDropID, n)
 	}
+
+	this.battle_random_reward_notify(friend_boss_tdata.ChallengeDropID, n)
 
 	Output_S2CBattleResult(this, response)
 
