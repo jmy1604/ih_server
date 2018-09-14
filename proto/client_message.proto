@@ -547,6 +547,7 @@ message S2CCampaignDataResponse {
 	int32 UnlockCampaignId					= 2; // 已战役关卡ID
 	int32 HangupCampaignId					= 3; // 挂机战役关卡
 	repeated ItemInfo StaticIncomes			= 4; // 当前挂机固定收益
+	int32 IncomeRemainSeconds				= 5; // 收益剩余秒数
 }
 
 // 请求战役挂机收益
@@ -558,6 +559,7 @@ message C2SCampaignHangupIncomeRequest {
 message S2CCampaignHangupIncomeResponse {
 	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战役奖励  3 爬塔奖励  4 活动副本奖励  5 挑战好友BOSS  6 探索任务  7 公会副本
 	repeated ItemInfo Rewards				= 2; // 奖励
+	int32 HangupIncomeRemainSeconds			= 3; // 挂机收益剩余秒数
 }
 
 // 设置挂机战役关卡

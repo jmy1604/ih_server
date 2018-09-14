@@ -151,7 +151,7 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 		// 名次
 		tower_ranking_list.Update(this.Id, tower_id)
 		// 奖励
-		this.send_stage_reward(stage.RewardList, 3)
+		this.send_stage_reward(stage.RewardList, 3, 0)
 		// 录像
 		for i := int32(1); i <= 3; i++ {
 			tower_fight_id := get_tower_fight_id(tower_id, i)

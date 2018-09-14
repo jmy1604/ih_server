@@ -419,11 +419,11 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	if is_win && !has_next_wave {
 		// 关卡奖励
 		rewards := append(stage.RewardList, guild_stage.BattleReward...)
-		this.send_stage_reward(rewards, 7)
+		this.send_stage_reward(rewards, 7, 0)
 		// 排名奖励
 		guild_stage_manager.RankListReward(guild.GetId(), boss_id)
 	} else {
-		this.send_stage_reward(guild_stage.BattleReward, 7)
+		this.send_stage_reward(guild_stage.BattleReward, 7, 0)
 	}
 
 	// 更新伤害排行榜

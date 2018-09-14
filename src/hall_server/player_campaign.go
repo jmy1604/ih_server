@@ -302,24 +302,32 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 	return
 }
 
-func (this *Player) send_stage_reward(rewards []int32, reward_type int32) {
+func (this *Player) send_stage_reward(rewards []int32, reward_type int32, income_remain_seconds int32) {
 	if rewards == nil || len(rewards) == 0 {
 		return
 	}
 
-	rewards_msg := &msg_client_message.S2CCampaignHangupIncomeResponse{}
+	var item_rewards []*msg_client_message.ItemInfo
 	// 奖励
 	for i := 0; i < len(rewards)/2; i++ {
 		item_id := rewards[2*i]
 		item_num := rewards[2*i+1]
 		this.add_resource(item_id, item_num)
-		rewards_msg.Rewards = append(rewards_msg.Rewards, &msg_client_message.ItemInfo{
+		item_rewards = append(item_rewards, &msg_client_message.ItemInfo{
 			Id:    item_id,
 			Value: item_num,
 		})
 	}
-	rewards_msg.IncomeType = reward_type
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), rewards_msg)
+	this._send_stage_reward(item_rewards, reward_type, income_remain_seconds)
+}
+
+func (this *Player) _send_stage_reward(item_rewards []*msg_client_message.ItemInfo, reward_type int32, income_remain_seconds int32) {
+	response := &msg_client_message.S2CCampaignHangupIncomeResponse{
+		Rewards:                   item_rewards,
+		IncomeType:                reward_type,
+		HangupIncomeRemainSeconds: income_remain_seconds,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), response)
 }
 
 func (this *Player) FightInCampaign(campaign_id int32) int32 {
@@ -388,7 +396,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 
 	if is_win && !has_next_wave {
 		this.db.CampaignCommon.SetLastestPassedCampaignId(campaign_id)
-		this.send_stage_reward(stage.RewardList, 2)
+		this.send_stage_reward(stage.RewardList, 2, 0)
 		// 更新排名
 		this._update_campaign_rank_data(campaign_id, atomic.AddInt32(&campaign_rank_serial_id, 1))
 		// 更新任务 通过章节
@@ -569,7 +577,7 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 }
 
 // 关卡挂机收益
-func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes []*msg_client_message.ItemInfo) {
+func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, income_remain_seconds int32) {
 	hangup_id := this.db.CampaignCommon.GetHangupCampaignId()
 	if hangup_id == 0 {
 		return
@@ -600,38 +608,29 @@ func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes
 			}
 		}
 		this.db.CampaignCommon.SetHangupLastDropStaticIncomeTime(now_time - cs)
+		income_remain_seconds = campaign.RandomDropSec - cs
 	} else {
 		random_income_time := this.db.CampaignCommon.GetHangupLastDropRandomIncomeTime()
 		var cr int32
 		if last_logout == 0 {
 			incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
-			//log.Info("111111111111111111111111111, incomes %v, cr %v", incomes, cr)
 		} else {
 			if last_logout >= random_income_time {
 				if now_time-last_logout >= 8*3600 {
 					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, last_logout+8*3600, is_cache)
-					//log.Info("222222222222222222222222222, incomes %v, cr %v", incomes, cr)
 				} else {
 					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
-					//log.Info("333333333333333333333333333, incomes %v, cr %v", incomes, cr)
 				}
 			} else {
 				incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
-				//log.Info("444444444444444444444444444, incomes %v, cr %v", incomes, cr)
 			}
 		}
 		this.db.CampaignCommon.SetHangupLastDropRandomIncomeTime(now_time - cr)
+		income_remain_seconds = campaign.RandomDropSec - cr
 	}
 
 	if !is_cache {
-		var msg msg_client_message.S2CCampaignHangupIncomeResponse
-		msg.IncomeType = income_type
-		if incomes != nil {
-			msg.Rewards = incomes
-		} else {
-			msg.Rewards = make([]*msg_client_message.ItemInfo, 0)
-		}
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), &msg)
+		this._send_stage_reward(incomes, income_type, income_remain_seconds)
 		if incomes != nil {
 			// 更新任务
 			this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_HUANG_UP_NUM, false, 0, 1)
@@ -654,19 +653,21 @@ func (this *dbPlayerCampaignColumn) GetPassedCampaignIds() []int32 {
 }
 
 func (this *Player) send_campaigns() {
-	incomes := this.hangup_income_get(0, true)
+	incomes, remain_seconds := this.hangup_income_get(0, true)
 	passed_ids := this.db.Campaigns.GetPassedCampaignIds()
 	response := &msg_client_message.S2CCampaignDataResponse{}
 	response.PassedCampaignIds = passed_ids
 	response.UnlockCampaignId = this.db.CampaignCommon.GetCurrentCampaignId()
 	response.HangupCampaignId = this.db.CampaignCommon.GetHangupCampaignId()
 	response.StaticIncomes = incomes
+	response.IncomeRemainSeconds = remain_seconds
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_DATA_RESPONSE), response)
 }
 
 // 返回值 1 增加 -1 删除  0 不做处理
 func (this *Player) check_income_state() int32 {
-	if this.hangup_income_get(0, true) == nil {
+	incomes, _ := this.hangup_income_get(0, true)
+	if incomes == nil {
 		if this.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME)) {
 			this.db.NotifyStates.Remove(int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME))
 			return -1

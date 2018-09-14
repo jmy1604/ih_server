@@ -212,7 +212,7 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 
 	if is_win {
 		this.db.ActiveStages.IncbyCanChallengeNum(active_stage.Type, -1)
-		this.send_stage_reward(stage.RewardList, 4)
+		this.send_stage_reward(stage.RewardList, 4, 0)
 	}
 
 	member_damages := this.active_stage_team.common_data.members_damage

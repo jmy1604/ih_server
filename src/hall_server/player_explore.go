@@ -1027,7 +1027,7 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 
 	if is_win && !has_next_wave {
 		this.explore_remove_task(id, is_story)
-		this.send_stage_reward(stage.RewardList, 6)
+		this.send_stage_reward(stage.RewardList, 6, 0)
 
 		// 更新任务
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_EXPLORE_NUM, false, 0, 1)
