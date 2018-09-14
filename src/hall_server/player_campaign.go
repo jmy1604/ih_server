@@ -657,7 +657,8 @@ func (this *dbPlayerCampaignColumn) GetPassedCampaignIds() []int32 {
 }
 
 func (this *Player) send_campaigns() {
-	incomes, remain_seconds := this.hangup_income_get(0, true)
+	incomes, _ := this.hangup_income_get(0, true)
+	_, remain_seconds := this.hangup_income_get(1, true)
 	passed_ids := this.db.Campaigns.GetPassedCampaignIds()
 	response := &msg_client_message.S2CCampaignDataResponse{}
 	response.PassedCampaignIds = passed_ids
