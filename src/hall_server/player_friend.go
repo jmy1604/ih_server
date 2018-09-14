@@ -971,18 +971,22 @@ func (this *Player) check_and_add_friend_stamina() (add_stamina int32, remain_se
 		this.add_resource(global_config.FriendStaminaItemId, global_config.FriendStartStamina)
 		add_stamina = global_config.FriendStartStamina
 		remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours * 3600
+		this.db.FriendCommon.SetLastGetStaminaTime(now_time)
 	} else {
-		cost_seconds := now_time - last_get_stamina_time
-		y := cost_seconds % (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
-		add_stamina = (cost_seconds - y) / (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
-		if add_stamina > 0 {
-			this.add_resource(global_config.FriendStaminaItemId, add_stamina)
+		stamina := this.get_resource(global_config.FriendStaminaItemId)
+		if stamina < global_config.FriendStaminaLimit {
+			cost_seconds := now_time - last_get_stamina_time
+			y := cost_seconds % (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
+			add_stamina = (cost_seconds - y) / (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
+			if add_stamina > 0 {
+				this.add_resource(global_config.FriendStaminaItemId, add_stamina)
+			}
+			now_time -= y
+			remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours*3600 - y
+			this.db.FriendCommon.SetLastGetStaminaTime(now_time)
 		}
-		now_time -= y
-		remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours*3600 - y
 	}
 
-	this.db.FriendCommon.SetLastGetStaminaTime(now_time)
 	return
 }
 
@@ -1015,9 +1019,9 @@ func (this *Player) friend_data(send bool) int32 {
 	if send {
 		last_refresh_boss_time := this.db.FriendCommon.GetLastBossRefreshTime()
 		now_time := int32(time.Now().Unix())
-		remain_seconds = global_config.FriendSearchBossRefreshMinutes*60 - (now_time - last_refresh_boss_time)
-		if remain_seconds < 0 {
-			remain_seconds = 0
+		boss_remain_seconds := global_config.FriendSearchBossRefreshMinutes*60 - (now_time - last_refresh_boss_time)
+		if boss_remain_seconds < 0 {
+			boss_remain_seconds = 0
 		}
 		response := &msg_client_message.S2CFriendDataResponse{
 			StaminaItemId:            global_config.FriendStaminaItemId,
@@ -1028,7 +1032,7 @@ func (this *Player) friend_data(send bool) int32 {
 			BossId:                  this.db.FriendCommon.GetFriendBossTableId(),
 			BossHpPercent:           this.get_friend_boss_hp_percent(),
 			AssistGetPoints:         this.get_assist_points(),
-			SearchBossRemainSeconds: remain_seconds,
+			SearchBossRemainSeconds: boss_remain_seconds,
 			AssistRoleId:            this.db.FriendCommon.GetAssistRoleId(),
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_DATA_RESPONSE), response)
