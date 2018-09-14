@@ -54,7 +54,7 @@
 	"FriendPointsOnceGive": 20,
 	"FriendStaminaItemId": 12,
 	"FriendStaminaLimit": 10,
-	"FriendStartStamina": 10,
+	"FriendStartStamina": 0,
 	"FriendStaminaResumeOnePointNeedHours": 2,
 	"FriendBossAttackCostStamina": 1,
 	"FriendBossAttackCooldown": 3600,

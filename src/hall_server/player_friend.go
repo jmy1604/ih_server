@@ -968,22 +968,29 @@ func (this *Player) check_and_add_friend_stamina() (add_stamina int32, remain_se
 	now_time := int32(time.Now().Unix())
 	last_get_stamina_time := this.db.FriendCommon.GetLastGetStaminaTime()
 	if last_get_stamina_time == 0 {
-		this.add_resource(global_config.FriendStaminaItemId, global_config.FriendStartStamina)
-		add_stamina = global_config.FriendStartStamina
-		remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours * 3600
+		this.add_resource(global_config.FriendStaminaItemId, global_config.FriendStaminaLimit)
+		add_stamina = global_config.FriendStaminaLimit
+		//remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours * 3600
 		this.db.FriendCommon.SetLastGetStaminaTime(now_time)
 	} else {
 		stamina := this.get_resource(global_config.FriendStaminaItemId)
 		if stamina < global_config.FriendStaminaLimit {
+			need_stamina := global_config.FriendStaminaLimit - stamina
 			cost_seconds := now_time - last_get_stamina_time
 			y := cost_seconds % (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
 			add_stamina = (cost_seconds - y) / (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
 			if add_stamina > 0 {
+				if add_stamina > need_stamina {
+					add_stamina = need_stamina
+				}
 				this.add_resource(global_config.FriendStaminaItemId, add_stamina)
+				stamina = this.get_resource(global_config.FriendStaminaItemId)
 			}
 			now_time -= y
-			remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours*3600 - y
 			this.db.FriendCommon.SetLastGetStaminaTime(now_time)
+			if stamina < global_config.FriendStaminaLimit {
+				remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours*3600 - y
+			}
 		}
 	}
 
