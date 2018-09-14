@@ -1405,6 +1405,7 @@ message ExploreData {
 	int32 RemainSeconds						= 9; // 任务剩余秒数
 	repeated int32 RandomRewards			= 10; // 随机奖励  格式(id,num,id,num...)
 	bool IsLock								= 11; // 是否锁定
+	int32 RewardStageId						= 12; // 奖励关卡ID
 }
 
 // 请求探索数据

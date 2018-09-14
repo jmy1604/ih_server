@@ -243,6 +243,7 @@ func (this *Player) explore_format_tasks() (tasks []*msg_client_message.ExploreD
 		d.RoleId4Title, _ = this.db.Explores.GetRoleId4TaskTitle(id)
 		d.NameId4Title, _ = this.db.Explores.GetNameId4TaskTitle(id)
 		d.RandomRewards, _ = this.db.Explores.GetRandomRewards(id)
+		d.RewardStageId, _ = this.db.Explores.GetRewardStageId(id)
 		is_lock, _ := this.db.Explores.GetIsLock(id)
 		if is_lock > 0 {
 			d.IsLock = true
@@ -286,6 +287,7 @@ func (this *Player) explore_story_format_tasks() (story_tasks []*msg_client_mess
 			}
 		}
 		d.RandomRewards, _ = this.db.ExploreStorys.GetRandomRewards(task_id)
+		d.RewardStageId, _ = this.db.ExploreStorys.GetRewardStageId(task_id)
 		this.db.ExploreStorys.SetState(task_id, d.State)
 		story_tasks = append(story_tasks, d)
 	}
