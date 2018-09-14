@@ -38,7 +38,7 @@
 	"ArenaRepeatedWinNum": 2,
 	"ArenaLoseRepeatedNum": 1,
 	"ArenaHighGradeStart": 3,
-	"ArenaSeasonDays": 1,
+	"ArenaSeasonDays": 7,
 	"ArenaDayResetTime": "14:59:00",
 	"ArenaSeasonResetTime": "15:00:00",
 	"ArenaBattleRewardDropId": 210001,
