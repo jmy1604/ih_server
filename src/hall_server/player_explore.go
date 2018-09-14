@@ -479,6 +479,8 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 		types, _ = this.db.Explores.GetRoleTypesCanSel(id)
 	}
 
+	var role_tdatas []*table_config.XmlCardItem
+	var star_reach bool
 	for i := 0; i < len(role_ids); i++ {
 		role_id := role_ids[i]
 		if !this.db.Roles.HasIndex(role_id) {
@@ -490,45 +492,59 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 
 		// 状态判断
 		if !(state == ROLE_STATE_NONE || (state == ROLE_STATE_EXPLORE && this.is_explore_task_has_role(id, role_id))) {
-			continue
+			return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
 		}
 
 		table_id, _ := this.db.Roles.GetTableId(role_id)
 		rank, _ := this.db.Roles.GetRank(role_id)
 		role_tdata := card_table_mgr.GetRankCard(table_id, rank)
 		if role_tdata == nil {
-			continue
+			return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_TABLE_DATA_NOT_FOUND)
 		}
 
-		if role_tdata.Rarity < task.CardStarCond {
-			log.Error("Player[%v] explore sel role[%v] rarity not enough", this.Id, role_id)
-			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_STAR_NOT_ENOUGH)
+		if role_tdata.Rarity >= task.CardStarCond {
+			star_reach = true
 		}
 
-		if camps != nil && len(camps) > 0 {
-			has_camp := false
+		role_tdatas = append(role_tdatas, role_tdata)
+	}
+
+	if !star_reach {
+		log.Error("Player[%v] explore sel roles %v rarity %v not be satisfied", this.Id, role_ids, task.CardStarCond)
+		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_STAR_NOT_ENOUGH)
+	}
+
+	if camps != nil && len(camps) > 0 {
+		for i := 0; i < len(role_tdatas); i++ {
+			role_tdata := role_tdatas[i]
 			for j := 0; j < len(camps); j++ {
 				if role_tdata.Camp == camps[j] {
-					has_camp = true
+					camps[j] = 0
 					break
 				}
 			}
-			if !has_camp {
-				log.Error("Player[%v] set role[%v] to explore task[%v] failed, camp[%v] not suitable", this.Id, role_id, task_id, role_tdata.Camp)
+		}
+		for i := 0; i < len(camps); i++ {
+			if camps[i] > 0 {
+				log.Error("Player[%v] sel roles %v to explore task[%v] failed, camp[%v] not be satisfied", this.Id, role_ids, task_id, camps[i])
 				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_CAMP_INVALID)
 			}
 		}
+	}
 
-		if types != nil && len(types) > 0 {
-			has_type := false
+	if types != nil && len(types) > 0 {
+		for i := 0; i < len(role_tdatas); i++ {
+			role_tdata := role_tdatas[i]
 			for j := 0; j < len(types); j++ {
 				if role_tdata.Type == types[j] {
-					has_type = true
+					types[j] = 0
 					break
 				}
 			}
-			if !has_type {
-				log.Error("Player[%v] set role[%v] to explore task[%v] failed, type[%v] not suitable", this.Id, role_id, task_id, role_tdata.Type)
+		}
+		for i := 0; i < len(types); i++ {
+			if types[i] > 0 {
+				log.Error("Player[%v] sel roles %v to explore task[%v] failed, type[%v] not be satisfied", this.Id, role_ids, task_id, types[i])
 				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_TYPE_INVALID)
 			}
 		}
