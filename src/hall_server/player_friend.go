@@ -725,7 +725,7 @@ func (this *Player) cancel_friend_boss_fight() bool {
 func (this *Player) battle_random_reward_notify(drop_id, drop_num int32) {
 	var items map[int32]int32
 	var fake_items []int32
-	for i := int32(0); i <= drop_num; i++ {
+	for i := int32(0); i < drop_num; i++ {
 		o, item := this.drop_item_by_id(drop_id, false, nil)
 		if !o {
 			log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, drop_id)
