@@ -128,12 +128,12 @@
      <item GoodID="5014" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="11010,1" BuyCost="20,10000" StockNum="1" RandomWeight="0" />
      <item GoodID="5015" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="12010,1" BuyCost="20,10000" StockNum="1" RandomWeight="0" />
      <item GoodID="5016" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="13010,1" BuyCost="20,10000" StockNum="1" RandomWeight="0" />
-     <item GoodID="5017" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="11011,1" BuyCost="20,20000" StockNum="1" RandomWeight="0" />
-     <item GoodID="5018" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="12011,1" BuyCost="20,20000" StockNum="1" RandomWeight="0" />
-     <item GoodID="5019" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="13011,1" BuyCost="20,20000" StockNum="1" RandomWeight="0" />
-     <item GoodID="5020" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="11012,1" BuyCost="20,20000" StockNum="1" RandomWeight="0" />
-     <item GoodID="5021" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="12012,1" BuyCost="20,50000" StockNum="1" RandomWeight="0" />
-     <item GoodID="5022" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="13012,1" BuyCost="20,50000" StockNum="1" RandomWeight="0" />
-     <item GoodID="5023" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="11013,1" BuyCost="20,50000" StockNum="1" RandomWeight="0" />
-     <item GoodID="5024" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="12013,1" BuyCost="20,50000" StockNum="1" RandomWeight="0" />
+     <item GoodID="5017" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="10011,1" BuyCost="20,20000" StockNum="1" RandomWeight="0" />
+     <item GoodID="5018" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="11011,1" BuyCost="20,20000" StockNum="1" RandomWeight="0" />
+     <item GoodID="5019" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="12011,2" BuyCost="20,20000" StockNum="1" RandomWeight="0" />
+     <item GoodID="5020" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="13011,2" BuyCost="20,20000" StockNum="1" RandomWeight="0" />
+     <item GoodID="5021" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="10012,1" BuyCost="20,50000" StockNum="1" RandomWeight="0" />
+     <item GoodID="5022" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="11012,1" BuyCost="20,50000" StockNum="1" RandomWeight="0" />
+     <item GoodID="5023" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="12012,1" BuyCost="20,50000" StockNum="1" RandomWeight="0" />
+     <item GoodID="5024" ShopID="5" LevelMin="1" LevelMax="9999" ItemList="13012,1" BuyCost="20,50000" StockNum="1" RandomWeight="0" />
 </Config>
