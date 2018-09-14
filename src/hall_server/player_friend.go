@@ -723,8 +723,21 @@ func (this *Player) cancel_friend_boss_fight() bool {
 
 // 战斗随机奖励
 func (this *Player) battle_random_reward_notify(drop_id, drop_num int32) {
-	var items map[int32]int32
 	var fake_items []int32
+	if drop_num < 1 {
+		for i := 0; i < 2; i++ {
+			o, item := this.drop_item_by_id(drop_id, false, nil)
+			if !o {
+				log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, drop_id)
+			}
+			fake_items = append(fake_items, item.Id)
+		}
+	}
+
+	var items map[int32]int32
+	if drop_num < 1 {
+		drop_num = 1
+	}
 	for i := int32(0); i < drop_num; i++ {
 		o, item := this.drop_item_by_id(drop_id, false, nil)
 		if !o {
@@ -735,16 +748,6 @@ func (this *Player) battle_random_reward_notify(drop_id, drop_num int32) {
 			items = make(map[int32]int32)
 		}
 		items[item.GetId()] += item.GetValue()
-	}
-
-	if drop_num < 1 {
-		for i := 0; i < 2; i++ {
-			o, item := this.drop_item_by_id(drop_id, false, nil)
-			if !o {
-				log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, drop_id)
-			}
-			fake_items = append(fake_items, item.Id)
-		}
 	}
 
 	if items != nil {
