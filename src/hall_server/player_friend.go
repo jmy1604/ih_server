@@ -984,10 +984,10 @@ func (this *Player) check_and_add_friend_stamina() (add_stamina int32, remain_se
 					add_stamina = need_stamina
 				}
 				this.add_resource(global_config.FriendStaminaItemId, add_stamina)
+				this.db.FriendCommon.SetLastGetStaminaTime(now_time)
 				stamina = this.get_resource(global_config.FriendStaminaItemId)
 			}
 			now_time -= y
-			this.db.FriendCommon.SetLastGetStaminaTime(now_time)
 			if stamina < global_config.FriendStaminaLimit {
 				remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours*3600 - y
 			}
