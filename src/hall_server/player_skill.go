@@ -956,6 +956,10 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		return
 	}
 
+	if self.is_dead() {
+		return
+	}
+
 	if skill_data.Type != SKILL_TYPE_PASSIVE {
 		log.Debug("++++++++++++++++++++++ begin Team[%v] mem[%v] use skill[%v] to target_team[%v] target_pos[%v] ++++++++++++++++++++++++", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos)
 	} else {
@@ -1009,10 +1013,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 被动技，被击计算伤害前触发
 				if skill_data.Type != SKILL_TYPE_PASSIVE {
 					passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], self_team, []int32{self_pos}, true)
-				}
-
-				if self.is_dead() {
-					continue
 				}
 
 				is_target_dead := target.is_dead()
