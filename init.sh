@@ -8,4 +8,4 @@ mkdir -p conf
 
 cd ../../src/ih_server
 cp -r conf/template/* ../../run/ih_server/conf
-cp -r tools/sh_script ../../run/ih_server
+cp -r sh_script ../../run/ih_server
