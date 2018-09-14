@@ -630,6 +630,9 @@ func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes
 	}
 
 	if !is_cache {
+		if incomes != nil && len(incomes) > 0 {
+			income_remain_seconds = 0
+		}
 		this._send_stage_reward(incomes, income_type, income_remain_seconds)
 		if incomes != nil {
 			// 更新任务
