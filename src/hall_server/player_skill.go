@@ -1322,7 +1322,9 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 	used := false
 	r := self.team.GetLastReport()
 	if !skill_check_cond(self, target_team, trigger_pos, skill.TriggerCondition1, skill.TriggerCondition2) {
-		log.Debug("BattleTeam[%v] member[%v] use skill[%v] to target team[%v] targets[%v] with condition1[%v] condition2[%v] check failed, self_team[%p] target_team[%p]", self.team.side, self.pos, skill.Id, target_team.side, trigger_pos, skill.TriggerCondition1Str, skill.TriggerCondition2Str, self.team, target_team)
+		if target_team != nil {
+			log.Debug("BattleTeam[%v] member[%v] use skill[%v] to target team[%v] targets[%v] with condition1[%v] condition2[%v] check failed, self_team[%p] target_team[%p]", self.team.side, self.pos, skill.Id, target_team.side, trigger_pos, skill.TriggerCondition1Str, skill.TriggerCondition2Str, self.team, target_team)
+		}
 		return
 	}
 
