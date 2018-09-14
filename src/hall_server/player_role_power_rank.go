@@ -186,7 +186,7 @@ func (this *Player) _update_roles_power_rank_info(power int32) {
 func (this *Player) _update_roles_power_rank_info2() {
 	var power int32
 	// 放入所有玩家的角色战力中排序
-	for r := 1; r < MAX_ROLES_POWER_NUM_TO_RANK_ITEM; r++ {
+	for r := 1; r <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM; r++ {
 		_, value := this.role_power_ranklist.GetByRank(int32(r))
 		if value == nil {
 			continue
