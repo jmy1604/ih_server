@@ -1,5 +1,6 @@
+#!/bin/bash
 set -x
-sh ./kill_all_server.sh
+bash ./kill_all_server.sh
 
 sleep 5s
 

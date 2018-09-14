@@ -1,11 +1,12 @@
+#!/bin/bash
 set -x
 
-sh ./kill_all_server.sh
+bash ./kill_all_server.sh
 
 sleep 1s
 
 cd ../../../src/ih_server
-sh ./copy_game_data.sh
+bash ./copy_game_data.sh
 
 cd ../../bin
 nohup `pwd`/center_server &

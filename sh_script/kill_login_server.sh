@@ -1,3 +1,4 @@
+#!/bin/bash
 cd ../../../bin
 export cur_dir=`pwd`
 export cur_server_id=`ps aux | grep login_server | grep $cur_dir | awk '{print $2}'`
