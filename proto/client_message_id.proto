@@ -217,6 +217,8 @@ enum MSGID {
 	S2C_EXPLORE_GET_REWARD_RESPONSE			= 11614; // 探索任务奖励返回 S2CExploreGetRewardResponse
 	S2C_EXPLORE_STORY_NEW_NOTIFY			= 11615; // 剧情探索任务通知 S2CExploreStoryNewNotify
 	S2C_EXPLORE_REMOVE_NOTIFY				= 11616; // 剧情任务删除通知 S2CExploreRemoveNotify
+	C2S_EXPLORE_CANCEL_REQUEST				= 11617; // 取消探索任务 C2SExploreCancelRequest
+	S2C_EXPLORE_CANCEL_RESPONSE				= 11618; // 取消探索任务返回 S2CExploreCancelResponse
 	
 	C2S_CHAT_REQUEST                  		= 11700; // 聊天请求 C2SChatRequest
 	S2C_CHAT_RESPONSE						= 11701; // 聊天返回 S2CChatResponse

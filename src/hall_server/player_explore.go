@@ -685,8 +685,7 @@ func (this *Player) explore_task_start(ids []int32, is_story bool) int32 {
 	return 1
 }
 
-func (this *Player) explore_remove_task(id int32, is_story bool) {
-	var has bool
+func (this *Player) explore_remove_task(id int32, is_story bool) (has bool) {
 	var role_ids []int32
 	if is_story {
 		role_ids, has = this.db.ExploreStorys.GetRoleIds(id)
@@ -707,6 +706,7 @@ func (this *Player) explore_remove_task(id int32, is_story bool) {
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_REMOVE_NOTIFY), notify)
 	}
+	return
 }
 
 func (this *Player) explore_speedup(ids []int32, is_story bool) int32 {
@@ -1056,6 +1056,25 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 	return 1
 }
 
+func (this *Player) explore_cancel(id int32, is_story bool) int32 {
+	if this.check_explore_tasks_refresh(true) {
+		return 1
+	}
+
+	if !this.explore_remove_task(id, is_story) {
+		log.Error("Player[%v] explore task [%v] is_story[%v] not found, cant cancel", this.Id, id, is_story)
+		return -1
+	}
+
+	response := &msg_client_message.S2CExploreCancelResponse{
+		Id:      id,
+		IsStory: is_story,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_CANCEL_RESPONSE), response)
+
+	return 1
+}
+
 func C2SExploreDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SExploreDataRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -1131,4 +1150,14 @@ func C2SExploreGetRewardHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	}
 
 	return p.explore_get_reward(req.GetId(), req.GetIsStory())
+}
+
+func C2SExploreCancelHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SExploreCancelRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.explore_cancel(req.GetId(), req.GetIsStory())
 }

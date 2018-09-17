@@ -1502,6 +1502,17 @@ message S2CExploreRemoveNotify {
 	bool IsStory							= 2; // 是否剧情任务
 }
 
+// 取消探索任务
+message C2SExploreCancelRequest {
+	int32 Id								= 1; // 任务ID
+	bool IsStory							= 2; // 是否剧情
+}
+
+message S2CExploreCancelResponse {
+	int32 Id								= 1;
+	bool IsStory							= 2;
+}
+
 // ----------------------------------- 聊天 -----------------------------------
 // 发送世界聊天消息
 message C2SChatRequest {
