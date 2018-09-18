@@ -228,6 +228,10 @@ func table_init() error {
 		return errors.New("guild_boss_table_mgr init failed")
 	}
 
+	if !sign_table_mgr.Init("") {
+		return errors.New("sign_table_mgr init failed")
+	}
+
 	return nil
 }
 

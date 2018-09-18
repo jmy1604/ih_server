@@ -733,6 +733,22 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"RoleIds","Repeated":true}
 					]
+				},
+				{
+					"ColumnName":"Sign",
+					"DBColumnName":"Sign",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"CurrGroup"},
+						{"Type":"int32","Index":2,"Name":"AwardIndex"},
+						{"Type":"int32","Index":3,"Name":"SignedIndex"},
+						{"Type":"int32","Index":4,"Name":"LastSignedTime"}
+					]
 				}
 			]
 		},

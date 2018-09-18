@@ -146,7 +146,7 @@ func login_func(account string) {
 	var login_msg_data []byte
 	var err error
 	login_msg_data, err = proto.Marshal(&login_msg)*/
-	url_str := fmt.Sprintf(config.LoginUrl, account, "")
+	url_str := fmt.Sprintf(config.LoginUrl, config.LoginServerIP, account, "")
 
 	log.Debug("login Url str %s", url_str)
 
@@ -216,7 +216,7 @@ func select_server_func(account string, token string, server_id int32) {
 	var err error
 	select_msg_data, err = proto.Marshal(&select_msg)*/
 
-	url_str := fmt.Sprintf(config.SelectServerUrl, account, token, server_id)
+	url_str := fmt.Sprintf(config.SelectServerUrl, config.LoginServerIP, account, token, server_id)
 	log.Debug("select server Url str %s", url_str)
 
 	var resp *http.Response

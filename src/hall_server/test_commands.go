@@ -2082,6 +2082,30 @@ func reset_tasks_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func sign_data_cmd(p *Player, args []string) int32 {
+	return p.get_sign_data()
+}
+
+func sign_award_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var ids []int32
+	var id int
+	var err error
+	for i := 0; i < len(args); i++ {
+		id, err = strconv.Atoi(args[i])
+		if err != nil {
+			return -1
+		}
+		ids = append(ids, int32(id))
+	}
+
+	return p.sign_award(ids)
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2210,6 +2234,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"guild_stage_respawn":    guild_stage_respawn_cmd,
 	"test_short_rank":        test_short_rank_cmd,
 	"reset_tasks":            reset_tasks_cmd,
+	"sign_data":              sign_data_cmd,
+	"sign_award_cmd":         sign_award_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

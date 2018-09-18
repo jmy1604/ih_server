@@ -429,6 +429,13 @@ message PlayerRoleMaxPower{
 	repeated int32 RoleIds=1;
 }
 
+message PlayerSign{
+	optional int32 CurrGroup=1;
+	optional int32 AwardIndex=2;
+	optional int32 SignedIndex=3;
+	optional int32 LastSignedTime=4;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }

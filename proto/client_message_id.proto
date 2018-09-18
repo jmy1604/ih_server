@@ -286,4 +286,9 @@ enum MSGID {
 	S2C_GUILD_STAGE_RESET_RESPONSE			= 11907; // 公会副本重置返回 S2CGuildStageResetResponse
 	S2C_GUILD_STAGE_RESET_NOTIFY			= 11908; // 公会副本数据重置通知 S2CGuildStageResetNotify
 	S2C_GUILD_STAGE_AUTO_REFRESH_NOTIFY		= 11909; // 公会副本数据自动刷新通知 S2CGuildStageAutoRefreshNotify
+	
+	C2S_SIGN_DATA_REQUEST					= 12000; // 签到数据请求 C2SSignDataRequest
+	S2C_SIGN_DATA_RESPONSE					= 12001; // 签到数据请求返回 S2CSignDataResponse
+	C2S_SIGN_AWARD_REQUEST					= 12002; // 签到领奖 C2SSignAwardRequest
+	S2C_SIGN_AWARD_RESPONSE					= 12003; // 签到领奖返回 S2CSignAwardResponse
 }

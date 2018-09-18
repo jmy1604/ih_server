@@ -1916,3 +1916,25 @@ message S2CGuildStageResetNotify {
 message S2CGuildStageAutoRefreshNotify {
 	int32 NextRefreshRemainSeconds			= 1; // 下一次自动刷新剩余秒数
 }
+
+// ---------------------------------- 签到 ------------------------------------
+// 签到数据
+message C2SSignDataRequest {
+}
+
+message S2CSignDataResponse {
+	int32 Group                        		= 1; // 签到周期索引
+	int32 TakeAwardIndex					= 2; // 可领奖的索引
+	int32 SignedIndex					 	= 3; // 已签到的索引
+	int32 NextSignRemainSeconds				= 4; // 下次领奖剩余秒数
+}
+
+// 领奖
+message C2SSignAwardRequest {
+	repeated int32 Indexs					= 1; // 领奖的索引序列
+}
+
+message S2CSignAwardResponse {
+	repeated int32 Indexs					= 1; // 领奖的索引序列
+	repeated ItemInfo Rewards               = 2; // 领到的奖
+}

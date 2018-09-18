@@ -131,7 +131,7 @@ func (this *RpcServerConfig) GetLogConfigFile() string {
 
 // 测试客户端配置
 type TestClientConfig struct {
-	MatchServerIP     string
+	LoginServerIP     string
 	LogConfigFile     string
 	LoginUrl          string
 	SelectServerUrl   string

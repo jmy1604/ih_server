@@ -1828,6 +1828,37 @@ func (this* dbPlayerRoleMaxPowerData)clone_to(d *dbPlayerRoleMaxPowerData){
 	}
 	return
 }
+type dbPlayerSignData struct{
+	CurrGroup int32
+	AwardIndex int32
+	SignedIndex int32
+	LastSignedTime int32
+}
+func (this* dbPlayerSignData)from_pb(pb *db.PlayerSign){
+	if pb == nil {
+		return
+	}
+	this.CurrGroup = pb.GetCurrGroup()
+	this.AwardIndex = pb.GetAwardIndex()
+	this.SignedIndex = pb.GetSignedIndex()
+	this.LastSignedTime = pb.GetLastSignedTime()
+	return
+}
+func (this* dbPlayerSignData)to_pb()(pb *db.PlayerSign){
+	pb = &db.PlayerSign{}
+	pb.CurrGroup = proto.Int32(this.CurrGroup)
+	pb.AwardIndex = proto.Int32(this.AwardIndex)
+	pb.SignedIndex = proto.Int32(this.SignedIndex)
+	pb.LastSignedTime = proto.Int32(this.LastSignedTime)
+	return
+}
+func (this* dbPlayerSignData)clone_to(d *dbPlayerSignData){
+	d.CurrGroup = this.CurrGroup
+	d.AwardIndex = this.AwardIndex
+	d.SignedIndex = this.SignedIndex
+	d.LastSignedTime = this.LastSignedTime
+	return
+}
 type dbBattleSaveDataData struct{
 	Data []byte
 }
@@ -9503,6 +9534,105 @@ func (this *dbPlayerRoleMaxPowerColumn)SetRoleIds(v []int32){
 	this.m_changed = true
 	return
 }
+type dbPlayerSignColumn struct{
+	m_row *dbPlayerRow
+	m_data *dbPlayerSignData
+	m_changed bool
+}
+func (this *dbPlayerSignColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbPlayerSignData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerSign{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_data = &dbPlayerSignData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerSignColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerSignColumn)Get( )(v *dbPlayerSignData ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSignColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbPlayerSignData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbPlayerSignColumn)Set(v dbPlayerSignData ){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSignColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbPlayerSignData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbPlayerSignColumn)GetCurrGroup( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSignColumn.GetCurrGroup")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.CurrGroup
+	return
+}
+func (this *dbPlayerSignColumn)SetCurrGroup(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSignColumn.SetCurrGroup")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.CurrGroup = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerSignColumn)GetAwardIndex( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSignColumn.GetAwardIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.AwardIndex
+	return
+}
+func (this *dbPlayerSignColumn)SetAwardIndex(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSignColumn.SetAwardIndex")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.AwardIndex = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerSignColumn)GetSignedIndex( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSignColumn.GetSignedIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.SignedIndex
+	return
+}
+func (this *dbPlayerSignColumn)SetSignedIndex(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSignColumn.SetSignedIndex")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.SignedIndex = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerSignColumn)GetLastSignedTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSignColumn.GetLastSignedTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastSignedTime
+	return
+}
+func (this *dbPlayerSignColumn)SetLastSignedTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSignColumn.SetLastSignedTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastSignedTime = v
+	this.m_changed = true
+	return
+}
 type dbPlayerRow struct {
 	m_table *dbPlayerTable
 	m_lock       *RWMutex
@@ -9568,6 +9698,7 @@ type dbPlayerRow struct {
 	Guild dbPlayerGuildColumn
 	GuildStage dbPlayerGuildStageColumn
 	RoleMaxPower dbPlayerRoleMaxPowerColumn
+	Sign dbPlayerSignColumn
 }
 func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this := &dbPlayerRow{}
@@ -9672,6 +9803,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.GuildStage.m_data=&dbPlayerGuildStageData{}
 	this.RoleMaxPower.m_row=this
 	this.RoleMaxPower.m_data=&dbPlayerRoleMaxPowerData{}
+	this.Sign.m_row=this
+	this.Sign.m_data=&dbPlayerSignData{}
 	return this
 }
 func (this *dbPlayerRow) GetPlayerId() (r int32) {
@@ -9681,7 +9814,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(52)
+		db_args:=new_db_args(53)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_Account)
 		db_args.Push(this.m_Name)
@@ -9969,12 +10102,18 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dRoleMaxPower)
+		dSign,db_err:=this.Sign.save()
+		if db_err!=nil{
+			log.Error("insert save Sign failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dSign)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(52)
+			db_args:=new_db_args(53)
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
@@ -10414,6 +10553,15 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dRoleMaxPower)
 			}
+			if this.Sign.m_changed{
+				update_string+="Sign=?,"
+				dSign,err:=this.Sign.save()
+				if err!=nil{
+					log.Error("update save Sign failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dSign)
+			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE PlayerId=?"
 			db_args.Push(this.m_PlayerId)
@@ -10473,6 +10621,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.Guild.m_changed = false
 	this.GuildStage.m_changed = false
 	this.RoleMaxPower.m_changed = false
+	this.Sign.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -10980,10 +11129,18 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasSign := columns["Sign"]
+	if !hasSign {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Sign LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN Sign failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -10991,7 +11148,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -11087,9 +11244,10 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dGuild []byte
 	var dGuildStage []byte
 	var dRoleMaxPower []byte
+	var dSign []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -11335,6 +11493,11 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.RoleMaxPower.load(dRoleMaxPower)
 		if err != nil {
 			log.Error("RoleMaxPower %v", PlayerId)
+			return
+		}
+		err = row.Sign.load(dSign)
+		if err != nil {
+			log.Error("Sign %v", PlayerId)
 			return
 		}
 		row.m_Account_changed=false

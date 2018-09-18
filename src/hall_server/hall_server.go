@@ -289,6 +289,7 @@ var guild_mark_table_mgr table_config.GuildMarkTableMgr
 var guild_levelup_table_mgr table_config.GuildLevelUpTableMgr
 var guild_donate_table_mgr table_config.GuildDonateTableMgr
 var guild_boss_table_mgr table_config.GuildBossTableMgr
+var sign_table_mgr table_config.SignTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool
