@@ -215,6 +215,12 @@ enum E_ERR {
 	CHAT_PULL_COOLING_DOWN       			= -26003; // 聊天拉取消息还在冷却中
 	CHAT_CHANNEL_CANT_GET					= -26004; // 无法获得聊天频道
 	
+	// 签到
+	SIGN_TABLE_DATA_NOT_FOUND				= -27000; // 签到配置数据不存在
+	SIGN_ALREADY_AWARD						= -27001; // 已领取过奖励
+	SIGN_MUST_AWARD_IN_SEQUENCE				= -27002; // 必须按签到顺序领奖
+	SIGN_ALL_AWARDED						= -27003; // 签到的奖励都已领完
+	
 	
 	// 充值
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -1924,17 +1930,17 @@ message C2SSignDataRequest {
 
 message S2CSignDataResponse {
 	int32 Group                        		= 1; // 签到周期索引
-	int32 TakeAwardIndex					= 2; // 可领奖的索引
+	int32 TakeAwardIndex					= 2; // 已领奖的索引
 	int32 SignedIndex					 	= 3; // 已签到的索引
 	int32 NextSignRemainSeconds				= 4; // 下次领奖剩余秒数
 }
 
 // 领奖
 message C2SSignAwardRequest {
-	repeated int32 Indexs					= 1; // 领奖的索引序列
+	int32 Index								= 1; // 领奖的索引  0 表示领取所有
 }
 
 message S2CSignAwardResponse {
-	repeated int32 Indexs					= 1; // 领奖的索引序列
+	int32 Index								= 1; // 领奖的索引
 	repeated ItemInfo Rewards               = 2; // 领到的奖
 }

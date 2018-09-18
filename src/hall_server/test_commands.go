@@ -2092,18 +2092,14 @@ func sign_award_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	var ids []int32
 	var id int
 	var err error
-	for i := 0; i < len(args); i++ {
-		id, err = strconv.Atoi(args[i])
-		if err != nil {
-			return -1
-		}
-		ids = append(ids, int32(id))
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
 	}
 
-	return p.sign_award(ids)
+	return p.sign_award(int32(id))
 }
 
 type test_cmd_func func(*Player, []string) int32
@@ -2235,7 +2231,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"test_short_rank":        test_short_rank_cmd,
 	"reset_tasks":            reset_tasks_cmd,
 	"sign_data":              sign_data_cmd,
-	"sign_award_cmd":         sign_award_cmd,
+	"sign_award":             sign_award_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
