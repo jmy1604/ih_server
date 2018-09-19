@@ -738,11 +738,13 @@ func (this *TeamMember) round_end() {
 		}
 	}
 
-	add_energy := global_config.EnergyAdd
-	if add_energy == 0 {
-		add_energy = BATTLE_TEAM_MEMBER_ADD_ENERGY
+	if this.can_action() {
+		add_energy := global_config.EnergyAdd
+		if add_energy == 0 {
+			add_energy = BATTLE_TEAM_MEMBER_ADD_ENERGY
+		}
+		this.energy += add_energy
 	}
-	this.energy += add_energy
 }
 
 func (this *TeamMember) get_use_skill() (skill_id int32) {
@@ -889,6 +891,15 @@ func (this *TeamMember) is_disable_attack() bool {
 		disable = true
 	}
 	return disable
+}
+
+func (this *TeamMember) can_action() bool {
+	if this.bufflist_arr != nil {
+		if this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION].head != nil || this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK] != nil {
+			return false
+		}
+	}
+	return true
 }
 
 func (this *TeamMember) is_dead() bool {
