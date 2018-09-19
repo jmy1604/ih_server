@@ -722,6 +722,14 @@ func (this *TeamMember) round_start() {
 }
 
 func (this *TeamMember) round_end() {
+	if this.can_action() {
+		add_energy := global_config.EnergyAdd
+		if add_energy == 0 {
+			add_energy = BATTLE_TEAM_MEMBER_ADD_ENERGY
+		}
+		this.energy += add_energy
+	}
+
 	for i := 0; i < len(this.bufflist_arr); i++ {
 		buffs := this.bufflist_arr[i]
 		buffs.on_round_end()
@@ -736,14 +744,6 @@ func (this *TeamMember) round_end() {
 				v[i].round_num = v[i].skill.TriggerRoundMax
 			}
 		}
-	}
-
-	if this.can_action() {
-		add_energy := global_config.EnergyAdd
-		if add_energy == 0 {
-			add_energy = BATTLE_TEAM_MEMBER_ADD_ENERGY
-		}
-		this.energy += add_energy
 	}
 }
 
