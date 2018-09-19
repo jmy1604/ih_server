@@ -895,7 +895,7 @@ func (this *TeamMember) is_disable_attack() bool {
 
 func (this *TeamMember) can_action() bool {
 	if this.bufflist_arr != nil {
-		if this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION].head != nil || this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK] != nil {
+		if this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION].head != nil || this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK].head != nil {
 			return false
 		}
 	}
