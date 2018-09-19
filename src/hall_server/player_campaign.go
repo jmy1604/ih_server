@@ -423,11 +423,9 @@ func (this *Player) set_hangup_campaign_id(campaign_id int32) int32 {
 			}
 
 			// 关卡完成就结算一次挂机收益
-			if hangup_id != 0 {
-				//this.hangup_income_get(0, true)
+			/*if hangup_id != 0 {
 				this.send_campaigns()
-				this.hangup_income_get(1, true)
-			}
+			}*/
 		}
 	}
 
