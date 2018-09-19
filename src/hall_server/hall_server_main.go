@@ -232,6 +232,10 @@ func table_init() error {
 		return errors.New("sign_table_mgr init failed")
 	}
 
+	if !seven_days_table_mgr.Init("") {
+		return errors.New("seven_days_table_mgr init failed")
+	}
+
 	return nil
 }
 
@@ -320,6 +324,7 @@ func main() {
 
 	// 初始化CenterServer
 	center_conn.Init()
+
 	// 初始化大厅
 	if !hall_server.Init() {
 		log.Error("hall_server init failed !")

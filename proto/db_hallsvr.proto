@@ -18,7 +18,6 @@ message PlayerInfo{
 	optional int32 CreateUnix=3;
 	optional int32 Gold=4;
 	optional int32 Diamond=5;
-	optional int32 LastDialyTaskUpUinx=6;
 	optional int32 LastLogout=9;
 	optional int32 LastLogin=10;
 	optional int32 VipLvl=16;
@@ -43,7 +42,6 @@ message PlayerRole{
 	optional int32 TableId=2;
 	optional int32 Rank=3;
 	optional int32 Level=4;
-	repeated int32 Attr=5;
 	repeated int32 Equip=6;
 	optional int32 IsLock=7;
 	optional int32 State=8;
@@ -95,14 +93,6 @@ message PlayerCampaignRandomIncome{
 
 message PlayerCampaignRandomIncomeList{
 	repeated PlayerCampaignRandomIncome List=1;
-}
-
-message PlayerNotifyState{
-	optional int32 ModuleType=1;
-}
-
-message PlayerNotifyStateList{
-	repeated PlayerNotifyState List=1;
 }
 
 message PlayerMailCommon{
@@ -434,6 +424,11 @@ message PlayerSign{
 	optional int32 AwardIndex=2;
 	optional int32 SignedIndex=3;
 	optional int32 LastSignedTime=4;
+}
+
+message PlayerSevenDays{
+	repeated int32 Awards=1;
+	optional int32 Days=2;
 }
 
 message BattleSaveData{

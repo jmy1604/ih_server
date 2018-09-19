@@ -295,7 +295,6 @@ type dbPlayerInfoData struct{
 	CreateUnix int32
 	Gold int32
 	Diamond int32
-	LastDialyTaskUpUinx int32
 	LastLogout int32
 	LastLogin int32
 	VipLvl int32
@@ -310,7 +309,6 @@ func (this* dbPlayerInfoData)from_pb(pb *db.PlayerInfo){
 	this.CreateUnix = pb.GetCreateUnix()
 	this.Gold = pb.GetGold()
 	this.Diamond = pb.GetDiamond()
-	this.LastDialyTaskUpUinx = pb.GetLastDialyTaskUpUinx()
 	this.LastLogout = pb.GetLastLogout()
 	this.LastLogin = pb.GetLastLogin()
 	this.VipLvl = pb.GetVipLvl()
@@ -324,7 +322,6 @@ func (this* dbPlayerInfoData)to_pb()(pb *db.PlayerInfo){
 	pb.CreateUnix = proto.Int32(this.CreateUnix)
 	pb.Gold = proto.Int32(this.Gold)
 	pb.Diamond = proto.Int32(this.Diamond)
-	pb.LastDialyTaskUpUinx = proto.Int32(this.LastDialyTaskUpUinx)
 	pb.LastLogout = proto.Int32(this.LastLogout)
 	pb.LastLogin = proto.Int32(this.LastLogin)
 	pb.VipLvl = proto.Int32(this.VipLvl)
@@ -337,7 +334,6 @@ func (this* dbPlayerInfoData)clone_to(d *dbPlayerInfoData){
 	d.CreateUnix = this.CreateUnix
 	d.Gold = this.Gold
 	d.Diamond = this.Diamond
-	d.LastDialyTaskUpUinx = this.LastDialyTaskUpUinx
 	d.LastLogout = this.LastLogout
 	d.LastLogin = this.LastLogin
 	d.VipLvl = this.VipLvl
@@ -391,14 +387,12 @@ type dbPlayerRoleData struct{
 	TableId int32
 	Rank int32
 	Level int32
-	Attr []int32
 	Equip []int32
 	IsLock int32
 	State int32
 }
 func (this* dbPlayerRoleData)from_pb(pb *db.PlayerRole){
 	if pb == nil {
-		this.Attr = make([]int32,0)
 		this.Equip = make([]int32,0)
 		return
 	}
@@ -406,10 +400,6 @@ func (this* dbPlayerRoleData)from_pb(pb *db.PlayerRole){
 	this.TableId = pb.GetTableId()
 	this.Rank = pb.GetRank()
 	this.Level = pb.GetLevel()
-	this.Attr = make([]int32,len(pb.GetAttr()))
-	for i, v := range pb.GetAttr() {
-		this.Attr[i] = v
-	}
 	this.Equip = make([]int32,len(pb.GetEquip()))
 	for i, v := range pb.GetEquip() {
 		this.Equip[i] = v
@@ -424,10 +414,6 @@ func (this* dbPlayerRoleData)to_pb()(pb *db.PlayerRole){
 	pb.TableId = proto.Int32(this.TableId)
 	pb.Rank = proto.Int32(this.Rank)
 	pb.Level = proto.Int32(this.Level)
-	pb.Attr = make([]int32, len(this.Attr))
-	for i, v := range this.Attr {
-		pb.Attr[i]=v
-	}
 	pb.Equip = make([]int32, len(this.Equip))
 	for i, v := range this.Equip {
 		pb.Equip[i]=v
@@ -441,10 +427,6 @@ func (this* dbPlayerRoleData)clone_to(d *dbPlayerRoleData){
 	d.TableId = this.TableId
 	d.Rank = this.Rank
 	d.Level = this.Level
-	d.Attr = make([]int32, len(this.Attr))
-	for _ii, _vv := range this.Attr {
-		d.Attr[_ii]=_vv
-	}
 	d.Equip = make([]int32, len(this.Equip))
 	for _ii, _vv := range this.Equip {
 		d.Equip[_ii]=_vv
@@ -627,25 +609,6 @@ func (this* dbPlayerCampaignRandomIncomeData)to_pb()(pb *db.PlayerCampaignRandom
 func (this* dbPlayerCampaignRandomIncomeData)clone_to(d *dbPlayerCampaignRandomIncomeData){
 	d.ItemId = this.ItemId
 	d.ItemNum = this.ItemNum
-	return
-}
-type dbPlayerNotifyStateData struct{
-	ModuleType int32
-}
-func (this* dbPlayerNotifyStateData)from_pb(pb *db.PlayerNotifyState){
-	if pb == nil {
-		return
-	}
-	this.ModuleType = pb.GetModuleType()
-	return
-}
-func (this* dbPlayerNotifyStateData)to_pb()(pb *db.PlayerNotifyState){
-	pb = &db.PlayerNotifyState{}
-	pb.ModuleType = proto.Int32(this.ModuleType)
-	return
-}
-func (this* dbPlayerNotifyStateData)clone_to(d *dbPlayerNotifyStateData){
-	d.ModuleType = this.ModuleType
 	return
 }
 type dbPlayerMailCommonData struct{
@@ -1859,6 +1822,39 @@ func (this* dbPlayerSignData)clone_to(d *dbPlayerSignData){
 	d.LastSignedTime = this.LastSignedTime
 	return
 }
+type dbPlayerSevenDaysData struct{
+	Awards []int32
+	Days int32
+}
+func (this* dbPlayerSevenDaysData)from_pb(pb *db.PlayerSevenDays){
+	if pb == nil {
+		this.Awards = make([]int32,0)
+		return
+	}
+	this.Awards = make([]int32,len(pb.GetAwards()))
+	for i, v := range pb.GetAwards() {
+		this.Awards[i] = v
+	}
+	this.Days = pb.GetDays()
+	return
+}
+func (this* dbPlayerSevenDaysData)to_pb()(pb *db.PlayerSevenDays){
+	pb = &db.PlayerSevenDays{}
+	pb.Awards = make([]int32, len(this.Awards))
+	for i, v := range this.Awards {
+		pb.Awards[i]=v
+	}
+	pb.Days = proto.Int32(this.Days)
+	return
+}
+func (this* dbPlayerSevenDaysData)clone_to(d *dbPlayerSevenDaysData){
+	d.Awards = make([]int32, len(this.Awards))
+	for _ii, _vv := range this.Awards {
+		d.Awards[_ii]=_vv
+	}
+	d.Days = this.Days
+	return
+}
 type dbBattleSaveDataData struct{
 	Data []byte
 }
@@ -2504,19 +2500,6 @@ func (this *dbPlayerInfoColumn)IncbyDiamond(v int32)(r int32){
 	this.m_changed = true
 	return this.m_data.Diamond
 }
-func (this *dbPlayerInfoColumn)GetLastDialyTaskUpUinx( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetLastDialyTaskUpUinx")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.LastDialyTaskUpUinx
-	return
-}
-func (this *dbPlayerInfoColumn)SetLastDialyTaskUpUinx(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetLastDialyTaskUpUinx")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.LastDialyTaskUpUinx = v
-	this.m_changed = true
-	return
-}
 func (this *dbPlayerInfoColumn)GetLastLogout( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetLastLogout")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -2987,34 +2970,6 @@ func (this *dbPlayerRoleColumn)SetLevel(id int32,v int32)(has bool){
 		return
 	}
 	d.Level = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerRoleColumn)GetAttr(id int32)(v []int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.GetAttr")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = make([]int32, len(d.Attr))
-	for _ii, _vv := range d.Attr {
-		v[_ii]=_vv
-	}
-	return v,true
-}
-func (this *dbPlayerRoleColumn)SetAttr(id int32,v []int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerRoleColumn.SetAttr")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.Attr = make([]int32, len(v))
-	for _ii, _vv := range v {
-		d.Attr[_ii]=_vv
-	}
 	this.m_changed = true
 	return true
 }
@@ -3821,133 +3776,6 @@ func (this *dbPlayerCampaignRandomIncomeColumn)IncbyItemNum(id int32,v int32)(r 
 	d.ItemNum +=  v
 	this.m_changed = true
 	return d.ItemNum
-}
-type dbPlayerNotifyStateColumn struct{
-	m_row *dbPlayerRow
-	m_data map[int32]*dbPlayerNotifyStateData
-	m_changed bool
-}
-func (this *dbPlayerNotifyStateColumn)load(data []byte)(err error){
-	if data == nil || len(data) == 0 {
-		this.m_changed = false
-		return nil
-	}
-	pb := &db.PlayerNotifyStateList{}
-	err = proto.Unmarshal(data, pb)
-	if err != nil {
-		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	for _, v := range pb.List {
-		d := &dbPlayerNotifyStateData{}
-		d.from_pb(v)
-		this.m_data[int32(d.ModuleType)] = d
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerNotifyStateColumn)save( )(data []byte,err error){
-	pb := &db.PlayerNotifyStateList{}
-	pb.List=make([]*db.PlayerNotifyState,len(this.m_data))
-	i:=0
-	for _, v := range this.m_data {
-		pb.List[i] = v.to_pb()
-		i++
-	}
-	data, err = proto.Marshal(pb)
-	if err != nil {
-		log.Error("Marshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerNotifyStateColumn)HasIndex(id int32)(has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerNotifyStateColumn.HasIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	_, has = this.m_data[id]
-	return
-}
-func (this *dbPlayerNotifyStateColumn)GetAllIndex()(list []int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerNotifyStateColumn.GetAllIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]int32, len(this.m_data))
-	i := 0
-	for k, _ := range this.m_data {
-		list[i] = k
-		i++
-	}
-	return
-}
-func (this *dbPlayerNotifyStateColumn)GetAll()(list []dbPlayerNotifyStateData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerNotifyStateColumn.GetAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]dbPlayerNotifyStateData, len(this.m_data))
-	i := 0
-	for _, v := range this.m_data {
-		v.clone_to(&list[i])
-		i++
-	}
-	return
-}
-func (this *dbPlayerNotifyStateColumn)Get(id int32)(v *dbPlayerNotifyStateData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerNotifyStateColumn.Get")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return nil
-	}
-	v=&dbPlayerNotifyStateData{}
-	d.clone_to(v)
-	return
-}
-func (this *dbPlayerNotifyStateColumn)Set(v dbPlayerNotifyStateData)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerNotifyStateColumn.Set")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.ModuleType)]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.ModuleType)
-		return false
-	}
-	v.clone_to(d)
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerNotifyStateColumn)Add(v *dbPlayerNotifyStateData)(ok bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerNotifyStateColumn.Add")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.ModuleType)]
-	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.ModuleType)
-		return false
-	}
-	d:=&dbPlayerNotifyStateData{}
-	v.clone_to(d)
-	this.m_data[int32(v.ModuleType)]=d
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerNotifyStateColumn)Remove(id int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerNotifyStateColumn.Remove")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[id]
-	if has {
-		delete(this.m_data,id)
-	}
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerNotifyStateColumn)Clear(){
-	this.m_row.m_lock.UnSafeLock("dbPlayerNotifyStateColumn.Clear")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=make(map[int32]*dbPlayerNotifyStateData)
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerNotifyStateColumn)NumAll()(n int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerNotifyStateColumn.NumAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	return int32(len(this.m_data))
 }
 type dbPlayerMailCommonColumn struct{
 	m_row *dbPlayerRow
@@ -9633,6 +9461,85 @@ func (this *dbPlayerSignColumn)SetLastSignedTime(v int32){
 	this.m_changed = true
 	return
 }
+type dbPlayerSevenDaysColumn struct{
+	m_row *dbPlayerRow
+	m_data *dbPlayerSevenDaysData
+	m_changed bool
+}
+func (this *dbPlayerSevenDaysColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbPlayerSevenDaysData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerSevenDays{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_data = &dbPlayerSevenDaysData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerSevenDaysColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerSevenDaysColumn)Get( )(v *dbPlayerSevenDaysData ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSevenDaysColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbPlayerSevenDaysData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbPlayerSevenDaysColumn)Set(v dbPlayerSevenDaysData ){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSevenDaysColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbPlayerSevenDaysData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbPlayerSevenDaysColumn)GetAwards( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSevenDaysColumn.GetAwards")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]int32, len(this.m_data.Awards))
+	for _ii, _vv := range this.m_data.Awards {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbPlayerSevenDaysColumn)SetAwards(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSevenDaysColumn.SetAwards")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Awards = make([]int32, len(v))
+	for _ii, _vv := range v {
+		this.m_data.Awards[_ii]=_vv
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerSevenDaysColumn)GetDays( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSevenDaysColumn.GetDays")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.Days
+	return
+}
+func (this *dbPlayerSevenDaysColumn)SetDays(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSevenDaysColumn.SetDays")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Days = v
+	this.m_changed = true
+	return
+}
 type dbPlayerRow struct {
 	m_table *dbPlayerTable
 	m_lock       *RWMutex
@@ -9661,7 +9568,6 @@ type dbPlayerRow struct {
 	Campaigns dbPlayerCampaignColumn
 	CampaignStaticIncomes dbPlayerCampaignStaticIncomeColumn
 	CampaignRandomIncomes dbPlayerCampaignRandomIncomeColumn
-	NotifyStates dbPlayerNotifyStateColumn
 	MailCommon dbPlayerMailCommonColumn
 	Mails dbPlayerMailColumn
 	BattleSaves dbPlayerBattleSaveColumn
@@ -9699,6 +9605,7 @@ type dbPlayerRow struct {
 	GuildStage dbPlayerGuildStageColumn
 	RoleMaxPower dbPlayerRoleMaxPowerColumn
 	Sign dbPlayerSignColumn
+	SevenDays dbPlayerSevenDaysColumn
 }
 func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this := &dbPlayerRow{}
@@ -9729,8 +9636,6 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.CampaignStaticIncomes.m_data=make(map[int32]*dbPlayerCampaignStaticIncomeData)
 	this.CampaignRandomIncomes.m_row=this
 	this.CampaignRandomIncomes.m_data=make(map[int32]*dbPlayerCampaignRandomIncomeData)
-	this.NotifyStates.m_row=this
-	this.NotifyStates.m_data=make(map[int32]*dbPlayerNotifyStateData)
 	this.MailCommon.m_row=this
 	this.MailCommon.m_data=&dbPlayerMailCommonData{}
 	this.Mails.m_row=this
@@ -9805,6 +9710,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.RoleMaxPower.m_data=&dbPlayerRoleMaxPowerData{}
 	this.Sign.m_row=this
 	this.Sign.m_data=&dbPlayerSignData{}
+	this.SevenDays.m_row=this
+	this.SevenDays.m_data=&dbPlayerSevenDaysData{}
 	return this
 }
 func (this *dbPlayerRow) GetPlayerId() (r int32) {
@@ -9880,12 +9787,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dCampaignRandomIncomes)
-		dNotifyStates,db_err:=this.NotifyStates.save()
-		if db_err!=nil{
-			log.Error("insert save NotifyState failed")
-			return db_err,false,0,"",nil
-		}
-		db_args.Push(dNotifyStates)
 		dMailCommon,db_err:=this.MailCommon.save()
 		if db_err!=nil{
 			log.Error("insert save MailCommon failed")
@@ -10108,10 +10009,16 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dSign)
+		dSevenDays,db_err:=this.SevenDays.save()
+		if db_err!=nil{
+			log.Error("insert save SevenDays failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dSevenDays)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed{
 			update_string = "UPDATE Players SET "
 			db_args:=new_db_args(53)
 			if this.m_Account_changed{
@@ -10219,15 +10126,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 					return err,false,0,"",nil
 				}
 				db_args.Push(dCampaignRandomIncomes)
-			}
-			if this.NotifyStates.m_changed{
-				update_string+="NotifyStates=?,"
-				dNotifyStates,err:=this.NotifyStates.save()
-				if err!=nil{
-					log.Error("insert save NotifyState failed")
-					return err,false,0,"",nil
-				}
-				db_args.Push(dNotifyStates)
 			}
 			if this.MailCommon.m_changed{
 				update_string+="MailCommon=?,"
@@ -10562,6 +10460,15 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dSign)
 			}
+			if this.SevenDays.m_changed{
+				update_string+="SevenDays=?,"
+				dSevenDays,err:=this.SevenDays.save()
+				if err!=nil{
+					log.Error("update save SevenDays failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dSevenDays)
+			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE PlayerId=?"
 			db_args.Push(this.m_PlayerId)
@@ -10584,7 +10491,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.Campaigns.m_changed = false
 	this.CampaignStaticIncomes.m_changed = false
 	this.CampaignRandomIncomes.m_changed = false
-	this.NotifyStates.m_changed = false
 	this.MailCommon.m_changed = false
 	this.Mails.m_changed = false
 	this.BattleSaves.m_changed = false
@@ -10622,6 +10528,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.GuildStage.m_changed = false
 	this.RoleMaxPower.m_changed = false
 	this.Sign.m_changed = false
+	this.SevenDays.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -10830,14 +10737,6 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN CampaignRandomIncomes LONGBLOB")
 		if err != nil {
 			log.Error("ADD COLUMN CampaignRandomIncomes failed")
-			return
-		}
-	}
-	_, hasNotifyState := columns["NotifyStates"]
-	if !hasNotifyState {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN NotifyStates LONGBLOB")
-		if err != nil {
-			log.Error("ADD COLUMN NotifyStates failed")
 			return
 		}
 	}
@@ -11137,10 +11036,18 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasSevenDays := columns["SevenDays"]
+	if !hasSevenDays {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN SevenDays LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN SevenDays failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -11148,7 +11055,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -11207,7 +11114,6 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dCampaigns []byte
 	var dCampaignStaticIncomes []byte
 	var dCampaignRandomIncomes []byte
-	var dNotifyStates []byte
 	var dMailCommon []byte
 	var dMails []byte
 	var dBattleSaves []byte
@@ -11245,9 +11151,10 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dGuildStage []byte
 	var dRoleMaxPower []byte
 	var dSign []byte
+	var dSevenDays []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -11308,11 +11215,6 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.CampaignRandomIncomes.load(dCampaignRandomIncomes)
 		if err != nil {
 			log.Error("CampaignRandomIncomes %v", PlayerId)
-			return
-		}
-		err = row.NotifyStates.load(dNotifyStates)
-		if err != nil {
-			log.Error("NotifyStates %v", PlayerId)
 			return
 		}
 		err = row.MailCommon.load(dMailCommon)
@@ -11498,6 +11400,11 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.Sign.load(dSign)
 		if err != nil {
 			log.Error("Sign %v", PlayerId)
+			return
+		}
+		err = row.SevenDays.load(dSevenDays)
+		if err != nil {
+			log.Error("SevenDays %v", PlayerId)
 			return
 		}
 		row.m_Account_changed=false

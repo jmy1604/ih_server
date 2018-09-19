@@ -291,4 +291,9 @@ enum MSGID {
 	S2C_SIGN_DATA_RESPONSE					= 12001; // 签到数据请求返回 S2CSignDataResponse
 	C2S_SIGN_AWARD_REQUEST					= 12002; // 签到领奖 C2SSignAwardRequest
 	S2C_SIGN_AWARD_RESPONSE					= 12003; // 签到领奖返回 S2CSignAwardResponse
+	
+	C2S_SEVENDAYS_DATA_REQUEST				= 13000; // 七天乐数据请求 C2SSevenDaysDataRequest
+	S2C_SEVENDAYS_DATA_RESPONSE				= 13001; // 七天乐数据请求返回 S2CSevenDaysDataResponse
+	C2S_SEVENDAYS_AWARD_REQUEST				= 13002; // 七天乐领奖请求 C2SSevenDaysAwardRequest
+	S2C_SEVENDAYS_AWARD_RESPONSE			= 13003; // 七天乐领奖返回 S2CSevenDaysAwardResponse
 }

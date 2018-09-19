@@ -2102,6 +2102,14 @@ func sign_award_cmd(p *Player, args []string) int32 {
 	return p.sign_award(int32(id))
 }
 
+func seven_days_data_cmd(p *Player, args []string) int32 {
+	return p.seven_days_data()
+}
+
+func seven_days_award_cmd(p *Player, args []string) int32 {
+	return p.seven_days_award()
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2232,6 +2240,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"reset_tasks":            reset_tasks_cmd,
 	"sign_data":              sign_data_cmd,
 	"sign_award":             sign_award_cmd,
+	"seven_data":             seven_days_data_cmd,
+	"seven_award":            seven_days_award_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

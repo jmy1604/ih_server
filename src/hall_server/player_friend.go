@@ -15,9 +15,6 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-//const FRIEND_UNREAD_MESSAGE_MAX_NUM int = 200
-//const FRIEND_MESSAGE_MAX_LENGTH int = 200
-
 const MAX_FRIEND_RECOMMEND_PLAYER_NUM int32 = 10000
 
 type FriendRecommendMgr struct {

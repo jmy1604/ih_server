@@ -221,6 +221,10 @@ enum E_ERR {
 	SIGN_MUST_AWARD_IN_SEQUENCE				= -27002; // 必须按签到顺序领奖
 	SIGN_ALL_AWARDED						= -27003; // 签到的奖励都已领完
 	
+	// 七天乐
+	SEVEN_DAYS_FINISHED						= -28000; // 活动已结束
+	SEVEN_DAYS_AWARDED						= -28001; // 已领奖
+	
 	
 	// 充值
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -1943,4 +1947,24 @@ message C2SSignAwardRequest {
 message S2CSignAwardResponse {
 	int32 Index								= 1; // 领奖的索引
 	repeated ItemInfo Rewards               = 2; // 领到的奖
+}
+
+// ---------------------------------- 七天乐 ----------------------------------
+// 七天乐数据
+message C2SSevenDaysDataRequest {
+}
+
+message S2CSevenDaysDataResponse {
+	repeated int32 AwardStates				= 1; // 领奖状态序列，最大长度为7，0表示未领奖，1表示已领奖
+	int32 StartTime							= 2; // 开始时间
+	int32 RemainSeconds						= 3; // 剩余时间
+}
+
+// 领奖
+message C2SSevenDaysAwardRequest {
+}
+
+message S2CSevenDaysAwardResponse {
+	int32 Days								= 1; // 对应天数
+	repeated ItemInfo Rewards				= 2; // 获得的奖励
 }

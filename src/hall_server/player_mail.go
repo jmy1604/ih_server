@@ -352,12 +352,12 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 		}
 	}
 
-	if !receiver.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
+	/*if !receiver.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
 		receiver.db.NotifyStates.Add(&dbPlayerNotifyStateData{
 			ModuleType: int32(msg_client_message.MODULE_STATE_NEW_MAIL),
 		})
 		receiver.notify_state_changed(int32(msg_client_message.MODULE_STATE_NEW_MAIL), 1)
-	}
+	}*/
 
 	// 解锁
 	receiver.receive_mail_locker.Unlock()
@@ -404,10 +404,10 @@ func (this *Player) GetMailList() int32 {
 
 	log.Debug("Player[%v] mail list: %v", this.Id, response)
 
-	if this.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
+	/*if this.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
 		this.db.NotifyStates.Remove(int32(msg_client_message.MODULE_STATE_NEW_MAIL))
 		this.notify_state_changed(int32(msg_client_message.MODULE_STATE_NEW_MAIL), 2)
-	}
+	}*/
 
 	return 1
 }

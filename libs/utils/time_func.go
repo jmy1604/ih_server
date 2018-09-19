@@ -83,7 +83,7 @@ func CheckDayTimeArrival(last_time_point int32, day_time_string string) bool {
 	return false
 }
 
-func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string) int32 {
+func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_config string) int32 {
 	last_time := time.Unix(int64(last_time_point), 0)
 	now_time := time.Now()
 
@@ -97,9 +97,9 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string)
 		return -1
 	}
 
-	tm, err := time.ParseInLocation("15:04:05", day_time_string, loc)
+	tm, err := time.ParseInLocation("15:04:05", day_time_config, loc)
 	if err != nil {
-		log.Error("parse time format[%v] failed, err[%v]", day_time_string, err.Error())
+		log.Error("parse time format[%v] failed, err[%v]", day_time_config, err.Error())
 		return -1
 	}
 
@@ -119,7 +119,7 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string)
 	}
 }
 
-func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_string string, interval_days int32) int32 {
+func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_config string, interval_days int32) int32 {
 	if last_save <= 0 || interval_days <= 0 {
 		return -1
 	}
@@ -135,9 +135,9 @@ func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_string strin
 		return -1
 	}
 
-	tm, err := time.ParseInLocation("15:04:05", day_time_string, loc)
+	tm, err := time.ParseInLocation("15:04:05", day_time_config, loc)
 	if err != nil {
-		log.Error("parse time format[%v] failed, err[%v]", day_time_string, err.Error())
+		log.Error("parse time format[%v] failed, err[%v]", day_time_config, err.Error())
 		return -1
 	}
 
@@ -237,72 +237,6 @@ func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32) (remain
 	}
 	return
 }
-
-/*
-func (this *DaysTimeChecker) IsArrival(last_save int32) bool {
-	last_time := time.Unix(int64(last_save), 0)
-	now_time := time.Now()
-
-	if last_time.Unix() > now_time.Unix() {
-		log.Error("DaysTimeChecker function IsArrival param: last_save[%v] invalid", last_save)
-		return false
-	}
-
-	// 今天的时间点，与配置相同
-	st := this.time_tm
-	tmp := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), st.Hour(), st.Minute(), st.Second(), st.Nanosecond(), st.Location())
-	if this.time_tm.Unix() >= tmp.Unix() {
-		log.Error("DaysTimeChecker function IsArrival check init time value[%v] invalid", st)
-		return false
-	}
-
-	diff_days := (tmp.Unix() - this.time_tm.Unix()) / (24 * 3600)
-	y := int(diff_days) % int(this.interval_days)
-
-	last_refresh_time := int64(0)
-	if y == 0 && now_time.Unix() >= tmp.Unix() {
-		// 上次的固定刷新时间就是今天
-		last_refresh_time = tmp.Unix()
-	} else {
-		last_refresh_time = tmp.Unix() - int64(y*24*3600)
-	}
-
-	if last_refresh_time > int64(last_save) {
-		return true
-	}
-
-	return false
-}
-
-func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32) int32 {
-	if last_save <= 0 {
-		return -1
-	}
-	last_time := time.Unix(int64(last_save), 0)
-	now_time := time.Now()
-	if last_time.Unix() > now_time.Unix() {
-		return -1
-	}
-
-	st := this.time_tm
-	today_tm := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), st.Hour(), st.Minute(), st.Second(), st.Nanosecond(), st.Location())
-	if st.Unix() >= today_tm.Unix() {
-		return -1
-	}
-
-	diff_days := (today_tm.Unix() - st.Unix()) / (24 * 3600)
-	y := int(diff_days) % int(this.interval_days)
-
-	next_refresh_time := int64(0)
-	if y == 0 && now_time.Unix() < today_tm.Unix() {
-		next_refresh_time = today_tm.Unix()
-	} else {
-		next_refresh_time = today_tm.Unix() + int64((int(this.interval_days)-y)*24*3600)
-	}
-
-	return int32(next_refresh_time - now_time.Unix())
-}
-*/
 
 func GetRemainSeconds4NextRefresh(config_hour, config_minute, config_second int32, last_save_time int32) (next_refresh_remain_seconds int32) {
 	now_time := time.Now()

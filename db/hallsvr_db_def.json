@@ -115,7 +115,6 @@
 						{"Type":"int32","Index":3,"Name":"CreateUnix"},
 						{"Type":"int32","Index":4,"Name":"Gold","Incby":true},
 						{"Type":"int32","Index":5,"Name":"Diamond","Incby":true},
-						{"Type":"int32","Index":6,"Name":"LastDialyTaskUpUinx"},
 						{"Type":"int32","Index":9,"Name":"LastLogout"},
 						{"Type":"int32","Index":10,"Name":"LastLogin"},
 						{"Type":"int32","Index":16,"Name":"VipLvl"},
@@ -157,7 +156,6 @@
 						{"Type":"int32","Index":2,"Name":"TableId"},
 						{"Type":"int32","Index":3,"Name":"Rank"},
 						{"Type":"int32","Index":4,"Name":"Level"},
-						{"Type":"int32","Index":5,"Name":"Attr","Repeated":true},
 						{"Type":"int32","Index":6,"Name":"Equip","Repeated":true},
 						{"Type":"int32","Index":7,"Name":"IsLock"},
 						{"Type":"int32","Index":8,"Name":"State"}
@@ -235,17 +233,6 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"ItemId"},
 						{"Type":"int32","Index":2,"Name":"ItemNum","Incby":true}
-					]
-				},
-				{
-					"DBColumnName":"NotifyState",
-					"InUse":true,
-					"ColumnName":"NotifyState",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"ModuleType"}
 					]
 				},
 				{
@@ -748,6 +735,20 @@
 						{"Type":"int32","Index":2,"Name":"AwardIndex"},
 						{"Type":"int32","Index":3,"Name":"SignedIndex"},
 						{"Type":"int32","Index":4,"Name":"LastSignedTime"}
+					]
+				},
+				{
+					"ColumnName":"SevenDays",
+					"DBColumnName":"SevenDays",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Awards","Repeated":true},
+						{"Type":"int32","Index":2,"Name":"Days"}
 					]
 				}
 			]
