@@ -30,6 +30,7 @@ const (
 	ITEM_RESOURCE_ID_STAMINA     = 8  // 体力
 	ITEM_RESOURCE_ID_FRIENDPOINT = 9  // 友情点
 	ITEM_RESOURCE_ID_HEROCOIN    = 10 // 英雄币
+	ITEM_RESOURCE_ID_VIP_EXP     = 21 // vip经验
 )
 
 // 装备类型
@@ -253,6 +254,53 @@ func (this *Player) get_exp() int32 {
 	return this.db.Info.GetExp()
 }
 
+func (this *Player) add_vip_exp(add_exp int32) (level, exp int32) {
+	if add_exp <= 0 {
+		return
+	}
+
+	curr_exp := this.get_resource(ITEM_RESOURCE_ID_VIP_EXP)
+	exp = add_exp + curr_exp
+	if exp < add_exp || exp < curr_exp {
+		exp = math.MaxInt32
+	}
+
+	level = this.db.Info.GetVipLvl()
+	if int(level) >= len(vip_table_mgr.Array) {
+		log.Warn("Player[%v] Vip level[%v] is max", this.Id, level)
+		return
+	}
+
+	for {
+		vip_data := vip_table_mgr.Get(level + 1)
+		if vip_data == nil {
+			break
+		}
+		if vip_data.Exp <= 0 || vip_data.Exp > exp {
+			break
+		}
+		exp -= vip_data.Exp
+		level += 1
+	}
+
+	if level != this.db.Info.GetVipLvl() {
+		this.db.Info.SetVipLvl(level)
+		this.b_base_prop_chg = true
+		// 更新任务
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_REACH_VIP_N_LEVEL, true, level, 1)
+	}
+
+	if exp != this.get_resource(ITEM_RESOURCE_ID_VIP_EXP) {
+		this.set_resource(ITEM_RESOURCE_ID_VIP_EXP, exp)
+	}
+
+	return
+}
+
+func (this *Player) get_vip_exp() int32 {
+	return this.get_resource(ITEM_RESOURCE_ID_VIP_EXP)
+}
+
 func (this *Player) add_resource(id, count int32) bool {
 	res := true
 	if id == ITEM_RESOURCE_ID_GOLD {
@@ -261,6 +309,8 @@ func (this *Player) add_resource(id, count int32) bool {
 		this.add_diamond(count)
 	} else if id == ITEM_RESOURCE_ID_EXP {
 		this.add_exp(count)
+	} else if id == ITEM_RESOURCE_ID_VIP_EXP {
+		this.add_vip_exp(count)
 	} else {
 		if count > 0 {
 			if !this.add_item(id, count) {

@@ -236,6 +236,14 @@ func table_init() error {
 		return errors.New("seven_days_table_mgr init failed")
 	}
 
+	if !vip_table_mgr.Init("") {
+		return errors.New("vip_table_mgr init failed")
+	}
+
+	if !pay_table_mgr.Init("") {
+		return errors.New("pay_table_mgr init failed")
+	}
+
 	return nil
 }
 

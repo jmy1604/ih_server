@@ -119,6 +119,8 @@ type GlobalConfig struct {
 	AnouncementSendCooldown int32 // 公告发送间隔冷却时间(分钟)
 	AnouncementSendMaxNum   int32 // 公告一次发送最大数量
 	AnouncementExistTime    int32 // 公告存在时间
+
+	VipExpItemId int32 // VIP经验物品ID
 }
 
 func (this *GlobalConfig) Init(config_file string) bool {

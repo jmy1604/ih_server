@@ -291,6 +291,8 @@ var guild_donate_table_mgr table_config.GuildDonateTableMgr
 var guild_boss_table_mgr table_config.GuildBossTableMgr
 var sign_table_mgr table_config.SignTableMgr
 var seven_days_table_mgr table_config.SevenDaysTableMgr
+var vip_table_mgr table_config.VipTableMgr
+var pay_table_mgr table_config.PayTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool
