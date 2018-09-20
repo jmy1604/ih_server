@@ -120,7 +120,9 @@ type GlobalConfig struct {
 	AnouncementSendMaxNum   int32 // 公告一次发送最大数量
 	AnouncementExistTime    int32 // 公告存在时间
 
-	VipExpItemId int32 // VIP经验物品ID
+	FirstChargeRewards []int32 // 首充奖励
+
+	MonthCardSendRewardTime string // 月卡发奖时间
 }
 
 func (this *GlobalConfig) Init(config_file string) bool {

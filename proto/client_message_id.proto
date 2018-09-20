@@ -292,8 +292,16 @@ enum MSGID {
 	C2S_SIGN_AWARD_REQUEST					= 12002; // 签到领奖 C2SSignAwardRequest
 	S2C_SIGN_AWARD_RESPONSE					= 12003; // 签到领奖返回 S2CSignAwardResponse
 	
-	C2S_SEVENDAYS_DATA_REQUEST				= 13000; // 七天乐数据请求 C2SSevenDaysDataRequest
-	S2C_SEVENDAYS_DATA_RESPONSE				= 13001; // 七天乐数据请求返回 S2CSevenDaysDataResponse
-	C2S_SEVENDAYS_AWARD_REQUEST				= 13002; // 七天乐领奖请求 C2SSevenDaysAwardRequest
-	S2C_SEVENDAYS_AWARD_RESPONSE			= 13003; // 七天乐领奖返回 S2CSevenDaysAwardResponse
+	C2S_SEVENDAYS_DATA_REQUEST				= 12100; // 七天乐数据请求 C2SSevenDaysDataRequest
+	S2C_SEVENDAYS_DATA_RESPONSE				= 12101; // 七天乐数据请求返回 S2CSevenDaysDataResponse
+	C2S_SEVENDAYS_AWARD_REQUEST				= 12102; // 七天乐领奖请求 C2SSevenDaysAwardRequest
+	S2C_SEVENDAYS_AWARD_RESPONSE			= 12103; // 七天乐领奖返回 S2CSevenDaysAwardResponse
+	
+	C2S_CHARGE_DATA_REQUEST					= 12200; // 充值数据请求 C2SChargeDataRequest
+	S2C_CHARGE_DATA_RESPONSE				= 12201; // 充值数据返回 S2CChargeDataResponse
+	C2S_CHARGE_REQUEST						= 12202; // 充值请求 C2SChargeRequest
+	S2C_CHARGE_RESPONSE						= 12203; // 充值返回 S2CChargeResponse
+	S2C_CHARGE_FIRST_REWARD_NOTIFY			= 12204; // 首充奖励通知 S2CChargeFirstRewardNotify
+	C2S_CHARGE_FIRST_AWARD_REQUEST			= 12205; // 首充领奖 C2SChargeFirstAwardRequest
+	S2C_CHARGE_FIRST_AWARD_RESPONSE			= 12206; // 首充领奖返回 S2CChargeFirstAwardResponse
 }

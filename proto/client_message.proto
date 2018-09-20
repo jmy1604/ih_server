@@ -227,6 +227,12 @@ enum E_ERR {
 	
 	
 	// 充值
+	CHARGE_TABLE_DATA_NOT_FOUND				= -29000; // 充值配置找不到
+	CHARGE_MONTH_CARD_ALREADY_PAYED			= -29001; // 月卡已买
+	CHARGE_FIRST_NO_DONE					= -29002; // 还未首充
+	CHARGE_FIRST_ALREADY_AWARD				= -29003; // 首充已领过奖
+	
+	// 保留
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
 	CHARGE_ORDER_DATA_INVALID				= -200001;
 	CHARGE_ORDER_SIGNATURE_INVALID			= -200002;
@@ -1967,4 +1973,42 @@ message C2SSevenDaysAwardRequest {
 message S2CSevenDaysAwardResponse {
 	int32 Days								= 1; // 对应天数
 	repeated ItemInfo Rewards				= 2; // 获得的奖励
+}
+
+// ---------------------------------- 充值 ------------------------------------
+// 充值数据
+message C2SChargeDataRequest {
+}
+
+message MonthCardData {
+	string BundleId							= 1; // BundleId
+	int32 EndTime							= 2; // 结束时间
+	int32 SendMailNum						= 3; // 已发送奖励邮件数
+}
+
+message S2CChargeDataResponse {
+	int32 FirstChargeState					= 1; // 首充状态 0 未充  1 已充可领取  2 已领取
+	repeated MonthCardData Datas			= 2; // 月卡数据
+}
+
+// 充值请求 
+message C2SChargeRequest {
+	string BundleId							= 1; // BundleId
+}
+
+message S2CChargeResponse {
+	string BundleId							= 1; // BundleId
+	bool IsFirst							= 2; // 是否首次
+}
+
+// 首充奖励通知, 第一次充值会通知
+message S2CChargeFirstRewardNotify {
+}
+
+// 首充领奖
+message C2SChargeFirstAwardRequest {
+}
+
+message S2CChargeFirstAwardResponse {
+	repeated ItemInfo Rewards				= 1; // 奖励物品
 }

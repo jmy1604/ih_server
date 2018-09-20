@@ -7,9 +7,19 @@ import (
 	"io/ioutil"
 )
 
+const (
+	PAY_TYPE_NORMAL     = 0
+	PAY_TYPE_MONTH_CARD = 1
+)
+
 type XmlPayItem struct {
-	Id       int32  `xml:"ID,attr"`
-	BundleId string `xml:"BundleID,attr"`
+	Id              int32  `xml:"ID,attr"`
+	BundleId        string `xml:"BundleID,attr"`
+	GemRewardFirst  int32  `xml:"GemRewardFirst,attr"`
+	GemReward       int32  `xml:"GemReward,attr"`
+	MonthCardDay    int32  `xml:"MonthCardDay,attr"`
+	MonthCardReward int32  `xml:"MonthCardReward,attr"`
+	PayType         int32
 }
 
 type XmlPayConfig struct {
@@ -17,8 +27,10 @@ type XmlPayConfig struct {
 }
 
 type PayTableMgr struct {
-	Map   map[int32]*XmlPayItem
-	Array []*XmlPayItem
+	Map            map[int32]*XmlPayItem
+	Array          []*XmlPayItem
+	Map2           map[string]*XmlPayItem
+	MonthCardArray []*XmlPayItem
 }
 
 func (this *PayTableMgr) Init(table_file string) bool {
@@ -53,14 +65,25 @@ func (this *PayTableMgr) Load(table_file string) bool {
 	if this.Array == nil {
 		this.Array = make([]*XmlPayItem, 0)
 	}
+	if this.Map2 == nil {
+		this.Map2 = make(map[string]*XmlPayItem)
+	}
 	tmp_len := int32(len(tmp_cfg.Items))
 
 	var tmp_item *XmlPayItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
 
+		if tmp_item.MonthCardDay == 30 {
+			tmp_item.PayType = PAY_TYPE_MONTH_CARD
+		}
+
 		this.Map[tmp_item.Id] = tmp_item
 		this.Array = append(this.Array, tmp_item)
+		this.Map2[tmp_item.BundleId] = tmp_item
+		if tmp_item.PayType == PAY_TYPE_MONTH_CARD {
+			this.MonthCardArray = append(this.MonthCardArray, tmp_item)
+		}
 	}
 
 	return true
@@ -68,4 +91,12 @@ func (this *PayTableMgr) Load(table_file string) bool {
 
 func (this *PayTableMgr) Get(id int32) *XmlPayItem {
 	return this.Map[id]
+}
+
+func (this *PayTableMgr) GetByBundle(bundle_id string) *XmlPayItem {
+	return this.Map2[bundle_id]
+}
+
+func (this *PayTableMgr) GetMonthCards() []*XmlPayItem {
+	return this.MonthCardArray
 }

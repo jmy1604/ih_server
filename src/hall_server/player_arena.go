@@ -260,7 +260,7 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 		}
 
 		// 更新任务
-		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_REACH_SCORE, true, score, 1)
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_REACH_SCORE, false, 0, add_score)
 	}
 
 	return

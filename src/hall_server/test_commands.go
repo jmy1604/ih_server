@@ -2110,6 +2110,30 @@ func seven_days_award_cmd(p *Player, args []string) int32 {
 	return p.seven_days_award()
 }
 
+func charge_data_cmd(p *Player, args []string) int32 {
+	return p.charge_data()
+}
+
+func charge_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.charge(int32(id))
+}
+
+func charge_first_award_cmd(p *Player, args []string) int32 {
+	return p.charge_first_award()
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2242,6 +2266,9 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"sign_award":             sign_award_cmd,
 	"seven_data":             seven_days_data_cmd,
 	"seven_award":            seven_days_award_cmd,
+	"charge_data":            charge_data_cmd,
+	"charge":                 charge_cmd,
+	"charge_first_award":     charge_first_award_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

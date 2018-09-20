@@ -279,7 +279,6 @@ func (this *Player) add_vip_exp(add_exp int32) (level, exp int32) {
 		if vip_data.Exp <= 0 || vip_data.Exp > exp {
 			break
 		}
-		exp -= vip_data.Exp
 		level += 1
 	}
 

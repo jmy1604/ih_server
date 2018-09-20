@@ -68,15 +68,10 @@
 	"ExploreTaskRefreshCostDiamond": 10,
 	"ExploreTaskRefreshTime": "00:00:00",
 	
-	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
-	"AppleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
-	"FaceBookLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
-	"ApplePayUrl":"https://buy.itunes.apple.com/verifyReceipt",
-	"ApplePaySandBoxUrl":"https://sandbox.itunes.apple.com/verifyReceipt",
+	
 	
 	"MaxNameLen":32,
 	"ChgNameCost":[200],
-	"FirstPayReward":6801,
 	
 	"WorldChatMaxMsgNum": 200,
 	"WorldChatPullMaxMsgNum": 50,
@@ -122,5 +117,14 @@
 	"GuildDonateRefreshTime":"00:00:00",
 	"GuildStageRefreshTime":"00:00:00",
 	
-	"TalentResetCostDiamond": 10000
+	"TalentResetCostDiamond": 10000,
+	
+	"FirstChargeRewards": [53056,50,1,20000,2,10000],
+	"MonthCardSendRewardTime": "00:00:00",
+	
+	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
+	"AppleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
+	"FaceBookLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
+	"ApplePayUrl":"https://buy.itunes.apple.com/verifyReceipt",
+	"ApplePaySandBoxUrl":"https://sandbox.itunes.apple.com/verifyReceipt",
 }

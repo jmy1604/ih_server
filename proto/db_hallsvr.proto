@@ -431,6 +431,21 @@ message PlayerSevenDays{
 	optional int32 Days=2;
 }
 
+message PlayerPayCommon{
+	optional int32 FirstPayState=1;
+}
+
+message PlayerPay{
+	optional string BundleId=1;
+	optional int32 LastPayedTime=2;
+	optional int32 LastAwardTime=3;
+	optional int32 SendMailNum=4;
+}
+
+message PlayerPayList{
+	repeated PlayerPay List=1;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }
