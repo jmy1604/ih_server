@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item ID="1" BundleID="com.caesars.xwar.mcard0" />
+     <item ID="2" BundleID="com.caesars.xwar.mcard1" />
+     <item ID="3" BundleID="com.caesars.xwar.gem0" />
+     <item ID="4" BundleID="com.caesars.xwar.gem1" />
+     <item ID="5" BundleID="com.caesars.xwar.gem2" />
+     <item ID="6" BundleID="com.caesars.xwar.gem3" />
+     <item ID="7" BundleID="com.caesars.xwar.gem4" />
+     <item ID="8" BundleID="com.caesars.xwar.gem5" />
+</Config>

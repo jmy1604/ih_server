@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item VipLevel="1" Money="6" />
+     <item VipLevel="2" Money="30" />
+     <item VipLevel="3" Money="100" />
+     <item VipLevel="4" Money="200" />
+     <item VipLevel="5" Money="500" />
+     <item VipLevel="6" Money="1000" />
+     <item VipLevel="7" Money="2000" />
+     <item VipLevel="8" Money="5000" />
+     <item VipLevel="9" Money="10000" />
+     <item VipLevel="10" Money="20000" />
+     <item VipLevel="11" Money="50000" />
+</Config>
