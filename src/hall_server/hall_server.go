@@ -151,6 +151,8 @@ func (this *HallServer) Run() {
 
 	go friend_recommend_mgr.Run()
 
+	go charge_month_card_manager.Run()
+
 	for {
 		select {
 		case d, ok := <-this.ticker.Chan:
