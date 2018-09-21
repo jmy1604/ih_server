@@ -1222,7 +1222,7 @@ func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *P
 	}
 
 	t := req.GetIncomeType()
-	p.hangup_income_get(t, false)
+	p.campaign_hangup_income_get(t, false)
 	return 1
 }
 

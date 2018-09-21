@@ -434,7 +434,7 @@ func hangup_income_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	p.hangup_income_get(int32(income_type), false)
+	p.campaign_hangup_income_get(int32(income_type), false)
 
 	log.Debug("玩家[%v]获取了类型[%v]挂机收益", p.Id, income_type)
 
