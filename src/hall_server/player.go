@@ -452,8 +452,10 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 	}
 	// 战役
 	id = int(msg_client_message.RED_POINT_CAMPAIN)
-	if this.campaign_has_random_income() && (modules == nil || (len(modules) > id && modules[id] > 0)) {
-		states[id] |= 1
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		if this.campaign_has_random_income() {
+			states[id] |= 1
+		}
 	}
 	// 抽卡
 	id = int(msg_client_message.RED_POINT_DRAW)
@@ -471,8 +473,10 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 	}
 	// 探索
 	id = int(msg_client_message.RED_POINT_EXPLORE)
-	if (this.db.Explores.has_reward() || this.db.ExploreStorys.has_reward()) && (modules == nil || (len(modules) > id && modules[id] > 0)) {
-		states[id] |= 1
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		if this.db.Explores.has_reward() || this.db.ExploreStorys.has_reward() {
+			states[id] |= 1
+		}
 	}
 	// 聊天
 	id = int(msg_client_message.RED_POINT_CHAT)
