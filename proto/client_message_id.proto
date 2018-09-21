@@ -304,4 +304,7 @@ enum MSGID {
 	S2C_CHARGE_FIRST_REWARD_NOTIFY			= 12204; // 首充奖励通知 S2CChargeFirstRewardNotify
 	C2S_CHARGE_FIRST_AWARD_REQUEST			= 12205; // 首充领奖 C2SChargeFirstAwardRequest
 	S2C_CHARGE_FIRST_AWARD_RESPONSE			= 12206; // 首充领奖返回 S2CChargeFirstAwardResponse
+	
+	C2S_RED_POINT_STATES_REQUEST			= 12300; // 红点状态请求 C2SRedPointStatesRequest
+	S2C_RED_POINT_STATES_RESPONSE			= 12301; // 红点状态返回 S2CRedPointStatesResponse
 }

@@ -389,6 +389,9 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CHARGE_DATA_REQUEST), C2SChargeDataHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CHARGE_REQUEST), C2SChargeHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CHARGE_FIRST_AWARD_REQUEST), C2SChargeFirstAwardHandler)
+
+	// 红点提示
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_RED_POINT_STATES_REQUEST), C2SRedPointStatesHandler)
 }
 
 func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data []byte) (int32, *Player) {
@@ -500,7 +503,6 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 		return int32(msg_client_message.E_ERR_PLAYER_IS_OFFLINE)
 	}
 
-	p.send_notify_state()
 	p.check_and_send_tower_data()
 	p.check_and_send_friend_ask_add()
 	p.check_and_send_friend_add()
@@ -570,4 +572,14 @@ func C2SPlayerChangeHeadHandler(w http.ResponseWriter, r *http.Request, p *Playe
 		return -1
 	}
 	return p.change_head(req.GetNewHead())
+}
+
+func C2SRedPointStatesHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRedPointStatesRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.send_red_point_states(req.GetModules())
 }

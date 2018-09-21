@@ -46,6 +46,30 @@ func (this *Player) check_reset_gold_hand(gold_hand_data *table_config.XmlGoldHa
 	return
 }
 
+func (this *Player) has_free_gold_hand() bool {
+	lvl := this.db.Info.GetLvl()
+	gold_hand_data := goldhand_table_mgr.Get(lvl)
+	if gold_hand_data == nil {
+		log.Error("Goldhand data with level %v not found", lvl)
+		return false
+	}
+
+	remain_seconds := this.check_reset_gold_hand(gold_hand_data)
+	left_nums := this.get_gold_hand_left_nums()
+	if remain_seconds <= 0 {
+		if gold_hand_data.GemCost1 <= 0 && left_nums[1-1] > 0 {
+			return true
+		}
+		if gold_hand_data.GemCost2 <= 0 && left_nums[2-1] > 0 {
+			return true
+		}
+		if gold_hand_data.GemCost3 <= 0 && left_nums[3-1] > 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func (this *Player) send_gold_hand() int32 {
 	lvl := this.db.Info.GetLvl()
 	gold_hand_data := goldhand_table_mgr.Get(lvl)

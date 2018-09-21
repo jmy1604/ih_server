@@ -2134,6 +2134,10 @@ func charge_first_award_cmd(p *Player, args []string) int32 {
 	return p.charge_first_award()
 }
 
+func get_red_states_cmd(p *Player, args []string) int32 {
+	return p.send_red_point_states(nil)
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2269,6 +2273,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"charge_data":            charge_data_cmd,
 	"charge":                 charge_cmd,
 	"charge_first_award":     charge_first_award_cmd,
+	"get_red_states":         get_red_states_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

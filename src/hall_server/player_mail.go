@@ -151,7 +151,7 @@ func (this *dbPlayerMailColumn) HasUnreadMail() bool {
 	defer this.m_row.m_lock.UnSafeRUnlock()
 
 	for _, v := range this.m_data {
-		if v.IsRead > 0 {
+		if v.IsRead <= 0 {
 			return true
 		}
 	}

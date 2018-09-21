@@ -7,6 +7,15 @@ import (
 	"io/ioutil"
 )
 
+type ChatConfig struct {
+	MaxMsgNum       int32 // 最大消息数
+	PullMaxMsgNum   int32 // 拉取的消息数量最大值
+	PullMsgCooldown int32 // 拉取CD
+	MsgMaxBytes     int32 // 消息最大长度
+	MsgExistTime    int32 // 消息存在时间
+	SendMsgCooldown int32 // 冷却时间
+}
+
 type GlobalConfig struct {
 	InitRoles                            []int32 // 初始角色
 	InitItems                            []int32 // 初始物品
@@ -94,26 +103,9 @@ type GlobalConfig struct {
 
 	FirstPayReward int32
 
-	WorldChatMaxMsgNum       int32 // 世界聊天最大消息数
-	WorldChatPullMaxMsgNum   int32 // 世界聊天拉取的消息数量最大值
-	WorldChatPullMsgCooldown int32 // 世界聊天拉取CD
-	WorldChatMsgMaxBytes     int32 // 世界聊天消息最大长度
-	WorldChatMsgExistTime    int32 // 世界聊天消息存在时间
-	WorldChatSendMsgCooldown int32 // 世界聊天冷却时间
-
-	GuildChatMaxMsgNum       int32 // 公会聊天最大消息数
-	GuildChatPullMaxMsgNum   int32 // 公会聊天拉取的消息数量最大值
-	GuildChatPullMsgCooldown int32 // 公会聊天拉取CD
-	GuildChatMsgMaxBytes     int32 // 公会聊天消息最大长度
-	GuildChatMsgExistTime    int32 // 公会聊天消息存在时间
-	GuildChatSendMsgCooldown int32 // 公会聊天冷却时间
-
-	RecruitChatMaxMsgNum       int32 // 招募聊天最大消息数
-	RecruitChatPullMaxMsgNum   int32 // 招募聊天拉取的消息数量最大值
-	RecruitChatPullMsgCooldown int32 // 招募聊天拉取CD
-	RecruitChatMsgMaxBytes     int32 // 招募聊天消息最大长度
-	RecruitChatMsgExistTime    int32 // 招募聊天消息存在时间
-	RecruitChatSendMsgCooldown int32 // 招募聊天冷却时间
+	WorldChatData   ChatConfig // 世界频道
+	GuildChatData   ChatConfig // 公会频道
+	RecruitChatData ChatConfig // 招募频道
 
 	AnouncementMaxNum       int32 // 公告最大数量
 	AnouncementSendCooldown int32 // 公告发送间隔冷却时间(分钟)

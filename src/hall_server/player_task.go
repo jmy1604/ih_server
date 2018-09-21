@@ -19,6 +19,32 @@ const (
 	TASK_STATE_REWARD   = 2 // 已领奖
 )
 
+func (this *dbPlayerTaskColumn) has_reward(task_type int32) bool {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTaskColumn.has_reward")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	for _, d := range this.m_data {
+		task := task_table_mgr.GetTask(d.Id)
+		if task == nil {
+			continue
+		}
+		if task.Prev > 0 && this.m_data[task.Prev] != nil {
+			continue
+		}
+		if d.State == TASK_STATE_COMPLETE {
+			if task_type == 0 {
+				return true
+			} else if task.Type == table_config.TASK_TYPE_DAILY {
+				return true
+			} else if task.Type == table_config.TASK_TYPE_ACHIVE {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (this *dbPlayerTaskColumn) ResetDailyTask() {
 	this.m_row.m_lock.UnSafeLock("dbPlayerTaskColumn.ChkResetDailyTask")
 	defer this.m_row.m_lock.UnSafeUnlock()

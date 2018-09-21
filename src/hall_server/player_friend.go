@@ -588,19 +588,27 @@ func (this *Player) get_friend_points(friend_ids []int32) int32 {
 	return 1
 }
 
-// 搜索BOSS
-func (this *Player) friend_search_boss() int32 {
-	now_time := int32(time.Now().Unix())
+func (this *Player) friend_search_boss_check(now_time int32) (int32, *table_config.XmlFriendBossItem) {
 	last_refresh_time := this.db.FriendCommon.GetLastBossRefreshTime()
 	if last_refresh_time > 0 && now_time-last_refresh_time < global_config.FriendSearchBossRefreshMinutes*60 {
 		log.Error("Player[%v] friend boss search is cool down", this.Id)
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_REFRESH_IS_COOLDOWN)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_REFRESH_IS_COOLDOWN), nil
 	}
 
 	friend_boss_tdata := friend_boss_table_mgr.GetWithLevel(this.db.Info.GetLvl())
 	if friend_boss_tdata == nil {
 		log.Error("Player[%v] cant searched friend boss with level %v", this.Id, this.db.Info.GetLvl())
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_DATA_NOT_FOUND)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_DATA_NOT_FOUND), nil
+	}
+	return 1, friend_boss_tdata
+}
+
+// 搜索BOSS
+func (this *Player) friend_search_boss() int32 {
+	now_time := int32(time.Now().Unix())
+	res, friend_boss_tdata := this.friend_search_boss_check(now_time)
+	if res < 0 {
+		return res
 	}
 
 	var boss_id int32

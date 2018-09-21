@@ -85,20 +85,30 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, use
 	return
 }
 
-func (this *Player) draw_card(draw_type int32) int32 {
+func (this *Player) has_free_draw(draw_type int32, now_time int32) (bool, *table_config.XmlDrawItem) {
 	draw := draw_table_mgr.Get(draw_type)
 	if draw == nil {
 		log.Error("Player[%v] draw id[%v] not found", this.Id, draw_type)
-		return -1
+		return false, nil
 	}
 
 	is_free := false
-	now_time := int32(time.Now().Unix())
+
 	if draw.FreeExtractTime > 0 {
 		last_draw, o := this.db.Draws.GetLastDrawTime(draw_type)
 		if !o || now_time-last_draw >= draw.FreeExtractTime {
 			is_free = true
 		}
+	}
+
+	return is_free, draw
+}
+
+func (this *Player) draw_card(draw_type int32) int32 {
+	now_time := int32(time.Now().Unix())
+	is_free, draw := this.has_free_draw(draw_type, now_time)
+	if draw == nil {
+		return -1
 	}
 
 	n := int32(0)

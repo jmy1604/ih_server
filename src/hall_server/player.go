@@ -423,47 +423,118 @@ func (this *Player) notify_enter_complete() {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_COMPLETE_NOTIFY), msg)
 }
 
-func (this *Player) send_notify_state() {
-	var response *msg_client_message.S2CStateNotify
+// 红点状态
+func (this *Player) send_red_point_states(modules []int32) int32 {
+	var states = make([]int32, msg_client_message.RED_POINT_MAX)
+	var now_time = int32(time.Now().Unix())
 
-	// 挂机收益
-	s := this.check_income_state()
-	if s != 0 {
-		if response == nil {
-			response = &msg_client_message.S2CStateNotify{}
+	// 任务检测
+	id := int(msg_client_message.RED_POINT_TASK)
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		if this.db.Tasks.has_reward(table_config.TASK_TYPE_ACHIVE) {
+			states[id] |= 1
+		}
+		if this.db.Tasks.has_reward(table_config.TASK_TYPE_DAILY) {
+			states[id] |= 2
 		}
 	}
-	if s > 0 {
-		response.States = append(response.States, int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME))
-	} else if s < 0 {
-		response.CancelStates = append(response.CancelStates, int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME))
-	}
-
-	// 其他
-	if this.states_changed != nil {
-		if response == nil {
-			response = &msg_client_message.S2CStateNotify{}
+	// 福利检测
+	id = int(msg_client_message.RED_POINT_WELFARE)
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		// 签到
+		if this.db.Sign.has_reward() {
+			states[id] |= 1
 		}
-		for k, v := range this.states_changed {
-			if v == 1 {
-				response.States = append(response.States, k)
-			} else if v == 2 {
-				response.CancelStates = append(response.CancelStates, k)
-			}
+		// 七天乐
+		if this.db.SevenDays.has_reward(this.db.Info.GetCreateUnix()) {
+			states[id] |= 2
 		}
-		this.states_changed = nil
+	}
+	// 战役
+	id = int(msg_client_message.RED_POINT_CAMPAIN)
+	if this.campaign_has_random_income() && (modules == nil || (len(modules) > id && modules[id] > 0)) {
+		states[id] |= 1
+	}
+	// 抽卡
+	id = int(msg_client_message.RED_POINT_DRAW)
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		// 普通
+		is_free, _ := this.has_free_draw(1, now_time)
+		if is_free {
+			states[id] |= 1
+		}
+		// 高级
+		is_free, _ = this.has_free_draw(3, now_time)
+		if is_free {
+			states[id] |= 2
+		}
+	}
+	// 探索
+	id = int(msg_client_message.RED_POINT_EXPLORE)
+	if (this.db.Explores.has_reward() || this.db.ExploreStorys.has_reward()) && (modules == nil || (len(modules) > id && modules[id] > 0)) {
+		states[id] |= 1
+	}
+	// 聊天
+	id = int(msg_client_message.RED_POINT_CHAT)
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		// 世界频道
+		if this.has_new_chat_msg(CHAT_CHANNEL_WORLD) {
+			states[id] |= 1
+		}
+		// 公会频道
+		if this.has_new_chat_msg(CHAT_CHANNEL_GUILD) {
+			states[id] |= 2
+		}
+		// 招募频道
+		if this.has_new_chat_msg(CHAT_CHANNEL_RECRUIT) {
+			states[id] |= 4
+		}
+	}
+	// 邮件
+	id = int(msg_client_message.RED_POINT_MAIL)
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		if this.db.Mails.HasUnreadMail() {
+			states[id] |= 1
+		}
+	}
+	// 好友
+	id = int(msg_client_message.RED_POINT_FRIEND)
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		// 可搜索好友BOSS
+		res, _ := this.friend_search_boss_check(now_time)
+		if res > 0 {
+			states[id] |= 1
+		}
+		// 有新好友申请
+		if this.db.FriendAsks.NumAll() > 0 {
+			states[id] |= 2
+		}
+	}
+	// 点金手
+	id = int(msg_client_message.RED_POINT_GOLD_HAND)
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		if this.has_free_gold_hand() {
+			states[id] |= 1
+		}
+	}
+	// 公会
+	id = int(msg_client_message.RED_POINT_GUILD)
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		res, _ := this.guild_can_sign_in()
+		if res > 0 {
+			states[id] |= 1
+		}
 	}
 
-	if response != nil {
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_STATE_NOTIFY), response)
+	var response = msg_client_message.S2CRedPointStatesResponse{
+		Modules: modules,
+		States:  states,
 	}
-}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_RED_POINT_STATES_RESPONSE), &response)
 
-func (this *Player) notify_state_changed(state int32, change_type int32) {
-	if this.states_changed == nil {
-		this.states_changed = make(map[int32]int32)
-	}
-	this.states_changed[state] = change_type
+	log.Debug("Player[%v] red point states %v", this.Id, states)
+
+	return 1
 }
 
 func (this *Player) SetTeam(team_type int32, team []int32) int32 {

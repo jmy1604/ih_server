@@ -171,7 +171,7 @@ func (this *Player) charge_data() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_DATA_RESPONSE), response)
 
-	log.Error("Player[%v] charge data %v", response)
+	log.Debug("Player[%v] charge data %v", this.Id, response)
 
 	return 1
 }

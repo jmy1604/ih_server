@@ -5,6 +5,7 @@ import (
 	"ih_server/libs/utils"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
+	"ih_server/src/table_config"
 	"net/http"
 	"sync"
 	"time"
@@ -19,8 +20,13 @@ const (
 	CHAT_CHANNEL_RECRUIT = 3 // 招募
 )
 
-const MAX_WORLD_CHAT_ONCE_GET int32 = 50
-const MAX_WORLD_CHAT_MSG_NUM int32 = 150
+const MAX_CHAT_ONCE_GET int32 = 50      // 默认每次拉取消息条数
+const MAX_CHAT_MSG_NUM int32 = 150      // 默认消息总数
+const PULL_MSG_COOLDOWN int32 = 30      // 默认拉取消息冷却时间
+const PULL_MAX_MSG_NUM int32 = 10       // 默认拉取最大消息条数
+const CHAT_MSG_MAX_BYTES int32 = 200    // 默认消息最大字节数
+const CHAT_MSG_EXIST_MINUTES int32 = 60 // 默认消息存在最长分钟数
+const CHAT_SEND_MSG_COOLDOWN int32 = 5  // 默认发送消息间隔
 
 type ChatItem struct {
 	send_player_id    int32
@@ -59,29 +65,99 @@ type ChatMgr struct {
 var world_chat_mgr ChatMgr
 var recruit_chat_mgr ChatMgr
 
-func get_world_chat_max_msg_num() int32 {
-	max_num := global_config.WorldChatMaxMsgNum
-	if max_num == 0 {
-		max_num = MAX_WORLD_CHAT_MSG_NUM
+func get_chat_config_data(channel int32) *table_config.ChatConfig {
+	if channel == CHAT_CHANNEL_WORLD {
+		return &global_config.WorldChatData
+	} else if channel == CHAT_CHANNEL_GUILD {
+		return &global_config.GuildChatData
+	} else if channel == CHAT_CHANNEL_RECRUIT {
+		return &global_config.RecruitChatData
+	}
+	return nil
+}
+
+func get_chat_max_msg_num(channel int32) int32 {
+	var max_num int32
+	chat_config := get_chat_config_data(channel)
+	if chat_config == nil {
+		max_num = MAX_CHAT_MSG_NUM
+	} else {
+		max_num = chat_config.MaxMsgNum
 	}
 	return max_num
+}
+
+func get_chat_pull_msg_cooldown(channel int32) int32 {
+	var pull_msg_cooldown int32
+	chat_config := get_chat_config_data(channel)
+	if chat_config == nil {
+		pull_msg_cooldown = PULL_MSG_COOLDOWN
+	} else {
+		pull_msg_cooldown = chat_config.PullMsgCooldown
+	}
+	return pull_msg_cooldown
+}
+
+func get_chat_pull_max_msg_num(channel int32) int32 {
+	var pull_max_msg_num int32
+	chat_config := get_chat_config_data(channel)
+	if chat_config == nil {
+		pull_max_msg_num = PULL_MAX_MSG_NUM
+	} else {
+		pull_max_msg_num = chat_config.PullMaxMsgNum
+	}
+	return pull_max_msg_num
+}
+
+func get_chat_msg_max_bytes(channel int32) int32 {
+	var msg_bytes int32
+	chat_config := get_chat_config_data(channel)
+	if chat_config == nil {
+		msg_bytes = CHAT_MSG_MAX_BYTES
+	} else {
+		msg_bytes = chat_config.MsgMaxBytes
+	}
+	return msg_bytes
+}
+
+func get_chat_msg_exist_minutes(channel int32) int32 {
+	var exist_minutes int32
+	chat_config := get_chat_config_data(channel)
+	if chat_config == nil {
+		exist_minutes = CHAT_MSG_EXIST_MINUTES
+	} else {
+		exist_minutes = chat_config.MsgExistTime
+	}
+	return exist_minutes
+}
+
+func get_chat_send_msg_cooldown(channel int32) int32 {
+	var send_msg_cooldown int32
+	chat_config := get_chat_config_data(channel)
+	if chat_config == nil {
+		send_msg_cooldown = CHAT_SEND_MSG_COOLDOWN
+	} else {
+		send_msg_cooldown = chat_config.SendMsgCooldown
+	}
+	return send_msg_cooldown
 }
 
 func (this *ChatMgr) Init(channel int32) {
 	this.channel = channel
 	this.items_pool = &utils.SimpleItemPool{}
 	this.items_factory = &ChatItemFactory{}
-	this.items_pool.Init(get_world_chat_max_msg_num(), this.items_factory)
+	this.items_pool.Init(get_chat_max_msg_num(channel), this.items_factory)
 	this.locker = &sync.RWMutex{}
 	this.chat_msg_head = nil
 	this.chat_msg_tail = nil
 }
 
 func (this *ChatMgr) recycle_old() {
+	exist_time := get_chat_msg_exist_minutes(this.channel)
 	now_time := int32(time.Now().Unix())
 	msg := this.chat_msg_head
 	for msg != nil {
-		if now_time-msg.send_time >= global_config.WorldChatMsgExistTime*60 {
+		if now_time-msg.send_time >= exist_time*60 {
 			if msg == this.chat_msg_head {
 				this.chat_msg_head = msg.next
 			}
@@ -148,17 +224,10 @@ func (this *ChatMgr) push_chat_msg(content []byte, extra_value int32, player_id 
 	return true
 }
 
-func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message.ChatItem) {
-	this.locker.RLock()
-	defer this.locker.RUnlock()
-
-	if this.msg_num <= 0 {
-		chat_items = make([]*msg_client_message.ChatItem, 0)
-		return
-	}
-	msg_num := MAX_WORLD_CHAT_ONCE_GET
-	if msg_num > this.msg_num {
-		msg_num = this.msg_num
+func (this *ChatMgr) get_curr_msg(player *Player, is_lock bool) *ChatItem {
+	if is_lock {
+		this.locker.RLock()
+		defer this.locker.RUnlock()
 	}
 
 	var msg *ChatItem
@@ -169,8 +238,7 @@ func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message
 	} else if this.channel == CHAT_CHANNEL_RECRUIT {
 		msg = player.recruit_chat_data.curr_msg
 	} else {
-		log.Error("Unknown chat channel %v for pull chat with player %v", this.channel, player.Id)
-		return
+		return nil
 	}
 
 	if msg == nil {
@@ -192,23 +260,53 @@ func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message
 		}
 	}
 
-	now_time := int32(time.Now().Unix())
+	return msg
+}
 
+func (this *ChatMgr) has_new_msg(player *Player) bool {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+
+	msg := this.get_curr_msg(player, false)
+	now_time := int32(time.Now().Unix())
+	exist_minutes := get_chat_msg_exist_minutes(this.channel)
+	for {
+		if msg == nil {
+			break
+		}
+
+		if now_time-msg.send_time < exist_minutes*60 {
+			return true
+		}
+
+		msg = msg.next
+	}
+
+	return false
+}
+
+func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message.ChatItem) {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+
+	if this.msg_num <= 0 {
+		chat_items = make([]*msg_client_message.ChatItem, 0)
+		return
+	}
+	msg_num := MAX_CHAT_ONCE_GET
+	if msg_num > this.msg_num {
+		msg_num = this.msg_num
+	}
+
+	msg := this.get_curr_msg(player, false)
+	now_time := int32(time.Now().Unix())
+	exist_minutes := get_chat_msg_exist_minutes(this.channel)
 	for n := int32(0); n < msg_num; n++ {
 		if msg == nil {
 			break
 		}
 
-		var chat_exist_time int32
-		if this.channel == CHAT_CHANNEL_WORLD {
-			chat_exist_time = global_config.WorldChatMsgExistTime
-		} else if this.channel == CHAT_CHANNEL_GUILD {
-			chat_exist_time = global_config.GuildChatMsgExistTime
-		} else {
-			chat_exist_time = global_config.RecruitChatMsgExistTime
-		}
-
-		if now_time-msg.send_time >= chat_exist_time*60 {
+		if now_time-msg.send_time >= exist_minutes*60 {
 			msg = msg.next
 			continue
 		}
@@ -240,32 +338,17 @@ func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message
 }
 
 func (this *Player) chat(channel int32, content []byte) int32 {
-	now_time := int32(time.Now().Unix())
-	var last_chat_time, cooldown_seconds, max_bytes int32
-	var chat_mgr *ChatMgr
-	if channel == CHAT_CHANNEL_WORLD {
-		max_bytes = global_config.WorldChatMsgMaxBytes
-		chat_mgr = &world_chat_mgr
-		cooldown_seconds = global_config.WorldChatSendMsgCooldown
-	} else if channel == CHAT_CHANNEL_GUILD {
-		max_bytes = global_config.GuildChatMsgMaxBytes
-		guild_id := this.db.Guild.GetId()
-		chat_mgr = guild_manager.GetChatMgr(guild_id)
-		if chat_mgr == nil {
-			log.Error("Player[%v] no guild chat channel", this.Id)
-			return -1
-		}
-		cooldown_seconds = global_config.GuildChatSendMsgCooldown
-	} else if channel == CHAT_CHANNEL_RECRUIT {
-		max_bytes = global_config.RecruitChatMsgMaxBytes
-		chat_mgr = &recruit_chat_mgr
-		cooldown_seconds = global_config.RecruitChatSendMsgCooldown
-	} else {
-		log.Error("Player[%v] chat with unknown channel %v", this.Id, channel)
-		return -1
+	chat_mgr := this.get_chat_mgr(channel)
+	if chat_mgr == nil {
+		log.Error("Player[%v] get chat mgr by channel %v failed", this.Id, channel)
+		return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
 	}
 
-	last_chat_time, _ = this.db.Chats.GetLastChatTime(channel)
+	now_time := int32(time.Now().Unix())
+	cooldown_seconds := get_chat_send_msg_cooldown(channel)
+	max_bytes := get_chat_msg_max_bytes(channel)
+
+	last_chat_time, _ := this.db.Chats.GetLastChatTime(channel)
 	if now_time-last_chat_time < cooldown_seconds {
 		log.Error("Player[%v] channel[%v] chat is cooling down !", channel, this.Id)
 		return int32(msg_client_message.E_ERR_CHAT_SEND_MSG_COOLING_DOWN)
@@ -302,26 +385,29 @@ func (this *Player) chat(channel int32, content []byte) int32 {
 	return 1
 }
 
-func (this *Player) pull_chat(channel int32) int32 {
+func (this *Player) get_chat_mgr(channel int32) *ChatMgr {
 	var chat_mgr *ChatMgr
-	var pull_msg_cooldown int32
 	if channel == CHAT_CHANNEL_WORLD {
 		chat_mgr = &world_chat_mgr
-		pull_msg_cooldown = global_config.WorldChatPullMsgCooldown
 	} else if channel == CHAT_CHANNEL_GUILD {
 		guild_id := this.db.Guild.GetId()
 		chat_mgr = guild_manager.GetChatMgr(guild_id)
-		if chat_mgr == nil {
-			log.Error("Player[%v] get chat mgr by channel %v failed", this.Id, channel)
-			return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
-		}
-		pull_msg_cooldown = global_config.GuildChatPullMsgCooldown
 	} else if channel == CHAT_CHANNEL_RECRUIT {
 		chat_mgr = &recruit_chat_mgr
-		pull_msg_cooldown = global_config.RecruitChatPullMsgCooldown
-	} else {
+	}
+	return chat_mgr
+}
+
+func (this *Player) pull_chat(channel int32) int32 {
+	chat_mgr := this.get_chat_mgr(channel)
+	if chat_mgr == nil {
+		log.Error("Player[%v] get chat mgr by channel %v failed", this.Id, channel)
+		return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
+	}
+	pull_msg_cooldown := get_chat_pull_msg_cooldown(channel)
+	if pull_msg_cooldown < 0 {
 		log.Error("Player[%v] pull chat with unknown channel %v", this.Id, channel)
-		return -1
+		return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
 	}
 
 	now_time := int32(time.Now().Unix())
@@ -332,7 +418,6 @@ func (this *Player) pull_chat(channel int32) int32 {
 	}
 
 	msgs := chat_mgr.pull_chat(this)
-	//if msgs != nil && len(msgs) > 0 {
 	if !this.db.Chats.HasIndex(channel) {
 		this.db.Chats.Add(&dbPlayerChatData{
 			Channel:      channel,
@@ -341,7 +426,6 @@ func (this *Player) pull_chat(channel int32) int32 {
 	} else {
 		this.db.Chats.SetLastPullTime(channel, now_time)
 	}
-	//}
 
 	response := &msg_client_message.S2CChatMsgPullResponse{
 		Channel: channel,
@@ -352,6 +436,16 @@ func (this *Player) pull_chat(channel int32) int32 {
 	log.Debug("Player[%v] pulled chat channel %v msgs %v", this.Id, channel, response)
 
 	return 1
+}
+
+func (this *Player) has_new_chat_msg(channel int32) bool {
+	chat_mgr := this.get_chat_mgr(channel)
+	if chat_mgr == nil {
+		//log.Error("Player[%v] get chat mgr by channel %v failed", this.Id, channel)
+		return false
+	}
+
+	return chat_mgr.has_new_msg(this)
 }
 
 func C2SChatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

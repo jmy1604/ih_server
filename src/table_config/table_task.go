@@ -72,14 +72,15 @@ func (this *FinishTypeTasks) GetArray() []*XmlTaskItem {
 }
 
 type TaskTableMgr struct {
-	task_map         map[int32]*XmlTaskItem     // 任务map
-	task_array       []*XmlTaskItem             // 任务数组
-	task_array_len   int32                      // 数组长度
-	finish_tasks     map[int32]*FinishTypeTasks // 按完成条件组织任务数据
-	daily_task_map   map[int32]*XmlTaskItem     // 日常任务MAP
-	daily_task_array []*XmlTaskItem             // 日程任务数组
-	all_daily_task   *XmlTaskItem               // 所有日常任务
-	achieve_tasks    []*XmlTaskItem             // 初始成就任务
+	task_map          map[int32]*XmlTaskItem     // 任务map
+	task_array        []*XmlTaskItem             // 任务数组
+	task_array_len    int32                      // 数组长度
+	finish_tasks      map[int32]*FinishTypeTasks // 按完成条件组织任务数据
+	daily_task_map    map[int32]*XmlTaskItem     // 日常任务MAP
+	daily_task_array  []*XmlTaskItem             // 日常任务数组
+	all_daily_task    *XmlTaskItem               // 所有日常任务
+	achieve_tasks_map map[int32]*XmlTaskItem     // 成就任务MAP
+	achieve_tasks     []*XmlTaskItem             // 初始成就任务
 }
 
 func (this *TaskTableMgr) Init(table_file string) bool {
@@ -113,6 +114,7 @@ func (this *TaskTableMgr) LoadTask(table_file string) bool {
 	this.task_map = make(map[int32]*XmlTaskItem)
 	this.finish_tasks = make(map[int32]*FinishTypeTasks)
 	this.daily_task_map = make(map[int32]*XmlTaskItem)
+	this.achieve_tasks_map = make(map[int32]*XmlTaskItem)
 
 	var tmp_item *XmlTaskItem
 	for idx := int32(0); idx < tmp_len; idx++ {
@@ -141,8 +143,9 @@ func (this *TaskTableMgr) LoadTask(table_file string) bool {
 			if tmp_item.EventId == TASK_COMPLETE_TYPE_ALL_DAILY {
 				this.all_daily_task = tmp_item
 			}
-		} else {
+		} else if tmp_item.Type == TASK_TYPE_ACHIVE {
 			this.achieve_tasks = append(this.achieve_tasks, tmp_item)
+			this.achieve_tasks_map[tmp_item.Id] = tmp_item
 		}
 	}
 	for idx := int32(0); idx < tmp_len; idx++ {
@@ -203,4 +206,22 @@ func (this *TaskTableMgr) GetTasks(task_type int32) []*XmlTaskItem {
 		return this.achieve_tasks
 	}
 	return nil
+}
+
+func (this *TaskTableMgr) IsDaily(task_id int32) bool {
+	if this.daily_task_map != nil {
+		if this.daily_task_map[task_id] != nil {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *TaskTableMgr) IsAchieve(task_id int32) bool {
+	if this.achieve_tasks_map != nil {
+		if this.achieve_tasks_map[task_id] != nil {
+			return true
+		}
+	}
+	return false
 }

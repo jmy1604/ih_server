@@ -68,31 +68,35 @@
 	"ExploreTaskRefreshCostDiamond": 10,
 	"ExploreTaskRefreshTime": "00:00:00",
 	
-	
-	
 	"MaxNameLen":32,
 	"ChgNameCost":[200],
 	
-	"WorldChatMaxMsgNum": 200,
-	"WorldChatPullMaxMsgNum": 50,
-	"WorldChatPullMsgCooldown": 3,
-	"WorldChatMsgMaxBytes": 200,
-	"WorldChatMsgExistTime": 100,
-	"WorldChatSendMsgCooldown": 10,
+	"WorldChatData" : {
+		"MaxMsgNum": 200,
+		"PullMaxMsgNum": 50,
+		"PullMsgCooldown": 3,
+		"MsgMaxBytes": 200,
+		"MsgExistTime": 100,
+		"SendMsgCooldown": 10
+	},
 	
-	"GuildChatMaxMsgNum": 200,
-	"GuildChatPullMaxMsgNum": 50,
-	"GuildChatPullMsgCooldown": 3,
-	"GuildChatMsgMaxBytes": 200,
-	"GuildChatMsgExistTime": 100,
-	"GuildChatSendMsgCooldown": 180,
+	"GuildChatData": {
+		"MaxMsgNum": 200,
+		"PullMaxMsgNum": 50,
+		"PullMsgCooldown": 3,
+		"MsgMaxBytes": 200,
+		"MsgExistTime": 100,
+		"SendMsgCooldown": 180
+	},
 	
-	"RecruitChatMaxMsgNum": 200,
-	"RecruitChatPullMaxMsgNum": 50,
-	"RecruitChatPullMsgCooldown": 3,
-	"RecruitChatMsgMaxBytes": 50,
-	"RecruitChatMsgExistTime": 100,
-	"RecruitChatSendMsgCooldown": 5,
+	"RecruitChatData": {
+		"MaxMsgNum": 200,
+		"PullMaxMsgNum": 50,
+		"PullMsgCooldown": 3,
+		"MsgMaxBytes": 50,
+		"MsgExistTime": 100,
+		"SendMsgCooldown": 180
+	},
 	
 	"AnouncementMaxNum": 1000,
 	"AnouncementSendCooldown": 15,

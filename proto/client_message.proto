@@ -241,19 +241,6 @@ enum E_ERR {
 	CHARGE_ORDER_VERIFY_FAILED				= -200005;
 }
 
-// 红点状态
-enum MODULE {
-	STATE_NONE								= 0;
-	STATE_HANGUP_RANDOM_INCOME				= 1; // 挂机随机收益
-	STATE_NEW_MAIL							= 2; // 新邮件
-}
-
-// 红点提示通知
-message S2CStateNotify {
-	repeated int32 States					= 1; // 状态更新
-	repeated int32 CancelStates				= 2; // 状态取消
-}
-
 // 心跳
 message C2SHeartbeat {
 }
@@ -2011,4 +1998,31 @@ message C2SChargeFirstAwardRequest {
 
 message S2CChargeFirstAwardResponse {
 	repeated ItemInfo Rewards				= 1; // 奖励物品
+}
+
+// --------------------------------- 红点提示 ---------------------------------
+// 红点功能枚举
+enum RED_POINT {
+	STATE_NONE								= 0;
+	TASK									= 1; // 成就任务(有奖励)            按位与运算大于0 : 0x01 成就任务  0x02 每日任务
+	WELFARE									= 2; // 福利(有奖励)				按位与运算大于0 : 0x01 签到   0x02 七天乐
+	CAMPAIN							    	= 3; // 战役(有随机战利品)
+	DRAW									= 4; // 抽卡(免费抽卡)				按位与运算大于0 : 0x01 普通招募  0x02 高级招募
+	EXPLORE							    	= 5; // 探索(有奖励)
+	CHAT									= 6; // 聊天(有新聊天消息)          按位与运算大于0表示有新消息 : 0x01 世界频道  0x02 公会频道  0x04 招募频道
+	MAIL									= 7; // 邮件(有未读邮件)
+	FRIEND							    	= 8; // 好友                        按位与运算大于0 : 0x01 好友助战可以搜索  0x02 有新好友申请
+	GOLD_HAND								= 9; // 点金手(免费点金)
+	GUILD									= 10; // 公会(签到)
+	MAX                                     = 20; // 最大值
+}
+
+// 红点通知
+message C2SRedPointStatesRequest {
+	repeated int32 Modules					= 1; // 需要功能序列  索引为红点功能定义，空序列为都需要
+}
+
+message S2CRedPointStatesResponse {
+	repeated int32 Modules                  = 1; // 需要功能序列
+	repeated int32 States 					= 2; // 状态序列  0 不提示  大于0 提示  索引为红点功能
 }

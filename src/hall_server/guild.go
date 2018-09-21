@@ -1145,19 +1145,27 @@ func guild_add_exp(guild *dbGuildRow, add_exp int32) (level, exp int32, is_level
 	return
 }
 
-// 公会签到
-func (this *Player) guild_sign_in() int32 {
+// 可以签到
+func (this *Player) guild_can_sign_in() (int32, *dbGuildRow) {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
-		log.Error("Player[%v] cant get guild", this.Id)
-		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
+		//log.Error("Player[%v] cant get guild", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND), nil
 	}
 
 	if !utils.CheckDayTimeArrival(this.db.Guild.GetSignTime(), global_config.GuildSignRefreshTime) {
 		log.Error("Player[%v] cant sign in guild, time not arrival", this.Id)
-		return int32(msg_client_message.E_ERR_PLAYER_GUILD_SIGN_IN_IS_COOLDOWN)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_SIGN_IN_IS_COOLDOWN), nil
 	}
+	return 1, guild
+}
 
+// 公会签到
+func (this *Player) guild_sign_in() int32 {
+	res, guild := this.guild_can_sign_in()
+	if res < 0 || guild == nil {
+		return res
+	}
 	now_time := int32(time.Now().Unix())
 	this.db.Guild.SetSignTime(now_time)
 	// 奖励
@@ -1386,7 +1394,7 @@ func (this *Player) guild_recruit(content []byte) int32 {
 
 	now_time := int32(time.Now().Unix())
 	last_recruit_time := guild.GetLastRecruitTime()
-	if (now_time - last_recruit_time) < global_config.RecruitChatSendMsgCooldown {
+	if (now_time - last_recruit_time) < global_config.RecruitChatData.SendMsgCooldown {
 		log.Error("Player[%v] recruit too frequently", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_RECRUIT_IS_COOLDOWN)
 	}

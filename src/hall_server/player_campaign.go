@@ -506,6 +506,25 @@ func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaig
 	return
 }
 
+func (this *Player) campaign_has_random_income() bool {
+	campaign := campaign_table_mgr.Get(this.db.CampaignCommon.GetHangupCampaignId())
+	if campaign == nil {
+		return false
+	}
+
+	random_income_time := this.db.CampaignCommon.GetHangupLastDropRandomIncomeTime()
+	now_time := int32(time.Now().Unix())
+	if now_time-random_income_time >= campaign.RandomDropSec {
+		return true
+	}
+
+	if this.db.CampaignRandomIncomes.NumAll() > 0 {
+		return true
+	}
+
+	return false
+}
+
 func (this *Player) cache_campaign_random_income(item_id, item_num int32) *msg_client_message.ItemInfo {
 	if !this.db.CampaignRandomIncomes.HasIndex(item_id) {
 		this.db.CampaignRandomIncomes.Add(&dbPlayerCampaignRandomIncomeData{

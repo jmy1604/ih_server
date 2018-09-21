@@ -16,6 +16,17 @@ const (
 	SIGN_RESET_TIME = "00:00:00"
 )
 
+func (this *dbPlayerSignColumn) has_reward() bool {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSignColumn.has_reward")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	if this.m_data.AwardIndex < this.m_data.SignedIndex {
+		return true
+	}
+
+	return false
+}
+
 func (this *Player) check_signed() (signed int32) {
 	now_time := time.Now()
 	last_signed := this.db.Sign.GetLastSignedTime()

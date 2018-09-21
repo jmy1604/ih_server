@@ -24,6 +24,31 @@ const (
 	EXPLORE_TASK_STATE_FIGHT_BOSS = 3
 )
 
+func (this *dbPlayerExploreColumn) has_reward() bool {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExploreColumn.has_reward")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	for _, d := range this.m_data {
+		if d.State == EXPLORE_TASK_STATE_COMPLETE || d.State == EXPLORE_TASK_STATE_FIGHT_BOSS {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (this *dbPlayerExploreStoryColumn) has_reward() bool {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExploreStoryColumn.has_reward")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	for _, d := range this.m_data {
+		if d.State == EXPLORE_TASK_STATE_COMPLETE || d.State == EXPLORE_TASK_STATE_FIGHT_BOSS {
+			return true
+		}
+	}
+	return false
+}
+
 func (this *Player) check_explore_tasks_refresh(is_notify bool) (refresh bool) {
 	last_refresh := this.db.ExploreCommon.GetLastRefreshTime()
 	if !utils.CheckDayTimeArrival(last_refresh, global_config.ExploreTaskRefreshTime) {

@@ -16,6 +16,27 @@ const (
 	SEVEN_DAYS = 7
 )
 
+func (this *dbPlayerSevenDaysColumn) has_reward(player_create_time int32) bool {
+	now_time := time.Now()
+	diff_secs := int32(now_time.Unix()) - player_create_time
+	if diff_secs >= SEVEN_DAYS*24*3600 {
+		return false
+	}
+
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSevenDaysColumn.has_reward")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	if this.m_data.Awards == nil || len(this.m_data.Awards) == 0 {
+		return true
+	}
+
+	if this.m_data.Awards[diff_secs/(24*3600)] > 0 {
+		return false
+	}
+
+	return true
+}
+
 func (this *Player) check_seven_days(get_remain_seconds bool) (days, state, remain_seconds int32) {
 	create_time := this.db.Info.GetCreateUnix()
 	ct := time.Unix(int64(create_time), 0)
