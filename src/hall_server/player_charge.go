@@ -40,16 +40,7 @@ func (this *ChargeMonthCardManager) _process_send_mails() {
 	now_time := time.Now()
 	var to_delete_players map[int32]int32
 	for pid, p := range this.players_map {
-		d := false
-		if p == nil {
-			d = true
-			continue
-		}
-		if !p.charge_month_card_award(month_cards, now_time) {
-			d = true
-			continue
-		}
-		if d {
+		if p == nil || !p.charge_month_card_award(month_cards, now_time) {
 			if to_delete_players == nil {
 				to_delete_players = make(map[int32]int32)
 			}
@@ -106,6 +97,14 @@ func (this *ChargeMonthCardManager) End() {
 	atomic.StoreInt32(&this.to_end, 1)
 }
 
+func (this *Player) _charge_month_card_award(month_card *table_config.XmlPayItem, now_time time.Time) (send_num int32) {
+	SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Month Card Award", "Month Card Award", []int32{ITEM_RESOURCE_ID_DIAMOND, month_card.MonthCardReward})
+	send_num = this.db.Pays.IncbySendMailNum(month_card.BundleId, 1)
+	this.db.Pays.SetLastAwardTime(month_card.BundleId, int32(now_time.Unix()))
+	log.Debug("Player[%v] charge month card %v get reward, send_num %v", this.Id, month_card.BundleId, send_num)
+	return
+}
+
 func (this *Player) charge_month_card_award(month_cards []*table_config.XmlPayItem, now_time time.Time) bool {
 	if !this.charge_has_month_card() {
 		return false
@@ -115,20 +114,16 @@ func (this *Player) charge_month_card_award(month_cards []*table_config.XmlPayIt
 		if !o {
 			continue
 		}
-		pay_item := pay_table_mgr.GetByBundle(m.BundleId)
-		if pay_item == nil {
-			continue
-		}
+
 		if utils.GetRemainSeconds2NextDayTime(last_award_time, global_config.MonthCardSendRewardTime) <= 0 {
-			SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Month Card Award", "Month Card Award", []int32{ITEM_RESOURCE_ID_DIAMOND, pay_item.MonthCardReward})
-			this.db.Pays.IncbySendMailNum(m.BundleId, 1)
-			this.db.Pays.SetLastAwardTime(m.BundleId, int32(now_time.Unix()))
+			this._charge_month_card_award(m, now_time)
 		}
 	}
 	return true
 }
 
 func (this *Player) charge_has_month_card() bool {
+	// 获得月卡配置
 	arr := pay_table_mgr.GetMonthCards()
 	if arr == nil {
 		return false
@@ -210,7 +205,6 @@ func (this *Player) charge_with_bundle_id(bundle_id string) int32 {
 				log.Error("Player[%v] payed month card %v is using, not outdate", this.Id, bundle_id)
 				return int32(msg_client_message.E_ERR_CHARGE_MONTH_CARD_ALREADY_PAYED)
 			}
-			this.add_diamond(pay_item.MonthCardReward) // 月卡奖励
 		}
 	} else {
 		this.db.Pays.Add(&dbPlayerPayData{
@@ -220,8 +214,13 @@ func (this *Player) charge_with_bundle_id(bundle_id string) int32 {
 	}
 
 	this.db.Pays.SetLastPayedTime(bundle_id, int32(now_time.Unix()))
-	// 充值获得钻石
-	this.add_diamond(pay_item.GemReward)
+
+	this.add_diamond(pay_item.GemReward) // 充值获得钻石
+
+	if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
+		this._charge_month_card_award(pay_item, now_time)
+		charge_month_card_manager.InsertPlayer(this.Id)
+	}
 
 	response := &msg_client_message.S2CChargeResponse{
 		BundleId: bundle_id,
