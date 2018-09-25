@@ -1113,6 +1113,7 @@ message S2CArenaPlayerDefenseTeamResponse {
 	repeated PlayerTeamRole DefenseTeam		= 4;
 	int32 Power								= 5;
 	int32 GuildId							= 6;
+	string GuildName						= 7;
 }
 
 // 请求竞技场匹配
