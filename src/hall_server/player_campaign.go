@@ -534,7 +534,7 @@ func (this *Player) campaign_cache_random_income(item_id, item_num int32) *msg_c
 		this.db.CampaignRandomIncomes.IncbyItemNum(item_id, item_num)
 	}
 
-	item_num, _ = this.db.CampaignStaticIncomes.GetItemNum(item_id)
+	item_num, _ = this.db.CampaignRandomIncomes.GetItemNum(item_id)
 	return &msg_client_message.ItemInfo{
 		Id:    item_id,
 		Value: item_num,
