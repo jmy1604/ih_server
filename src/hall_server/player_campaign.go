@@ -424,7 +424,6 @@ func (this *Player) set_hangup_campaign_id(campaign_id int32) int32 {
 
 			// 关卡完成就结算一次挂机收益
 			if hangup_id != 0 {
-				//this.send_campaigns()
 				this.campaign_hangup_income_get(0, true)
 				this.campaign_hangup_income_get(1, true)
 			}
@@ -548,7 +547,6 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 	// 随机掉落
 	rand.Seed(time.Now().Unix())
 	this.tmp_cache_items = make(map[int32]int32)
-	//this.used_drop_ids = make(map[int32]int32)
 	n := rt / campaign.RandomDropSec
 	for k := 0; k < int(n); k++ {
 		for i := 0; i < len(campaign.RandomDropIDList)/2; i++ {
