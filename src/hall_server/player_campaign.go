@@ -425,8 +425,8 @@ func (this *Player) set_hangup_campaign_id(campaign_id int32) int32 {
 			// 关卡完成就结算一次挂机收益
 			if hangup_id != 0 {
 				//this.send_campaigns()
-				this.hangup_income_get(0, true)
-				this.hangup_income_get(1, true)
+				this.campaign_hangup_income_get(0, true)
+				this.campaign_hangup_income_get(1, true)
 			}
 		}
 	}
@@ -442,7 +442,7 @@ func (this *Player) set_hangup_campaign_id(campaign_id int32) int32 {
 	return 1
 }
 
-func (this *Player) cache_campaign_static_income(item_id, item_num int32) *msg_client_message.ItemInfo {
+func (this *Player) campaign_cache_static_income(item_id, item_num int32) *msg_client_message.ItemInfo {
 	if !this.db.CampaignStaticIncomes.HasIndex(item_id) {
 		this.db.CampaignStaticIncomes.Add(&dbPlayerCampaignStaticIncomeData{
 			ItemId:  item_id,
@@ -459,7 +459,7 @@ func (this *Player) cache_campaign_static_income(item_id, item_num int32) *msg_c
 	}
 }
 
-func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaignItem, last_time, now_time int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, correct_secs int32) {
+func (this *Player) campaign_get_static_income(campaign *table_config.XmlCampaignItem, last_time, now_time int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, correct_secs int32) {
 	st := now_time - last_time
 	correct_secs = (st % campaign.StaticRewardSec)
 	var tmp_cache_items map[int32]int32
@@ -470,7 +470,7 @@ func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaig
 		item_id := campaign.StaticRewardItem[2*i]
 		item_num := n * campaign.StaticRewardItem[2*i+1]
 		if is_cache {
-			income := this.cache_campaign_static_income(item_id, item_num)
+			income := this.campaign_cache_static_income(item_id, item_num)
 			incomes = append(incomes, income)
 		} else {
 			if tmp_cache_items == nil {
@@ -525,7 +525,7 @@ func (this *Player) campaign_has_random_income() bool {
 	return false
 }
 
-func (this *Player) cache_campaign_random_income(item_id, item_num int32) *msg_client_message.ItemInfo {
+func (this *Player) campaign_cache_random_income(item_id, item_num int32) *msg_client_message.ItemInfo {
 	if !this.db.CampaignRandomIncomes.HasIndex(item_id) {
 		this.db.CampaignRandomIncomes.Add(&dbPlayerCampaignRandomIncomeData{
 			ItemId:  item_id,
@@ -542,7 +542,7 @@ func (this *Player) cache_campaign_random_income(item_id, item_num int32) *msg_c
 	}
 }
 
-func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaignItem, last_time, now_time int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, correct_secs int32) {
+func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaignItem, last_time, now_time int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, correct_secs int32) {
 	rt := now_time - last_time
 	correct_secs = rt % campaign.RandomDropSec
 	// 随机掉落
@@ -587,7 +587,7 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 		}
 	} else {
 		for k, v := range this.tmp_cache_items {
-			income := this.cache_campaign_random_income(k, v)
+			income := this.campaign_cache_random_income(k, v)
 			incomes = append(incomes, income)
 		}
 	}
@@ -596,7 +596,7 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 }
 
 // 关卡挂机收益
-func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, income_remain_seconds int32) {
+func (this *Player) campaign_hangup_income_get(income_type int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, income_remain_seconds int32) {
 	hangup_id := this.db.CampaignCommon.GetHangupCampaignId()
 	if hangup_id == 0 {
 		return
@@ -614,16 +614,16 @@ func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes
 		var cs int32
 		if last_logout == 0 {
 			// 还未下线过
-			incomes, cs = this.get_campaign_static_income(campaign, static_income_time, now_time, is_cache)
+			incomes, cs = this.campaign_get_static_income(campaign, static_income_time, now_time, is_cache)
 		} else {
 			if last_logout >= static_income_time {
 				if now_time-last_logout >= 8*3600 {
-					incomes, cs = this.get_campaign_static_income(campaign, static_income_time, last_logout+8*3600, is_cache)
+					incomes, cs = this.campaign_get_static_income(campaign, static_income_time, last_logout+8*3600, is_cache)
 				} else {
-					incomes, cs = this.get_campaign_static_income(campaign, static_income_time, now_time, is_cache)
+					incomes, cs = this.campaign_get_static_income(campaign, static_income_time, now_time, is_cache)
 				}
 			} else {
-				incomes, cs = this.get_campaign_static_income(campaign, static_income_time, now_time, is_cache)
+				incomes, cs = this.campaign_get_static_income(campaign, static_income_time, now_time, is_cache)
 			}
 		}
 		this.db.CampaignCommon.SetHangupLastDropStaticIncomeTime(now_time - cs)
@@ -632,16 +632,16 @@ func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes
 		random_income_time := this.db.CampaignCommon.GetHangupLastDropRandomIncomeTime()
 		var cr int32
 		if last_logout == 0 {
-			incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
+			incomes, cr = this.campaign_get_random_income(campaign, random_income_time, now_time, is_cache)
 		} else {
 			if last_logout >= random_income_time {
 				if now_time-last_logout >= 8*3600 {
-					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, last_logout+8*3600, is_cache)
+					incomes, cr = this.campaign_get_random_income(campaign, random_income_time, last_logout+8*3600, is_cache)
 				} else {
-					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
+					incomes, cr = this.campaign_get_random_income(campaign, random_income_time, now_time, is_cache)
 				}
 			} else {
-				incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
+				incomes, cr = this.campaign_get_random_income(campaign, random_income_time, now_time, is_cache)
 			}
 		}
 		this.db.CampaignCommon.SetHangupLastDropRandomIncomeTime(now_time - cr)
@@ -676,8 +676,8 @@ func (this *dbPlayerCampaignColumn) GetPassedCampaignIds() []int32 {
 }
 
 func (this *Player) send_campaigns() {
-	incomes, _ := this.hangup_income_get(0, true)
-	_, remain_seconds := this.hangup_income_get(1, true)
+	incomes, _ := this.campaign_hangup_income_get(0, true)
+	_, remain_seconds := this.campaign_hangup_income_get(1, true)
 	passed_ids := this.db.Campaigns.GetPassedCampaignIds()
 	response := &msg_client_message.S2CCampaignDataResponse{}
 	response.PassedCampaignIds = passed_ids
@@ -686,22 +686,4 @@ func (this *Player) send_campaigns() {
 	response.StaticIncomes = incomes
 	response.IncomeRemainSeconds = remain_seconds
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_DATA_RESPONSE), response)
-}
-
-// 返回值 1 增加 -1 删除  0 不做处理
-func (this *Player) check_income_state() int32 {
-	/*incomes, _ := this.hangup_income_get(0, true)
-	if incomes == nil {
-		if this.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME)) {
-			this.db.NotifyStates.Remove(int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME))
-			return -1
-		}
-		return 0
-	}
-	if !this.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME)) {
-		this.db.NotifyStates.Add(&dbPlayerNotifyStateData{
-			ModuleType: int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME),
-		})
-	}*/
-	return 1
 }
