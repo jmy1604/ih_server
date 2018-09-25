@@ -524,7 +524,7 @@ func (this *Player) campaign_has_random_income() bool {
 	return false
 }
 
-func (this *Player) campaign_cache_random_income(item_id, item_num int32) *msg_client_message.ItemInfo {
+func (this *Player) campaign_cache_random_income(item_id, item_num int32) {
 	if !this.db.CampaignRandomIncomes.HasIndex(item_id) {
 		this.db.CampaignRandomIncomes.Add(&dbPlayerCampaignRandomIncomeData{
 			ItemId:  item_id,
@@ -533,15 +533,9 @@ func (this *Player) campaign_cache_random_income(item_id, item_num int32) *msg_c
 	} else {
 		this.db.CampaignRandomIncomes.IncbyItemNum(item_id, item_num)
 	}
-
-	item_num, _ = this.db.CampaignRandomIncomes.GetItemNum(item_id)
-	return &msg_client_message.ItemInfo{
-		Id:    item_id,
-		Value: item_num,
-	}
 }
 
-func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaignItem, last_time, now_time int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, correct_secs int32) {
+func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaignItem, last_time, now_time int32, is_cache bool) (has_income bool, incomes []*msg_client_message.ItemInfo, correct_secs int32) {
 	rt := now_time - last_time
 	correct_secs = rt % campaign.RandomDropSec
 	// 随机掉落
@@ -581,12 +575,16 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 					Id:    k,
 					Value: v,
 				})
+				has_income = true
 			}
 		}
 	} else {
 		for k, v := range this.tmp_cache_items {
-			income := this.campaign_cache_random_income(k, v)
-			incomes = append(incomes, income)
+			this.campaign_cache_random_income(k, v)
+		}
+
+		if this.db.CampaignRandomIncomes.NumAll() > 0 {
+			has_income = true
 		}
 	}
 	this.tmp_cache_items = nil
@@ -607,46 +605,32 @@ func (this *Player) campaign_hangup_income_get(income_type int32, is_cache bool)
 
 	now_time := int32(time.Now().Unix())
 	last_logout := this.db.Info.GetLastLogout()
+	var has_income bool
 	if income_type == 0 {
 		static_income_time := this.db.CampaignCommon.GetHangupLastDropStaticIncomeTime()
 		var cs int32
-		if last_logout == 0 {
-			// 还未下线过
-			incomes, cs = this.campaign_get_static_income(campaign, static_income_time, now_time, is_cache)
+		if last_logout > 0 && last_logout >= static_income_time && now_time-last_logout >= 8*3600 {
+			incomes, cs = this.campaign_get_static_income(campaign, static_income_time, last_logout+8*3600, is_cache)
 		} else {
-			if last_logout >= static_income_time {
-				if now_time-last_logout >= 8*3600 {
-					incomes, cs = this.campaign_get_static_income(campaign, static_income_time, last_logout+8*3600, is_cache)
-				} else {
-					incomes, cs = this.campaign_get_static_income(campaign, static_income_time, now_time, is_cache)
-				}
-			} else {
-				incomes, cs = this.campaign_get_static_income(campaign, static_income_time, now_time, is_cache)
-			}
+			incomes, cs = this.campaign_get_static_income(campaign, static_income_time, now_time, is_cache)
 		}
+
 		this.db.CampaignCommon.SetHangupLastDropStaticIncomeTime(now_time - cs)
 		income_remain_seconds = campaign.RandomDropSec - cs
 	} else {
 		random_income_time := this.db.CampaignCommon.GetHangupLastDropRandomIncomeTime()
 		var cr int32
-		if last_logout == 0 {
-			incomes, cr = this.campaign_get_random_income(campaign, random_income_time, now_time, is_cache)
+		if last_logout > 0 && last_logout >= random_income_time && now_time-last_logout >= 8*3600 {
+			has_income, incomes, cr = this.campaign_get_random_income(campaign, random_income_time, last_logout+8*3600, is_cache)
 		} else {
-			if last_logout >= random_income_time {
-				if now_time-last_logout >= 8*3600 {
-					incomes, cr = this.campaign_get_random_income(campaign, random_income_time, last_logout+8*3600, is_cache)
-				} else {
-					incomes, cr = this.campaign_get_random_income(campaign, random_income_time, now_time, is_cache)
-				}
-			} else {
-				incomes, cr = this.campaign_get_random_income(campaign, random_income_time, now_time, is_cache)
-			}
+			has_income, incomes, cr = this.campaign_get_random_income(campaign, random_income_time, now_time, is_cache)
 		}
+
 		this.db.CampaignCommon.SetHangupLastDropRandomIncomeTime(now_time - cr)
 		income_remain_seconds = campaign.RandomDropSec - cr
 	}
 
-	if incomes != nil && len(incomes) > 0 {
+	if has_income || (incomes != nil && len(incomes) > 0) {
 		income_remain_seconds = 0
 	}
 
