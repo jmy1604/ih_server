@@ -504,6 +504,19 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 	}
 
+	table_id, _ := this.db.Roles.GetTableId(role_id)
+	rank, _ := this.db.Roles.GetRank(role_id)
+	card := card_table_mgr.GetRankCard(table_id, rank)
+	if card == nil {
+		log.Error("Role table data %v not found", table_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_TABLE_ID_NOT_FOUND)
+	}
+
+	if card.MaxLevel <= lvl {
+		log.Error("Player[%v] is already max level[%v]", this.Id, lvl)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_IS_MAX)
+	}
+
 	if this.tmp_cache_items == nil || len(this.tmp_cache_items) > 0 {
 		this.tmp_cache_items = make(map[int32]int32)
 	}
@@ -530,12 +543,7 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEVELUP_RESPONSE), response)
 
 	// 更新任务
-	table_id, _ := this.db.Roles.GetTableId(role_id)
-	rank, _ := this.db.Roles.GetRank(role_id)
-	card := card_table_mgr.GetRankCard(table_id, rank)
-	if card != nil {
-		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_LEVELUP_ROLE_WITH_CAMP, false, card.Camp, up_num)
-	}
+	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_LEVELUP_ROLE_WITH_CAMP, false, card.Camp, up_num)
 
 	log.Debug("Player[%v] role[%v] up to level[%v]", this.Id, role_id, lvl+up_num)
 
