@@ -486,6 +486,7 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 			}
 		}
 		this.db.Mails.SetIsGetAttached(mail_id, 1)
+		this.db.Mails.SetIsRead(mail_id, 1)
 	}
 	response := &msg_client_message.S2CMailGetAttachedItemsResponse{
 		MailIds:       mail_ids,
