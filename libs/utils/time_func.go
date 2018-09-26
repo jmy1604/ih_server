@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+const (
+	TIME_LAYOUT      = "15:04:05"
+	TIME_WEEK_LAYOUT = "Monday 15:04:05"
+)
+
 func CheckWeekTimeArrival(last_time_point int32, week_time_string string) bool {
 	last_time := time.Unix(int64(last_time_point), 0)
 	now_time := time.Now()
@@ -23,7 +28,7 @@ func CheckWeekTimeArrival(last_time_point int32, week_time_string string) bool {
 		return false
 	}
 
-	tm, err := time.ParseInLocation("Monday 15:04:05", week_time_string, loc)
+	tm, err := time.ParseInLocation(TIME_WEEK_LAYOUT, week_time_string, loc)
 	if err != nil {
 		log.Error("parse time format[%v] failed, err[%v]", week_time_string, err.Error())
 		return false
@@ -64,7 +69,7 @@ func CheckDayTimeArrival(last_time_point int32, day_time_string string) bool {
 		return false
 	}
 
-	tm, err := time.ParseInLocation("15:04:05", day_time_string, loc)
+	tm, err := time.ParseInLocation(TIME_LAYOUT, day_time_string, loc)
 	if err != nil {
 		log.Error("parse time format[%v] failed, err[%v]", day_time_string, err.Error())
 		return false
@@ -97,7 +102,7 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_config string)
 		return -1
 	}
 
-	tm, err := time.ParseInLocation("15:04:05", day_time_config, loc)
+	tm, err := time.ParseInLocation(TIME_LAYOUT, day_time_config, loc)
 	if err != nil {
 		log.Error("parse time format[%v] failed, err[%v]", day_time_config, err.Error())
 		return -1
@@ -135,7 +140,7 @@ func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_config strin
 		return -1
 	}
 
-	tm, err := time.ParseInLocation("15:04:05", day_time_config, loc)
+	tm, err := time.ParseInLocation(TIME_LAYOUT, day_time_config, loc)
 	if err != nil {
 		log.Error("parse time format[%v] failed, err[%v]", day_time_config, err.Error())
 		return -1
@@ -160,12 +165,13 @@ func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_config strin
 }
 
 type DaysTimeChecker struct {
-	time_tm       time.Time
+	time_tm       time.Time // 配置时间
+	first_tm      time.Time // 第一次开始计算的时间，相当于开服时间
 	interval_days int32
 	next_time     int64
 }
 
-func (this *DaysTimeChecker) Init(time_layout, time_value string, interval_days int32) bool {
+func (this *DaysTimeChecker) Init(last_save int32, time_value string, interval_days int32) bool {
 	var loc *time.Location
 	var err error
 	loc, err = time.LoadLocation("Local")
@@ -174,9 +180,9 @@ func (this *DaysTimeChecker) Init(time_layout, time_value string, interval_days 
 		return false
 	}
 
-	this.time_tm, err = time.ParseInLocation(time_layout, time_value, loc)
+	this.time_tm, err = time.ParseInLocation(TIME_LAYOUT, time_value, loc)
 	if err != nil {
-		log.Error("!!!!!!! Parse start time layout[%v] failed, err[%v]", time_layout, err.Error())
+		log.Error("!!!!!!! Parse start time layout[%v] failed, err[%v]", TIME_LAYOUT, err.Error())
 		return false
 	}
 
@@ -192,19 +198,34 @@ func (this *DaysTimeChecker) Init(time_layout, time_value string, interval_days 
 
 	this.interval_days = interval_days
 
+	this._init_next_time(last_save)
+
 	return true
 }
 
-func (this *DaysTimeChecker) _init_next_time(now_time *time.Time) {
+func (this *DaysTimeChecker) _init_next_time(last_save int32) {
 	if this.next_time != 0 {
 		return
 	}
-	// 今天的时间点，与配置相同
-	tmp := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), this.time_tm.Hour(), this.time_tm.Minute(), this.time_tm.Second(), this.time_tm.Nanosecond(), this.time_tm.Location())
-	if tmp.Unix() >= now_time.Unix() {
-		this.next_time = tmp.Unix()
+
+	now_time := time.Now()
+	if last_save == 0 {
+		last_save = int32(now_time.Unix())
+	}
+	last_time := time.Unix(int64(last_save), 0)
+
+	// 上次重置的当天，用配置的时间
+	last_date := time.Date(last_time.Year(), last_time.Month(), last_time.Day(), this.time_tm.Hour(), this.time_tm.Minute(), this.time_tm.Second(), this.time_tm.Nanosecond(), this.time_tm.Location())
+	if last_date.Unix() < now_time.Unix() {
+		this.next_time = last_date.Unix() + int64(24*3600*this.interval_days)
 	} else {
-		this.next_time = tmp.Unix() + int64(24*3600*this.interval_days)
+		this.next_time = last_date.Unix() + int64(24*3600*(this.interval_days-1))
+	}
+	for {
+		if this.next_time > now_time.Unix() {
+			break
+		}
+		this.next_time += int64(24 * 3600 * this.interval_days)
 	}
 }
 
@@ -218,19 +239,14 @@ func (this *DaysTimeChecker) ToNextTimePoint() {
 
 func (this *DaysTimeChecker) IsArrival(last_save int32) bool {
 	now_time := time.Now()
-	this._init_next_time(&now_time)
-
 	if now_time.Unix() < this.next_time {
 		return false
 	}
-
 	return true
 }
 
 func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32) (remain_seconds int32) {
 	now_time := time.Now()
-	this._init_next_time(&now_time)
-
 	remain_seconds = int32(this.next_time - now_time.Unix())
 	if remain_seconds < 0 {
 		remain_seconds = 0

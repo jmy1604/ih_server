@@ -563,12 +563,12 @@ var arena_season_mgr ArenaSeasonMgr
 
 func (this *ArenaSeasonMgr) Init() bool {
 	this.day_checker = &utils.DaysTimeChecker{}
-	if !this.day_checker.Init("15:04:05", global_config.ArenaDayResetTime, 1) {
+	if !this.day_checker.Init(dbc.ArenaSeason.GetRow().Data.GetLastSeasonResetTime(), global_config.ArenaDayResetTime, 1) {
 		log.Error("ArenaSeasonMgr day checker init failed")
 		return false
 	}
 	this.season_checker = &utils.DaysTimeChecker{}
-	if !this.season_checker.Init("15:04:05", global_config.ArenaSeasonResetTime, global_config.ArenaSeasonDays) {
+	if !this.season_checker.Init(dbc.ArenaSeason.GetRow().Data.GetLastDayResetTime(), global_config.ArenaSeasonResetTime, global_config.ArenaSeasonDays) {
 		log.Error("ArenaSeasonMgr season checker init failed")
 		return false
 	}
@@ -757,10 +757,10 @@ func (this *ArenaSeasonMgr) Run() {
 			// 重置
 			this.Reset()
 			this.SeasonStart()
-			time.Sleep(time.Second * 1)
+			time.Sleep(time.Millisecond * 500)
 			continue
 		}
 
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Millisecond * 500)
 	}
 }
