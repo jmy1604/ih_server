@@ -1016,7 +1016,7 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 
 	task := explore_task_mgr.Get(task_id)
 	if task == nil {
-		log.Error("Explore task %v not found", id)
+		log.Error("Explore task %v %v not found", id, task_id)
 		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_TABLE_DATA_NOT_FOUND)
 	}
 
