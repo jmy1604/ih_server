@@ -20,23 +20,40 @@ const (
 )
 
 func (this *dbPlayerTaskColumn) has_reward(task_type int32) bool {
-	this.m_row.m_lock.UnSafeRLock("dbPlayerTaskColumn.has_reward")
-	defer this.m_row.m_lock.UnSafeRUnlock()
+	this.m_row.m_lock.UnSafeLock("dbPlayerTaskColumn.has_reward")
+	defer this.m_row.m_lock.UnSafeUnlock()
 
 	for _, d := range this.m_data {
 		task := task_table_mgr.GetTask(d.Id)
 		if task == nil {
 			continue
 		}
-		if task.Prev > 0 && this.m_data[task.Prev] != nil {
+
+		if d.State == TASK_STATE_DOING {
+			if task.CompleteNum <= d.Value {
+				d.State = TASK_STATE_COMPLETE
+				this.m_changed = true
+			}
+		} else if d.State == TASK_STATE_COMPLETE {
+			if task.CompleteNum > d.Value {
+				d.State = TASK_STATE_DOING
+				this.m_changed = true
+			}
+		}
+
+		if task_type > 0 && task.Type != task_type {
+			continue
+		}
+
+		if task.Type == table_config.TASK_TYPE_ACHIVE && task.Prev > 0 && this.m_data[task.Prev] != nil {
 			continue
 		}
 		if d.State == TASK_STATE_COMPLETE {
 			if task_type == 0 {
 				return true
-			} else if task.Type == table_config.TASK_TYPE_DAILY {
+			} else if task_type == table_config.TASK_TYPE_DAILY {
 				return true
-			} else if task.Type == table_config.TASK_TYPE_ACHIVE {
+			} else if task_type == table_config.TASK_TYPE_ACHIVE {
 				return true
 			}
 		}
@@ -72,46 +89,6 @@ func (this *dbPlayerTaskColumn) ResetDailyTask() {
 	return
 }
 
-func (this *dbPlayerTaskColumn) FillTaskMsg(p *Player, task_type int32) *msg_client_message.S2CTaskDataResponse {
-	var tmp_item *msg_client_message.TaskData
-	this.m_row.m_lock.UnSafeRLock("dbPlayerTaskColumn.FillDialyTaskMsg")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	ret_msg := &msg_client_message.S2CTaskDataResponse{}
-	ret_msg.TaskType = task_type
-	ret_msg.TaskList = make([]*msg_client_message.TaskData, 0, len(this.m_data))
-	for _, val := range this.m_data {
-		if nil == val {
-			continue
-		}
-
-		task := task_table_mgr.GetTask(val.Id)
-		if task == nil {
-			continue
-		}
-
-		if val.Value >= task.CompleteNum && val.State == TASK_STATE_DOING {
-			val.State = TASK_STATE_COMPLETE
-		}
-
-		if task.Type != task_type {
-			continue
-		}
-
-		if task.Prev > 0 && this.m_data[task.Prev] != nil {
-			continue
-		}
-
-		tmp_item = &msg_client_message.TaskData{}
-		tmp_item.Id = val.Id
-		tmp_item.Value = val.Value
-		tmp_item.State = val.State
-
-		ret_msg.TaskList = append(ret_msg.TaskList, tmp_item)
-	}
-
-	return ret_msg
-}
-
 func (this *Player) fill_task_msg(task_type int32) (task_list []*msg_client_message.TaskData) {
 	tasks := task_table_mgr.GetTasks(task_type)
 	if tasks == nil {
@@ -132,8 +109,12 @@ func (this *Player) fill_task_msg(task_type int32) (task_list []*msg_client_mess
 		v, _ := this.db.Tasks.GetValue(t.Id)
 		s, _ := this.db.Tasks.GetState(t.Id)
 		if this.db.Tasks.HasIndex(t.Id) {
-			if v >= t.CompleteNum && s == TASK_STATE_DOING {
-				this.db.Tasks.SetState(t.Id, TASK_STATE_COMPLETE)
+			if s == TASK_STATE_DOING && v >= t.CompleteNum {
+				s = TASK_STATE_COMPLETE
+				this.db.Tasks.SetState(t.Id, s)
+			} else if s == TASK_STATE_COMPLETE && v < t.CompleteNum {
+				s = TASK_STATE_DOING
+				this.db.Tasks.SetState(t.Id, s)
 			}
 		}
 
@@ -186,7 +167,6 @@ func (this *Player) send_task(task_type int32) int32 {
 		remain_seconds := this.ChkPlayerDailyTask()
 		response.TaskType = table_config.TASK_TYPE_DAILY
 		response.TaskList = this.fill_task_msg(table_config.TASK_TYPE_DAILY)
-		//response := this.db.Tasks.FillTaskMsg(this, table_config.TASK_TYPE_DAILY)
 		response.DailyTaskRefreshRemainSeconds = remain_seconds
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), &response)
 		log.Debug("Player[%v] daily tasks %v", this.Id, response)
@@ -195,23 +175,11 @@ func (this *Player) send_task(task_type int32) int32 {
 	if task_type == 0 || task_type == table_config.TASK_TYPE_ACHIVE {
 		response.TaskType = table_config.TASK_TYPE_ACHIVE
 		response.TaskList = this.fill_task_msg(table_config.TASK_TYPE_ACHIVE)
-		//response := this.db.Tasks.FillTaskMsg(this, table_config.TASK_TYPE_ACHIVE)
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), &response)
 		log.Debug("Player[%v] achive tasks %v", this.Id, response)
 	}
 
 	return 1
-}
-
-func (this *Player) IsPrevAchieveReward(task *table_config.XmlTaskItem) bool {
-	if task.Prev <= 0 {
-		return true
-	}
-	r, o := this.db.Tasks.GetState(task.Prev)
-	if !o || r != TASK_STATE_REWARD {
-		return false
-	}
-	return true
 }
 
 // ============================================================================
@@ -371,14 +339,6 @@ func (this *Player) check_notify_next_task(task *table_config.XmlTaskItem) {
 		return
 	}
 
-	/*if this.db.Tasks.HasIndex(task.Next) {
-		return
-	}*/
-
-	/*if next_task.EventId != task.EventId || task.EventId == table_config.TASK_COMPLETE_TYPE_PASS_CAMPAIGN {
-		add_val = 0
-	}*/
-
 	if !this.db.Tasks.HasIndex(task.Next) {
 		return
 	}
@@ -439,27 +399,6 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 	}
 
 	return 1
-}
-
-func (this *Player) complete_task(task_id int32) int32 {
-	task := task_table_mgr.GetTask(task_id)
-	if task == nil {
-		log.Error("Task[%v] table data not found", task_id)
-		return -1
-	}
-
-	task_data := this.db.Tasks.Get(task_id)
-	if task_data == nil {
-		var data dbPlayerTaskData
-		data.Id = task_id
-		data.Value = task.CompleteNum
-		data.State = TASK_STATE_COMPLETE
-		this.db.Tasks.Add(&data)
-	} else {
-		this.db.Tasks.SetValue(task_id, task.CompleteNum)
-	}
-
-	return 0
 }
 
 // ============================================================================
