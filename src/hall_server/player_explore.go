@@ -1016,12 +1016,12 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 
 	task := explore_task_mgr.Get(task_id)
 	if task == nil {
-		log.Error("Explore task %v %v not found", id, task_id)
+		log.Error("Explore task %v (is_story: %v) not found", id, is_story)
 		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_TABLE_DATA_NOT_FOUND)
 	}
 
 	if state != EXPLORE_TASK_STATE_FIGHT_BOSS {
-		log.Error("Player[%v] explore task %v state is not to fight boss", this.Id, state)
+		log.Error("Player[%v] explore task %v (is_story: %v) state is not to fight boss", this.Id, state, is_story)
 		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_NO_FIGHT_BOSS_STATE)
 	}
 
@@ -1039,7 +1039,7 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 	}
 	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(battle_type, stage, nil, nil)
 	if err < 0 {
-		log.Error("Player[%v] fight explore task %v failed, team is empty")
+		log.Error("Player[%v] fight explore task %v (is_story: %v) failed, team is empty", this.Id, id, is_story)
 		return err
 	}
 
