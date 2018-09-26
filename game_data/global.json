@@ -51,7 +51,7 @@
 	"FriendMaxNum": 30,
 	"FriendRecommendNum": 10,
 	"FriendPointItemId": 9,
-	"FriendPointsOnceGive": 20,
+	"FriendPointsOnceGive": 10,
 	"FriendStaminaItemId": 12,
 	"FriendStaminaLimit": 10,
 	"FriendStartStamina": 0,
@@ -61,7 +61,7 @@
 	"FriendRefreshTime": "00:00:00",
 	"FriendSearchBossRefreshMinutes": 1,
 	"FriendAssistPointsGet": 10,
-	"FriendPointsGetLimitDay": 100,
+	"FriendPointsGetLimitDay": 300,
 	
 	"DailyTaskRefreshTime": "00:00:00",
 	
