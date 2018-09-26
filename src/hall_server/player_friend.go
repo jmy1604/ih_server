@@ -564,15 +564,12 @@ func (this *Player) get_friend_points(friend_ids []int32) int32 {
 		if friend == nil {
 			continue
 		}
-		//last_give_time, _ := friend.db.Friends.GetLastGivePointsTime(this.Id)
-		//if utils.GetRemainSeconds2NextDayTime(last_give_time, global_config.FriendRefreshTime) > 0 {
 		get_point := this._friend_get_points(friend, int32(time.Now().Unix()))
 		if get_point > 0 {
 			this.add_resource(global_config.FriendPointItemId, get_point)
 			this.db.Friends.SetGetPoints(friend_ids[i], -1)
 			get_points[i] = get_point
 		}
-		//}
 	}
 
 	this.check_and_send_items_change()

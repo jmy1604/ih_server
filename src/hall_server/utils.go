@@ -24,11 +24,11 @@ func randn_different(array []int32, n int32) (nums []int32) {
 	for i := int32(0); i < n; i++ {
 		r := rand.Int31n(l)
 		if nums != nil {
-			f := true
 			for n := int32(0); n < l; n++ {
+				f := false
 				for j := 0; j < len(nums); j++ {
 					if array[r] == nums[j] {
-						f = false
+						f = true
 						break
 					}
 				}
