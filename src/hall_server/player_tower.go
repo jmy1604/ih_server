@@ -41,9 +41,6 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_
 	if keys < tower_key_max {
 		now_time := int32(time.Now().Unix())
 		last_time := this.db.TowerCommon.GetLastGetNewKeyTime()
-		if last_time < 0 {
-			last_time = now_time
-		}
 		if last_time == 0 {
 			keys = global_config.TowerKeyMax
 			last_time = now_time
@@ -57,11 +54,7 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_
 				if keys > tower_key_max {
 					keys = tower_key_max
 				}
-				if keys < tower_key_max {
-					this.db.TowerCommon.SetLastGetNewKeyTime(now_time - y)
-				} else {
-					this.db.TowerCommon.SetLastGetNewKeyTime(-1)
-				}
+				this.db.TowerCommon.SetLastGetNewKeyTime(now_time - y)
 			}
 			if keys < tower_key_max {
 				next_remain_seconds = global_config.TowerKeyGetInterval - y

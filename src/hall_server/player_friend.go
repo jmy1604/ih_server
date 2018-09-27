@@ -791,6 +791,8 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NOT_FOUND)
 	}
 
+	this.check_and_add_friend_stamina()
+
 	// 是否正在挑战好友BOSS
 	if !p.can_friend_boss_to_fight() {
 		log.Warn("Player[%v] friend boss is fighting", p.Id)
@@ -826,7 +828,9 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	} else {
 		need_stamina = global_config.FriendBossAttackCostStamina * this.sweep_num
 	}
-	if this.get_resource(global_config.FriendStaminaItemId) < need_stamina {
+
+	stamina := this.get_resource(global_config.FriendStaminaItemId)
+	if stamina < need_stamina {
 		p.cancel_friend_boss_fight()
 		log.Error("Player[%v] friend stamina item not enough", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_STAMINA_NOT_ENOUGH)
@@ -886,6 +890,9 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 
 	// 实际消耗体力
 	this.add_resource(global_config.FriendStaminaItemId, -n*global_config.FriendBossAttackCostStamina)
+	if n > 0 && stamina >= global_config.FriendStaminaLimit {
+		this.db.FriendCommon.SetLastGetStaminaTime(int32(time.Now().Unix()))
+	}
 
 	member_damages := this.friend_boss_team.common_data.members_damage
 	member_cures := this.friend_boss_team.common_data.members_cure
@@ -972,14 +979,11 @@ func (this *Player) friend_boss_get_attack_list(friend_id int32) int32 {
 func (this *Player) check_and_add_friend_stamina() (add_stamina int32, remain_seconds int32) {
 	now_time := int32(time.Now().Unix())
 	last_get_stamina_time := this.db.FriendCommon.GetLastGetStaminaTime()
-	if last_get_stamina_time < 0 {
-		last_get_stamina_time = now_time
-	}
 	if last_get_stamina_time == 0 {
 		this.add_resource(global_config.FriendStaminaItemId, global_config.FriendStaminaLimit)
 		add_stamina = global_config.FriendStaminaLimit
 		//remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours * 3600
-		this.db.FriendCommon.SetLastGetStaminaTime(-1)
+		this.db.FriendCommon.SetLastGetStaminaTime(now_time)
 	} else {
 		stamina := this.get_resource(global_config.FriendStaminaItemId)
 		if stamina < global_config.FriendStaminaLimit {
@@ -993,12 +997,8 @@ func (this *Player) check_and_add_friend_stamina() (add_stamina int32, remain_se
 				}
 				this.add_resource(global_config.FriendStaminaItemId, add_stamina)
 				stamina = this.get_resource(global_config.FriendStaminaItemId)
-				if stamina < global_config.FriendStaminaLimit {
-					now_time -= y
-					this.db.FriendCommon.SetLastGetStaminaTime(now_time)
-				} else {
-					this.db.FriendCommon.SetLastGetStaminaTime(-1)
-				}
+				now_time -= y
+				this.db.FriendCommon.SetLastGetStaminaTime(now_time)
 			}
 			if stamina < global_config.FriendStaminaLimit {
 				remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours*3600 - y
