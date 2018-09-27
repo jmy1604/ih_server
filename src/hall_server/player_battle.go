@@ -1089,7 +1089,7 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 				team_type = BATTLE_GUILD_STAGE_TEAM
 			} else {
 				this.assist_friend = nil
-				log.Error("Player[%v] set team[%v] invalid", this.Id, team_type)
+				log.Error("Player[%v] set battle_type[%v] team[%v] invalid", this.Id, battle_type, team_type)
 				return -1
 			}
 
