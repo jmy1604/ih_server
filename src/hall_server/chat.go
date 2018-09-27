@@ -358,11 +358,20 @@ func (this *Player) chat(channel int32, content []byte) int32 {
 		return int32(msg_client_message.E_ERR_CHAT_SEND_MSG_BYTES_TOO_LONG)
 	}
 
-	var extra_value int32
+	var lvl, extra_value int32
+	var name string
 	if channel == CHAT_CHANNEL_RECRUIT {
+		guild := guild_manager._get_guild(this.Id, false)
+		if guild != nil {
+			lvl = guild.GetLevel()
+			name = guild.GetName()
+		}
 		extra_value = this.db.Guild.GetId()
+	} else {
+		lvl = this.db.Info.GetLvl()
+		name = this.db.GetName()
 	}
-	if !chat_mgr.push_chat_msg(content, extra_value, this.Id, this.db.Info.GetLvl(), this.db.GetName(), this.db.Info.GetHead()) {
+	if !chat_mgr.push_chat_msg(content, extra_value, this.Id, lvl, name, this.db.Info.GetHead()) {
 		return int32(msg_client_message.E_ERR_CHAT_CANT_SEND_WITH_NO_FREE)
 	}
 
