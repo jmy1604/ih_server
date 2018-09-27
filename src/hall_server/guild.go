@@ -1154,7 +1154,7 @@ func (this *Player) guild_can_sign_in() (int32, *dbGuildRow) {
 	}
 
 	if !utils.CheckDayTimeArrival(this.db.Guild.GetSignTime(), global_config.GuildSignRefreshTime) {
-		log.Error("Player[%v] cant sign in guild, time not arrival", this.Id)
+		//log.Error("Player[%v] cant sign in guild, time not arrival", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_SIGN_IN_IS_COOLDOWN), nil
 	}
 	return 1, guild

@@ -586,6 +586,9 @@ func (this *Player) get_friend_points(friend_ids []int32) int32 {
 }
 
 func (this *Player) friend_search_boss_check(now_time int32) (int32, *table_config.XmlFriendBossItem) {
+	if this.db.FriendCommon.GetFriendBossTableId() > 0 {
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NO_NEED_TO_REFRESH), nil
+	}
 	last_refresh_time := this.db.FriendCommon.GetLastBossRefreshTime()
 	if last_refresh_time > 0 && now_time-last_refresh_time < global_config.FriendSearchBossRefreshMinutes*60 {
 		log.Error("Player[%v] friend boss search is cool down", this.Id)

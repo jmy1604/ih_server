@@ -1,14 +1,12 @@
 package main
 
 import (
-	_ "encoding/json"
 	"errors"
-	_ "flag"
 	"fmt"
 	"ih_server/libs/log"
 	"ih_server/src/server_config"
-	_ "io/ioutil"
-	_ "os"
+	"net/http"
+	_ "net/http/pprof"
 	"runtime/debug"
 	"time"
 )
@@ -311,6 +309,11 @@ func main() {
 		log.Error("%v", err.Error())
 		return
 	}
+
+	// pprof
+	go func() {
+		http.ListenAndServe("localhost:6060", nil)
+	}()
 
 	// 排行榜
 	rank_list_mgr.Init()
