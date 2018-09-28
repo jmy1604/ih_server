@@ -1328,6 +1328,11 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 		return
 	}
 
+	// 眩晕时禁止触发
+	if self.is_disable_attack() && skill.StunDisableAction > 0 {
+		return
+	}
+
 	target_pos, is_enemy := self.team.FindTargets(self, target_team, skill, trigger_pos)
 	if target_pos == nil {
 		return

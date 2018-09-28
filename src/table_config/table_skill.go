@@ -17,6 +17,7 @@ type XmlSkillItem struct {
 	TriggerCondition1    []int32
 	TriggerCondition2Str string `xml:"TriggerCondition2,attr"`
 	TriggerCondition2    []int32
+	StunDisableAction    int32  `xml:"StunDisableAction,attr"` // 眩晕禁止行动
 	TriggerRoundMax      int32  `xml:"TriggerRoundMax,attr"`
 	TriggerBattleMax     int32  `xml:"TriggerBattleMax,attr"`
 	SkillMelee           int32  `xml:"SkillMelee,attr"`
