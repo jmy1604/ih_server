@@ -153,17 +153,19 @@ func (this *FriendRecommendMgr) Random(player_id int32) (ids []int32) {
 
 	rand.Seed(time.Now().Unix() + time.Now().UnixNano())
 	for i := int32(0); i < cnt; i++ {
+		var pid int32
 		r := rand.Int31n(int32(len(this.player_ids)))
 		sr := r
 		for {
-			p := player_mgr.GetPlayerById(this.players_array[sr])
+			pid := this.players_array[sr]
+			p := player_mgr.GetPlayerById(pid)
 			has := false
-			if this.players_array[sr] == player_id || player.db.Friends.HasIndex(this.players_array[sr]) || (p != nil && p.db.FriendAsks.HasIndex(player_id)) || player.db.FriendAsks.HasIndex(this.players_array[sr]) {
+			if pid == player_id || player.db.Friends.HasIndex(pid) || (p != nil && p.db.FriendAsks.HasIndex(player_id)) || player.db.FriendAsks.HasIndex(pid) {
 				has = true
 			} else {
 				if ids != nil {
 					for n := 0; n < len(ids); n++ {
-						if ids[n] == this.players_array[sr] {
+						if ids[n] == pid {
 							has = true
 							break
 						}
@@ -179,7 +181,6 @@ func (this *FriendRecommendMgr) Random(player_id int32) (ids []int32) {
 				return
 			}
 		}
-		pid := this.players_array[sr]
 		if pid <= 0 {
 			break
 		}
