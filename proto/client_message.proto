@@ -1338,6 +1338,8 @@ message S2CFriendDataResponse {
 	int32 AssistGetPoints					= 8; // 助战获取友情点
 	int32 SearchBossRemainSeconds			= 9; // 搜索BOSS剩余秒数
 	int32 AssistRoleId						= 10; // 助战角色
+	int32 TotalAssistGetPoints				= 11; // 总共获取助战友情点
+	int32 TotalFriendGiveGetPoints			= 12; // 总共好友赠送获取友情点
 }
 
 // 设置助战角色给好友
