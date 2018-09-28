@@ -437,6 +437,7 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 			PlayerId: this.Id,
 		})
 		p.friend_add_ids([]int32{this.Id})
+		p.check_and_send_friend_add()
 		this.db.Friends.Add(&dbPlayerFriendData{
 			PlayerId: player_ids[i],
 		})
