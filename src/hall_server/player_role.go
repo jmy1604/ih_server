@@ -838,7 +838,7 @@ func (this *Player) _return_role_resource(role_id int32) (items_map map[int32]in
 		if items_map == nil {
 			items_map = make(map[int32]int32)
 		}
-		items_map[dr[2*j]] = d[2*j+1]
+		items_map[dr[2*j]] = dr[2*j+1]
 	}
 
 	if items_map != nil {
