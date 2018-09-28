@@ -816,17 +816,29 @@ func (this *Player) _return_role_resource(role_id int32) (items_map map[int32]in
 	if rankup_data == nil {
 		return
 	}
-	dd := [][]int32{rankup_data.Type1DecomposeRes, rankup_data.Type2DecomposeRes, rankup_data.Type3DecomposeRes}
-	for _, d := range dd {
-		if d == nil {
-			continue
+
+	table_id, _ := this.db.Roles.GetTableId(role_id)
+	card := card_table_mgr.GetRankCard(table_id, rank)
+	if card == nil {
+		return
+	}
+
+	var dr []int32
+	if card.Type == table_config.CARD_ROLE_TYPE_ATTACK {
+		dr = rankup_data.Type1DecomposeRes
+	} else if card.Type == table_config.CARD_ROLE_TYPE_DEFENSE {
+		dr = rankup_data.Type2DecomposeRes
+	} else if card.Type == table_config.CARD_ROLE_TYPE_SKILL {
+		dr = rankup_data.Type3DecomposeRes
+	} else {
+		return
+	}
+
+	for j := 0; j < len(dr)/2; j++ {
+		if items_map == nil {
+			items_map = make(map[int32]int32)
 		}
-		for j := 0; j < len(d)/2; j++ {
-			if items_map == nil {
-				items_map = make(map[int32]int32)
-			}
-			items_map[d[2*j]] = d[2*j+1]
-		}
+		items_map[dr[2*j]] = d[2*j+1]
 	}
 
 	if items_map != nil {
