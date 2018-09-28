@@ -440,7 +440,9 @@
 						{"Type":"int32","Index":4,"Name":"FriendBossHpPercent"},
 						{"Type":"int32","Index":5,"Name":"AttackBossPlayerList","Repeated":true},
 						{"Type":"int32","Index":6,"Name":"LastGetStaminaTime"},
-						{"Type":"int32","Index":7,"Name":"AssistRoleId"}
+						{"Type":"int32","Index":7,"Name":"AssistRoleId"},
+						{"Type":"int32","Index":8,"Name":"LastGetPointsTime"},
+						{"Type":"int32","Index":9,"Name":"GetPointsDay","Incby":true}
 					]
 				},
 				{

@@ -58,7 +58,7 @@ func (this *Player) _send_active_stage_data(typ int32) {
 		MaxChallengeNum:       global_config.ActiveStageChallengeNumOfDay,
 		RemainSeconds4Refresh: utils.GetRemainSeconds2NextDayTime(last_refresh, global_config.ActiveStageRefreshTime),
 		ChallengeNumPrice:     global_config.ActiveStageChallengeNumPrice,
-		GetPointsDay:          this.db.ActiveStageCommon.GetGetPointsDay(),
+		GetPointsDay:          this.db.FriendCommon.GetGetPointsDay(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_DATA_RESPONSE), response)
 	log.Debug("Player[%v] active stage data: %v", this.Id, response)
@@ -141,6 +141,32 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 	return 1
 }
 
+// 助战友情点
+func (this *Player) get_assist_points() int32 {
+	total_points := this.db.ActiveStageCommon.GetGetPointsDay()
+	withdraw_points := this.db.ActiveStageCommon.GetWithdrawPoints()
+	get_points := total_points - withdraw_points
+	if get_points < 0 {
+		get_points = 0
+	}
+	log.Debug("Player[%v] assist points %v", this.Id, get_points)
+	return get_points
+}
+
+// 提现助战友情点
+func (this *Player) active_stage_withdraw_assist_points() int32 {
+	get_points := this.get_assist_points()
+	if get_points > 0 {
+		this.db.ActiveStageCommon.IncbyWithdrawPoints(get_points)
+		this.add_resource(global_config.FriendPointItemId, get_points)
+	}
+	response := &msg_client_message.S2CFriendGetAssistPointsResponse{
+		GetPoints: get_points,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_GET_ASSIST_POINTS_RESPONSE), response)
+	return 1
+}
+
 func (this *Player) active_stage_get_friends_assist_role_list() int32 {
 	var roles []*msg_client_message.Role
 	friend_ids := this.db.Friends.GetAllIndex()
@@ -219,20 +245,9 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 	member_cures := this.active_stage_team.common_data.members_cure
 	var assist_friend_id int32
 	if this.assist_friend != nil {
-		// 给提供助战角色的玩家增加友情点
-		if utils.CheckDayTimeArrival(this.assist_friend.db.ActiveStageCommon.GetLastRefreshTime(), global_config.ActiveStageRefreshTime) {
-			this.assist_friend.db.ActiveStageCommon.SetLastRefreshTime(int32(time.Now().Unix()))
-			this.assist_friend.db.ActiveStageCommon.SetGetPointsDay(0)
-			this.assist_friend.db.ActiveStageCommon.SetWithdrawPoints(0)
+		if is_win {
+			this.assist_friend.friend_assist_add_points(global_config.FriendAssistPointsGet)
 		}
-		var add_points int32
-		if this.assist_friend.db.ActiveStageCommon.GetGetPointsDay()+global_config.FriendAssistPointsGet >= global_config.FriendPointsGetLimitDay {
-			add_points = global_config.FriendPointsGetLimitDay - this.assist_friend.db.ActiveStageCommon.GetGetPointsDay()
-		} else {
-			add_points = global_config.FriendAssistPointsGet
-		}
-		this.assist_friend.db.ActiveStageCommon.IncbyGetPointsDay(add_points)
-		this.assist_friend.add_item(global_config.FriendPointItemId, add_points)
 		assist_friend_id = this.assist_friend.Id
 	}
 	response := &msg_client_message.S2CBattleResultResponse{

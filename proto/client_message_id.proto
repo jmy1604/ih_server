@@ -193,6 +193,7 @@ enum MSGID {
 	C2S_FRIEND_GIVE_AND_GET_POINTS_REQUEST  = 11431; // 一键收发友情点 C2SFriendGiveAndGetPointsRequest
 	C2S_FRIEND_GET_ASSIST_POINTS_REQUEST	= 11432; // 助战获取友情点 C2SFriendGetAssistPointsRequest
 	S2C_FRIEND_GET_ASSIST_POINTS_RESPONSE	= 11433; // 助战获取友情点返回 S2CFriendGetAssistPointsResponse
+	S2C_FRIEND_REMOVE_NOTIFY				= 11434; // 好友删除通知 S2CFriendRemoveNotify
 	
 	C2S_TASK_DATA_REQUEST					= 11500; // 请求任务数据 C2STaskDataRequest
 	S2C_TASK_DATA_RESPONSE					= 11501; // 任务数据返回 S2CTaskDataResponse

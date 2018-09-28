@@ -505,9 +505,39 @@ func (this *Player) remove_friend(friend_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_REMOVE_RESPONSE), response)
 
+	var notify = msg_client_message.S2CFriendRemoveNotify{
+		FriendId: this.Id,
+	}
+	for i := 0; i < len(friend_ids); i++ {
+		friend := player_mgr.GetPlayerById(friend_ids[i])
+		if friend != nil {
+			friend.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_REMOVE_NOTIFY), &notify)
+		}
+	}
+
 	log.Debug("Player[%v] removed friends: %v", this.Id, friend_ids)
 
 	return 1
+}
+
+// 增加友情点 (type  1 添加好友赠送  2 助战赠送)
+func (this *Player) friend_assist_add_points(points int32) bool {
+	var add_points int32
+	if utils.CheckDayTimeArrival(this.db.ActiveStageCommon.GetLastRefreshTime(), global_config.ActiveStageRefreshTime) {
+		this.db.ActiveStageCommon.SetGetPointsDay(0)
+		this.db.ActiveStageCommon.SetWithdrawPoints(0)
+	}
+	curr_points := this.db.ActiveStageCommon.GetGetPointsDay()
+	if curr_points >= global_config.FriendAssistPointsGetLimitDay {
+		return false
+	}
+	if curr_points+points >= global_config.FriendAssistPointsGetLimitDay {
+		add_points = global_config.FriendAssistPointsGetLimitDay - curr_points
+	} else {
+		add_points = points
+	}
+	this.db.ActiveStageCommon.IncbyGetPointsDay(add_points)
+	return true
 }
 
 // 赠送友情点
@@ -526,10 +556,13 @@ func (this *Player) give_friends_points(friend_ids []int32) int32 {
 		if friend == nil {
 			continue
 		}
-		//last_give_time, _ := this.db.Friends.GetLastGivePointsTime(friend_ids[i])
-		//if utils.CheckDayTimeArrival(last_give_time, global_config.FriendRefreshTime) {
+
 		remain_seconds := this._friend_get_give_remain_seconds(friend, now_time)
 		if remain_seconds == 0 {
+			// 对方当天收到的友情点达到上限
+			if friend.db.FriendCommon.GetGetPointsDay() >= global_config.FriendPointsGetLimitDay {
+				continue
+			}
 			this.db.Friends.SetLastGivePointsTime(friend_ids[i], now_time)
 			friend.db.Friends.SetGetPoints(this.Id, global_config.FriendPointsOnceGive)
 			is_gived[i] = true
@@ -1009,18 +1042,6 @@ func (this *Player) check_and_add_friend_stamina() (add_stamina int32, remain_se
 	return
 }
 
-// 助战友情点
-func (this *Player) get_assist_points() int32 {
-	total_points := this.db.ActiveStageCommon.GetGetPointsDay()
-	withdraw_points := this.db.ActiveStageCommon.GetWithdrawPoints()
-	get_points := total_points - withdraw_points
-	if get_points < 0 {
-		get_points = 0
-	}
-	log.Debug("Player[%v] assist points %v", this.Id, get_points)
-	return get_points
-}
-
 func (this *Player) get_friend_boss_hp_percent() int32 {
 	if this.db.FriendCommon.GetFriendBossTableId() <= 0 {
 		return 0
@@ -1089,19 +1110,6 @@ func (this *Player) friend_set_assist_role(role_id int32) int32 {
 
 	log.Debug("Player[%v] set assist role %v for friends", this.Id, role_id)
 
-	return 1
-}
-
-// 提现助战友情点
-func (this *Player) active_stage_withdraw_assist_points() int32 {
-	get_points := this.get_assist_points()
-	if get_points > 0 {
-		this.db.ActiveStageCommon.IncbyWithdrawPoints(get_points)
-	}
-	response := &msg_client_message.S2CFriendGetAssistPointsResponse{
-		GetPoints: get_points,
-	}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_GET_ASSIST_POINTS_RESPONSE), response)
 	return 1
 }
 

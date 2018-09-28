@@ -228,6 +228,8 @@ message PlayerFriendCommon{
 	repeated int32 AttackBossPlayerList=5;
 	optional int32 LastGetStaminaTime=6;
 	optional int32 AssistRoleId=7;
+	optional int32 LastGetPointsTime=8;
+	optional int32 GetPointsDay=9;
 }
 
 message PlayerFriend{

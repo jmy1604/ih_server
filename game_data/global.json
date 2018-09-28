@@ -60,8 +60,9 @@
 	"FriendBossAttackCooldown": 3600,
 	"FriendRefreshTime": "00:00:00",
 	"FriendSearchBossRefreshMinutes": 1,
-	"FriendAssistPointsGet": 10,
 	"FriendPointsGetLimitDay": 300,
+	"FriendAssistPointsGet": 10,
+	"FriendAssistPointsGetLimitDay": 300,
 	
 	"DailyTaskRefreshTime": "00:00:00",
 	

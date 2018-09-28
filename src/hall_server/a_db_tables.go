@@ -1064,6 +1064,8 @@ type dbPlayerFriendCommonData struct{
 	AttackBossPlayerList []int32
 	LastGetStaminaTime int32
 	AssistRoleId int32
+	LastGetPointsTime int32
+	GetPointsDay int32
 }
 func (this* dbPlayerFriendCommonData)from_pb(pb *db.PlayerFriendCommon){
 	if pb == nil {
@@ -1080,6 +1082,8 @@ func (this* dbPlayerFriendCommonData)from_pb(pb *db.PlayerFriendCommon){
 	}
 	this.LastGetStaminaTime = pb.GetLastGetStaminaTime()
 	this.AssistRoleId = pb.GetAssistRoleId()
+	this.LastGetPointsTime = pb.GetLastGetPointsTime()
+	this.GetPointsDay = pb.GetGetPointsDay()
 	return
 }
 func (this* dbPlayerFriendCommonData)to_pb()(pb *db.PlayerFriendCommon){
@@ -1094,6 +1098,8 @@ func (this* dbPlayerFriendCommonData)to_pb()(pb *db.PlayerFriendCommon){
 	}
 	pb.LastGetStaminaTime = proto.Int32(this.LastGetStaminaTime)
 	pb.AssistRoleId = proto.Int32(this.AssistRoleId)
+	pb.LastGetPointsTime = proto.Int32(this.LastGetPointsTime)
+	pb.GetPointsDay = proto.Int32(this.GetPointsDay)
 	return
 }
 func (this* dbPlayerFriendCommonData)clone_to(d *dbPlayerFriendCommonData){
@@ -1107,6 +1113,8 @@ func (this* dbPlayerFriendCommonData)clone_to(d *dbPlayerFriendCommonData){
 	}
 	d.LastGetStaminaTime = this.LastGetStaminaTime
 	d.AssistRoleId = this.AssistRoleId
+	d.LastGetPointsTime = this.LastGetPointsTime
+	d.GetPointsDay = this.GetPointsDay
 	return
 }
 type dbPlayerFriendData struct{
@@ -6133,6 +6141,39 @@ func (this *dbPlayerFriendCommonColumn)SetAssistRoleId(v int32){
 	this.m_data.AssistRoleId = v
 	this.m_changed = true
 	return
+}
+func (this *dbPlayerFriendCommonColumn)GetLastGetPointsTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetLastGetPointsTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastGetPointsTime
+	return
+}
+func (this *dbPlayerFriendCommonColumn)SetLastGetPointsTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetLastGetPointsTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastGetPointsTime = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerFriendCommonColumn)GetGetPointsDay( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetGetPointsDay")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.GetPointsDay
+	return
+}
+func (this *dbPlayerFriendCommonColumn)SetGetPointsDay(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetGetPointsDay")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.GetPointsDay = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerFriendCommonColumn)IncbyGetPointsDay(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.IncbyGetPointsDay")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.GetPointsDay += v
+	this.m_changed = true
+	return this.m_data.GetPointsDay
 }
 type dbPlayerFriendColumn struct{
 	m_row *dbPlayerRow

@@ -197,6 +197,7 @@ enum E_ERR {
 	PLAYER_GUILD_NAME_IS_USED				= -24025; // 公会名已被使用
 	PLAYER_GUILD_LOGO_INVALID				= -24026; // 公会标志不存在
 	PLAYER_GUILD_CHANGE_NAME_FAILED			= -24027; // 公会改名失败
+	PLAYER_GUILD_CANT_DISMISS_OFFICER		= -24028; // 不能驱逐官员
 	
 	// 公会副本
 	PLAYER_GUILD_STAGE_TABLE_DATA_NOT_FOUND = -25000; // 公会副本数据找不到
@@ -1360,6 +1361,11 @@ message S2CFriendGetAssistPointsResponse {
 	int32 GetPoints							= 1; // 获得友情点
 }
 
+// 好友删除通知
+message S2CFriendRemoveNotify {
+	int32 FriendId							= 1; // 好友ID
+}
+
 // ------------------------------------ 任务 ----------------------------------
 
 // 任务数据
@@ -1772,6 +1778,7 @@ message C2SGuildKickMemberRequest {
 
 message S2CGuildKickMemberResponse {
 	repeated int32 PlayerIds				= 1; // 玩家ID
+	repeated int32 Player2Res				= 2; // 对应玩家的错误码
 }
 
 // 公会驱逐会员通知

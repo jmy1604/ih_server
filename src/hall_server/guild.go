@@ -474,7 +474,7 @@ func _guild_get_dismiss_remain_seconds(guild *dbGuildRow) (dismiss_remain_second
 				}
 				p.db.Guild.SetId(0)
 				p.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DELETE_NOTIFY), notify)
-				SendMail(nil, mid, MAIL_TYPE_GUILD, "Guild Dismissed", "Guild Dismissed", nil)
+				SendMail(p, mid, MAIL_TYPE_GUILD, "Guild Dismissed", "Guild Dismissed", nil)
 			}
 		}
 		_remove_guild(guild)
@@ -991,6 +991,7 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 				GuildId:     guild.GetId(),
 			}
 			player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_NOTIFY), notify)
+			log.Debug("Player[%v] agreed player[%v] join guild %v", this.Id, player_id, guild.GetId())
 		}
 	}
 
@@ -1267,6 +1268,10 @@ func (this *Player) guild_set_officer(player_ids []int32, set_type int32) int32 
 
 // 公会驱逐会员
 func (this *Player) guild_kick_member(player_ids []int32) int32 {
+	if player_ids == nil {
+		return -1
+	}
+
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
@@ -1278,23 +1283,24 @@ func (this *Player) guild_kick_member(player_ids []int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 
+	var player_res []int32 = make([]int32, len(player_ids))
 	for i, player_id := range player_ids {
 		if player_id == this.Id {
-			player_ids[i] = 0
+			player_res[i] = -1
 			continue
 		}
 		if !guild.Members.HasIndex(player_id) {
-			player_ids[i] = 0
+			player_res[i] = int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_JOINED)
 			log.Error("Player[%v] is not member of guild[%v]", player_id, guild.GetId())
 			continue
 		}
 		player := player_mgr.GetPlayerById(player_id)
 		if player == nil {
-			player_ids[i] = 0
+			player_res[i] = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 			continue
 		}
 		if player.db.Guild.GetPosition() != GUILD_POSITION_MEMBER {
-			player_ids[i] = 0
+			player_res[i] = int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_DISMISS_OFFICER)
 			continue
 		}
 		guild.Members.Remove(player_id)
@@ -1302,7 +1308,8 @@ func (this *Player) guild_kick_member(player_ids []int32) int32 {
 	}
 
 	response := &msg_client_message.S2CGuildKickMemberResponse{
-		PlayerIds: player_ids,
+		PlayerIds:  player_ids,
+		Player2Res: player_res,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_KICK_MEMBER_RESPONSE), response)
 
@@ -1315,6 +1322,8 @@ func (this *Player) guild_kick_member(player_ids []int32) int32 {
 		}
 		notify.MemberId = player_id
 		player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_KICK_MEMBER_NOTIFY), notify)
+
+		log.Debug("Player[%v] dismissed guild member %v to notify", this.Id, player_id)
 
 		// 日志
 		push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_KICK, player_id)

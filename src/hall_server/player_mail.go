@@ -251,6 +251,9 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 
 	var err int32
 	if mail_type == MAIL_TYPE_GUILD {
+		if sender == nil {
+			return -1
+		}
 		guild := guild_manager._get_guild(sender.Id, false)
 		if guild == nil {
 			log.Error("Player[%v] not join one guild, cant send guild mail", sender.Id)

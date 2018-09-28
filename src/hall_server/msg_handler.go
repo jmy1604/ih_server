@@ -191,21 +191,28 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 				log.Warn("Account[%v] token[%v] invalid, need[%v]", p.Account, tmp_msg.GetToken(), tokeninfo.token)
 			}
 		} else {
-			if !atomic.CompareAndSwapInt32(&p.is_lock, 0, 1) {
-				log.Debug("Player[%v] send msg[%v] cant process, because prev msg is processing", p.Id, tmp_msg.GetMsgCode())
-				ret_code = int32(msg_client_message.E_ERR_PLAYER_SEND_TOO_FREQUENTLY)
-			} else {
-				p.b_base_prop_chg = false
-				p.OnInit()
-				ret_code = handlerinfo.player_msg_handler(w, r, p, tmp_msg.GetData())
-				data = p.PopCurMsgData()
-				if USE_CONN_TIMER_WHEEL == 0 {
-					conn_timer_mgr.Insert(p.Id)
+			func() {
+				defer func() {
+					if err := recover(); err != nil {
+						atomic.StoreInt32(&p.is_lock, 0)
+					}
+				}()
+				if !atomic.CompareAndSwapInt32(&p.is_lock, 0, 1) {
+					log.Debug("Player[%v] send msg[%v] cant process, because prev msg is processing", p.Id, tmp_msg.GetMsgCode())
+					ret_code = int32(msg_client_message.E_ERR_PLAYER_SEND_TOO_FREQUENTLY)
 				} else {
-					conn_timer_wheel.Insert(p.Id)
+					p.b_base_prop_chg = false
+					p.OnInit()
+					ret_code = handlerinfo.player_msg_handler(w, r, p, tmp_msg.GetData())
+					data = p.PopCurMsgData()
+					if USE_CONN_TIMER_WHEEL == 0 {
+						conn_timer_mgr.Insert(p.Id)
+					} else {
+						conn_timer_wheel.Insert(p.Id)
+					}
+					atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
 				}
-				atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
-			}
+			}()
 		}
 
 	} else {
