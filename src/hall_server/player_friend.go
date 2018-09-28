@@ -363,6 +363,7 @@ func (this *Player) friend_ask(player_ids []int32) int32 {
 			PlayerId: this.Id,
 		})
 		p.friend_ask_add_ids([]int32{this.Id})
+		p.check_and_send_friend_ask_add()
 		this.db.FriendRecommends.Remove(p.Id)
 	}
 
@@ -417,6 +418,10 @@ func (this *Player) friend_add_ids(player_ids []int32) {
 // 同意加为好友
 func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 	for i := 0; i < len(player_ids); i++ {
+		if this.db.Friends.NumAll() >= global_config.FriendMaxNum {
+			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_NUM_MAX)
+		}
+
 		p := player_mgr.GetPlayerById(player_ids[i])
 		if p == nil {
 			log.Error("Player[%v] not found on agree friend ask", player_ids[i])
@@ -429,6 +434,7 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 	}
 
 	for i := 0; i < len(player_ids); i++ {
+
 		p := player_mgr.GetPlayerById(player_ids[i])
 		if p == nil {
 			continue

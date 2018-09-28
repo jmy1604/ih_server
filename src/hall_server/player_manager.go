@@ -504,8 +504,6 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	}
 
 	p.check_and_send_tower_data()
-	p.check_and_send_friend_ask_add()
-	p.check_and_send_friend_add()
 
 	response := &msg_client_message.S2CHeartbeat{
 		SysTime: int32(time.Now().Unix()),
