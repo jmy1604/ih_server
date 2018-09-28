@@ -156,8 +156,9 @@ func (this *FriendRecommendMgr) Random(player_id int32) (ids []int32) {
 		r := rand.Int31n(int32(len(this.player_ids)))
 		sr := r
 		for {
+			p := player_mgr.GetPlayerById(this.players_array[sr])
 			has := false
-			if this.players_array[sr] == player_id || player.db.Friends.HasIndex(this.players_array[sr]) || player.db.FriendAsks.HasIndex(this.players_array[sr]) {
+			if this.players_array[sr] == player_id || player.db.Friends.HasIndex(this.players_array[sr]) || (p != nil && p.db.FriendAsks.HasIndex(player_id)) {
 				has = true
 			} else {
 				if ids != nil {
