@@ -92,6 +92,8 @@ func (this *Player) check_active_stage_refresh() bool {
 		}
 	}
 
+	this.db.ActiveStageCommon.SetGetPointsDay(0)
+	this.db.ActiveStageCommon.SetWithdrawPoints(0)
 	this.db.ActiveStageCommon.SetLastRefreshTime(now_time)
 
 	this._send_active_stage_data(0)
@@ -143,11 +145,15 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 
 // 助战友情点
 func (this *Player) get_assist_points() int32 {
-	total_points := this.db.ActiveStageCommon.GetGetPointsDay()
+	curr_points := this.db.ActiveStageCommon.GetGetPointsDay()
 	withdraw_points := this.db.ActiveStageCommon.GetWithdrawPoints()
-	get_points := total_points - withdraw_points
+	get_points := curr_points - withdraw_points
 	if get_points < 0 {
 		get_points = 0
+	} else if get_points > 0 {
+		if get_points+curr_points > global_config.FriendAssistPointsGetLimitDay {
+			get_points = global_config.FriendAssistPointsGetLimitDay - curr_points
+		}
 	}
 	log.Debug("Player[%v] assist points %v", this.Id, get_points)
 	return get_points
@@ -161,7 +167,9 @@ func (this *Player) active_stage_withdraw_assist_points() int32 {
 		this.add_resource(global_config.FriendPointItemId, get_points)
 	}
 	response := &msg_client_message.S2CFriendGetAssistPointsResponse{
-		GetPoints: get_points,
+		GetPoints:      get_points,
+		TotalGetPoints: this.db.ActiveStageCommon.GetGetPointsDay(),
+		CanGetPoints:   0,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_GET_ASSIST_POINTS_RESPONSE), response)
 	return 1
@@ -204,6 +212,17 @@ func (this *Player) active_stage_get_friends_assist_role_list() int32 {
 	return 1
 }
 
+// 增加友情点
+func (this *Player) friend_assist_add_points(points int32) bool {
+	var add_points int32
+	if utils.CheckDayTimeArrival(this.db.ActiveStageCommon.GetLastRefreshTime(), global_config.ActiveStageRefreshTime) {
+		this.db.ActiveStageCommon.SetGetPointsDay(0)
+		this.db.ActiveStageCommon.SetWithdrawPoints(0)
+	}
+	this.db.ActiveStageCommon.IncbyGetPointsDay(add_points)
+	return true
+}
+
 func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 	var active_stage *table_config.XmlActiveStageItem
 	active_stage = active_stage_table_mgr.Get(active_stage_id)
@@ -223,6 +242,8 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		log.Error("Active stage[%v] stage[%v] not found", active_stage_id, stage_id)
 		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
 	}
+
+	this.check_active_stage_refresh()
 
 	can_num, _ := this.db.ActiveStages.GetCanChallengeNum(active_stage.Type)
 	if can_num <= 0 {

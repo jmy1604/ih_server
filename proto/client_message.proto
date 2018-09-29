@@ -1362,6 +1362,8 @@ message C2SFriendGetAssistPointsRequest {
 
 message S2CFriendGetAssistPointsResponse {
 	int32 GetPoints							= 1; // 获得友情点
+	int32 TotalGetPoints					= 2; // 已获得友情点
+	int32 CanGetPoints						= 3; // 还可获得友情点
 }
 
 // 好友删除通知
