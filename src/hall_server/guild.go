@@ -930,6 +930,9 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 	for _, player_id := range player_ids {
 		player := player_mgr.GetPlayerById(player_id)
 		if player == nil {
+			if is_refuse {
+				guild.AskLists.Remove(player_id)
+			}
 			player2res[player_id] = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 			log.Error("Player[%v] not found", player_id)
 			continue
@@ -937,6 +940,9 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 
 		// 是否已申请
 		if !guild.AskLists.HasIndex(player_id) {
+			if is_refuse {
+				guild.AskLists.Remove(player_id)
+			}
 			player2res[player_id] = int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ASK_JOIN)
 			log.Error("Player[%v] not found in guild[%v] ask list", player_id, guild.GetId())
 			continue
@@ -944,7 +950,9 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 
 		// 是否已是工会成员
 		if guild.Members.HasIndex(player_id) {
-			guild.AskLists.Remove(player_id)
+			if is_refuse {
+				guild.AskLists.Remove(player_id)
+			}
 			player2res[player_id] = int32(msg_client_message.E_ERR_PLAYER_GUILD_IS_ALREADY_MEMBER)
 			log.Error("Player[%v] already joined guild", player_id)
 			continue
@@ -955,7 +963,9 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 		// 是否已是其他工会的成员
 		if player.db.Guild.GetId() > 0 {
 			player.agree_join_guild_locker.Unlock()
-			guild.AskLists.Remove(player_id)
+			if is_refuse {
+				guild.AskLists.Remove(player_id)
+			}
 			player2res[player_id] = int32(msg_client_message.E_ERR_PLAYER_GUILD_ALREADY_CREATED_OR_JOINED)
 			log.Error("Player[%v] already joined other guild", player_id)
 			continue
