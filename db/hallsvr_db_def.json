@@ -38,8 +38,19 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[										
-					]		
+					"Fields":[]		
+				},
+				{
+					"ColumnName":"CurrentGuildId",
+					"DBColumnName":"CurrentGuildId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
 				}
 			]
 		},
@@ -61,8 +72,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[										
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"Name",
@@ -73,8 +83,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[										
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"Token",
@@ -86,8 +95,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":"",
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"CurrReplyMsgNum",
@@ -99,8 +107,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"DBColumnName":"Info",

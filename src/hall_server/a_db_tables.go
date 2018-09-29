@@ -2176,6 +2176,18 @@ func (this *dbGlobalRow)SetCurrentPlayerId(v int32){
 	this.m_CurrentPlayerId_changed=true
 	return
 }
+func (this *dbGlobalRow)GetCurrentGuildId( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbGlobalRow.GetdbGlobalCurrentGuildIdColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_CurrentGuildId)
+}
+func (this *dbGlobalRow)SetCurrentGuildId(v int32){
+	this.m_lock.UnSafeLock("dbGlobalRow.SetdbGlobalCurrentGuildIdColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_CurrentGuildId=int32(v)
+	this.m_CurrentGuildId_changed=true
+	return
+}
 type dbGlobalRow struct {
 	m_table *dbGlobalTable
 	m_lock       *RWMutex
@@ -2188,6 +2200,8 @@ type dbGlobalRow struct {
 	m_Id        int32
 	m_CurrentPlayerId_changed bool
 	m_CurrentPlayerId int32
+	m_CurrentGuildId_changed bool
+	m_CurrentGuildId int32
 }
 func new_dbGlobalRow(table *dbGlobalTable, Id int32) (r *dbGlobalRow) {
 	this := &dbGlobalRow{}
@@ -2195,24 +2209,30 @@ func new_dbGlobalRow(table *dbGlobalTable, Id int32) (r *dbGlobalRow) {
 	this.m_Id = Id
 	this.m_lock = NewRWMutex()
 	this.m_CurrentPlayerId_changed=true
+	this.m_CurrentGuildId_changed=true
 	return this
 }
 func (this *dbGlobalRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
 	this.m_lock.UnSafeLock("dbGlobalRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(2)
+		db_args:=new_db_args(3)
 		db_args.Push(this.m_Id)
 		db_args.Push(this.m_CurrentPlayerId)
+		db_args.Push(this.m_CurrentGuildId)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_CurrentPlayerId_changed{
+		if this.m_CurrentPlayerId_changed||this.m_CurrentGuildId_changed{
 			update_string = "UPDATE Global SET "
-			db_args:=new_db_args(2)
+			db_args:=new_db_args(3)
 			if this.m_CurrentPlayerId_changed{
 				update_string+="CurrentPlayerId=?,"
 				db_args.Push(this.m_CurrentPlayerId)
+			}
+			if this.m_CurrentGuildId_changed{
+				update_string+="CurrentGuildId=?,"
+				db_args.Push(this.m_CurrentGuildId)
 			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE Id=?"
@@ -2223,6 +2243,7 @@ func (this *dbGlobalRow) save_data(release bool) (err error, released bool, stat
 	}
 	this.m_new = false
 	this.m_CurrentPlayerId_changed = false
+	this.m_CurrentGuildId_changed = false
 	if release && this.m_loaded {
 		this.m_loaded = false
 		released = true
@@ -2301,10 +2322,18 @@ func (this *dbGlobalTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasCurrentGuildId := columns["CurrentGuildId"]
+	if !hasCurrentGuildId {
+		_, err = this.m_dbc.Exec("ALTER TABLE Global ADD COLUMN CurrentGuildId int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN CurrentGuildId failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbGlobalTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT CurrentPlayerId FROM Global WHERE Id=0")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT CurrentPlayerId,CurrentGuildId FROM Global WHERE Id=0")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -2312,7 +2341,7 @@ func (this *dbGlobalTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbGlobalTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Global (Id,CurrentPlayerId) VALUES (?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Global (Id,CurrentPlayerId,CurrentGuildId) VALUES (?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -2340,7 +2369,8 @@ func (this *dbGlobalTable) Init() (err error) {
 func (this *dbGlobalTable) Preload() (err error) {
 	r := this.m_dbc.StmtQueryRow(this.m_preload_select_stmt)
 	var dCurrentPlayerId int32
-	err = r.Scan(&dCurrentPlayerId)
+	var dCurrentGuildId int32
+	err = r.Scan(&dCurrentPlayerId,&dCurrentGuildId)
 	if err!=nil{
 		if err!=sql.ErrNoRows{
 			log.Error("Scan failed")
@@ -2349,7 +2379,9 @@ func (this *dbGlobalTable) Preload() (err error) {
 	}else{
 		row := new_dbGlobalRow(this,0)
 		row.m_CurrentPlayerId=dCurrentPlayerId
+		row.m_CurrentGuildId=dCurrentGuildId
 		row.m_CurrentPlayerId_changed=false
+		row.m_CurrentGuildId_changed=false
 		row.m_valid = true
 		row.m_loaded=true
 		this.m_row=row

@@ -1064,7 +1064,7 @@ func (this *Player) friend_data(send bool) int32 {
 			AssistGetPoints:          this.get_assist_points(),
 			SearchBossRemainSeconds:  boss_remain_seconds,
 			AssistRoleId:             this.db.FriendCommon.GetAssistRoleId(),
-			TotalAssistGetPoints:     this.db.ActiveStageCommon.GetGetPointsDay(),
+			TotalAssistGetPoints:     this.db.ActiveStageCommon.GetWithdrawPoints(),
 			TotalFriendGiveGetPoints: this.db.FriendCommon.GetGetPointsDay(),
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_DATA_RESPONSE), response)

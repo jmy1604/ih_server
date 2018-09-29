@@ -151,8 +151,8 @@ func (this *Player) get_assist_points() int32 {
 	if get_points < 0 {
 		get_points = 0
 	} else if get_points > 0 {
-		if get_points+curr_points > global_config.FriendAssistPointsGetLimitDay {
-			get_points = global_config.FriendAssistPointsGetLimitDay - curr_points
+		if get_points+withdraw_points > global_config.FriendAssistPointsGetLimitDay {
+			get_points = global_config.FriendAssistPointsGetLimitDay - withdraw_points
 		}
 	}
 	log.Debug("Player[%v] assist points %v", this.Id, get_points)
@@ -168,7 +168,7 @@ func (this *Player) active_stage_withdraw_assist_points() int32 {
 	}
 	response := &msg_client_message.S2CFriendGetAssistPointsResponse{
 		GetPoints:      get_points,
-		TotalGetPoints: this.db.ActiveStageCommon.GetGetPointsDay(),
+		TotalGetPoints: this.db.ActiveStageCommon.GetWithdrawPoints(),
 		CanGetPoints:   0,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_GET_ASSIST_POINTS_RESPONSE), response)
