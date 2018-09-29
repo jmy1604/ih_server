@@ -214,12 +214,13 @@ func (this *Player) active_stage_get_friends_assist_role_list() int32 {
 
 // 增加友情点
 func (this *Player) friend_assist_add_points(points int32) bool {
-	var add_points int32
 	if utils.CheckDayTimeArrival(this.db.ActiveStageCommon.GetLastRefreshTime(), global_config.ActiveStageRefreshTime) {
 		this.db.ActiveStageCommon.SetGetPointsDay(0)
 		this.db.ActiveStageCommon.SetWithdrawPoints(0)
+		this.db.ActiveStageCommon.SetLastRefreshTime(int32(time.Now().Unix()))
 	}
-	this.db.ActiveStageCommon.IncbyGetPointsDay(add_points)
+	this.db.ActiveStageCommon.IncbyGetPointsDay(points)
+	log.Debug("Add assist friend points %v to player %v", points, this.Id)
 	return true
 }
 
