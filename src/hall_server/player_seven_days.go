@@ -16,9 +16,16 @@ const (
 	SEVEN_DAYS = 7
 )
 
+func _get_start_secs_for_seven_days(player_create_time int32) int32 {
+	ct := time.Unix(int64(player_create_time), 0)
+	sct := int32(ct.Unix()) - int32(ct.Hour()*3600+ct.Minute()*60+ct.Second())
+	return sct
+}
+
 func (this *dbPlayerSevenDaysColumn) has_reward(player_create_time int32) bool {
 	now_time := time.Now()
-	diff_secs := int32(now_time.Unix()) - player_create_time
+	start_secs := _get_start_secs_for_seven_days(player_create_time)
+	diff_secs := int32(now_time.Unix()) - start_secs
 	if diff_secs >= SEVEN_DAYS*24*3600 {
 		return false
 	}
@@ -39,10 +46,9 @@ func (this *dbPlayerSevenDaysColumn) has_reward(player_create_time int32) bool {
 
 func (this *Player) check_seven_days(get_remain_seconds bool) (days, state, remain_seconds int32) {
 	create_time := this.db.Info.GetCreateUnix()
-	ct := time.Unix(int64(create_time), 0)
-	now_time := time.Now()
-	sct := int32(ct.Unix()) - int32(ct.Hour()*3600+ct.Minute()*60+ct.Second())
-	diff_secs := int32(now_time.Unix()) - sct
+	now_time := int32(time.Now().Unix())
+	start_secs := _get_start_secs_for_seven_days(create_time)
+	diff_secs := now_time - start_secs
 	if diff_secs >= SEVEN_DAYS*24*3600 {
 		return -1, 0, 0
 	}
@@ -57,7 +63,7 @@ func (this *Player) check_seven_days(get_remain_seconds bool) (days, state, rema
 	state = award_states[diff_days]
 
 	if get_remain_seconds {
-		remain_seconds = sct + SEVEN_DAYS*24*3600 - int32(now_time.Unix())
+		remain_seconds = start_secs + SEVEN_DAYS*24*3600 - now_time
 		if remain_seconds < 0 {
 			remain_seconds = 0
 		}
