@@ -244,6 +244,11 @@ func (this *Player) add_msg_data(msg_code uint16, data []byte) {
 	return
 }
 
+func (this *Player) _clear_cache_msgs() {
+	this.cur_msg_items_len = 0
+	this.total_msg_data_len = 0
+}
+
 func (this *Player) PopCurMsgData() []byte {
 	if this.b_base_prop_chg {
 		this.send_info()
@@ -281,8 +286,8 @@ func (this *Player) PopCurMsgData() []byte {
 		tmp_len += tmp_item.data_len
 	}
 
-	this.cur_msg_items_len = 0
-	this.total_msg_data_len = 0
+	this._clear_cache_msgs()
+
 	return out_bytes
 }
 
