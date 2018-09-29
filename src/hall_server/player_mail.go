@@ -150,6 +150,7 @@ func (this *dbPlayerMailColumn) HasUnreadMail() bool {
 	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.HasUnreadMail")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 
+	now_time := int32(time.Now().Unix())
 	for _, v := range this.m_data {
 		if now_time-v.SendUnix < global_config.MailAttachExistDays*24*3600 {
 			if v.IsRead <= 0 {

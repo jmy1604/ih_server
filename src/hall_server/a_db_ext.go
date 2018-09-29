@@ -2,6 +2,7 @@ package main
 
 import (
 	"ih_server/libs/log"
+	"sync/atomic"
 )
 
 func (this *DBC) on_preload() (err error) {
@@ -30,10 +31,19 @@ func (this *DBC) on_preload() (err error) {
 }
 
 func (this *dbGlobalRow) GetNextPlayerId() int32 {
-	this.m_lock.UnSafeLock("dbGlobalRow.SetdbGlobalCurrentPlayerIdColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_CurrentPlayerId += 1
-	new_id := ((config.ServerId << 24) & 0x7f000000) | this.m_CurrentPlayerId
+	curr_id := atomic.AddInt32(&this.m_CurrentPlayerId, 1)
+	new_id := ((config.ServerId << 20) & 0x7ff00000) | curr_id
+	this.m_lock.UnSafeLock("dbGlobalRow.GetNextPlayerId")
 	this.m_CurrentPlayerId_changed = true
+	this.m_lock.UnSafeUnlock()
+	return new_id
+}
+
+func (this *dbGlobalRow) GetNextGuildId() int32 {
+	curr_id := atomic.AddInt32(&this.m_CurrentGuildId, 1)
+	new_id := ((config.ServerId << 20) & 0x7ff00000) | curr_id
+	this.m_lock.UnSafeLock("dbGlobalRow.GetNextGuildId")
+	this.m_CurrentGuildId_changed = true
+	defer this.m_lock.UnSafeUnlock()
 	return new_id
 }

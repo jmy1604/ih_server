@@ -14980,8 +14980,6 @@ type dbGuildTable struct{
 	m_preload_max_id int32
 	m_save_insert_stmt *sql.Stmt
 	m_delete_stmt *sql.Stmt
-	m_max_id int32
-	m_max_id_changed bool
 }
 func new_dbGuildTable(dbc *DBC) (this *dbGuildTable) {
 	this = &dbGuildTable{}
@@ -14993,27 +14991,6 @@ func new_dbGuildTable(dbc *DBC) (this *dbGuildTable) {
 	return this
 }
 func (this *dbGuildTable) check_create_table() (err error) {
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS GuildsMaxId(PlaceHolder int(11),MaxId int(11),PRIMARY KEY (PlaceHolder))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
-	if err != nil {
-		log.Error("CREATE TABLE IF NOT EXISTS GuildsMaxId failed")
-		return
-	}
-	r := this.m_dbc.QueryRow("SELECT Count(*) FROM GuildsMaxId WHERE PlaceHolder=0")
-	if r != nil {
-		var count int32
-		err = r.Scan(&count)
-		if err != nil {
-			log.Error("scan count failed")
-			return
-		}
-		if count == 0 {
-		_, err = this.m_dbc.Exec("INSERT INTO GuildsMaxId (PlaceHolder,MaxId) VALUES (0,0)")
-			if err != nil {
-				log.Error("INSERTGuildsMaxId failed")
-				return
-			}
-		}
-	}
 	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS Guilds(Id int(11),PRIMARY KEY (Id))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
 	if err != nil {
 		log.Error("CREATE TABLE IF NOT EXISTS Guilds failed")
@@ -15241,14 +15218,6 @@ func (this *dbGuildTable) Init() (err error) {
 	return
 }
 func (this *dbGuildTable) Preload() (err error) {
-	r_max_id := this.m_dbc.QueryRow("SELECT MaxId FROM GuildsMaxId WHERE PLACEHOLDER=0")
-	if r_max_id != nil {
-		err = r_max_id.Scan(&this.m_max_id)
-		if err != nil {
-			log.Error("scan max id failed")
-			return
-		}
-	}
 	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
 	if err != nil {
 		log.Error("SELECT")
@@ -15274,16 +15243,15 @@ func (this *dbGuildTable) Preload() (err error) {
 	var dAskDonates []byte
 	var dStage []byte
 	var dLastStageResetTime int32
+		this.m_preload_max_id = 0
 	for r.Next() {
 		err = r.Scan(&Id,&dName,&dCreater,&dCreateTime,&dDismissTime,&dLogo,&dLevel,&dExp,&dExistType,&dAnouncement,&dPresident,&dMembers,&dAskLists,&dLastDonateRefreshTime,&dMaxLogId,&dLogs,&dLastRecruitTime,&dAskDonates,&dStage,&dLastStageResetTime)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
 		}
-		if Id>this.m_max_id{
-			log.Error("max id ext")
-			this.m_max_id = Id
-			this.m_max_id_changed = true
+		if Id>this.m_preload_max_id{
+			this.m_preload_max_id =Id
 		}
 		row := new_dbGuildRow(this,Id)
 		row.m_Name=dName
@@ -15390,13 +15358,6 @@ func (this *dbGuildTable) save_rows(rows map[int32]*dbGuildRow, quick bool) {
 	}
 }
 func (this *dbGuildTable) Save(quick bool) (err error){
-	if this.m_max_id_changed {
-		max_id := atomic.LoadInt32(&this.m_max_id)
-		_, err := this.m_dbc.Exec("UPDATE GuildsMaxId SET MaxId=?", max_id)
-		if err != nil {
-			log.Error("save max id failed %v", err)
-		}
-	}
 	removed_rows := this.fetch_rows(this.m_removed_rows)
 	for _, v := range removed_rows {
 		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetId())
@@ -15415,15 +15376,18 @@ func (this *dbGuildTable) Save(quick bool) (err error){
 	this.save_rows(new_rows, quick)
 	return
 }
-func (this *dbGuildTable) AddRow() (row *dbGuildRow) {
+func (this *dbGuildTable) AddRow(Id int32) (row *dbGuildRow) {
 	this.m_lock.UnSafeLock("dbGuildTable.AddRow")
 	defer this.m_lock.UnSafeUnlock()
-	Id := atomic.AddInt32(&this.m_max_id, 1)
-	this.m_max_id_changed = true
 	row = new_dbGuildRow(this,Id)
 	row.m_new = true
 	row.m_loaded = true
 	row.m_valid = true
+	_, has := this.m_new_rows[Id]
+	if has{
+		log.Error("已经存在 %v", Id)
+		return nil
+	}
 	this.m_new_rows[Id] = row
 	atomic.AddInt32(&this.m_gc_n,1)
 	return row

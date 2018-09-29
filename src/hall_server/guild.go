@@ -232,7 +232,10 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_ALREADY_CREATED_OR_JOINED)
 	}
 
-	row := this.guilds.AddRow()
+	guild_id = dbc.Global.GetRow().GetNextGuildId()
+	player.db.Guild.SetId(guild_id)
+
+	row := this.guilds.AddRow(guild_id)
 	if row == nil {
 		log.Error("Player[%v] create guild add db row failed", player_id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CREATED_DB_ERROR)
