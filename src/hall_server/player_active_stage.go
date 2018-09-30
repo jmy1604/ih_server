@@ -64,7 +64,7 @@ func (this *Player) _send_active_stage_data(typ int32) {
 	log.Debug("Player[%v] active stage data: %v", this.Id, response)
 }
 
-func (this *Player) check_active_stage_refresh() bool {
+func (this *Player) check_active_stage_refresh(send bool) bool {
 	// 固定时间点自动刷新
 	if global_config.ActiveStageRefreshTime == "" {
 		return false
@@ -96,17 +96,19 @@ func (this *Player) check_active_stage_refresh() bool {
 	this.db.ActiveStageCommon.SetWithdrawPoints(0)
 	this.db.ActiveStageCommon.SetLastRefreshTime(now_time)
 
-	this._send_active_stage_data(0)
+	if send {
+		this._send_active_stage_data(0)
 
-	notify := &msg_client_message.S2CActiveStageRefreshNotify{}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_REFRESH_NOTIFY), notify)
+		notify := &msg_client_message.S2CActiveStageRefreshNotify{}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_REFRESH_NOTIFY), notify)
+	}
 
 	log.Debug("Player[%v] active stage refreshed", this.Id)
 	return true
 }
 
 func (this *Player) send_active_stage_data(typ int32) int32 {
-	if this.check_active_stage_refresh() {
+	if this.check_active_stage_refresh(false) {
 		return 1
 	}
 	this._send_active_stage_data(typ)
@@ -239,7 +241,7 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
 	}
 
-	this.check_active_stage_refresh()
+	this.check_active_stage_refresh(false)
 
 	can_num, _ := this.db.ActiveStages.GetCanChallengeNum(active_stage.Type)
 	if can_num <= 0 {

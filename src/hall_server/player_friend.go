@@ -1065,7 +1065,7 @@ func (this *Player) friend_data(send bool) int32 {
 		if boss_remain_seconds < 0 {
 			boss_remain_seconds = 0
 		}
-		this.check_active_stage_refresh()
+		this.check_active_stage_refresh(false)
 		this.check_get_friend_points_day_refresh()
 		response := &msg_client_message.S2CFriendDataResponse{
 			StaminaItemId:            global_config.FriendStaminaItemId,
