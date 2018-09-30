@@ -38,7 +38,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[]		
+					"Fields":[]
 				},
 				{
 					"ColumnName":"CurrentGuildId",
@@ -995,7 +995,7 @@
 			"TableName":"Guild",
 			"DBTableName":"Guild",
 			"SingleRow":false,
-			"AutoPrimaryKey":true,
+			"AutoPrimaryKey":false,
 			"PrimaryKeyName":"Id",
 			"PrimaryKeyType":"int32",
 			"PrimaryKeySize":11,
