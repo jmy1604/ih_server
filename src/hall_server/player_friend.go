@@ -533,6 +533,16 @@ func (this *Player) remove_friend(friend_ids []int32) int32 {
 	return 1
 }
 
+// 检测获取友情点刷新
+func (this *Player) check_get_friend_points_day_refresh() bool {
+	if utils.CheckDayTimeArrival(this.db.FriendCommon.GetLastGetPointsTime(), global_config.FriendRefreshTime) {
+		this.db.FriendCommon.SetLastGetPointsTime(int32(time.Now().Unix()))
+		this.db.FriendCommon.SetGetPointsDay(0)
+		return true
+	}
+	return false
+}
+
 // 赠送友情点
 func (this *Player) give_friends_points(friend_ids []int32) int32 {
 	for i := 0; i < len(friend_ids); i++ {
@@ -579,6 +589,8 @@ func (this *Player) get_friend_points(friend_ids []int32) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_NOT_FOUND)
 		}
 	}
+
+	this.check_get_friend_points_day_refresh()
 
 	get_points := make([]int32, len(friend_ids))
 	for i := 0; i < len(friend_ids); i++ {
@@ -1053,6 +1065,8 @@ func (this *Player) friend_data(send bool) int32 {
 		if boss_remain_seconds < 0 {
 			boss_remain_seconds = 0
 		}
+		this.check_active_stage_refresh()
+		this.check_get_friend_points_day_refresh()
 		response := &msg_client_message.S2CFriendDataResponse{
 			StaminaItemId:            global_config.FriendStaminaItemId,
 			AddStamina:               add_stamina,
