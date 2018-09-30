@@ -114,3 +114,11 @@ func (this *ItemTableMgr) Load(table_file string) bool {
 func (this *ItemTableMgr) Get(id int32) *XmlItemItem {
 	return this.Map[id]
 }
+
+func (this *ItemTableMgr) GetBattlePower(id int32) int32 {
+	item := this.Map[id]
+	if item == nil {
+		return -1
+	}
+	return item.BattlePower
+}

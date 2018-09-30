@@ -1077,7 +1077,7 @@ func (this *Player) role_left_slot_result_cancel() int32 {
 
 func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 	role_equips, o := this.db.Roles.GetEquip(role_id)
-	if !o {
+	if role_equips == nil || !o {
 		log.Error("Player[%v] no role[%v], one key equip failed", this.Id, role_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 	}
@@ -1091,12 +1091,12 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 			if item == nil || item.EquipType < 1 || item.EquipType >= EQUIP_TYPE_LEFT_SLOT {
 				continue
 			}
-			eq := item_table_mgr.Get(equips[item.EquipType])
-			if equips[item.EquipType] == 0 || (eq != nil && eq.BattlePower < item.BattlePower) {
+			equiped_item := item_table_mgr.Get(equips[item.EquipType])
+			if equips[item.EquipType] == 0 || (equiped_item != nil && equiped_item.BattlePower < item.BattlePower) {
 				equips[item.EquipType] = item_id
 			}
 
-			if role_equips != nil && item.EquipType < int32(len(role_equips)) {
+			/*if item.EquipType < int32(len(role_equips)) {
 				if role_equips[item.EquipType] <= 0 {
 					continue
 				}
@@ -1106,10 +1106,10 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 					continue
 				}
 				// 已装备的大于背包中的，不替换
-				if eq != nil && e.BattlePower >= eq.BattlePower {
+				if equiped_item != nil && e.BattlePower >= equiped_item.BattlePower {
 					equips[item.EquipType] = role_equips[item.EquipType]
 				}
-			}
+			}*/
 		}
 
 		for i := 0; i < len(equips); i++ {
@@ -1117,7 +1117,7 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 				break
 			}
 			if equips[i] > 0 {
-				if role_equips != nil && i < len(role_equips) && role_equips[i] > 0 {
+				if i < len(role_equips) && role_equips[i] > 0 {
 					if equips[i] != role_equips[i] {
 						this.del_item(equips[i], 1)
 						this.add_item(role_equips[i], 1)
