@@ -265,10 +265,10 @@ func set_attack_team_cmd(p *Player, args []string) int32 {
 		team = append(team, int32(role_id))
 	}
 
-	/*if p.SetAttackTeam(team) < 0 {
+	if p.SetTeam(BATTLE_ATTACK_TEAM, team) < 0 {
 		log.Error("设置玩家[%v]攻击阵容失败", p.Id)
 		return -1
-	}*/
+	}
 
 	return 1
 }
@@ -291,7 +291,7 @@ func set_defense_team_cmd(p *Player, args []string) int32 {
 		team = append(team, int32(role_id))
 	}
 
-	if p.SetDefenseTeam(team) < 0 {
+	if p.SetTeam(BATTLE_DEFENSE_TEAM, team) < 0 {
 		log.Error("设置玩家[%v]防守阵容失败", p.Id)
 		return -1
 	}

@@ -90,7 +90,7 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 		return
 	}
 
-	log.Info("接收到的二进制流 长度[%v] 数据[%v]", len(data), data)
+	//log.Info("接收到的二进制流 长度[%v] 数据[%v]", len(data), data)
 	if len(data) < 0 {
 		return
 	}
@@ -118,7 +118,7 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 
 		handler_info := msg_handler_mgr.msgid2handler[int32(msg_code)]
 		if nil == handler_info {
-			log.Warn("HallConnection failed to get msg_handler_info[%d] !", msg_code)
+			//log.Warn("HallConnection failed to get msg_handler_info[%d] !", msg_code)
 			continue
 		}
 

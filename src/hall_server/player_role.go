@@ -386,13 +386,13 @@ func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos
 	}
 
 	if !use_assist {
-		if this.team_member_mgr == nil {
+		/*if this.team_member_mgr == nil {
 			this.team_member_mgr = make(map[int32]*TeamMember)
 		}
-		m = this.team_member_mgr[role_id]
+		m = this.team_member_mgr[role_id]*/
 		if m == nil {
 			m = team_member_pool.Get()
-			this.team_member_mgr[role_id] = m
+			//this.team_member_mgr[role_id] = m
 		}
 	} else {
 		if this.assist_member == nil {

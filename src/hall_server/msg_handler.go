@@ -195,6 +195,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 				defer func() {
 					if err := recover(); err != nil {
 						atomic.StoreInt32(&p.is_lock, 0)
+						log.Stack(err)
 					}
 				}()
 				if !atomic.CompareAndSwapInt32(&p.is_lock, 0, 1) {

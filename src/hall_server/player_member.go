@@ -241,6 +241,35 @@ type TeamMember struct {
 	attacker_skill_data     *table_config.XmlSkillItem        // 攻击者使用的技能
 }
 
+func (this *TeamMember) clear_data() {
+	this.team = nil
+	this.pos = 0
+	this.id = 0
+	this.level = 0
+	this.card = nil
+	this.hp = 0
+	this.energy = 0
+	this.attack = 0
+	this.defense = 0
+	this.act_num = 0
+	if this.attrs != nil {
+		for i := 0; i < len(this.attrs); i++ {
+			this.attrs[i] = 0
+		}
+	}
+	if this.bufflist_arr != nil {
+		for i := 0; i < len(this.bufflist_arr); i++ {
+			this.bufflist_arr[i].clear()
+		}
+
+	}
+	if this.passive_trigger_lists != nil {
+		for _, v := range this.passive_trigger_lists {
+			v.clear()
+		}
+	}
+}
+
 func (this *TeamMember) add_attrs(attrs []int32) {
 	for i := 0; i < len(attrs)/2; i++ {
 		attr := attrs[2*i]
@@ -485,7 +514,6 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 
 		}
 	}
-
 	// ************************************************************************
 }
 

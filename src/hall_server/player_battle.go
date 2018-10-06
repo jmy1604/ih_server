@@ -197,13 +197,14 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
 	}
 	for i := 0; i < len(this.members); i++ {
-		if (i < len(members) && members[i] <= 0) || i >= len(members) {
+		if this.members[i] != nil {
+			team_member_pool.Put(this.members[i])
 			this.members[i] = nil
+		}
+		if (i < len(members) && members[i] <= 0) || i >= len(members) {
 			continue
 		}
-
-		var m *TeamMember
-		m = p.get_team_member_by_role(members[i], this, int32(i))
+		m := p.get_team_member_by_role(members[i], this, int32(i))
 		if m == nil {
 			log.Error("Player[%v] init battle team get member with role_id[%v] error", p.Id, members[i])
 			continue
@@ -648,6 +649,8 @@ func (this *BattleTeam) OnFinish() {
 	for i := 0; i < len(this.members); i++ {
 		if this.members[i] != nil {
 			this.members[i].on_battle_finish()
+			team_member_pool.Put(this.members[i])
+			this.members[i] = nil
 		}
 	}
 }
