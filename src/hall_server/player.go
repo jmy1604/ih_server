@@ -698,6 +698,7 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		}
 	}
 
+	var target_score int32
 	var robot *ArenaRobot
 	p := player_mgr.GetPlayerById(player_id)
 	if p == nil {
@@ -705,6 +706,9 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		if robot == nil {
 			return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 		}
+		target_score = robot.robot_data.RobotScore
+	} else {
+		target_score = p.db.Arena.GetScore()
 	}
 
 	// 赛季是否开始
@@ -800,10 +804,6 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 	}
 	d := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
-	var target_score int32
-	if p != nil {
-		target_score = p.db.Arena.GetScore()
-	}
 	score_notify := &msg_client_message.S2CArenaScoreNotify{
 		SelfScore:      this.db.Arena.GetScore(),
 		AddScore:       add_score,
