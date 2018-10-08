@@ -221,22 +221,25 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NAME_TOO_LONG)
 	}
 
+	player.join_guild_locker.Lock()
+
 	if this._has_guild_by_name(guild_name) {
+		player.join_guild_locker.Unlock()
 		log.Error("Player[%v] create guild with name %v is already used", player_id, guild_name)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NAME_IS_USED)
 	}
 
 	guild_id := player.db.Guild.GetId()
 	if guild_id > 0 && this.GetGuild(guild_id) != nil {
+		player.join_guild_locker.Unlock()
 		log.Error("Player[%v] already create guild[%v|%v]", player_id, guild_name, guild_id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_ALREADY_CREATED_OR_JOINED)
 	}
 
 	guild_id = dbc.Global.GetRow().GetNextGuildId()
-	player.db.Guild.SetId(guild_id)
-
 	row := this.guilds.AddRow(guild_id)
 	if row == nil {
+		player.join_guild_locker.Unlock()
 		log.Error("Player[%v] create guild add db row failed", player_id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CREATED_DB_ERROR)
 	}
@@ -250,10 +253,11 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 	row.Members.Add(&dbGuildMemberData{
 		PlayerId: player_id,
 	})
-	guild_id = row.GetId()
 
 	player.db.Guild.SetId(guild_id)
 	player.db.Guild.SetPosition(GUILD_POSITION_PRESIDENT)
+
+	player.join_guild_locker.Unlock()
 
 	this._add_guild(guild_id, guild_name)
 
@@ -961,11 +965,11 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 			continue
 		}
 
-		player.agree_join_guild_locker.Lock()
+		player.join_guild_locker.Lock()
 
 		// 是否已是其他工会的成员
 		if player.db.Guild.GetId() > 0 {
-			player.agree_join_guild_locker.Unlock()
+			player.join_guild_locker.Unlock()
 			if is_refuse {
 				guild.AskLists.Remove(player_id)
 			}
@@ -985,7 +989,7 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 			push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_JOIN, player_id)
 		}
 
-		player.agree_join_guild_locker.Unlock()
+		player.join_guild_locker.Unlock()
 
 		guild.AskLists.Remove(player_id)
 		player2res[player_id] = 1
