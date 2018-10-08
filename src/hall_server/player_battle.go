@@ -890,9 +890,6 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		this.common_data.Reset()
 	}
 
-	this.OnFinish()
-	target_team.OnFinish()
-
 	// 好友BOSS血量更新
 	if target_team.friend != nil {
 		target_team.UpdateFriendBossHP()
@@ -901,6 +898,9 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	if target_team.guild != nil {
 		target_team.UpdateGuildStageBossHP()
 	}
+
+	this.OnFinish()
+	target_team.OnFinish()
 
 	// 扫荡
 	if this.IsSweep() {
