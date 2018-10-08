@@ -659,6 +659,9 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 			this.db.Roles.SetEquip(role_id, equips)
 			this.roles_id_change_info.id_update(role_id)
 		}
+		if new_items == nil {
+			new_items = make(map[int32]int32)
+		}
 		new_items[new_item.GetId()] += new_item.GetValue()
 	} else {
 		for i := int32(0); i < item_num; i++ {
@@ -668,6 +671,9 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 				return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
 			}
 			this.add_resource(item_id, -1)
+			if new_items == nil {
+				new_items = make(map[int32]int32)
+			}
 			new_items[new_item.GetId()] += new_item.GetValue()
 		}
 	}
