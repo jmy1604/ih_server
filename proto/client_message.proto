@@ -1138,6 +1138,13 @@ message S2CArenaGradeRewardNotify {
 	int32 Grade								= 1; // 段位
 }
 
+message S2CArenaScoreNotify {
+	int32 SelfScore							= 1; // 自己分数
+	int32 AddScore							= 2; // 自己增加分数
+	int32 TargetScore						= 3; // 对方分数
+	int32 TargetAddScore					= 4; // 对方增加分数
+}
+
 // ---------------------------------- 活动副本 --------------------------------
 // 活动副本数据
 message C2SActiveStageDataRequest {

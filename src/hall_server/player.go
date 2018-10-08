@@ -800,6 +800,18 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 	}
 	d := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
+	var target_score int32
+	if p != nil {
+		target_score = p.db.Arena.GetScore()
+	}
+	score_notify := &msg_client_message.S2CArenaScoreNotify{
+		SelfScore:      this.db.Arena.GetScore(),
+		AddScore:       add_score,
+		TargetScore:    target_score,
+		TargetAddScore: 0,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_SCORE_NOTIFY), score_notify)
+
 	// 保存录像
 	if battle_type == 1 && d != nil {
 		var win int32

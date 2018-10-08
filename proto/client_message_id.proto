@@ -148,6 +148,7 @@ enum MSGID {
 	C2S_ARENA_MATCH_PLAYER_REQUEST			= 11204; // 请求竞技场匹配 C2SArenaMatchPlayerRequest
 	S2C_ARENA_MATCH_PLAYER_RESPONSE			= 11205; // 请求竞技场匹配返回 S2CArenaMatchPlayerResponse
 	S2C_ARENA_GRADE_REWARD_NOTIFY			= 11206; // 段位奖励通知 S2CArenaGradeRewardNotify
+	S2C_ARENA_SCORE_NOTIFY					= 11207; // 竞技场比赛积分通知
 	
 	C2S_ACTIVE_STAGE_DATA_REQUEST			= 11300; // 请求活动副本数据 C2SActiveStageDataRequest
 	S2C_ACTIVE_STAGE_DATA_RESPONSE			= 11301; // 活动副本数据返回 S2CActiveStageDataResponse
