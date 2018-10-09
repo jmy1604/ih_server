@@ -10,11 +10,17 @@ package mysql
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
+	"math"
+	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 type TB testing.B
@@ -45,7 +51,7 @@ func initDB(b *testing.B, queries ...string) *sql.DB {
 	db := tb.checkDB(sql.Open("mysql", dsn))
 	for _, query := range queries {
 		if _, err := db.Exec(query); err != nil {
-			b.Fatalf("Error on %q: %v", query, err)
+			b.Fatalf("error on %q: %v", query, err)
 		}
 	}
 	return db
@@ -204,5 +210,110 @@ func BenchmarkRoundtripBin(b *testing.B) {
 			b.Errorf("mismatch")
 		}
 		rows.Close()
+	}
+}
+
+func BenchmarkInterpolation(b *testing.B) {
+	mc := &mysqlConn{
+		cfg: &Config{
+			InterpolateParams: true,
+			Loc:               time.UTC,
+		},
+		maxAllowedPacket: maxPacketSize,
+		maxWriteSize:     maxPacketSize - 1,
+		buf:              newBuffer(nil),
+	}
+
+	args := []driver.Value{
+		int64(42424242),
+		float64(math.Pi),
+		false,
+		time.Unix(1423411542, 807015000),
+		[]byte("bytes containing special chars ' \" \a \x00"),
+		"string containing special chars ' \" \a \x00",
+	}
+	q := "SELECT ?, ?, ?, ?, ?, ?"
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := mc.interpolateParams(q, args)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func benchmarkQueryContext(b *testing.B, db *sql.DB, p int) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	db.SetMaxIdleConns(p * runtime.GOMAXPROCS(0))
+
+	tb := (*TB)(b)
+	stmt := tb.checkStmt(db.PrepareContext(ctx, "SELECT val FROM foo WHERE id=?"))
+	defer stmt.Close()
+
+	b.SetParallelism(p)
+	b.ReportAllocs()
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		var got string
+		for pb.Next() {
+			tb.check(stmt.QueryRow(1).Scan(&got))
+			if got != "one" {
+				b.Fatalf("query = %q; want one", got)
+			}
+		}
+	})
+}
+
+func BenchmarkQueryContext(b *testing.B) {
+	db := initDB(b,
+		"DROP TABLE IF EXISTS foo",
+		"CREATE TABLE foo (id INT PRIMARY KEY, val CHAR(50))",
+		`INSERT INTO foo VALUES (1, "one")`,
+		`INSERT INTO foo VALUES (2, "two")`,
+	)
+	defer db.Close()
+	for _, p := range []int{1, 2, 3, 4} {
+		b.Run(fmt.Sprintf("%d", p), func(b *testing.B) {
+			benchmarkQueryContext(b, db, p)
+		})
+	}
+}
+
+func benchmarkExecContext(b *testing.B, db *sql.DB, p int) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	db.SetMaxIdleConns(p * runtime.GOMAXPROCS(0))
+
+	tb := (*TB)(b)
+	stmt := tb.checkStmt(db.PrepareContext(ctx, "DO 1"))
+	defer stmt.Close()
+
+	b.SetParallelism(p)
+	b.ReportAllocs()
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			if _, err := stmt.ExecContext(ctx); err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
+func BenchmarkExecContext(b *testing.B) {
+	db := initDB(b,
+		"DROP TABLE IF EXISTS foo",
+		"CREATE TABLE foo (id INT PRIMARY KEY, val CHAR(50))",
+		`INSERT INTO foo VALUES (1, "one")`,
+		`INSERT INTO foo VALUES (2, "two")`,
+	)
+	defer db.Close()
+	for _, p := range []int{1, 2, 3, 4} {
+		b.Run(fmt.Sprintf("%d", p), func(b *testing.B) {
+			benchmarkQueryContext(b, db, p)
+		})
 	}
 }
