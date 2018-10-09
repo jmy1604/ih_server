@@ -1069,12 +1069,15 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	if is_win && !has_next_wave {
-		this.explore_remove_task(id, is_story)
 		this.send_stage_reward(stage.RewardList, 6, 0)
 
 		// 更新任务
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_EXPLORE_NUM, false, 0, 1)
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_STAR_EXPLORE, false, task.TaskStar, 1)
+	}
+
+	if !is_story {
+		this.explore_remove_task(id, is_story)
 	}
 
 	Output_S2CBattleResult(this, response)
