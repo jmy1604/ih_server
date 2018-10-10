@@ -55,13 +55,13 @@ func (this *Player) check_explore_tasks_refresh(is_notify bool) (refresh bool) {
 		return
 	}
 
-	tasks := this.explore_random_task(true)
+	this.explore_random_task(true)
 	now_time := int32(time.Now().Unix())
 	this.db.ExploreCommon.SetLastRefreshTime(now_time)
 
 	if is_notify {
 		response := &msg_client_message.S2CExploreDataResponse{
-			Datas:                tasks,
+			Datas:                this.explore_format_tasks(),
 			StoryDatas:           this.explore_story_format_tasks(),
 			RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(now_time, global_config.ExploreTaskRefreshTime),
 		}
