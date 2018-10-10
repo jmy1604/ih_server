@@ -271,21 +271,12 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 // 后排目标选择
 func skill_get_back_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE { // 单体
-		found := false
+		var found bool
+		rows := _get_rows_order(self_pos)
 		for i := BATTLE_FORMATION_LINE_NUM - 1; i >= 0; i-- {
-			y := self_pos % BATTLE_FORMATION_ONE_LINE_MEMBER_NUM
-			tp := int32(i)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + y
-			m := target_team.members[tp]
-			if m != nil && !m.is_dead() {
-				pos = append(pos, tp)
-				break
-			}
-			for j := 0; j < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; j++ {
-				p := int32(i)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + int32(j)
-				if tp == p {
-					continue
-				}
-				m = target_team.members[p]
+			for j := 0; j < len(rows); j++ {
+				p := int32(i)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + rows[j]
+				m := target_team.members[p]
 				if m != nil && !m.is_dead() {
 					pos = append(pos, p)
 					found = true
