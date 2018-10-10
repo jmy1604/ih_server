@@ -273,9 +273,19 @@ func skill_get_back_targets(self_pos int32, target_team *BattleTeam, skill_data 
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE { // 单体
 		found := false
 		for i := BATTLE_FORMATION_LINE_NUM - 1; i >= 0; i-- {
+			y := self_pos % BATTLE_FORMATION_ONE_LINE_MEMBER_NUM
+			tp := int32(i)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + y
+			m := target_team.members[tp]
+			if m != nil && !m.is_dead() {
+				pos = append(pos, tp)
+				break
+			}
 			for j := 0; j < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; j++ {
 				p := int32(i)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + int32(j)
-				m := target_team.members[p]
+				if tp == p {
+					continue
+				}
+				m = target_team.members[p]
 				if m != nil && !m.is_dead() {
 					pos = append(pos, p)
 					found = true
