@@ -59,16 +59,16 @@ func (this *Player) check_explore_tasks_refresh(is_notify bool) (refresh bool) {
 	now_time := int32(time.Now().Unix())
 	this.db.ExploreCommon.SetLastRefreshTime(now_time)
 
-	response := &msg_client_message.S2CExploreDataResponse{
-		Datas:                tasks,
-		StoryDatas:           this.explore_story_format_tasks(),
-		RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(now_time, global_config.ExploreTaskRefreshTime),
-	}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_DATA_RESPONSE), response)
-
-	log.Debug("Player[%v] explore data refreshed: %v", this.Id, response)
-
 	if is_notify {
+		response := &msg_client_message.S2CExploreDataResponse{
+			Datas:                tasks,
+			StoryDatas:           this.explore_story_format_tasks(),
+			RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(now_time, global_config.ExploreTaskRefreshTime),
+		}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_DATA_RESPONSE), response)
+
+		log.Debug("Player[%v] explore data refreshed: %v", this.Id, response)
+
 		notify := &msg_client_message.S2CExploreAutoRefreshNotify{}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_AUTO_REFRESH_NOTIFY), notify)
 		log.Debug("Player[%v] explore tasks auto refreshed", this.Id)
@@ -320,10 +320,7 @@ func (this *Player) explore_story_format_tasks() (story_tasks []*msg_client_mess
 }
 
 func (this *Player) send_explore_data() int32 {
-	is_refresh := this.check_explore_tasks_refresh(false)
-	if is_refresh {
-		return 1
-	}
+	this.check_explore_tasks_refresh(false)
 	tasks := this.explore_format_tasks()
 	story_tasks := this.explore_story_format_tasks()
 	response := &msg_client_message.S2CExploreDataResponse{

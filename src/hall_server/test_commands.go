@@ -2138,6 +2138,13 @@ func get_red_states_cmd(p *Player, args []string) int32 {
 	return p.send_red_point_states(nil)
 }
 
+func clear_tower_save_cmd(p *Player, args []string) int32 {
+	for id, _ := range dbc.TowerFightSaves.m_rows {
+		dbc.TowerFightSaves.RemoveRow(id)
+	}
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2274,6 +2281,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"charge":                 charge_cmd,
 	"charge_first_award":     charge_first_award_cmd,
 	"get_red_states":         get_red_states_cmd,
+	"clear_tower_save":       clear_tower_save_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
