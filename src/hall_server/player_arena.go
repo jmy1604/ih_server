@@ -245,7 +245,7 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 
 		top_rank := this.db.Arena.GetHistoryTopRank()
 		rank := rank_list_mgr.GetRankByKey(RANK_LIST_TYPE_ARENA, this.Id)
-		if rank < top_rank {
+		if top_rank == 0 || rank < top_rank {
 			this.db.Arena.SetHistoryTopRank(rank)
 		}
 
