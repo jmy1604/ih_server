@@ -1127,6 +1127,10 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 	}
 
 	this.assist_friend = nil
+	if this.assist_member != nil {
+		team_member_pool.Put(this.assist_member)
+		this.assist_member = nil
+	}
 
 	if res > 0 {
 		if battle_type == 1 {
