@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item ID="1" BundleID="com.caesars.xwar.mcard0" GemRewardFirst="250" GemReward="250" MonthCardDay="30" MonthCardReward="75" />
-     <item ID="2" BundleID="com.caesars.xwar.mcard1" GemRewardFirst="750" GemReward="750" MonthCardDay="30" MonthCardReward="300" />
-     <item ID="3" BundleID="com.caesars.xwar.gem0" GemRewardFirst="100" GemReward="50" MonthCardDay="0" MonthCardReward="0" />
-     <item ID="4" BundleID="com.caesars.xwar.gem1" GemRewardFirst="500" GemReward="250" MonthCardDay="0" MonthCardReward="0" />
-     <item ID="5" BundleID="com.caesars.xwar.gem2" GemRewardFirst="1100" GemReward="550" MonthCardDay="0" MonthCardReward="0" />
-     <item ID="6" BundleID="com.caesars.xwar.gem3" GemRewardFirst="2400" GemReward="1200" MonthCardDay="0" MonthCardReward="0" />
-     <item ID="7" BundleID="com.caesars.xwar.gem4" GemRewardFirst="6500" GemReward="3250" MonthCardDay="0" MonthCardReward="0" />
-     <item ID="8" BundleID="com.caesars.xwar.gem5" GemRewardFirst="14000" GemReward="7000" MonthCardDay="0" MonthCardReward="0" />
+     <item ID="1" BundleID="com.wagoner.idlewar.100" GemRewardFirst="250" GemReward="250" MonthCardDay="30" MonthCardReward="75" />
+     <item ID="2" BundleID="com.wagoner.idlewar.101" GemRewardFirst="750" GemReward="750" MonthCardDay="30" MonthCardReward="300" />
+     <item ID="3" BundleID="com.wagoner.idlewar.001" GemRewardFirst="100" GemReward="50" MonthCardDay="0" MonthCardReward="0" />
+     <item ID="4" BundleID="com.wagoner.idlewar.002" GemRewardFirst="500" GemReward="250" MonthCardDay="0" MonthCardReward="0" />
+     <item ID="5" BundleID="com.wagoner.idlewar.003" GemRewardFirst="1100" GemReward="550" MonthCardDay="0" MonthCardReward="0" />
+     <item ID="6" BundleID="com.wagoner.idlewar.004" GemRewardFirst="2400" GemReward="1200" MonthCardDay="0" MonthCardReward="0" />
+     <item ID="7" BundleID="com.wagoner.idlewar.005" GemRewardFirst="6500" GemReward="3250" MonthCardDay="0" MonthCardReward="0" />
+     <item ID="8" BundleID="com.wagoner.idlewar.006" GemRewardFirst="14000" GemReward="7000" MonthCardDay="0" MonthCardReward="0" />
 </Config>
