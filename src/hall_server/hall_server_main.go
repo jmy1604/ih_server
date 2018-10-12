@@ -242,6 +242,10 @@ func table_init() error {
 		return errors.New("pay_table_mgr init failed")
 	}
 
+	if !pay_mgr.init() {
+		return errors.New("pay_mgr init failed")
+	}
+
 	return nil
 }
 

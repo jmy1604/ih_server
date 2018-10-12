@@ -1,17 +1,27 @@
 package main
 
 import (
+	"bytes"
+	"crypto"
+	"crypto/rsa"
+	"crypto/sha1"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"ih_server/libs/log"
 	"ih_server/libs/utils"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
-	_ "math"
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 	"sync/atomic"
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/gomodule/redigo/redis"
 )
 
 type ChargeMonthCardManager struct {
@@ -97,6 +107,53 @@ func (this *ChargeMonthCardManager) End() {
 	atomic.StoreInt32(&this.to_end, 1)
 }
 
+const (
+	GOOGLE_PAY_REDIS_KEY = "ih:hall_server:google_pay"
+)
+
+type RedisGooglePayInfo struct {
+	OrderId  string
+	BundleId string
+	PlayerId int32
+	PayTime  int32
+}
+
+func google_pay_save(order_id, bundle_id string, player_id int32) {
+	var pay RedisGooglePayInfo
+	pay.OrderId = order_id
+	pay.BundleId = bundle_id
+	pay.PlayerId = player_id
+	pay.PayTime = int32(time.Now().Unix())
+
+	// serialize to redis
+	bytes, err := json.Marshal(&pay)
+	if err != nil {
+		log.Error("##### Serialize RedisGooglePayInfo[%v] error[%v]", pay, err.Error())
+		return
+	}
+	err = hall_server.redis_conn.Post("HSET", GOOGLE_PAY_REDIS_KEY, order_id, string(bytes))
+	if err != nil {
+		log.Error("redis设置集合[%v]数据失败[%v]", ACCOUNT_TOKEN_KEY, err.Error())
+		return
+	}
+
+	log.Info("save google pay: order_id(%v), bundle_id(%v), player_id(%v)", order_id, bundle_id, player_id)
+}
+
+func check_google_order_exist(order_id string) bool {
+	exist, err := redis.Int(hall_server.redis_conn.Do("HEXISTS", GOOGLE_PAY_REDIS_KEY, order_id))
+	if err != nil {
+		log.Error("redis do err %v", err.Error())
+		return false
+	}
+
+	if exist <= 0 {
+		return false
+	}
+
+	return true
+}
+
 func (this *Player) _charge_month_card_award(month_card *table_config.XmlPayItem, now_time time.Time) (send_num int32) {
 	SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Month Card Award", "Month Card Award", []int32{ITEM_RESOURCE_ID_DIAMOND, month_card.MonthCardReward})
 	send_num = this.db.Pays.IncbySendMailNum(month_card.BundleId, 1)
@@ -171,15 +228,147 @@ func (this *Player) charge_data() int32 {
 	return 1
 }
 
-func (this *Player) charge(id int32) int32 {
+func (this *Player) charge(channel, id int32) int32 {
 	pay_item := pay_table_mgr.Get(id)
 	if pay_item == nil {
 		return -1
 	}
-	return this.charge_with_bundle_id(pay_item.BundleId)
+	return this.charge_with_bundle_id(channel, pay_item.BundleId, nil, nil)
 }
 
-func (this *Player) charge_with_bundle_id(bundle_id string) int32 {
+type GooglePurchaseInfo struct {
+	OrderId          string `json:"orderId"`
+	PackageName      string `json:"packageName"`
+	ProductId        string `json:"productId"`
+	PurchaseTime     int32  `json:"purchaseTime"`
+	PurchaseState    int32  `json:"purchaseState"`
+	DeveloperPayload string `json:"developerPayload"`
+	PurchaseToken    string `json:"purchaseToken"`
+	AutoRenewing     bool   `json:"autoRenewing"`
+}
+
+type GoogleAccessTokenResp struct {
+	AccessToken string  `json:"access_token"`
+	ExpiresIn   float64 `json:"expires_in"`
+}
+
+type GoogleVerifyData struct {
+	Kind               string
+	DeveloperPayload   string
+	PurchaseTimeMillis string
+	PurchaseState      int
+	ConsumptionState   int
+}
+
+func _get_google_access_token() (string, error) {
+	var client_id, client_secret, refresh_token string
+
+	v := url.Values{}
+	v.Set("grant_type", "refresh_token")
+	v.Set("client_id", client_id)
+	v.Set("client_secret", client_secret)
+	v.Set("refresh_token", refresh_token)
+	form_body := ioutil.NopCloser(strings.NewReader(v.Encode()))
+	req, err := http.NewRequest("POST", "https://accounts.google.com/o/oauth2/token", form_body)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if err != nil {
+		log.Error("new request err %v", err.Error())
+		return "", err
+	}
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Error("post request err %v", err.Error())
+		return "", err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("read response err %v", err.Error())
+		return "", err
+	}
+	if bytes.Contains(body, []byte("access_token")) {
+		atr := GoogleAccessTokenResp{}
+		err = json.Unmarshal(body, &atr)
+		if err != nil {
+			log.Error("unmarshal err %v", err.Error())
+			return "", err
+		}
+		return atr.AccessToken, nil
+	} else {
+		if err != nil {
+			log.Error("contains err %v", err.Error())
+			return "", err
+		}
+		return "", fmt.Errorf("failed to get access_token")
+	}
+}
+
+func _verify_google_purchase_token(package_name, product_id, purchase_token string) error {
+	access_token, err := _get_google_access_token()
+	if err != nil {
+		return err
+	}
+
+	var verifyUrl string = "https://www.googleapis.com/androidpublisher/v2/applications/%s/purchases/products/%s/tokens/%s?access_token=%s"
+	url := fmt.Sprintf(verifyUrl, package_name, product_id, purchase_token, access_token)
+	resp, err := http.Get(url)
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	data := GoogleVerifyData{}
+	err = json.Unmarshal(body, &data)
+	if err != nil || data.PurchaseState != 0 {
+		fmt.Println(err)
+		return err
+	}
+	return nil
+}
+
+func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data, signature []byte) int32 {
+	// 验证签名
+	decodedSignature, err := base64.StdEncoding.DecodeString(string(signature))
+	if err != nil {
+		log.Error("Player[%v] failed to decode signature[%v], err %v", this.Id, signature, err.Error())
+		return -1
+	}
+	sha1 := sha1.New()
+	sha1.Write(purchase_data)
+	hashedReceipt := sha1.Sum(nil)
+	err = rsa.VerifyPKCS1v15(pay_mgr.google_pay_pub, crypto.SHA1, hashedReceipt, decodedSignature)
+	if err != nil {
+		log.Error("Player[%v] failed to verify decoded signature[%v] with hashed purchase data[%v]: %v", this.Id, decodedSignature, hashedReceipt, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_SIGNATURE_INVALID)
+	}
+
+	data := &GooglePurchaseInfo{}
+	err = json.Unmarshal(purchase_data, &data)
+	if err != nil {
+		log.Error("Player[%v] unmarshal Purchase data error %v", this.Id, err.Error())
+		return -1
+	}
+
+	if check_google_order_exist(data.OrderId) {
+		log.Error("Player[%v] google order[%v] already exists", this.Id, data.OrderId)
+		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_ORDER_ALREADY_EXIST)
+	}
+
+	google_pay_save(data.OrderId, bundle_id, this.Id)
+
+	// 验证PurchaseToken
+	/*err = _verify_google_purchase_token(data.PackageName, data.ProductId, data.PurchaseToken)
+	if err != nil {
+		log.Error("Player[%v] verify google purchase token err %v", this.Id, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_PURCHASE_TOKEN_INVALID)
+	}*/
+
+	return 1
+}
+
+func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purchase_data []byte, extra_data []byte) int32 {
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
 	if pay_item == nil {
 		log.Error("pay %v table data not found", bundle_id)
@@ -193,6 +382,15 @@ func (this *Player) charge_with_bundle_id(bundle_id string) int32 {
 			notify := &msg_client_message.S2CChargeFirstRewardNotify{}
 			this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_FIRST_REWARD_NOTIFY), notify)
 		}
+	}
+
+	if channel == 1 {
+		err_code := this.verify_google_purchase_data(bundle_id, purchase_data, extra_data)
+		if err_code < 0 {
+			return err_code
+		}
+	} else if channel == 2 {
+
 	}
 
 	now_time := time.Now()
@@ -285,7 +483,7 @@ func C2SChargeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_dat
 		log.Error("Unmarshal msg failed err(%v)", err.Error())
 		return -1
 	}
-	return p.charge_with_bundle_id(req.GetBundleId())
+	return p.charge_with_bundle_id(req.GetChannel(), req.GetBundleId(), req.GetPurchareData(), req.GetExtraData())
 }
 
 func C2SChargeFirstAwardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

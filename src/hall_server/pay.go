@@ -138,6 +138,7 @@ type PayMgr struct {
 var pay_mgr PayMgr
 
 func (this *PayMgr) init() bool {
+	this.load_google_pay_pub()
 	return true
 }
 

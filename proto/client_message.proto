@@ -234,6 +234,9 @@ enum E_ERR {
 	CHARGE_MONTH_CARD_ALREADY_PAYED			= -29001; // 月卡已买
 	CHARGE_FIRST_NO_DONE					= -29002; // 还未首充
 	CHARGE_FIRST_ALREADY_AWARD				= -29003; // 首充已领过奖
+	CHARGE_GOOGLE_SIGNATURE_INVALID			= -29010; // google签名验证失败
+	CHARGE_GOOGLE_PURCHASE_TOKEN_INVALID	= -29011; // google支付令牌验证失败
+	CHARGE_GOOGLE_ORDER_ALREADY_EXIST		= -29012; // google订单已存在
 	
 	// 保留
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -2001,13 +2004,16 @@ message S2CChargeDataResponse {
 
 // 充值请求 
 message C2SChargeRequest {
-	string BundleId							= 1; // BundleId
-	bytes PurchareData						= 2; // 需要验证的支付数据
+	int32 Channel							= 1; // 渠道  1 google   2 appele
+	string BundleId							= 2; // BundleId
+	bytes PurchareData						= 3; // 需要验证的支付数据
+	bytes ExtraData							= 4; // 额外数据
 }
 
 message S2CChargeResponse {
-	string BundleId							= 1; // BundleId
-	bool IsFirst							= 2; // 是否首次
+	int32 Channel							= 1; // 渠道  1 google   2 appele
+	string BundleId							= 2; // BundleId
+	bool IsFirst							= 3; // 是否首次
 }
 
 // 首充奖励通知, 第一次充值会通知
