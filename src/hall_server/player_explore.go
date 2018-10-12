@@ -1073,7 +1073,7 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_STAR_EXPLORE, false, task.TaskStar, 1)
 	}
 
-	if !is_story {
+	if !is_story || is_win {
 		this.explore_remove_task(id, is_story)
 	}
 

@@ -2002,6 +2002,7 @@ message S2CChargeDataResponse {
 // 充值请求 
 message C2SChargeRequest {
 	string BundleId							= 1; // BundleId
+	bytes PurchareData						= 2; // 需要验证的支付数据
 }
 
 message S2CChargeResponse {
