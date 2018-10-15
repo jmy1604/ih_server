@@ -185,7 +185,7 @@ func (this *PayMgr) load_google_pay_pub() bool {
 
 	block, err := base64.StdEncoding.DecodeString(string(content)) //pem.Decode([]byte(content))
 	if err != nil {
-		log.Error("failed to parse PEM block containing the public key, err %v", err.Error())
+		log.Error("failed to parse base64 data (%v) the public key, err: %v", content, err.Error())
 		return false
 	}
 
