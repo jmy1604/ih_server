@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ih_server/libs/log"
+	_ "ih_server/libs/log"
 	"ih_server/libs/utils"
 	"sync/atomic"
 )
@@ -195,7 +195,7 @@ func (this *Player) _update_roles_power_rank_info2() {
 		power += p
 	}
 	this._update_roles_power_rank_info(power)
-	log.Debug("Player[%v] update roles power %v in rank list", this.Id, power)
+	//log.Debug("Player[%v] update roles power %v in rank list", this.Id, power)
 }
 
 func (this *Player) UpdateRolePowerRank(role_id int32) {

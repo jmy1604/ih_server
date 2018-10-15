@@ -10,6 +10,7 @@ import (
 	"encoding/pem"
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
+	"ih_server/src/server_config"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -138,7 +139,10 @@ type PayMgr struct {
 var pay_mgr PayMgr
 
 func (this *PayMgr) init() bool {
-	this.load_google_pay_pub()
+	if !this.load_google_pay_pub() {
+		log.Error("!!!!! Load googlepay.key failed")
+		return false
+	}
 	return true
 }
 
@@ -172,7 +176,8 @@ func (this *PayMgr) load_bid_info() bool {
 }
 */
 func (this *PayMgr) load_google_pay_pub() bool {
-	content, err := ioutil.ReadFile("../game_data/googlepay.key")
+	path := server_config.GetGameDataPathFile("googlepay.key")
+	content, err := ioutil.ReadFile(path)
 	if nil != err {
 		log.Error("PayMgr Init failed (%s)!", err.Error())
 		return false

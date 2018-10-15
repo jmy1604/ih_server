@@ -338,6 +338,13 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 	sha1 := sha1.New()
 	sha1.Write(purchase_data)
 	hashedReceipt := sha1.Sum(nil)
+	if hashedReceipt == nil {
+		log.Error("Player[%v] purchase_data[%v] hased result is null", purchase_data)
+		return -1
+	}
+
+	log.Debug("@@@@@@@@@@@ google_pay_pub(%v)  hashedReceipt(%v)  decodedSignature(%v)", pay_mgr.google_pay_pub, hashedReceipt, decodedSignature)
+
 	err = rsa.VerifyPKCS1v15(pay_mgr.google_pay_pub, crypto.SHA1, hashedReceipt, decodedSignature)
 	if err != nil {
 		log.Error("Player[%v] failed to verify decoded signature[%v] with hashed purchase data[%v]: %v", this.Id, decodedSignature, hashedReceipt, err.Error())
