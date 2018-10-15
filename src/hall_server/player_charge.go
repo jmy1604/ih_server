@@ -343,7 +343,7 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		return -1
 	}
 
-	log.Debug("@@@@@@@@@@@ purchase_data(%v)  signature(%v)", purchase_data, signature)
+	log.Debug("@@@@@@@@@@@ purchase_data(%v)  signature(%v)", string(purchase_data), string(signature))
 
 	log.Debug("@@@@@@@@@@@ google_pay_pub(%v)  hashedReceipt(%v)  decodedSignature(%v)", pay_mgr.google_pay_pub, hashedReceipt, decodedSignature)
 
