@@ -240,7 +240,7 @@ type GooglePurchaseInfo struct {
 	OrderId          string `json:"orderId"`
 	PackageName      string `json:"packageName"`
 	ProductId        string `json:"productId"`
-	PurchaseTime     int32  `json:"purchaseTime"`
+	PurchaseTime     int64  `json:"purchaseTime"`
 	PurchaseState    int32  `json:"purchaseState"`
 	DeveloperPayload string `json:"developerPayload"`
 	PurchaseToken    string `json:"purchaseToken"`
