@@ -237,6 +237,7 @@ enum E_ERR {
 	CHARGE_GOOGLE_SIGNATURE_INVALID			= -29010; // google签名验证失败
 	CHARGE_GOOGLE_PURCHASE_TOKEN_INVALID	= -29011; // google支付令牌验证失败
 	CHARGE_GOOGLE_ORDER_ALREADY_EXIST		= -29012; // google订单已存在
+	CHARGE_CHANNEL_INVALID					= -30000; // 充值渠道非法
 	
 	// 保留
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;

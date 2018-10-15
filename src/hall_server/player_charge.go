@@ -400,6 +400,9 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 		}
 	} else if channel == 2 {
 
+	} else if channel != 0 {
+		log.Error("Player[%v] charge channel[%v] invalid", this.Id, channel)
+		return int32(msg_client_message.E_ERR_CHARGE_CHANNEL_INVALID)
 	}
 
 	now_time := time.Now()
