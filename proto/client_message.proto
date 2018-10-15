@@ -366,6 +366,7 @@ message S2CPlayerInfoResponse {
 	int32 SysTime					= 8; // 系统时间
 	int32 GuildId					= 9; // 公会ID
 	string GuildName				= 10; // 公会名
+	int32 GuildLogo					= 11; // 公会logo
 }
 
 // 改名
