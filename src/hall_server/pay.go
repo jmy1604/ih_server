@@ -7,7 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
-	"encoding/pem"
+	_ "encoding/pem"
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/src/server_config"
@@ -183,13 +183,13 @@ func (this *PayMgr) load_google_pay_pub() bool {
 		return false
 	}
 
-	block, _ := pem.Decode([]byte(content))
-	if block == nil {
-		log.Error("failed to parse PEM block containing the public key")
+	block, err := base64.StdEncoding.DecodeString(string(content)) //pem.Decode([]byte(content))
+	if err != nil {
+		log.Error("failed to parse PEM block containing the public key, err %v", err.Error())
 		return false
 	}
 
-	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	pub, err := x509.ParsePKIXPublicKey(block)
 	if nil != err {
 		log.Error("PayMgr Init failed to ParsePkXIPublicKey", err.Error())
 		return false
