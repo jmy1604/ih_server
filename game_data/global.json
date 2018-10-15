@@ -23,7 +23,7 @@
 	"PlayerBattleRecordMaxCount":10,
 	
 	"TowerKeyMax": 10,
-	"TowerKeyGetInterval": 60,
+	"TowerKeyGetInterval": 1800,
 	"TowerKeyId": 8,
 	
 	"ItemLeftSlotOpenLevel": 1,
