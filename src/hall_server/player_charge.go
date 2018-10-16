@@ -110,9 +110,10 @@ func (this *ChargeMonthCardManager) End() {
 
 const (
 	GOOGLE_PAY_REDIS_KEY = "ih:hall_server:google_pay"
+	APPLE_PAY_REDIS_KEY  = "ih:hall_server:apple_pay"
 )
 
-type RedisGooglePayInfo struct {
+type RedisPayInfo struct {
 	OrderId  string
 	BundleId string
 	PlayerId int32
@@ -120,7 +121,7 @@ type RedisGooglePayInfo struct {
 }
 
 func google_pay_save(order_id, bundle_id string, player_id int32) {
-	var pay RedisGooglePayInfo
+	var pay RedisPayInfo
 	pay.OrderId = order_id
 	pay.BundleId = bundle_id
 	pay.PlayerId = player_id
@@ -129,16 +130,16 @@ func google_pay_save(order_id, bundle_id string, player_id int32) {
 	// serialize to redis
 	bytes, err := json.Marshal(&pay)
 	if err != nil {
-		log.Error("##### Serialize RedisGooglePayInfo[%v] error[%v]", pay, err.Error())
+		log.Error("##### Serialize RedisPayInfo[%v] error[%v]", pay, err.Error())
 		return
 	}
 	err = hall_server.redis_conn.Post("HSET", GOOGLE_PAY_REDIS_KEY, order_id, string(bytes))
 	if err != nil {
-		log.Error("redis设置集合[%v]数据失败[%v]", ACCOUNT_TOKEN_KEY, err.Error())
+		log.Error("redis设置集合[%v]数据失败[%v]", GOOGLE_PAY_REDIS_KEY, err.Error())
 		return
 	}
 
-	log.Info("save google pay: order_id(%v), bundle_id(%v), player_id(%v)", order_id, bundle_id, player_id)
+	log.Info("save google pay: player_id(%v), order_id(%v), bundle_id(%v)", player_id, order_id, bundle_id)
 }
 
 func check_google_order_exist(order_id string) bool {
@@ -147,11 +148,40 @@ func check_google_order_exist(order_id string) bool {
 		log.Error("redis do err %v", err.Error())
 		return false
 	}
-
 	if exist <= 0 {
 		return false
 	}
+	return true
+}
 
+func apple_pay_save(order_id, bundle_id string, player_id int32) {
+	var pay RedisPayInfo
+	pay.OrderId = order_id
+	pay.BundleId = bundle_id
+	pay.PlayerId = player_id
+	pay.PayTime = int32(time.Now().Unix())
+	bytes, err := json.Marshal(&pay)
+	if err != nil {
+		log.Error("##### Serialize RedisPayInfo[%v] error[%v]", pay, err.Error())
+		return
+	}
+	err = hall_server.redis_conn.Post("HSET", APPLE_PAY_REDIS_KEY, order_id, string(bytes))
+	if err != nil {
+		log.Error("redis设置集合[%v]数据失败[%v]", APPLE_PAY_REDIS_KEY, err.Error())
+		return
+	}
+	log.Info("save apple pay: player_id(%v), order_id(%v), bundle_id(%v)", player_id, order_id, bundle_id)
+}
+
+func check_apple_order_exist(order_id string) bool {
+	exist, err := redis.Int(hall_server.redis_conn.Do("HEXISTS", APPLE_PAY_REDIS_KEY, order_id))
+	if err != nil {
+		log.Error("redis do err %v", err.Error())
+		return false
+	}
+	if exist <= 0 {
+		return false
+	}
 	return true
 }
 
@@ -330,8 +360,21 @@ func _verify_google_purchase_token(package_name, product_id, purchase_token stri
 }
 
 func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data, signature []byte) int32 {
+	data := &GooglePurchaseInfo{}
+	err := json.Unmarshal(purchase_data, &data)
+	if err != nil {
+		log.Error("Player[%v] unmarshal Purchase data error %v", this.Id, err.Error())
+		return -1
+	}
+
+	if check_google_order_exist(data.OrderId) {
+		log.Error("Player[%v] google order[%v] already exists", this.Id, data.OrderId)
+		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_ORDER_ALREADY_EXIST)
+	}
+
 	// 验证签名
-	decodedSignature, err := base64.StdEncoding.DecodeString(string(signature))
+	var decodedSignature []byte
+	decodedSignature, err = base64.StdEncoding.DecodeString(string(signature))
 	if err != nil {
 		log.Error("Player[%v] failed to decode signature[%v], err %v", this.Id, signature, err.Error())
 		return -1
@@ -354,19 +397,7 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_SIGNATURE_INVALID)
 	}
 
-	data := &GooglePurchaseInfo{}
-	err = json.Unmarshal(purchase_data, &data)
-	if err != nil {
-		log.Error("Player[%v] unmarshal Purchase data error %v", this.Id, err.Error())
-		return -1
-	}
-
 	log.Info("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", this.Id, bundle_id, purchase_data, signature)
-
-	if check_google_order_exist(data.OrderId) {
-		log.Error("Player[%v] google order[%v] already exists", this.Id, data.OrderId)
-		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_ORDER_ALREADY_EXIST)
-	}
 
 	google_pay_save(data.OrderId, bundle_id, this.Id)
 
@@ -384,6 +415,11 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	if purchase_data == nil || len(purchase_data) == 0 {
 		log.Error("Player[%v] apple purchase data empty!")
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_EMPTY)
+	}
+
+	if check_apple_order_exist(string(purchase_data)) {
+		log.Error("Player[%v] apple order[%v] already exists", this.Id, string(purchase_data))
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_ORDER_ALREADY_EXIST)
 	}
 
 	/*tmp_order := &ApplePayOrder{}
@@ -444,17 +480,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 
 	log.Info("Player[%v] apple pay bunder_id[%v] verify success", this.Id, bundle_id)
 
-	new_row := dbc.ApplePayRecords.AddRow()
-	if nil == new_row {
-		log.Error("apple_pay_verify failed to add_row pid[%d] order_name[%s] !", this.Id, bundle_id)
-		return -1
-	}
-
-	/*pay_mgr.apple_payed_sns[receipt] = new_row.GetKeyId()
-	new_row.SetPlayerId(this.Id)
-	new_row.SetSn(receipt)
-	new_row.SetBid(bunder_id)
-	new_row.SetPayTime(int32(time.Now().Unix()))*/
+	apple_pay_save(string(purchase_data), bundle_id, this.Id)
 
 	return 1
 }
