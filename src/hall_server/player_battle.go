@@ -653,6 +653,10 @@ func (this *BattleTeam) OnFinish() {
 			this.members[i] = nil
 		}
 	}
+	if this.player != nil && this.player.assist_member != nil {
+		team_member_pool.Put(this.player.assist_member)
+		this.player.assist_member = nil
+	}
 }
 
 func (this *BattleTeam) GetLastReport() (last_report *msg_client_message.BattleReportItem) {
@@ -899,13 +903,13 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		target_team.UpdateGuildStageBossHP()
 	}
 
-	this.OnFinish()
-	target_team.OnFinish()
-
 	// 扫荡
 	if this.IsSweep() {
 		this.player.curr_sweep += 1
 	}
+
+	this.OnFinish()
+	target_team.OnFinish()
 
 	return
 }
