@@ -380,7 +380,7 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 	return 1
 }
 
-func (this *Player) verify_apple_purchase_data(bunder_id string, purchase_data []byte) int32 { //ordername, receipt string
+func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data []byte) int32 { //ordername, receipt string
 	if purchase_data == nil || len(purchase_data) == 0 {
 		log.Error("Player[%v] apple purchase data empty!")
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_EMPTY)
@@ -394,22 +394,26 @@ func (this *Player) verify_apple_purchase_data(bunder_id string, purchase_data [
 	}
 
 	ordername := tmp_order.OrderName
-	receipt := tmp_order.Receipt
-
-	check_data := &AppleCheck{Receipt: receipt}
-	data, err := json.Marshal(check_data)
-	if nil != err {
-		log.Error("apple_pay_verify json Marshal failed !")
-		return false
-	}*/
+	receipt := tmp_order.Receipt*/
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr}
-	final_str := base64.StdEncoding.EncodeToString(purchase_data)
-
-	req, err := http.NewRequest("POST", global_config.ApplePayUrl, strings.NewReader(final_str))
+	check_data := &AppleCheck{Receipt: string(purchase_data)}
+	data, err := json.Marshal(check_data)
+	if nil != err {
+		log.Error("Player[%v] marshal apple pay verify purchase_data[%v] failed: %v", this.Id, purchase_data, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
+	}
+	final_str := base64.StdEncoding.EncodeToString(data)
+	var pay_url string
+	if config.ApplePayIsSandBox {
+		pay_url = global_config.ApplePaySandBoxUrl
+	} else {
+		pay_url = global_config.ApplePayUrl
+	}
+	req, err := http.NewRequest("POST", pay_url, strings.NewReader(final_str))
 	if err != nil {
 		log.Error("Player[%v] new apple pay request failed(%s) !", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_NEW_REQUEST_FAILED)
@@ -438,11 +442,11 @@ func (this *Player) verify_apple_purchase_data(bunder_id string, purchase_data [
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_VERIFY_NO_PASS)
 	}
 
-	log.Info("Player[%v] apple pay bunder_id[%v] verify success", this.Id, bunder_id)
+	log.Info("Player[%v] apple pay bunder_id[%v] verify success", this.Id, bundle_id)
 
 	new_row := dbc.ApplePayRecords.AddRow()
 	if nil == new_row {
-		log.Error("apple_pay_verify failed to add_row pid[%d] order_name[%s] !", this.Id, bunder_id)
+		log.Error("apple_pay_verify failed to add_row pid[%d] order_name[%s] !", this.Id, bundle_id)
 		return -1
 	}
 
@@ -477,7 +481,10 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 			return err_code
 		}
 	} else if channel == 2 {
-
+		err_code := this.verify_apple_purchase_data(bundle_id, purchase_data)
+		if err_code < 0 {
+			return err_code
+		}
 	} else if channel != 0 {
 		log.Error("Player[%v] charge channel[%v] invalid", this.Id, channel)
 		return int32(msg_client_message.E_ERR_CHARGE_CHANNEL_INVALID)
