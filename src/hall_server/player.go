@@ -814,6 +814,10 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_SCORE_NOTIFY), score_notify)
 
+	if battle_type == 1 {
+		this.battle_random_reward_notify(global_config.ArenaBattleRewardDropId, 0)
+	}
+
 	// 保存录像
 	if battle_type == 1 && d != nil {
 		var win int32
@@ -830,8 +834,6 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 			this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_WIN_NUM, false, 0, 1)
 		}
 	}
-
-	this.battle_random_reward_notify(global_config.ArenaBattleRewardDropId, 0)
 
 	Output_S2CBattleResult(this, response)
 	return 1

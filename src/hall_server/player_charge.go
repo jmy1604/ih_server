@@ -5,6 +5,7 @@ import (
 	"crypto"
 	"crypto/rsa"
 	"crypto/sha1"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -360,6 +361,8 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		return -1
 	}
 
+	log.Info("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", this.Id, bundle_id, purchase_data, signature)
+
 	if check_google_order_exist(data.OrderId) {
 		log.Error("Player[%v] google order[%v] already exists", this.Id, data.OrderId)
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_ORDER_ALREADY_EXIST)
@@ -373,6 +376,81 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		log.Error("Player[%v] verify google purchase token err %v", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_PURCHASE_TOKEN_INVALID)
 	}*/
+
+	return 1
+}
+
+func (this *Player) verify_apple_purchase_data(bunder_id string, purchase_data []byte) int32 { //ordername, receipt string
+	if purchase_data == nil || len(purchase_data) == 0 {
+		log.Error("Player[%v] apple purchase data empty!")
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_EMPTY)
+	}
+
+	/*tmp_order := &ApplePayOrder{}
+	err := json.Unmarshal(purchase_data, tmp_order)
+	if nil != err {
+		log.Error("Player[%v] apple purchase data Unmarshal failed(%s) !", this.Id, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
+	}
+
+	ordername := tmp_order.OrderName
+	receipt := tmp_order.Receipt
+
+	check_data := &AppleCheck{Receipt: receipt}
+	data, err := json.Marshal(check_data)
+	if nil != err {
+		log.Error("apple_pay_verify json Marshal failed !")
+		return false
+	}*/
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	final_str := base64.StdEncoding.EncodeToString(purchase_data)
+
+	req, err := http.NewRequest("POST", global_config.ApplePayUrl, strings.NewReader(final_str))
+	if err != nil {
+		log.Error("Player[%v] new apple pay request failed(%s) !", this.Id, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_NEW_REQUEST_FAILED)
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Error("Player[%v] post apple pay request failed(%s) !", this.Id, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_REQUEST_FAILED)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	tmp_res := &AppleCheckRes{}
+	err = json.Unmarshal(body, tmp_res)
+	if nil != err {
+		log.Error("Player[%v] get apple pay verify result unmarshal failed(%s) !", this.Id, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_RESULT_UNMARSHAL_FAILED)
+	}
+
+	if 0 != tmp_res.Status {
+		log.Error("Player[%v] apple pay verify Receipt check failed(%d) !", this.Id, tmp_res.Status)
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_VERIFY_NO_PASS)
+	}
+
+	log.Info("Player[%v] apple pay bunder_id[%v] verify success", this.Id, bunder_id)
+
+	new_row := dbc.ApplePayRecords.AddRow()
+	if nil == new_row {
+		log.Error("apple_pay_verify failed to add_row pid[%d] order_name[%s] !", this.Id, bunder_id)
+		return -1
+	}
+
+	/*pay_mgr.apple_payed_sns[receipt] = new_row.GetKeyId()
+	new_row.SetPlayerId(this.Id)
+	new_row.SetSn(receipt)
+	new_row.SetBid(bunder_id)
+	new_row.SetPayTime(int32(time.Now().Unix()))*/
 
 	return 1
 }
