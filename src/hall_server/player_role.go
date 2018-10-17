@@ -398,9 +398,6 @@ func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos
 		m.init_all(team, role_id, level, role_card, pos, equips, nil)
 	}
 	if use_assist {
-		if this.assist_member != nil {
-			team_member_pool.Put(this.assist_member)
-		}
 		this.assist_member = m
 	}
 	return

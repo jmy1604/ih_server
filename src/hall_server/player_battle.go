@@ -654,7 +654,6 @@ func (this *BattleTeam) OnFinish() {
 		}
 	}
 	if this.player != nil && this.player.assist_member != nil {
-		team_member_pool.Put(this.player.assist_member)
 		this.player.assist_member = nil
 	}
 }
@@ -1130,9 +1129,10 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 		res = -1
 	}
 
-	this.assist_friend = nil
+	if this.assist_friend != nil {
+		this.assist_friend = nil
+	}
 	if this.assist_member != nil {
-		team_member_pool.Put(this.assist_member)
 		this.assist_member = nil
 	}
 
