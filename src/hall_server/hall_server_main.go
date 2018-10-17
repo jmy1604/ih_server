@@ -316,7 +316,7 @@ func main() {
 
 	// pprof
 	go func() {
-		http.ListenAndServe("localhost:6060", nil)
+		http.ListenAndServe("0.0.0.0:6060", nil)
 	}()
 
 	// 排行榜
