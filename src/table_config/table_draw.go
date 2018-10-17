@@ -16,6 +16,7 @@ type XmlDrawItem struct {
 	ResCondition2Str string `xml:"ResCondition2,attr"`
 	ResCondition2    []int32
 	FreeExtractTime  int32 `xml:"FreeExtractTime,attr"`
+	NeedBlank        int32 `xml:"NeedBlank,attr"`
 }
 
 type XmlDrawConfig struct {
