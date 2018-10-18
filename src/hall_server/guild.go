@@ -566,8 +566,9 @@ func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_clien
 
 // 公会基本数据
 func (this *Player) send_guild_data() int32 {
-	if this.db.Info.GetLvl() < global_config.GuildOpenLevel {
-		log.Error("Player[%v] level not enough to open guild", this.Id)
+	need_level := system_unlock_table_mgr.GetUnlockLevel("GuildEnterLevel")
+	if need_level > this.db.Info.GetLvl() {
+		log.Error("Player[%v] level not enough level %v enter guild", this.Id, need_level)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ENOUGH_LEVEL_TO_OPEN)
 	}
 	guild_id := this.db.Guild.GetId()

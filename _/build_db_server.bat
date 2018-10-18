@@ -1,10 +1,10 @@
 call build_framework.bat
 if errorlevel 1 goto exit
 
-go build -o ../youma/db_server/db_server_server.exe youma/db_server
+go build -i -o ../bin/db_server.exe ih_server/src/db_server
 if errorlevel 1 goto exit
 
-go install youma/db_server
+go install ih_server/src/db_server
 if errorlevel 1 goto exit
 
 if errorlevel 0 goto ok

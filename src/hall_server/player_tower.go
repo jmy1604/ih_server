@@ -17,6 +17,12 @@ func get_tower_fight_id(tower_id, i int32) int32 {
 }
 
 func (this *Player) send_tower_data(send bool) int32 {
+	need_level := system_unlock_table_mgr.GetUnlockLevel("TowerEnterLevel")
+	if need_level > this.db.Info.GetLvl() {
+		log.Error("Player[%v] level not enough level %v enter tower", this.Id, need_level)
+		return -1
+	}
+
 	var tower_keys, remain_seconds int32
 	var updated bool
 	updated, tower_keys, remain_seconds = this.check_tower_keys()

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item ServerID="SearchTaskEnterLevel" Level="6" />
+     <item ServerID="ArenaEnterLevel" Level="14" />
+     <item ServerID="TowerEnterLevel" Level="18" />
+     <item ServerID="GuildEnterLevel" Level="22" />
+     <item ServerID="FriendBossEnterLevel" Level="34" />
+</Config>
