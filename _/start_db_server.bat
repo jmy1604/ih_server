@@ -1,5 +1,4 @@
 cd ..
-cd ..
 cd bin
 start db_server.exe
 cd ..
