@@ -181,7 +181,7 @@ func (this *HallAgentManager) wait_listen_res() (err error) {
 }
 
 func (this *HallAgentManager) Start() (err error) {
-	log.Event("HallAgentManager已启动", nil, log.Property{"IP", config.ListenMatchIP})
+	log.Event("HallAgentManager已启动", nil, log.Property{"IP", config.ListenGameIP})
 	log.Trace("**************************************************")
 
 	go this.Run()
@@ -194,7 +194,7 @@ func (this *HallAgentManager) Start() (err error) {
 }
 
 func (this *HallAgentManager) Listen() {
-	err := this.net.Listen(config.ListenMatchIP, config.MaxMatchConnections)
+	err := this.net.Listen(config.ListenGameIP, config.MaxGameConnections)
 	if err != nil {
 		this.listen_err_chan <- err
 		log.Error("启动HallAgentManager失败 %v", err)

@@ -5,7 +5,6 @@
 	"ListenClientInIP":"192.168.1.250:30100",
 	"ListenClientOutIP":"192.168.1.250:30100",
 	"MaxClientConnections":10000,
-	"MaxRoomConnections":10000,
 	"RpcServerIP":"192.168.1.250:31000",
 	"ListenRpcServerIP":"192.168.1.250:31001",
 	

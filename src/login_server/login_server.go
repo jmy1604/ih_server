@@ -10,6 +10,7 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/proto/gen_go/server_message"
+	"ih_server/src/server_config"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -64,7 +65,7 @@ func (this *LoginServer) Start(use_https bool) bool {
 	}
 
 	if use_https {
-		go this.StartHttps("../run/ih_server/conf/server.crt", "../run/ih_server/conf/server.key")
+		go this.StartHttps(server_config.GetGameDataPathFile("server.crt"), server_config.GetGameDataPathFile("server.key"))
 	} else {
 		go this.StartHttp()
 	}

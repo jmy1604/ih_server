@@ -74,9 +74,9 @@ func (this *LoginConnectionMgr) AddLogin(msg_login *msg_server_message.LoginServ
 	}
 
 	log.Info("LoginConnectionMgr AddLogin", serverid, msg_login.GetServerName())
-	new_conn := new_login_conn(serverid, msg_login.GetServerName(), msg_login.GetListenMatchIP())
+	new_conn := new_login_conn(serverid, msg_login.GetServerName(), msg_login.GetListenGameIP())
 	if nil == new_conn {
-		log.Info("LoginConnectionMgr AddLogin new login conn failed", serverid, msg_login.GetServerName(), msg_login.GetListenMatchIP())
+		log.Info("LoginConnectionMgr AddLogin new login conn failed", serverid, msg_login.GetServerName(), msg_login.GetListenGameIP())
 		return
 	}
 	this.id2loginconn[serverid] = new_conn

@@ -10,7 +10,7 @@ import (
 type LoginInfo struct {
 	Id             int32
 	Name           string
-	ListenMatchIP  string
+	ListenGameIP   string
 	ListenClientIP string
 }
 
@@ -64,7 +64,7 @@ func (this *LoginInfoManager) Get(id int32) (info *LoginInfo) {
 	return
 }
 
-func (this *LoginInfoManager) Add(conn *server_conn.ServerConn, id int32, name string, listen_match_ip string) (ok bool) {
+func (this *LoginInfoManager) Add(conn *server_conn.ServerConn, id int32, name string, listen_game_ip string) (ok bool) {
 	if !this.inited {
 		return
 	}
@@ -79,7 +79,7 @@ func (this *LoginInfoManager) Add(conn *server_conn.ServerConn, id int32, name s
 
 	login_info := &LoginInfo{}
 	login_info.Id = id
-	login_info.ListenMatchIP = listen_match_ip
+	login_info.ListenGameIP = listen_game_ip
 	login_info.Name = name
 	this.logins[id] = login_info
 	this.logins_conn[conn] = login_info
@@ -153,7 +153,7 @@ func (this *LoginInfoManager) GetInfoList() (info_list []*msg_server_message.Log
 	for _, v := range this.logins {
 		info_list[i] = &msg_server_message.LoginServerInfo{}
 		info_list[i].ServerId = v.Id
-		info_list[i].ListenMatchIP = v.ListenMatchIP
+		info_list[i].ListenGameIP = v.ListenGameIP
 		info_list[i].ListenClientIP = v.ListenClientIP
 		i += 1
 	}

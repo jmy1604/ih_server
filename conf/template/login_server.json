@@ -4,8 +4,8 @@
 	"ServerName":"ih_login_server",
 	"ListenClientIP":"192.168.1.250:35000",
 	
-	"ListenMatchIP":"192.168.1.250:35001",
-	"MaxMatchConnections":300,
+	"ListenGameIP":"192.168.1.250:35001",
+	"MaxGameConnections":300,
 	"LogConfigFile":"login_server_tracer.json",
 	
 	"CenterServerIP":"192.168.1.250:30000",

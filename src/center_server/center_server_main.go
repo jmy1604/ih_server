@@ -46,7 +46,7 @@ func g_init() bool {
 	} else {
 		log.Event("初始化：hall_agent_mgr init succeed !", nil)
 	}
-	go hall_agent_mgr.Start(config.ListenHallIP, config.MaxHallConntions)
+	go hall_agent_mgr.Start(config.ListenHallIP, config.MaxHallConnections)
 
 	if !login_info_mgr.Init() {
 		log.Error("login_info_mgr Init failed !")
@@ -61,7 +61,7 @@ func g_init() bool {
 	} else {
 		log.Event("初始化:login_agent_mgr init succeed !", nil)
 	}
-	go login_agent_mgr.Start(config.ListenLoginIP, config.MaxLoginConntions)
+	go login_agent_mgr.Start(config.ListenLoginIP, config.MaxLoginConnections)
 
 	if nil != server.Init() {
 		log.Error("server init failed\n")

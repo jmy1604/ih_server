@@ -92,7 +92,7 @@ func (this *CenterConnection) OnConnect(c *server_conn.ServerConn) {
 		notify := &msg_server_message.L2CLoginServerRegister{}
 		notify.ServerId = config.ServerId
 		notify.ServerName = config.ServerName
-		notify.ListenMatchIP = config.ListenMatchIP
+		notify.ListenGameIP = config.ListenGameIP
 		c.Send(uint16(msg_server_message.MSGID_L2C_LOGIN_SERVER_REGISTER), notify, true)
 	} else {
 		log.Trace("LoginServer[%v][%v] force closed on CenterServer connect", config.ServerId, config.ServerName)

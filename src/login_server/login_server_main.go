@@ -27,7 +27,7 @@ func main() {
 	log.Event("配置:服务器ID", config.ServerId)
 	log.Event("配置:服务器名称", config.ServerName)
 	log.Event("配置:服务器地址(对Client)", config.ListenClientIP)
-	log.Event("配置:服务器地址(对Match)", config.ListenMatchIP)
+	log.Event("配置:服务器地址(对Game)", config.ListenGameIP)
 
 	server_list.ReadConfig("../run/ih_server/conf/server_list.json")
 

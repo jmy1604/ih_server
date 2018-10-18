@@ -1,9 +1,9 @@
 {
 	"LogConfigFile":"center_server_tracer.json",
 	"ListenLoginIP":"192.168.1.250:30000",
-	"MaxLoginConntions":1000,
+	"MaxLoginConnections":1000,
 	"ListenHallIP":"192.168.1.250:30001",
-	"MaxHallConntions":1000,
+	"MaxHallConnections":1000,
 	"GmIP":"192.168.1.250:30002",
 	"HallServerGroupConfigFile":"hall_server_group.json",
 	

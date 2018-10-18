@@ -119,11 +119,11 @@ func L2CLoginServerRegisterHandler(conn *server_conn.ServerConn, msg proto.Messa
 	add_notify.Server = &msg_server_message.LoginServerInfo{}
 	add_notify.Server.ServerId = login_serverid
 	add_notify.Server.ServerName = req.GetServerName()
-	add_notify.Server.ListenMatchIP = req.GetListenMatchIP()
+	add_notify.Server.ListenGameIP = req.GetListenGameIP()
 	add_notify.Server.ListenClientIP = req.GetListenClientIP()
 
 	hall_agent_mgr.Broadcast(uint16(msg_server_message.MSGID_C2H_NEW_LOGIN_SERVER_ADD), add_notify)
-	login_info_mgr.Add(conn, login_serverid, req.GetServerName(), req.GetListenMatchIP())
+	login_info_mgr.Add(conn, login_serverid, req.GetServerName(), req.GetListenGameIP())
 }
 
 func L2CGetPlayerAccInfoHandler(conn *server_conn.ServerConn, m proto.Message) {
