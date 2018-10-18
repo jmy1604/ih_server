@@ -66,7 +66,7 @@ func (this *PositionTable) Init(table_file string) bool {
 }
 
 func (this *PositionTable) InitIpMop() bool {
-	err := ip17mon.Init("../src/ih_server/game_data/17monipdb.dat")
+	err := ip17mon.Init(server_config.GetGameDataPathFile("17monipdb.dat"))
 	if nil != err {
 		log.Error("PositionTable InitIpMop failed [%s]", err.Error())
 		return false
