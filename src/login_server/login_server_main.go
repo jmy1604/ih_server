@@ -29,7 +29,7 @@ func main() {
 	log.Event("配置:服务器地址(对Client)", config.ListenClientIP)
 	log.Event("配置:服务器地址(对Game)", config.ListenGameIP)
 
-	server_list.ReadConfig("../run/ih_server/conf/server_list.json")
+	server_list.ReadConfig(server_config.GetConfPathFile("server_list.json"))
 
 	if !global_config_load() {
 		log.Error("global_config_load failed !")
