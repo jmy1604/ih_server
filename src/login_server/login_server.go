@@ -65,7 +65,7 @@ func (this *LoginServer) Start(use_https bool) bool {
 	}
 
 	if use_https {
-		go this.StartHttps(server_config.GetGameDataPathFile("server.crt"), server_config.GetGameDataPathFile("server.key"))
+		go this.StartHttps(server_config.GetConfPathFile("server.crt"), server_config.GetConfPathFile("server.key"))
 	} else {
 		go this.StartHttp()
 	}
