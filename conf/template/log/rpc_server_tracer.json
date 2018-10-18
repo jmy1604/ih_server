@@ -15,7 +15,7 @@
 			"level":"DEBUG",
 			"property":
 			[
-				{ "name":"logdir", "value":"../run/ih_server/logs/rpc_server" },
+				{ "name":"logdir", "value":"logs/rpc_server" },
 				{ "name":"filename", "value":"rpc_trace" },
 				{ "name":"filesuffix", "value":"txt" },
 				{ "name":"format", "value":"<%T><%L><%S>%M" },

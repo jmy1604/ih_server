@@ -15,7 +15,7 @@
 			"level":"DEBUG",
 			"property":
 			[
-				{ "name":"logdir", "value":"../run/ih_server/logs/center_server" },
+				{ "name":"logdir", "value":"logs/center_server" },
 				{ "name":"filename", "value":"center_trace" },
 				{ "name":"filesuffix", "value":"txt" },
 				{ "name":"format", "value":"<%T><%L><%S>%M" },
