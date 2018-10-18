@@ -45,7 +45,7 @@ func (this *HallGroupMgr) Init() bool {
 func (this *HallGroupMgr) load_hall_group_config() bool {
 	this.hall_groups = &HallGroups{}
 
-	hall_server_group_path := server_config.RuntimeRootDir + server_config.ConfigDir + rpc_config.HallServerGroupConfigFile
+	hall_server_group_path := server_config.RuntimeRootDir + server_config.ConfigDir + rpc_config.GameServerGroupConfigFile
 	data, err := ioutil.ReadFile(hall_server_group_path)
 	if err != nil {
 		fmt.Printf("HallGroupMgr读取配置文件(%s)失败 %s %s", hall_server_group_path, err)

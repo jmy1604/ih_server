@@ -2,10 +2,10 @@
 	"LogConfigFile":"center_server_tracer.json",
 	"ListenLoginIP":"192.168.1.250:30000",
 	"MaxLoginConnections":1000,
-	"ListenHallIP":"192.168.1.250:30001",
-	"MaxHallConnections":1000,
+	"ListenGameIP":"192.168.1.250:30001",
+	"MaxGameConnections":1000,
 	"GmIP":"192.168.1.250:30002",
-	"HallServerGroupConfigFile":"hall_server_group.json",
+	"GameServerGroupConfigFile":"hall_server_group.json",
 	
 	"MYSQL_NAME":"ih_center_server",
 	"MYSQL_IP":"127.0.0.1:3306",

@@ -35,8 +35,8 @@ type CenterServerConfig struct {
 	LogConfigFile             string // 日志配置文件地址
 	ListenLoginIP             string // 监听LoginServer
 	MaxLoginConnections       int32  // 最大Login连接数
-	ListenHallIP              string // 监听HallServer的IP
-	MaxHallConnections        int32  // 最大Hall连接数
+	ListenGameIP              string // 监听HallServer的IP
+	MaxGameConnections        int32  // 最大Hall连接数
 	GmIP                      string // GM命令的地址
 	HallServerGroupConfigFile string // 大厅配置文件地址
 	MYSQL_NAME                string
@@ -86,7 +86,6 @@ type GameServerConfig struct {
 	ListenClientInIP     string
 	ListenClientOutIP    string
 	MaxClientConnections int32
-	MaxRoomConnections   int32
 	RpcServerIP          string
 	ListenRpcServerIP    string
 	LogConfigFile        string // 日志配置文件
@@ -118,7 +117,7 @@ type RpcServerConfig struct {
 	LogConfigFile             string
 	ListenIP                  string
 	MaxConnections            int
-	HallServerGroupConfigFile string
+	GameServerGroupConfigFile string
 	RedisServerIP             string
 }
 

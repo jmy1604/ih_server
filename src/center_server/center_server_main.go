@@ -46,7 +46,7 @@ func g_init() bool {
 	} else {
 		log.Event("初始化：hall_agent_mgr init succeed !", nil)
 	}
-	go hall_agent_mgr.Start(config.ListenHallIP, config.MaxHallConnections)
+	go hall_agent_mgr.Start(config.ListenGameIP, config.MaxGameConnections)
 
 	if !login_info_mgr.Init() {
 		log.Error("login_info_mgr Init failed !")
@@ -90,7 +90,7 @@ func main() {
 	}
 
 	log.Event("配置:监听LoginServer地址", config.ListenLoginIP)
-	log.Event("配置:监听HallServer地址", config.ListenHallIP)
+	log.Event("配置:监听GameServer地址", config.ListenGameIP)
 	log.Event("配置:日志配置文件", config.LogConfigFile)
 
 	/*log.Event("连接数据库", config.MYSQL_NAME, log.Property{"地址", config.MYSQL_IP})
