@@ -319,9 +319,6 @@ func (this *Player) add_init_roles() {
 			//team = append(team, iid)
 		}
 	}
-	//this.db.BattleTeam.SetAttackMembers(team)
-	//this.db.BattleTeam.SetDefenseMembers(team)
-	//this.db.BattleTeam.SetCampaignMembers(team)
 }
 
 func (this *Player) send_roles() {

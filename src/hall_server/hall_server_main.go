@@ -246,6 +246,10 @@ func table_init() error {
 		return errors.New("pay_mgr init failed")
 	}
 
+	if !system_unlock_table_mgr.Init("") {
+		return errors.New("system_unlock_table_mgr init failed")
+	}
+
 	return nil
 }
 

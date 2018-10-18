@@ -320,6 +320,11 @@ func (this *Player) explore_story_format_tasks() (story_tasks []*msg_client_mess
 }
 
 func (this *Player) send_explore_data() int32 {
+	need_level := system_unlock_table_mgr.GetUnlockLevel("SearchTaskEnterLevel")
+	if need_level > this.db.Info.GetLvl() {
+		log.Error("Player[%v] level not enough level %v enter explore", this.Id, need_level)
+		return -1
+	}
 	this.check_explore_tasks_refresh(false)
 	tasks := this.explore_format_tasks()
 	story_tasks := this.explore_story_format_tasks()
@@ -586,9 +591,11 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 		if old_ids != nil && i < len(old_ids) {
 			if old_ids[i] != role_id {
 				this.db.Roles.SetState(old_ids[i], ROLE_STATE_NONE)
+				this.roles_id_change_info.id_update(old_ids[i])
 			}
 		}
 		this.db.Roles.SetState(role_id, ROLE_STATE_EXPLORE)
+		this.roles_id_change_info.id_update(role_id)
 	}
 
 	if is_story {
@@ -610,9 +617,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 
 func (this *Player) _explore_roles_is_enough(task *table_config.XmlSearchTaskItem, role_ids []int32) bool {
 	var role_len int32
-	if role_ids == nil {
-		role_len = 0
-	} else {
+	if role_ids != nil {
 		role_len = int32(len(role_ids))
 	}
 	if role_len < task.CardNum {
@@ -707,21 +712,33 @@ func (this *Player) explore_task_start(ids []int32, is_story bool) int32 {
 	return 1
 }
 
-func (this *Player) explore_remove_task(id int32, is_story bool) (has bool) {
-	var role_ids []int32
+func (this *Player) explore_remove_roles(id int32, is_story bool) bool {
+	var ids []int32
+	var has bool
 	if is_story {
-		role_ids, has = this.db.ExploreStorys.GetRoleIds(id)
+		ids, has = this.db.ExploreStorys.GetRoleIds(id)
+		this.db.ExploreStorys.SetRoleIds(id, nil)
+	} else {
+		ids, has = this.db.Explores.GetRoleIds(id)
+		this.db.Explores.SetRoleIds(id, nil)
+	}
+	if has && ids != nil {
+		for _, role_id := range ids {
+			this.db.Roles.SetState(role_id, ROLE_STATE_NONE)
+			this.roles_id_change_info.id_update(role_id)
+		}
+	}
+	return has
+}
+
+func (this *Player) explore_remove_task(id int32, is_story bool) (has bool) {
+	has = this.explore_remove_roles(id, is_story)
+	if is_story {
 		this.db.ExploreStorys.Remove(id)
 	} else {
-		role_ids, has = this.db.Explores.GetRoleIds(id)
 		this.db.Explores.Remove(id)
 	}
 	if has {
-		if role_ids != nil {
-			for _, role_id := range role_ids {
-				this.db.Roles.SetState(role_id, ROLE_STATE_NONE)
-			}
-		}
 		notify := &msg_client_message.S2CExploreRemoveNotify{
 			Id:      id,
 			IsStory: is_story,

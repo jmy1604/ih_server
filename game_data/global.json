@@ -26,13 +26,12 @@
 	"TowerKeyGetInterval": 1800,
 	"TowerKeyId": 8,
 	
-	"ItemLeftSlotOpenLevel": 1,
+	"ItemLeftSlotOpenLevel": 40,
 	"LeftSlotDropId": 200001,
 	
 	"ArenaTicketItemId": 18,
 	"ArenaTicketsDay": 5,
 	"ArenaTicketRefreshTime": "08:00:00",
-	"ArenaEnterLevel": 1,
 	"ArenaGetTopRankNum": 50,
 	"ArenaMatchPlayerNum": 20,
 	"ArenaRepeatedWinNum": 2,
@@ -104,7 +103,6 @@
 	"AnouncementSendMaxNum": 10,
 	"AnouncementExistTime": 10,
 	
-	"GuildOpenLevel": 3,
 	"GuildNameLength": 64,
 	"GuildCreateCostGem": 1000,
 	"GuildChangeNameCostGem": 2000,

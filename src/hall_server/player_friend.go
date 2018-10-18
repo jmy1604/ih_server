@@ -640,6 +640,12 @@ func (this *Player) friend_search_boss_check(now_time int32) (int32, *table_conf
 
 // 搜索BOSS
 func (this *Player) friend_search_boss() int32 {
+	need_level := system_unlock_table_mgr.GetUnlockLevel("FriendBossEnterLevel")
+	if need_level > this.db.Info.GetLvl() {
+		log.Error("Player[%v] level not enough level %v enter friend boss", this.Id, need_level)
+		return -1
+	}
+
 	now_time := int32(time.Now().Unix())
 	res, friend_boss_tdata := this.friend_search_boss_check(now_time)
 	if res < 0 {
@@ -700,6 +706,12 @@ func (this *Player) friend_search_boss() int32 {
 
 // 获得好友BOSS列表
 func (this *Player) get_friends_boss_list() int32 {
+	need_level := system_unlock_table_mgr.GetUnlockLevel("FriendBossEnterLevel")
+	if need_level > this.db.Info.GetLvl() {
+		log.Error("Player[%v] level not enough level %v enter friend boss", this.Id, need_level)
+		return -1
+	}
+
 	friend_ids := this.db.Friends.GetAllIndex()
 	if friend_ids == nil || len(friend_ids) == 0 {
 		log.Error("Player[%v] no friends", this.Id)
@@ -802,6 +814,12 @@ func (this *Player) battle_random_reward_notify(drop_id, drop_num int32) {
 
 // 挑战好友BOSS
 func (this *Player) friend_boss_challenge(friend_id int32) int32 {
+	need_level := system_unlock_table_mgr.GetUnlockLevel("FriendBossEnterLevel")
+	if need_level > this.db.Info.GetLvl() {
+		log.Error("Player[%v] level not enough level %v enter friend boss", this.Id, need_level)
+		return -1
+	}
+
 	if this.sweep_num < 0 || this.sweep_num > global_config.FriendStaminaLimit {
 		return -1
 	}
@@ -967,7 +985,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	return 1
 }
 
-// 获取好友BOSS助战列表
+// 获取好友BOSS攻击记录列表
 func (this *Player) friend_boss_get_attack_list(friend_id int32) int32 {
 	friend := player_mgr.GetPlayerById(friend_id)
 	if friend == nil {
