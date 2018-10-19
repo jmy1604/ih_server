@@ -47,6 +47,11 @@ func main() {
 		go dbc.Loop()
 	}
 
+	if !signal_mgr.Init() {
+		log.Error("signal_mgr init failed")
+		return
+	}
+
 	if nil != dbc.Preload() {
 		log.Error("dbc Preload Failed !!")
 		return
