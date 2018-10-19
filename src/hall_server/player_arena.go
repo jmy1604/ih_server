@@ -189,8 +189,7 @@ func (this *Player) _update_arena_score(data *ArenaRankItem) {
 }
 
 func (this *Player) LoadArenaScore() {
-	defense_team := this.db.BattleTeam.GetDefenseMembers()
-	if defense_team == nil || len(defense_team) == 0 {
+	if this.defense_team_is_empty() {
 		return
 	}
 
@@ -484,6 +483,19 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 	return 1
 }
 
+func (this *Player) defense_team_is_empty() bool {
+	defense_team := this.db.BattleTeam.GetDefenseMembers()
+	if defense_team == nil || len(defense_team) == 0 {
+		return true
+	}
+	for _, d := range defense_team {
+		if d > 0 {
+			return false
+		}
+	}
+	return true
+}
+
 func (this *Player) arena_match() int32 {
 	if this.check_arena_tickets_refresh() > 0 {
 
@@ -493,8 +505,7 @@ func (this *Player) arena_match() int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ARENA_TICKETS_NOT_ENOUGH)
 	}
 
-	defense_team := this.db.BattleTeam.GetDefenseMembers()
-	if defense_team == nil || len(defense_team) == 0 {
+	if this.defense_team_is_empty() {
 		log.Error("Player[%v] must set defense team", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_TEAM_MEMBERS_IS_EMPTY)
 	}
