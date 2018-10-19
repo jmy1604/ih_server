@@ -449,16 +449,14 @@ func register_http_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err_code, data = register_handler(account, password)
+	err_code, data := register_handler(account, password)
 
-	var err_code int32
 	if err_code < 0 {
 		response_error(err_code, w)
 		log.Error("login_http_handler err_code[%v]", err_code)
 		return
 	}
 
-	var data []byte
 	if data == nil {
 		response_error(-1, w)
 		log.Error("cant get response data failed")
