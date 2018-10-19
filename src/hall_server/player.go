@@ -479,12 +479,16 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 		}
 	}
 	// 探索 5
-	id = int(msg_client_message.RED_POINT_EXPLORE)
-	if modules == nil || (len(modules) > id && modules[id] > 0) {
-		if this.db.Explores.has_reward() || this.db.ExploreStorys.has_reward() {
-			states[id] |= 1
+	need_level := system_unlock_table_mgr.GetUnlockLevel("SearchTaskEnterLevel")
+	if need_level <= this.db.Info.GetLvl() {
+		id = int(msg_client_message.RED_POINT_EXPLORE)
+		if modules == nil || (len(modules) > id && modules[id] > 0) {
+			if this.db.Explores.has_reward() || this.db.ExploreStorys.has_reward() {
+				states[id] |= 1
+			}
 		}
 	}
+
 	// 聊天 6
 	id = int(msg_client_message.RED_POINT_CHAT)
 	if modules == nil || (len(modules) > id && modules[id] > 0) {
@@ -512,9 +516,12 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 	id = int(msg_client_message.RED_POINT_FRIEND)
 	if modules == nil || (len(modules) > id && modules[id] > 0) {
 		// 可搜索好友BOSS
-		res, _ := this.friend_search_boss_check(now_time)
-		if res > 0 {
-			states[id] |= 1
+		need_level = system_unlock_table_mgr.GetUnlockLevel("FriendBossEnterLevel")
+		if need_level <= this.db.Info.GetLvl() {
+			res, _ := this.friend_search_boss_check(now_time)
+			if res > 0 {
+				states[id] |= 1
+			}
 		}
 		// 有新好友申请
 		if this.db.FriendAsks.NumAll() > 0 {
