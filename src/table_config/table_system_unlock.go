@@ -9,7 +9,7 @@ import (
 
 type XmlSystemUnlockItem struct {
 	ServerId string `xml:"ServerID,attr"`
-	Level    int32  `xml:"Group,attr"`
+	Level    int32  `xml:"Level,attr"`
 }
 
 type XmlSystemUnlockConfig struct {
