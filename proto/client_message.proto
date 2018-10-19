@@ -289,6 +289,16 @@ message ItemInfo {
 	int32 Value 					= 2; // 物品数目
 }
 
+// ----------------------------------- 注册 ----------------------------------
+message C2SRegisterRequest {
+	string Account					= 1;
+	string Password					= 2;
+}
+
+message S2CRegisterResponse {
+	string Account					= 1;
+}
+
 // 登陆
 message C2SLoginRequest {
 	string Acc 						= 1; // 账号

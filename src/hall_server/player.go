@@ -562,6 +562,7 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 
 	// 判断是否有重复
 	var member_num int32
+	var not_empty bool
 	used_id := make(map[int32]bool)
 	for i := 0; i < len(team); i++ {
 		if team[i] <= 0 {
@@ -579,6 +580,11 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 		}
 		used_id[team[i]] = true
 		member_num += 1
+		not_empty = true
+	}
+
+	if !not_empty {
+		return int32(msg_client_message.E_ERR_PLAYER_TEAM_MEMBERS_IS_EMPTY)
 	}
 
 	if team_type == BATTLE_ATTACK_TEAM || team_type == BATTLE_DEFENSE_TEAM {
