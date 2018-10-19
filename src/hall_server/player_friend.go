@@ -643,7 +643,7 @@ func (this *Player) friend_search_boss() int32 {
 	need_level := system_unlock_table_mgr.GetUnlockLevel("FriendBossEnterLevel")
 	if need_level > this.db.Info.GetLvl() {
 		log.Error("Player[%v] level not enough level %v enter friend boss", this.Id, need_level)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
 	}
 
 	now_time := int32(time.Now().Unix())
@@ -709,7 +709,7 @@ func (this *Player) get_friends_boss_list() int32 {
 	need_level := system_unlock_table_mgr.GetUnlockLevel("FriendBossEnterLevel")
 	if need_level > this.db.Info.GetLvl() {
 		log.Error("Player[%v] level not enough level %v enter friend boss", this.Id, need_level)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
 	}
 
 	friend_ids := this.db.Friends.GetAllIndex()
@@ -817,7 +817,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	need_level := system_unlock_table_mgr.GetUnlockLevel("FriendBossEnterLevel")
 	if need_level > this.db.Info.GetLvl() {
 		log.Error("Player[%v] level not enough level %v enter friend boss", this.Id, need_level)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
 	}
 
 	if this.sweep_num < 0 || this.sweep_num > global_config.FriendStaminaLimit {

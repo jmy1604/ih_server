@@ -323,7 +323,7 @@ func (this *Player) send_explore_data() int32 {
 	need_level := system_unlock_table_mgr.GetUnlockLevel("SearchTaskEnterLevel")
 	if need_level > this.db.Info.GetLvl() {
 		log.Error("Player[%v] level not enough level %v enter explore", this.Id, need_level)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
 	}
 	this.check_explore_tasks_refresh(false)
 	tasks := this.explore_format_tasks()
