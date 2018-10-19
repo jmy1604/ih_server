@@ -991,6 +991,7 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 			}
 			reward_stage_id = boss.StageId
 		}
+		this.explore_remove_roles(id, is_story)
 	} else {
 		this.explore_remove_task(id, is_story)
 
