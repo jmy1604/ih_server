@@ -33,6 +33,11 @@ cd ../_
 if errorlevel 1 goto exit
 
 cd ../proto
+protoc.exe --go_out=./gen_go/db_login/ db_loginsvr.proto
+cd ../_
+if errorlevel 1 goto exit
+
+cd ../proto
 move protoc.exe ../third_party/protobuf
 move protoc-gen-go.exe ../third_party/protobuf
 cd ../_

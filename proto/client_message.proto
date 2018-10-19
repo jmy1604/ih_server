@@ -23,6 +23,11 @@ enum E_ERR {
 	PLAYER_NO_SUCH_HEAD						= -15; // 没有该头像
 	PLAYER_LEVEL_NOT_ENOUGH					= -16; // 等级不够
 	
+	// 账号
+	ACCOUNT_ALREADY_REGISTERED				= -100; // 账号已注册
+	ACCOUNT_IS_INVALID						= -101; // 账号名不合法
+	ACCOUNT_PASSWORD_INVALID				= -102; // 密码不合法
+	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败
 	PLAYER_SET_DEFENSE_MEMBERS_FAILED		= -10001; // 设置防守阵营失败

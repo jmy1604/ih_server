@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -150,6 +151,10 @@ func (this *LoginServer) Shutdown() {
 	this.login_http_listener.Close()
 	center_conn.ShutDown()
 	hall_agent_manager.net.Shutdown()
+
+	dbc.Save(false)
+	dbc.Shutdown()
+
 	log.Trace("关闭游戏主循环耗时 %v 秒", time.Now().Sub(begin).Seconds())
 }
 
@@ -243,6 +248,7 @@ var login_http_mux map[string]func(http.ResponseWriter, *http.Request)
 
 func (this *LoginServer) reg_http_mux() {
 	login_http_mux = make(map[string]func(http.ResponseWriter, *http.Request))
+	login_http_mux["/register"] = register_http_handler
 	login_http_mux["/login"] = login_http_handler
 	login_http_mux["/select_server"] = select_server_http_handler
 }
@@ -274,13 +280,44 @@ type JsonResponseData struct {
 	MsgData []byte // 消息体
 }
 
-func login_handler(account, password string) (err_code int32, resp_data []byte) {
-	/*if has_account_login(account) {
-		err_code = int32(msg_client_message.E_ERR_PLAYER_ALREADY_LOGINED)
-		log.Error("account[%v] already logined", account)
-		return
-	}*/
+func register_handler(account, password string) (err_code int32, resp_data []byte) {
+	if dbc.Accounts.GetRow(account) != nil {
+		log.Error("Account[%v] already exists", account)
+		return int32(msg_client_message.E_ERR_ACCOUNT_ALREADY_REGISTERED), nil
+	}
 
+	var err error
+	if b, err := regexp.MatchString(`^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$`, account); !b {
+		if err != nil {
+			log.Error("account[%v] not valid account, err %v", account, err.Error())
+		} else {
+			log.Error("account[%v] not match", account)
+		}
+		err_code = -1
+		return
+	}
+
+	row := dbc.Accounts.AddRow(account)
+	row.SetPassword(password)
+	row.SetRegisterTime(int32(time.Now().Unix()))
+
+	var response msg_client_message.S2CRegisterResponse = msg_client_message.S2CRegisterResponse{
+		Account: account,
+	}
+	resp_data, err = proto.Marshal(&response)
+	if err != nil {
+		err_code = int32(msg_client_message.E_ERR_INTERNAL)
+		log.Error("login_handler marshal response error: %v", err.Error())
+		return
+	}
+
+	log.Debug("Account[%v] password[%v] registered", account, password)
+
+	err_code = 1
+	return
+}
+
+func login_handler(account, password string) (err_code int32, resp_data []byte) {
 	account_login(account)
 
 	// 验证
@@ -321,14 +358,6 @@ func login_handler(account, password string) (err_code int32, resp_data []byte) 
 }
 
 func select_server_handler(account, token string, server_id int32) (err_code int32, resp_data []byte) {
-	/*var msg msg_client_message.C2SSelectServerRequest
-	err := proto.Unmarshal(req_data, &msg)
-	if err != nil {
-		err_code = int32(msg_client_message.E_ERR_INTERNAL)
-		log.Error("select_server_handler unmarshal proto error: %v", err.Error())
-		return
-	}*/
-
 	acc := get_account(account)
 	if acc == nil {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
@@ -404,6 +433,48 @@ func response_error(err_code int32, w http.ResponseWriter) {
 	w.Write(data)
 }
 
+func register_http_handler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+			return
+		}
+	}()
+
+	account := r.URL.Query().Get("account")
+
+	password := r.URL.Query().Get("password")
+	if password == "" {
+		log.Error("password can not set to empty")
+		return
+	}
+
+	err_code, data = register_handler(account, password)
+
+	var err_code int32
+	if err_code < 0 {
+		response_error(err_code, w)
+		log.Error("login_http_handler err_code[%v]", err_code)
+		return
+	}
+
+	var data []byte
+	if data == nil {
+		response_error(-1, w)
+		log.Error("cant get response data failed")
+		return
+	}
+
+	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_REGISTER_RESPONSE), MsgData: data}
+	var err error
+	data, err = json.Marshal(http_res)
+	if nil != err {
+		log.Error("login_http_handler json mashal error")
+		return
+	}
+	w.Write(data)
+}
+
 func login_http_handler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -433,7 +504,6 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 	var err_code int32
 	var data []byte
 	err_code, data = login_handler(account, password)
-	log.Info("@@@@@@ data = %v", data)
 
 	if err_code < 0 {
 		response_error(err_code, w)

@@ -1,6 +1,7 @@
 {
 	"LoginServerIP":"192.168.1.250:35000",
 	"LogConfigFile":"test_client_tracer.json",
+	"RegisterUrl":"https://%v/register?account=%v&password=%v",
 	"LoginUrl":"https://%v/login?account=%v&password=%v",
 	"SelectServerUrl":"https://%v/select_server?account=%v&token=%v&server_id=%v",
 	"AccountPrefix":"test",

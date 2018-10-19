@@ -8,6 +8,7 @@ import (
 
 var config server_config.LoginServerConfig
 var shutingdown bool
+var dbc DBC
 
 func main() {
 	defer func() {
@@ -36,8 +37,29 @@ func main() {
 		return
 	}
 
+	log.Event("连接数据库", config.MYSQL_NAME, log.Property{"地址", config.MYSQL_IP})
+	err := dbc.Conn(config.MYSQL_NAME, config.MYSQL_IP, config.MYSQL_ACCOUNT, config.MYSQL_PWD, "")
+	if err != nil {
+		log.Error("连接数据库失败 %v", err)
+		return
+	} else {
+		log.Event("连接数据库成功", nil)
+		go dbc.Loop()
+	}
+
+	if nil != dbc.Preload() {
+		log.Error("dbc Preload Failed !!")
+		return
+	} else {
+		log.Info("dbc Preload succeed !!")
+	}
+
 	server = new(LoginServer)
 	if !server.Init() {
+		return
+	}
+
+	if signal_mgr.IfClosing() {
 		return
 	}
 
@@ -48,7 +70,7 @@ func main() {
 	center_conn.Init()
 	go center_conn.Start()
 
-	err := hall_agent_manager.Start()
+	err = hall_agent_manager.Start()
 	if err != nil {
 		return
 	}

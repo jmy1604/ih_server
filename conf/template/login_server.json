@@ -11,5 +11,14 @@
 	"CenterServerIP":"192.168.1.250:30000",
 	"RedisServerIP" : "127.0.0.1:6379",
 	
-	"VERIFY_EXPIRATION": 600
+	"VERIFY_EXPIRATION": 600,
+	
+	"MYSQL_IP":"127.0.0.1:3306",
+	"MYSQL_ACCOUNT":"root",
+	"MYSQL_PWD":"",
+	"MYSQL_NAME":"ih_login_server",
+	"DBCST_MIN":300,
+	"DBCST_MAX":350,
+	"DBPM_MIN":0,
+	"DBPM_MAX":10000
 }
