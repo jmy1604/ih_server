@@ -293,7 +293,12 @@ func register_handler(account, password string) (err_code int32, resp_data []byt
 		} else {
 			log.Error("account[%v] not match", account)
 		}
-		err_code = -1
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_IS_INVALID)
+		return
+	}
+
+	if password == "" {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_PASSWORD_INVALID)
 		return
 	}
 
