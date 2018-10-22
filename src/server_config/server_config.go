@@ -67,6 +67,7 @@ type LoginServerConfig struct {
 	LogConfigFile      string // 日志配置文件
 	CenterServerIP     string // 连接AssistServer
 	RedisServerIP      string // 连接redis
+	VerifyAccount      bool   // 验证账号
 
 	MYSQL_IP      string
 	MYSQL_ACCOUNT string

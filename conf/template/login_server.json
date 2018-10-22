@@ -11,6 +11,7 @@
 	"CenterServerIP":"192.168.1.250:30000",
 	"RedisServerIP" : "127.0.0.1:6379",
 	
+	"VerifyAccount": false,
 	"VERIFY_EXPIRATION": 600,
 	
 	"MYSQL_IP":"127.0.0.1:3306",
