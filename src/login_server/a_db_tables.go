@@ -268,6 +268,18 @@ func (this *dbAccountRow)SetRegisterTime(v int32){
 	this.m_RegisterTime_changed=true
 	return
 }
+func (this *dbAccountRow)GetChannel( )(r string ){
+	this.m_lock.UnSafeRLock("dbAccountRow.GetdbAccountChannelColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_Channel)
+}
+func (this *dbAccountRow)SetChannel(v string){
+	this.m_lock.UnSafeLock("dbAccountRow.SetdbAccountChannelColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_Channel=string(v)
+	this.m_Channel_changed=true
+	return
+}
 type dbAccountRow struct {
 	m_table *dbAccountTable
 	m_lock       *RWMutex
@@ -282,6 +294,8 @@ type dbAccountRow struct {
 	m_Password string
 	m_RegisterTime_changed bool
 	m_RegisterTime int32
+	m_Channel_changed bool
+	m_Channel string
 }
 func new_dbAccountRow(table *dbAccountTable, AccountId string) (r *dbAccountRow) {
 	this := &dbAccountRow{}
@@ -290,6 +304,7 @@ func new_dbAccountRow(table *dbAccountTable, AccountId string) (r *dbAccountRow)
 	this.m_lock = NewRWMutex()
 	this.m_Password_changed=true
 	this.m_RegisterTime_changed=true
+	this.m_Channel_changed=true
 	return this
 }
 func (this *dbAccountRow) GetAccountId() (r string) {
@@ -299,16 +314,17 @@ func (this *dbAccountRow) save_data(release bool) (err error, released bool, sta
 	this.m_lock.UnSafeLock("dbAccountRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(3)
+		db_args:=new_db_args(4)
 		db_args.Push(this.m_AccountId)
 		db_args.Push(this.m_Password)
 		db_args.Push(this.m_RegisterTime)
+		db_args.Push(this.m_Channel)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Password_changed||this.m_RegisterTime_changed{
+		if this.m_Password_changed||this.m_RegisterTime_changed||this.m_Channel_changed{
 			update_string = "UPDATE Accounts SET "
-			db_args:=new_db_args(3)
+			db_args:=new_db_args(4)
 			if this.m_Password_changed{
 				update_string+="Password=?,"
 				db_args.Push(this.m_Password)
@@ -316,6 +332,10 @@ func (this *dbAccountRow) save_data(release bool) (err error, released bool, sta
 			if this.m_RegisterTime_changed{
 				update_string+="RegisterTime=?,"
 				db_args.Push(this.m_RegisterTime)
+			}
+			if this.m_Channel_changed{
+				update_string+="Channel=?,"
+				db_args.Push(this.m_Channel)
 			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE AccountId=?"
@@ -327,6 +347,7 @@ func (this *dbAccountRow) save_data(release bool) (err error, released bool, sta
 	this.m_new = false
 	this.m_Password_changed = false
 	this.m_RegisterTime_changed = false
+	this.m_Channel_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -442,10 +463,18 @@ func (this *dbAccountTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasChannel := columns["Channel"]
+	if !hasChannel {
+		_, err = this.m_dbc.Exec("ALTER TABLE Accounts ADD COLUMN Channel varchar(45) DEFAULT ''")
+		if err != nil {
+			log.Error("ADD COLUMN Channel failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbAccountTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT AccountId,Password,RegisterTime FROM Accounts")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT AccountId,Password,RegisterTime,Channel FROM Accounts")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -453,7 +482,7 @@ func (this *dbAccountTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbAccountTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Accounts (AccountId,Password,RegisterTime) VALUES (?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Accounts (AccountId,Password,RegisterTime,Channel) VALUES (?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -500,8 +529,9 @@ func (this *dbAccountTable) Preload() (err error) {
 	var AccountId string
 	var dPassword string
 	var dRegisterTime int32
+	var dChannel string
 	for r.Next() {
-		err = r.Scan(&AccountId,&dPassword,&dRegisterTime)
+		err = r.Scan(&AccountId,&dPassword,&dRegisterTime,&dChannel)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -509,8 +539,10 @@ func (this *dbAccountTable) Preload() (err error) {
 		row := new_dbAccountRow(this,AccountId)
 		row.m_Password=dPassword
 		row.m_RegisterTime=dRegisterTime
+		row.m_Channel=dChannel
 		row.m_Password_changed=false
 		row.m_RegisterTime_changed=false
+		row.m_Channel_changed=false
 		row.m_valid = true
 		this.m_rows[AccountId]=row
 	}

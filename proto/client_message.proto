@@ -27,6 +27,10 @@ enum E_ERR {
 	ACCOUNT_ALREADY_REGISTERED				= -100; // 账号已注册
 	ACCOUNT_IS_INVALID						= -101; // 账号名不合法
 	ACCOUNT_PASSWORD_INVALID				= -102; // 密码不合法
+	ACCOUNT_NOT_REGISTERED					= -103; // 账号未注册
+	ACCOUNT_NOT_GUEST						= -104; // 不是游客账号
+	ACCOUNT_NEW_BIND_ALREADY_EXISTS			= -105; // 新绑定账号已存在
+	ACCOUNT_NAME_MUST_DIFFRENT_TO_OLD		= -106; // 游客新绑定账号不能跟原来相同
 	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败
@@ -294,21 +298,40 @@ message ItemInfo {
 	int32 Value 					= 2; // 物品数目
 }
 
-// ----------------------------------- 注册 ----------------------------------
+// ----------------------------------- 账号 ----------------------------------
+
+// 注册
 message C2SRegisterRequest {
-	string Account					= 1;
-	string Password					= 2;
+	string Account					= 1; // 账号
+	string Password					= 2; // 密码
+	bool IsGuest					= 3; // 是否游客
 }
 
 message S2CRegisterResponse {
-	string Account					= 1;
+	string Account					= 1; // 账号
+	string Password					= 2; // 密码
+	bool IsGuest					= 3; // 是否游客
+}
+
+// 游客绑定新账号
+message C2SGuestBindNewAccountRequest {
+	string Account					= 1; // 旧帐号
+	string Password					= 2; // 旧密码
+	string NewAccount				= 3; // 新账号
+	string NewPassword				= 4; // 新密码
+}
+
+message S2CGuestBindNewAccountResponse {
+	string Account					= 1; // 旧帐号
+	string NewAccount				= 2; // 新账号
+	string NewPassword				= 3; // 新密码
 }
 
 // 登陆
 message C2SLoginRequest {
 	string Acc 						= 1; // 账号
 	string Password					= 2; // 密码
-	string Channel 					= 3; // 渠道
+	string Channel 					= 3; // 渠道    目前三种情况，跟服务器设置是否验证账号有关  1. 空表示不需要渠道   2. "guest"表示游客登陆   3. "facebook" 表示facebook账号登陆
 }
 // 服务器信息
 message ServerInfo {
@@ -321,6 +344,7 @@ message S2CLoginResponse {
 	string Acc 						= 1; // 账号
 	string Token 					= 2; // 令牌
 	repeated ServerInfo Servers 	= 3; // 服务器列表, key是服务器ID
+	string Channel					= 4; // 渠道
 }
 /// 其它地方登录
 message S2COtherPlaceLogin {

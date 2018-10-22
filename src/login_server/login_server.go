@@ -249,6 +249,7 @@ var login_http_mux map[string]func(http.ResponseWriter, *http.Request)
 func (this *LoginServer) reg_http_mux() {
 	login_http_mux = make(map[string]func(http.ResponseWriter, *http.Request))
 	login_http_mux["/register"] = register_http_handler
+	login_http_mux["/bind_new_account"] = bind_new_account_http_handler
 	login_http_mux["/login"] = login_http_handler
 	login_http_mux["/select_server"] = select_server_http_handler
 }
@@ -280,13 +281,7 @@ type JsonResponseData struct {
 	MsgData []byte // 消息体
 }
 
-func register_handler(account, password string) (err_code int32, resp_data []byte) {
-	if dbc.Accounts.GetRow(account) != nil {
-		log.Error("Account[%v] already exists", account)
-		return int32(msg_client_message.E_ERR_ACCOUNT_ALREADY_REGISTERED), nil
-	}
-
-	var err error
+func _check_register(account, password string) (err_code int32) {
 	if b, err := regexp.MatchString(`^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$`, account); !b {
 		if err != nil {
 			log.Error("account[%v] not valid account, err %v", account, err.Error())
@@ -302,13 +297,37 @@ func register_handler(account, password string) (err_code int32, resp_data []byt
 		return
 	}
 
+	err_code = 1
+	return
+}
+
+func register_handler(account, password string, is_guest bool) (err_code int32, resp_data []byte) {
+	if dbc.Accounts.GetRow(account) != nil {
+		log.Error("Account[%v] already exists", account)
+		return int32(msg_client_message.E_ERR_ACCOUNT_ALREADY_REGISTERED), nil
+	}
+
+	if !is_guest {
+		err_code = _check_register(account, password)
+		if err_code < 0 {
+			return
+		}
+	}
+
 	row := dbc.Accounts.AddRow(account)
 	row.SetPassword(password)
 	row.SetRegisterTime(int32(time.Now().Unix()))
+	if is_guest {
+		row.SetChannel("guest")
+	}
 
 	var response msg_client_message.S2CRegisterResponse = msg_client_message.S2CRegisterResponse{
-		Account: account,
+		Account:  account,
+		Password: password,
+		IsGuest:  is_guest,
 	}
+
+	var err error
 	resp_data, err = proto.Marshal(&response)
 	if err != nil {
 		err_code = int32(msg_client_message.E_ERR_INTERNAL)
@@ -322,19 +341,85 @@ func register_handler(account, password string) (err_code int32, resp_data []byt
 	return
 }
 
-func login_handler(account, password string) (err_code int32, resp_data []byte) {
-	if config.VerifyAccount {
-		acc_row := dbc.Accounts.GetRow(account)
-		if acc_row == nil {
-			err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
-			log.Error("Account %v not exist", account)
-			return
-		}
+func bind_new_account_handler(account, password, new_account, new_password string) (err_code int32, resp_data []byte) {
+	if account == new_account {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NAME_MUST_DIFFRENT_TO_OLD)
+		log.Error("Account %v can not bind same new account", account)
+		return
+	}
 
-		if acc_row.GetPassword() != password {
-			err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
-			log.Error("Account %v password %v invalid", account, password)
-			return
+	row := dbc.Accounts.GetRow(account)
+	if row == nil {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NOT_REGISTERED)
+		log.Error("Account %v not registered, cant bind new account", account)
+		return
+	}
+
+	if row.GetChannel() != "guest" {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NOT_GUEST)
+		log.Error("Account %v not guest", account)
+		return
+	}
+
+	if dbc.Accounts.GetRow(new_account) != nil {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NEW_BIND_ALREADY_EXISTS)
+		log.Error("New Account %v to bind already exists", new_account)
+		return
+	}
+
+	err_code = _check_register(new_account, new_password)
+	if err_code < 0 {
+		return
+	}
+
+	register_time := row.GetRegisterTime()
+	row = dbc.Accounts.AddRow(new_account)
+	if row == nil {
+		err_code = -1
+		log.Error("Account %v bind new account %v database error", account, new_account)
+		return
+	}
+
+	row.SetPassword(new_password)
+	row.SetRegisterTime(register_time)
+	dbc.Accounts.RemoveRow(account)
+
+	response := &msg_client_message.S2CGuestBindNewAccountResponse{
+		Account:     account,
+		NewAccount:  new_account,
+		NewPassword: new_password,
+	}
+
+	var err error
+	resp_data, err = proto.Marshal(response)
+	if err != nil {
+		err_code = int32(msg_client_message.E_ERR_INTERNAL)
+		log.Error("login_handler marshal response error: %v", err.Error())
+		return
+	}
+
+	log.Debug("Account[%v] bind new account[%v]", account, new_account)
+	err_code = 1
+	return
+}
+
+func login_handler(account, password, channel string) (err_code int32, resp_data []byte) {
+	if config.VerifyAccount {
+		if channel == "" || channel == "guest" {
+			acc_row := dbc.Accounts.GetRow(account)
+			if acc_row == nil {
+				err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
+				log.Error("Account %v not exist", account)
+				return
+			}
+
+			if acc_row.GetPassword() != password {
+				err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
+				log.Error("Account %v password %v invalid", account, password)
+				return
+			}
+		} else if channel == "facebook" {
+
 		}
 	}
 
@@ -465,11 +550,25 @@ func register_http_handler(w http.ResponseWriter, r *http.Request) {
 
 	password := r.URL.Query().Get("password")
 	if password == "" {
+		response_error(-1, w)
 		log.Error("password can not set to empty")
 		return
 	}
 
-	err_code, data := register_handler(account, password)
+	is_guest := r.URL.Query().Get("is_guest")
+	ig, err := strconv.Atoi(is_guest)
+	if err != nil {
+		response_error(-1, w)
+		log.Error("is_guest %v set invalid", is_guest)
+		return
+	}
+
+	err_code, data := register_handler(account, password, func() bool {
+		if ig > 0 {
+			return true
+		}
+		return false
+	}())
 
 	if err_code < 0 {
 		response_error(err_code, w)
@@ -484,6 +583,50 @@ func register_http_handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_REGISTER_RESPONSE), MsgData: data}
+	data, err = json.Marshal(http_res)
+	if nil != err {
+		log.Error("login_http_handler json mashal error")
+		return
+	}
+	w.Write(data)
+
+	log.Debug("New account %v registered, is_guest %v", account, is_guest)
+}
+
+func bind_new_account_http_handler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+			return
+		}
+	}()
+
+	account := r.URL.Query().Get("account")
+
+	password := r.URL.Query().Get("password")
+	if password == "" {
+		response_error(-1, w)
+		log.Error("password can not set to empty")
+		return
+	}
+
+	new_account := r.URL.Query().Get("new_account")
+	new_password := r.URL.Query().Get("new_password")
+
+	err_code, data := bind_new_account_handler(account, password, new_account, new_password)
+	if err_code < 0 {
+		response_error(err_code, w)
+		log.Error("login_http_handler err_code[%v]", err_code)
+		return
+	}
+
+	if data == nil {
+		response_error(-1, w)
+		log.Error("cant get response data failed")
+		return
+	}
+
+	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE), MsgData: data}
 	var err error
 	data, err = json.Marshal(http_res)
 	if nil != err {
@@ -491,6 +634,8 @@ func register_http_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
+
+	log.Debug("Account %v bind new account %v", account, new_account)
 }
 
 func login_http_handler(w http.ResponseWriter, r *http.Request) {
@@ -512,11 +657,14 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 	// password
 	password := r.URL.Query().Get("password")
 
-	log.Debug("account: %v, password: %v", account, password)
+	// channel
+	channel := r.URL.Query().Get("channel")
+
+	log.Debug("account: %v, password: %v, channel: %v", account, password, channel)
 
 	var err_code int32
 	var data []byte
-	err_code, data = login_handler(account, password)
+	err_code, data = login_handler(account, password, channel)
 
 	if err_code < 0 {
 		response_error(err_code, w)
@@ -538,7 +686,7 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
-
+	log.Debug("Account %v logined, channel %v", account, channel)
 }
 
 func select_server_http_handler(w http.ResponseWriter, r *http.Request) {
@@ -581,22 +729,6 @@ func select_server_http_handler(w http.ResponseWriter, r *http.Request) {
 	var err_code int32
 	var data []byte
 	err_code, data = select_server_handler(account, token, int32(server_id))
-
-	/*res_2c := &msg_server_message.L2CGetPlayerAccInfo{}
-	res_2c.Account = account
-	center_conn.Send(uint16(msg_server_message.MSGID_L2C_GET_PLAYER_ACC_INFO), res_2c)
-
-	log.Info("login_http_handler account(%s)", account)
-	new_c_wait := &WaitCenterInfo{}
-	new_c_wait.res_chan = make(chan *msg_server_message.C2LPlayerAccInfo)
-	new_c_wait.create_time = int32(time.Now().Unix())
-	server.add_to_c_wait(account, new_c_wait)
-
-	c2l_res, ok := <-new_c_wait.res_chan
-	if !ok || nil == c2l_res {
-		log.Error("login_http_handler wait chan failed", ok)
-		return
-	}*/
 
 	if err_code < 0 {
 		response_error(err_code, w)

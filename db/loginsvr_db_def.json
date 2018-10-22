@@ -37,6 +37,18 @@
 					"AutoIndex":false,
 					"DefaultValue":0,
 					"Fields":[]
+				},
+				{
+					"ColumnName":"Channel",
+					"DBColumnName":"Channel",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[]
 				}
 			]
 		}

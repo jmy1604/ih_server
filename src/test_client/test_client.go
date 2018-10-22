@@ -137,9 +137,9 @@ func get_res(url string) []byte {
 	return nil
 }
 
-func register_func(account, password string) {
-	url_str := fmt.Sprintf(config.RegisterUrl, config.LoginServerIP, account, password)
-	log.Debug("Register Url %s,  account %s,  password %s", url_str, account, password)
+func register_func(account, password string, is_guest int32) {
+	url_str := fmt.Sprintf(config.RegisterUrl, config.LoginServerIP, account, password, is_guest)
+	log.Debug("Register Url %s,  account %s,  password %s,  is_guest %s", url_str, account, password, is_guest)
 
 	var resp *http.Response
 	var err error
@@ -157,13 +157,14 @@ func register_func(account, password string) {
 		return
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
+	var data []byte
+	data, err = ioutil.ReadAll(resp.Body)
 	if nil != err {
 		log.Error("register ioutil readall failed err(%s) !", err.Error())
 		return
 	}
 
-	log.Debug("login result data: %v", data)
+	log.Debug("register result data: %v", data)
 
 	res := &JsonResponseData{}
 	err = json.Unmarshal(data, res)
@@ -192,8 +193,64 @@ func register_func(account, password string) {
 	log.Debug("Account[%v] registered, password is %v", account, password)
 }
 
-func login_func(account, password string) {
-	url_str := fmt.Sprintf(config.LoginUrl, config.LoginServerIP, account, password)
+func bind_new_account_func(account, password, new_account, new_password string) {
+	url_str := fmt.Sprintf(config.BindNewAccountUrl, config.LoginServerIP, account, password, new_account, new_password)
+	log.Debug("Bind New Account Url %s,  account %s,  password %s,  new_account %s,  new_password %s", url_str, account, password, new_account, new_password)
+
+	var resp *http.Response
+	var err error
+	if config.UseHttps {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := &http.Client{Transport: tr}
+		resp, err = client.Get(url_str)
+	} else {
+		resp, err = http.Get(url_str)
+	}
+	if nil != err {
+		log.Error("register http get err (%s)", err.Error())
+		return
+	}
+
+	var data []byte
+	data, err = ioutil.ReadAll(resp.Body)
+	if nil != err {
+		log.Error("register ioutil readall failed err(%s) !", err.Error())
+		return
+	}
+
+	log.Debug("bind result data: %v", data)
+
+	res := &JsonResponseData{}
+	err = json.Unmarshal(data, res)
+	if nil != err {
+		log.Error("login ummarshal failed err(%s)", err.Error())
+		return
+	}
+
+	if res.Code < 0 {
+		log.Warn("return error_code[%v]", res.Code)
+		return
+	}
+
+	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE) {
+		log.Warn("returned msg_id[%v] is not correct")
+		return
+	}
+
+	var msg msg_client_message.S2CGuestBindNewAccountResponse
+	err = proto.Unmarshal(res.MsgData, &msg)
+	if err != nil {
+		log.Error("unmarshal error[%v]", err.Error())
+		return
+	}
+
+	log.Debug("Account[%v] bind new account %v, password is %v", msg.Account, msg.NewAccount, msg.NewPassword)
+}
+
+func login_func(account, password, channel string) {
+	url_str := fmt.Sprintf(config.LoginUrl, config.LoginServerIP, account, password, channel)
 	log.Debug("login Url str %s", url_str)
 
 	var resp *http.Response
@@ -312,10 +369,17 @@ func select_server_func(account string, token string, server_id int32) {
 
 func (this *TestClient) cmd_register(use_https bool) {
 	fmt.Printf("请输入账号: ")
-	var acc, pwd string
+	var acc, pwd, is_guest string
 	fmt.Scanf("%s\n", &acc)
 	fmt.Printf("请输入密码: ")
 	fmt.Scanf("%s\n", &pwd)
+	fmt.Printf("是否游客: y/n? ")
+	fmt.Scanf("%s\n", &is_guest)
+
+	var ig int32
+	if is_guest == "y" || is_guest == "Y" || is_guest == "" {
+		ig = 1
+	}
 
 	if config.AccountNum == 0 {
 		config.AccountNum = 1
@@ -327,7 +391,7 @@ func (this *TestClient) cmd_register(use_https bool) {
 			account = fmt.Sprintf("%v_%s", acc, i)
 		}
 
-		register_func(acc, pwd)
+		register_func(acc, pwd, ig)
 
 		if config.AccountNum > 1 {
 			log.Debug("Account[%v] registered, total count %v", account, i+1)
@@ -335,12 +399,37 @@ func (this *TestClient) cmd_register(use_https bool) {
 	}
 }
 
+func (this *TestClient) cmd_bind_new_account(use_https bool) {
+	var account, password, new_account, new_password string
+	fmt.Printf("输入旧帐号: ")
+	fmt.Scanf("%s\n", &account)
+	fmt.Printf("输入旧密码: ")
+	fmt.Scanf("%s\n", &password)
+	fmt.Printf("输入新账号: ")
+	fmt.Scanf("%s\n", &new_account)
+	fmt.Printf("输入新密码: ")
+	fmt.Scanf("%s\n", &new_password)
+
+	for i := int32(0); i < config.AccountNum; i++ {
+		acc := account
+		if config.AccountNum > 1 {
+			acc = fmt.Sprintf("%v_%s", acc, i)
+		}
+		bind_new_account_func(account, password, new_account, new_password)
+		if config.AccountNum > 1 {
+			log.Debug("Account[%v] bind new account %v, total count %v", account, new_account, i+1)
+		}
+	}
+}
+
 func (this *TestClient) cmd_login(use_https bool) {
-	var acc, pwd string
+	var acc, pwd, chl string
 	fmt.Printf("请输入账号: ")
 	fmt.Scanf("%s\n", &acc)
 	fmt.Printf("请输入密码: ")
 	fmt.Scanf("%s\n", &pwd)
+	fmt.Printf("请输入渠道: ")
+	fmt.Scanf("%s\n", &chl)
 	cur_hall_conn = hall_conn_mgr.GetHallConnByAcc(acc)
 	if nil != cur_hall_conn && cur_hall_conn.blogin {
 		log.Info("[%s] already login", acc)
@@ -356,7 +445,7 @@ func (this *TestClient) cmd_login(use_https bool) {
 			account = fmt.Sprintf("%s_%v", acc, i)
 		}
 
-		login_func(account, pwd)
+		login_func(account, pwd, chl)
 
 		if config.AccountNum > 1 {
 			log.Debug("Account[%v] logined, total count[%v]", account, i+1)
@@ -375,6 +464,10 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 		case "register":
 			{
 				this.cmd_register(true)
+			}
+		case "bind_new_account":
+			{
+				this.cmd_bind_new_account(true)
 			}
 		case "login":
 			{

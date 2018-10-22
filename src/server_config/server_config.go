@@ -142,6 +142,7 @@ type TestClientConfig struct {
 	LoginServerIP     string
 	LogConfigFile     string
 	RegisterUrl       string
+	BindNewAccountUrl string
 	LoginUrl          string
 	SelectServerUrl   string
 	AccountPrefix     string

@@ -12,6 +12,8 @@ enum MSGID {
 	
 	C2S_REGISTER_REQUEST					= 1000; // 注册账号 C2SRegisterRequest
 	S2C_REGISTER_RESPONSE					= 1001; // 注册返回 S2CRegisterResponse
+	C2S_GUEST_BIND_NEW_ACCOUNT_REQUEST		= 1002; // 游客绑定新账号 C2SGuestBindNewAccountRequest
+	S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE		= 1003; // 游客绑定新账号返回 S2CGuestBindNewAccountResponse
 	
 	C2S_LOGIN_REQUEST 						= 10000; // 登陆请求 C2SLoginRequest
 	S2C_LOGIN_RESPONSE 						= 10001; // 登陆请求返回  S2CLoginResponse
