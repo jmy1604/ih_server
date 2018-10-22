@@ -3,13 +3,13 @@
      <item ID="1" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="2" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="3" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
-     <item ID="4" ItemType="3" EquipType="0" SellReward="" Quality="2" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
-     <item ID="5" ItemType="3" EquipType="0" SellReward="" Quality="2" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
-     <item ID="6" ItemType="3" EquipType="0" SellReward="" Quality="2" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="4" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="5" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="6" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="7" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="8" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="9" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
-     <item ID="10" ItemType="3" EquipType="0" SellReward="" Quality="1" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="10" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="11" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="12" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="13" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
