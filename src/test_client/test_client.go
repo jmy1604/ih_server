@@ -192,8 +192,8 @@ func register_func(account, password string) {
 	log.Debug("Account[%v] registered, password is %v", account, password)
 }
 
-func login_func(account string) {
-	url_str := fmt.Sprintf(config.LoginUrl, config.LoginServerIP, account, "")
+func login_func(account, password string) {
+	url_str := fmt.Sprintf(config.LoginUrl, config.LoginServerIP, account, password)
 	log.Debug("login Url str %s", url_str)
 
 	var resp *http.Response
@@ -336,9 +336,11 @@ func (this *TestClient) cmd_register(use_https bool) {
 }
 
 func (this *TestClient) cmd_login(use_https bool) {
-	var acc string
-	fmt.Printf("请输入账号：")
+	var acc, pwd string
+	fmt.Printf("请输入账号: ")
 	fmt.Scanf("%s\n", &acc)
+	fmt.Printf("请输入密码: ")
+	fmt.Scanf("%s\n", &pwd)
 	cur_hall_conn = hall_conn_mgr.GetHallConnByAcc(acc)
 	if nil != cur_hall_conn && cur_hall_conn.blogin {
 		log.Info("[%s] already login", acc)
@@ -354,7 +356,7 @@ func (this *TestClient) cmd_login(use_https bool) {
 			account = fmt.Sprintf("%s_%v", acc, i)
 		}
 
-		login_func(account)
+		login_func(account, pwd)
 
 		if config.AccountNum > 1 {
 			log.Debug("Account[%v] logined, total count[%v]", account, i+1)

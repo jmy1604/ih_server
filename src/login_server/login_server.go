@@ -323,6 +323,21 @@ func register_handler(account, password string) (err_code int32, resp_data []byt
 }
 
 func login_handler(account, password string) (err_code int32, resp_data []byte) {
+	if config.VerifyAccount {
+		acc_row := dbc.Accounts.GetRow(account)
+		if acc_row == nil {
+			err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
+			log.Error("Account %v not exist", account)
+			return
+		}
+
+		if acc_row.GetPassword() != password {
+			err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
+			log.Error("Account %v password %v invalid", account, password)
+			return
+		}
+	}
+
 	account_login(account)
 
 	// 验证
@@ -496,11 +511,6 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 
 	// password
 	password := r.URL.Query().Get("password")
-	/*if "" == password {
-		response_error(int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR), w)
-		log.Error("login_http_handler msg_data is empty")
-		return
-	}*/
 
 	log.Debug("account: %v, password: %v", account, password)
 
