@@ -798,6 +798,7 @@ message S2CRoleFusionResponse {
 	int32 NewCardId							= 1; // 生成的新卡，配置ID
 	int32 RoleId							= 2; // 新卡的角色ID
 	repeated ItemInfo GetItems				= 3; // 返还的资源
+	int32 FusionId							= 4; // 合成ID
 }
 
 // 请求锁定角色
