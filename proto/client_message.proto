@@ -294,57 +294,57 @@ message C2S_TEST_COMMAND {
 
 // 物品
 message ItemInfo {
-	int32 Id 						= 1; // 配置物品
-	int32 Value 					= 2; // 物品数目
+	int32 Id 								= 1; // 配置物品
+	int32 Value 							= 2; // 物品数目
 }
 
 // ----------------------------------- 账号 ----------------------------------
 
 // 注册
 message C2SRegisterRequest {
-	string Account					= 1; // 账号
-	string Password					= 2; // 密码
-	bool IsGuest					= 3; // 是否游客
+	string Account							= 1; // 账号
+	string Password							= 2; // 密码
+	bool IsGuest							= 3; // 是否游客
 }
 
 message S2CRegisterResponse {
-	string Account					= 1; // 账号
-	string Password					= 2; // 密码
-	bool IsGuest					= 3; // 是否游客
+	string Account							= 1; // 账号
+	string Password							= 2; // 密码
+	bool IsGuest							= 3; // 是否游客
 }
 
 // 游客绑定新账号
 message C2SGuestBindNewAccountRequest {
-	string Account					= 1; // 旧帐号
-	string Password					= 2; // 旧密码
-	string NewAccount				= 3; // 新账号
-	string NewPassword				= 4; // 新密码
+	string Account							= 1; // 旧帐号
+	string Password							= 2; // 旧密码
+	string NewAccount						= 3; // 新账号
+	string NewPassword						= 4; // 新密码
 }
 
 message S2CGuestBindNewAccountResponse {
-	string Account					= 1; // 旧帐号
-	string NewAccount				= 2; // 新账号
-	string NewPassword				= 3; // 新密码
+	string Account							= 1; // 旧帐号
+	string NewAccount						= 2; // 新账号
+	string NewPassword						= 3; // 新密码
 }
 
 // 登陆
 message C2SLoginRequest {
-	string Acc 						= 1; // 账号
-	string Password					= 2; // 密码
-	string Channel 					= 3; // 渠道    目前三种情况，跟服务器设置是否验证账号有关  1. 空表示不需要渠道   2. "guest"表示游客登陆   3. "facebook" 表示facebook账号登陆
+	string Acc 								= 1; // 账号
+	string Password							= 2; // 密码
+	string Channel 							= 3; // 渠道    目前三种情况，跟服务器设置是否验证账号有关  1. 空表示不需要渠道   2. "guest"表示游客登陆   3. "facebook" 表示facebook账号登陆
 }
 // 服务器信息
 message ServerInfo {
-	int32 Id 						= 1;
-	string Name						= 2;
-	string IP						= 3;
+	int32 Id 								= 1;
+	string Name								= 2;
+	string IP								= 3;
 }
 // 登陆返回
 message S2CLoginResponse {
-	string Acc 						= 1; // 账号
-	string Token 					= 2; // 令牌
-	repeated ServerInfo Servers 	= 3; // 服务器列表, key是服务器ID
-	string Channel					= 4; // 渠道
+	string Acc 								= 1; // 账号
+	string Token 							= 2; // 令牌
+	repeated ServerInfo Servers 			= 3; // 服务器列表, key是服务器ID
+	string Channel							= 4; // 渠道
 }
 /// 其它地方登录
 message S2COtherPlaceLogin {
@@ -352,44 +352,44 @@ message S2COtherPlaceLogin {
 
 // 选择服务器
 message C2SSelectServerRequest {
-	string Acc						= 1; // 账号
-	string Token					= 2; // 令牌
-	int32 ServerId					= 3; // 服务器ID
+	string Acc								= 1; // 账号
+	string Token							= 2; // 令牌
+	int32 ServerId							= 3; // 服务器ID
 }
 // 选择服务器返回
 message S2CSelectServerResponse {
-	string Acc						= 1; // 账号
-	string Token					= 2; // 进入游戏服务器的令牌
-	string IP						= 3; // 游戏服务器地址
+	string Acc								= 1; // 账号
+	string Token							= 2; // 进入游戏服务器的令牌
+	string IP								= 3; // 游戏服务器地址
 }
 
 ///////////////////////////////////start///////////////////////////////////////
 
 message C2S_MSG_DATA {
-	int32 PlayerId 					= 1; // 玩家ID		
-	string Token 					= 2; // 令牌
-	int32 MsgCode 					= 3; // 消息ID
-	bytes Data 						= 4; // 消息数据
+	int32 PlayerId 							= 1; // 玩家ID		
+	string Token 							= 2; // 令牌
+	int32 MsgCode 							= 3; // 消息ID
+	bytes Data 								= 4; // 消息数据
 }
 
 message S2C_MSG_DATA {
-	int32 ErrorCode 				= 1; // 错误码
-	string ErrorMsg 				= 2; // 错误字符串
-	bytes Data 						= 3; // 数据
-	int32 CurrMsgNum				= 4; // 当前的消息序号
+	int32 ErrorCode 						= 1; // 错误码
+	string ErrorMsg 						= 2; // 错误字符串
+	bytes Data 								= 3; // 数据
+	int32 CurrMsgNum						= 4; // 当前的消息序号
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 // 进入游戏服务器
 message C2SEnterGameRequest {
-	string Acc						= 1;
-	string Token					= 2;
+	string Acc								= 1;
+	string Token							= 2;
 }
 // 返回
 message S2CEnterGameResponse {
-	string Acc						= 1;
-	int32 PlayerId					= 2;
+	string Acc								= 1;
+	int32 PlayerId							= 2;
 }
 // 通知客户端进入游戏服务器完成
 message S2CEnterGameCompleteNotify {
@@ -404,35 +404,35 @@ message S2CLeaveGameResponse {
 
 // 玩家信息
 message S2CPlayerInfoResponse {
-	int32 Level 					= 1; // 等级
-	int32 Exp						= 2; // 经验
-	int32 Gold						= 3; // 金币
-	int32 Diamond					= 4; // 钻石
-	int32 Icon						= 5; // 头像
-	int32 VipLevel					= 6; // VIP等级
-	string Name						= 7; // 昵称
-	int32 SysTime					= 8; // 系统时间
-	int32 GuildId					= 9; // 公会ID
-	string GuildName				= 10; // 公会名
-	int32 GuildLogo					= 11; // 公会logo
+	int32 Level 							= 1; // 等级
+	int32 Exp								= 2; // 经验
+	int32 Gold								= 3; // 金币
+	int32 Diamond							= 4; // 钻石
+	int32 Icon								= 5; // 头像
+	int32 VipLevel							= 6; // VIP等级
+	string Name								= 7; // 昵称
+	int32 SysTime							= 8; // 系统时间
+	int32 GuildId							= 9; // 公会ID
+	string GuildName						= 10; // 公会名
+	int32 GuildLogo							= 11; // 公会logo
 }
 
 // 改名
 message C2SPlayerChangeNameRequest {
-	string NewName					= 1;
+	string NewName							= 1;
 }
 
 message S2CPlayerChangeNameResponse {
-	string NewName					= 1;
+	string NewName							= 1;
 }
 
 // 换头像
 message C2SPlayerChangeHeadRequest {
-	int32 NewHead					= 1;
+	int32 NewHead							= 1;
 }
 
 message S2CPlayerChangeHeadResponse {
-	int32 NewHead					= 1;
+	int32 NewHead							= 1;
 }
 
 //----------------------------------- 战斗 -----------------------------------
@@ -717,40 +717,40 @@ message S2CItemOneKeyUpgradeResponse {
 message C2SRolesRequest {
 }
 message AttrData {
-	int32 AttrId 					= 1;
-	int32 Value						= 2;
+	int32 AttrId 							= 1;
+	int32 Value								= 2;
 }
 message Role {
-	int32 Id						= 1;
-	int32 TableId					= 2;
-	int32 Rank						= 3;
-	int32 Level						= 4;
-	bool IsLock						= 5; // 锁定
-	repeated int32 Equips           = 6; // 装备
-	int32 PlayerId					= 7; // 玩家ID
+	int32 Id								= 1;
+	int32 TableId							= 2;
+	int32 Rank								= 3;
+	int32 Level								= 4;
+	bool IsLock								= 5; // 锁定
+	repeated int32 Equips           		= 6; // 装备
+	int32 PlayerId							= 7; // 玩家ID
 }
 // 请求角色返回
 message S2CRolesResponse {
-	repeated Role Roles				= 1;
+	repeated Role Roles						= 1;
 }
 
 // 角色信息更新通知
 message S2CRolesChangeNotify {
-	repeated Role Adds 				= 1; // 增加
-	repeated int32 Removes          = 2; // 删除
-	repeated Role Updates			= 3; // 更新
+	repeated Role Adds 						= 1; // 增加
+	repeated int32 Removes          		= 2; // 删除
+	repeated Role Updates					= 3; // 更新
 }
 
 // 角色属性请求
 message C2SRoleAttrsRequest {
-	int32 RoleId					= 1; // 角色ID
+	int32 RoleId							= 1; // 角色ID
 }
 
 // 角色属性返回
 message S2CRoleAttrsResponse {
-	int32 RoleId					= 1; // 角色Id
-	repeated int32 Attrs			= 2; // 角色属性
-	int32 Power						= 3; // 角色战力
+	int32 RoleId							= 1; // 角色Id
+	repeated int32 Attrs					= 2; // 角色属性
+	int32 Power								= 3; // 角色战力
 }
 
 // 角色升级
