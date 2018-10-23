@@ -953,6 +953,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		NewCardId: item.Id,
 		RoleId:    new_role_id,
 		GetItems:  Map2ItemInfos(get_items),
+		FusionId:  fusion_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_FUSION_RESPONSE), response)
 
