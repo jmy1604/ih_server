@@ -11,7 +11,6 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/proto/gen_go/server_message"
 	"ih_server/src/server_config"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"regexp"
@@ -749,36 +748,4 @@ func select_server_http_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
-}
-
-func Google_Login_Verify(token string) bool {
-	if "" == token {
-		log.Error("Apple_Login_verify param token(%s) empty !", token)
-		return false
-	}
-
-	url_str := global_config.GoogleLoginVerifyUrl + "?id_token=" + token
-
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	resp, err := client.Get(url_str)
-	if err != nil {
-		return false
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	log.Info("%v", body)
-	if 200 != resp.StatusCode {
-		log.Error("Apple_Login_verify token failed(%d)", resp.StatusCode)
-		return false
-	}
-
-	return true
-}
-
-func Apple_Login_Verify(token string) bool {
-	return true
 }
