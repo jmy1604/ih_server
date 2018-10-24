@@ -4,6 +4,7 @@ import (
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
+	"ih_server/src/share_data"
 	"net/http"
 	"strings"
 	"sync"
@@ -232,6 +233,7 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_DATA_SYNC_REQUEST), C2SDataSyncHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_PLAYER_CHANGE_NAME_REQUEST), C2SPlayerChangeNameHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_PLAYER_CHANGE_HEAD_REQUEST), C2SPlayerChangeHeadHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ACCOUNT_PLAYER_LIST_REQUEST), C2SAccountPlayerListHandler)
 
 	// 战役
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST), C2SFightHandler)
@@ -559,6 +561,13 @@ func C2SPlayerChangeNameHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_CHANGE_NAME_RESPONSE), &msg_client_message.S2CPlayerChangeNameResponse{
 		NewName: req.GetNewName(),
 	})
+
+	share_data.SaveAccountPlayerInfo(hall_server.redis_conn, p.Account, &msg_client_message.AccountPlayerInfo{
+		ServerId:    config.ServerId,
+		PlayerName:  req.GetNewName(),
+		PlayerLevel: p.db.Info.GetLvl(),
+		PlayerHead:  p.db.Info.GetHead(),
+	})
 	return 1
 }
 
@@ -580,4 +589,23 @@ func C2SRedPointStatesHandler(w http.ResponseWriter, r *http.Request, p *Player,
 		return -1
 	}
 	return p.send_red_point_states(req.GetModules())
+}
+
+func (this *Player) send_account_player_list() int32 {
+	response := &msg_client_message.S2CAccountPlayerListResponse{
+		InfoList: share_data.GetAccountPlayerList(this.Account),
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACCOUNT_PLAYER_LIST_RESPONSE), response)
+	log.Debug("Account[%v] player list %v", this.Account, response)
+	return 1
+}
+
+func C2SAccountPlayerListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SAccountPlayerListRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.send_account_player_list()
 }

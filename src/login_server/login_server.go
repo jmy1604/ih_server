@@ -11,6 +11,7 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/proto/gen_go/server_message"
 	"ih_server/src/server_config"
+	"ih_server/src/share_data"
 	"net"
 	"net/http"
 	"regexp"
@@ -61,6 +62,10 @@ func (this *LoginServer) Init() (ok bool) {
 
 func (this *LoginServer) Start(use_https bool) bool {
 	if !this.redis_conn.Connect(config.RedisServerIP) {
+		return false
+	}
+
+	if !share_data.LoadAccountsPlayerList(this.redis_conn) {
 		return false
 	}
 
@@ -447,6 +452,8 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 			}
 		}
 	}
+
+	response.InfoList = share_data.GetAccountPlayerList(account)
 
 	var err error
 	resp_data, err = proto.Marshal(response)

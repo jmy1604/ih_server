@@ -339,13 +339,24 @@ message ServerInfo {
 	string Name								= 2;
 	string IP								= 3;
 }
+
+// 玩家信息
+message AccountPlayerInfo {
+	int32 ServerId							= 1; // 服务器ID
+	string PlayerName						= 2; // 昵称
+	int32 PlayerLevel						= 3; // 等级
+	int32 PlayerHead						= 4; // 头像
+}
+
 // 登陆返回
 message S2CLoginResponse {
 	string Acc 								= 1; // 账号
 	string Token 							= 2; // 令牌
 	repeated ServerInfo Servers 			= 3; // 服务器列表, key是服务器ID
 	string Channel							= 4; // 渠道
+	repeated AccountPlayerInfo InfoList		= 5; // 账号玩家列表
 }
+
 /// 其它地方登录
 message S2COtherPlaceLogin {
 }
@@ -361,6 +372,16 @@ message S2CSelectServerResponse {
 	string Acc								= 1; // 账号
 	string Token							= 2; // 进入游戏服务器的令牌
 	string IP								= 3; // 游戏服务器地址
+}
+
+// 请求玩家列表
+message C2SAccountPlayerListRequest {
+	
+}
+
+// 玩家数据列表(用于服务器列表显示)
+message S2CAccountPlayerListResponse {
+	repeated AccountPlayerInfo InfoList		= 1; // 列表
 }
 
 ///////////////////////////////////start///////////////////////////////////////

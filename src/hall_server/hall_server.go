@@ -8,6 +8,7 @@ import (
 	"ih_server/libs/timer"
 	"ih_server/libs/utils"
 	"ih_server/src/server_config"
+	"ih_server/src/share_data"
 	"ih_server/src/table_config"
 	"sync"
 	"time"
@@ -41,6 +42,9 @@ func (this *HallServer) Init() (ok bool) {
 		return
 	}
 	login_token_mgr.LoadRedisData()
+	if !share_data.LoadAccountsPlayerList(this.redis_conn) {
+		return
+	}
 
 	// rpc初始化
 	if !this.init_rpc_service() {

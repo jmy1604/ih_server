@@ -4,6 +4,7 @@ import (
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
+	"ih_server/src/share_data"
 	"ih_server/src/table_config"
 	"math"
 	"net/http"
@@ -245,6 +246,12 @@ func (this *Player) add_exp(add int32) (level, exp int32) {
 		this.b_base_prop_chg = true
 		// 更新任务
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_REACH_LEVEL, true, level, 1)
+		share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, &msg_client_message.AccountPlayerInfo{
+			ServerId:    config.ServerId,
+			PlayerName:  this.db.GetName(),
+			PlayerLevel: level,
+			PlayerHead:  this.db.Info.GetHead(),
+		})
 	}
 
 	return

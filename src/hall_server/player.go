@@ -5,6 +5,7 @@ import (
 	"ih_server/libs/utils"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
+	"ih_server/src/share_data"
 	"ih_server/src/table_config"
 	"math/rand"
 	"sync"
@@ -328,6 +329,14 @@ func (this *Player) OnCreate() {
 		this.db.Info.SetHead(global_config.InitHeads[r])
 	}
 
+	info := &msg_client_message.AccountPlayerInfo{
+		ServerId:    config.ServerId,
+		PlayerName:  this.db.GetName(),
+		PlayerLevel: this.db.Info.GetLvl(),
+		PlayerHead:  this.db.Info.GetHead(),
+	}
+	share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, info)
+
 	return
 }
 
@@ -352,6 +361,15 @@ func (this *Player) OnLogin() {
 	friend_recommend_mgr.AddPlayer(this.Id)
 	atomic.StoreInt32(&this.is_lock, 0)
 	log.Info("Player[%v] login", this.Id)
+
+	if share_data.GetAccountPlayer(this.Account, config.ServerId) == nil {
+		share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, &msg_client_message.AccountPlayerInfo{
+			ServerId:    config.ServerId,
+			PlayerName:  this.db.GetName(),
+			PlayerLevel: this.db.Info.GetLvl(),
+			PlayerHead:  this.db.Info.GetHead(),
+		})
+	}
 }
 
 func (this *Player) OnLogout() {
@@ -875,6 +893,13 @@ func (this *Player) change_head(new_head int32) int32 {
 		NewHead: new_head,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_CHANGE_HEAD_RESPONSE), response)
+
+	share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, &msg_client_message.AccountPlayerInfo{
+		ServerId:    config.ServerId,
+		PlayerName:  this.db.GetName(),
+		PlayerLevel: this.db.Info.GetLvl(),
+		PlayerHead:  new_head,
+	})
 
 	log.Debug("Player[%v] changed to head[%v]", this.Id, new_head)
 
