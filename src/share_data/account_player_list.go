@@ -55,11 +55,14 @@ func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *ms
 	} else {
 		i := 0
 		for ; i < len(player_list); i++ {
-			if player_list[i] != nil {
-				if player_list[i].GetServerId() == info.GetServerId() {
-					player_list[i] = info
-					break
-				}
+			if player_list[i] == nil {
+				continue
+			}
+			if player_list[i].GetServerId() == info.GetServerId() {
+				player_list[i].PlayerName = info.GetPlayerName()
+				player_list[i].PlayerLevel = info.GetPlayerLevel()
+				player_list[i].PlayerHead = info.GetPlayerHead()
+				break
 			}
 		}
 		if i >= len(player_list) {
