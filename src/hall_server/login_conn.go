@@ -157,6 +157,7 @@ func (this *LoginConnection) RegisterMsgHandler() {
 	this.client_node.SetPid2P(login_conn_msgid2msg)
 	this.SetMessageHandler(uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN), L2HSyncAccountTokenHandler)
 	this.SetMessageHandler(uint16(msg_server_message.MSGID_L2H_DISCONNECT_NOTIFY), L2HDissconnectNotifyHandler)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_L2H_BIND_NEW_ACCOUNT_REQUEST), L2HBindNewAccountHandler)
 }
 
 func (this *LoginConnection) SetMessageHandler(type_id uint16, h server_conn.Handler) {
@@ -168,6 +169,8 @@ func login_conn_msgid2msg(msg_id uint16) proto.Message {
 		return &msg_server_message.L2HSyncAccountToken{}
 	} else if msg_id == uint16(msg_server_message.MSGID_L2H_DISCONNECT_NOTIFY) {
 		return &msg_server_message.L2HDissconnectNotify{}
+	} else if msg_id == uint16(msg_server_message.MSGID_L2H_BIND_NEW_ACCOUNT_REQUEST) {
+		return &msg_server_message.L2HBindNewAccountRequest{}
 	} else {
 		log.Error("Cant found proto message by msg_id[%v]", msg_id)
 	}
@@ -190,4 +193,23 @@ func L2HDissconnectNotifyHandler(conn *server_conn.ServerConn, msg proto.Message
 	log.Info("L2HDissconnectNotifyHandler param error !")
 
 	return
+}
+
+func L2HBindNewAccountHandler(conn *server_conn.ServerConn, msg proto.Message) {
+	req := msg.(*msg_server_message.L2HBindNewAccountRequest)
+	if req == nil {
+		log.Error("L2HBindNewAccountHandler msg param invalid")
+		return
+	}
+
+	p := player_mgr.GetPlayerByAcc(req.GetAccount())
+	if p == nil {
+		log.Error("Cant found account %v to bind new account %v", req.GetAccount(), req.GetNewAccount())
+		return
+	}
+
+	player_mgr.RemoveFromAccMap(req.GetAccount())
+	player_mgr.Add2AccMap(p)
+
+	log.Debug("Account %v bind new account %v", req.GetAccount(), req.GetNewAccount())
 }

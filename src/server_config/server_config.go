@@ -196,6 +196,10 @@ func ServerConfigLoad(config_file string, config ServerConfig) bool {
 	return true
 }
 
+func ServerConfigClose() {
+	log.Close()
+}
+
 func GetGameDataPathFile(data_file string) string {
 	return RuntimeRootDir + GameDataDir + data_file
 }

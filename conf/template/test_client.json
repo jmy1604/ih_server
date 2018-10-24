@@ -2,6 +2,7 @@
 	"LoginServerIP":"192.168.1.250:35000",
 	"LogConfigFile":"test_client_tracer.json",
 	"RegisterUrl":"https://%v/register?account=%v&password=%v&is_guest=%v",
+	"BindNewAccountUrl":"https://%v/bind_new_account?server_id=%v&account=%v&password=%v&new_account=%v&new_password=%v",
 	"LoginUrl":"https://%v/login?account=%v&password=%v&channel=%v",
 	"SelectServerUrl":"https://%v/select_server?account=%v&token=%v&server_id=%v",
 	"AccountPrefix":"test",

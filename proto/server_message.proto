@@ -14,6 +14,8 @@ enum MSGID {
 	H2L_HALL_SERVER_UNREGISTER	= 21001;
 	L2H_DISCONNECT_NOTIFY		= 21002;
 	L2H_SYNC_ACCOUNT_TOKEN		= 21003;
+	L2H_BIND_NEW_ACCOUNT_REQUEST= 22000;
+	H2L_BIND_NEW_ACCOUNT_RESPONSE = 22001;
 	
 	L2C_LOGIN_SERVER_REGISTER	= 21004;
 	L2C_LOGIN_SERVER_UNREGISTER	= 21005;
@@ -109,6 +111,17 @@ message L2HSyncAccountToken {
 	string Account = 1; // 账号
 	string Token = 2; // 临时token
 	int64 PlayerId = 3; // 玩家Id
+}
+
+/// login->hall 绑定新账号
+message L2HBindNewAccountRequest {
+	string Account = 1;
+	string NewAccount = 2;
+}
+
+message H2LBindNewAccountResponse {
+	string Account = 1;
+	string NewAccount = 2;
 }
 
 /*************************************** end ********************************************/

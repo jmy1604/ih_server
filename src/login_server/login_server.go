@@ -345,7 +345,7 @@ func register_handler(account, password string, is_guest bool) (err_code int32, 
 	return
 }
 
-func bind_new_account_handler(account, password, new_account, new_password string) (err_code int32, resp_data []byte) {
+func bind_new_account_handler(server_id int32, account, password, new_account, new_password string) (err_code int32, resp_data []byte) {
 	if account == new_account {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NAME_MUST_DIFFRENT_TO_OLD)
 		log.Error("Account %v can not bind same new account", account)
@@ -356,6 +356,12 @@ func bind_new_account_handler(account, password, new_account, new_password strin
 	if row == nil {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NOT_REGISTERED)
 		log.Error("Account %v not registered, cant bind new account", account)
+		return
+	}
+
+	if row.GetPassword() != password {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_PASSWORD_INVALID)
+		log.Error("Account %v password %v invalid, cant bind new account", account, password)
 		return
 	}
 
@@ -387,6 +393,19 @@ func bind_new_account_handler(account, password, new_account, new_password strin
 	row.SetPassword(new_password)
 	row.SetRegisterTime(register_time)
 	dbc.Accounts.RemoveRow(account)
+
+	hall_agent := hall_agent_manager.GetAgentByID(server_id)
+	if nil == hall_agent {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
+		log.Error("login_http_handler get hall_agent failed")
+		return
+	}
+
+	req := &msg_server_message.L2HBindNewAccountRequest{
+		Account:    account,
+		NewAccount: new_account,
+	}
+	hall_agent.Send(uint16(msg_server_message.MSGID_L2H_BIND_NEW_ACCOUNT_REQUEST), req)
 
 	response := &msg_client_message.S2CGuestBindNewAccountResponse{
 		Account:     account,
@@ -607,8 +626,13 @@ func bind_new_account_http_handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	server_id_str := r.URL.Query().Get("server_id")
+	server_id, err := strconv.Atoi(server_id_str)
+	if err != nil {
+		log.Error("server_id convert err %v", err.Error())
+		return
+	}
 	account := r.URL.Query().Get("account")
-
 	password := r.URL.Query().Get("password")
 	if password == "" {
 		response_error(-1, w)
@@ -619,7 +643,7 @@ func bind_new_account_http_handler(w http.ResponseWriter, r *http.Request) {
 	new_account := r.URL.Query().Get("new_account")
 	new_password := r.URL.Query().Get("new_password")
 
-	err_code, data := bind_new_account_handler(account, password, new_account, new_password)
+	err_code, data := bind_new_account_handler(int32(server_id), account, password, new_account, new_password)
 	if err_code < 0 {
 		response_error(err_code, w)
 		log.Error("login_http_handler err_code[%v]", err_code)
@@ -633,7 +657,6 @@ func bind_new_account_http_handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE), MsgData: data}
-	var err error
 	data, err = json.Marshal(http_res)
 	if nil != err {
 		log.Error("login_http_handler json mashal error")
