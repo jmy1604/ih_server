@@ -505,11 +505,12 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	if acc.get_state() != 1 {
+	// 暂时不判断状态
+	/*if acc.get_state() != 1 {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_ALREADY_SELECTED_SERVER)
 		log.Error("select_server_handler player[%v] already selected server", account)
 		return
-	}
+	}*/
 
 	if token != acc.get_token() {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_TOKEN_ERROR)

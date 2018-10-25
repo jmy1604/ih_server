@@ -3,6 +3,7 @@ package share_data
 import (
 	"ih_server/libs/log"
 	"ih_server/libs/utils"
+	"sync"
 
 	"ih_server/proto/gen_go/client_message"
 
@@ -14,9 +15,18 @@ const (
 	ACCOUNT_PLAYER_LIST_KEY = "ih:share_data:account_player_list"
 )
 
-type PlayerList []*msg_client_message.AccountPlayerInfo
+type PlayerList struct {
+	player_list        []*msg_client_message.AccountPlayerInfo
+	player_list_locker *sync.RWMutex
+}
 
-var player_list_map map[string]PlayerList
+var player_list_map map[string]*PlayerList
+var player_list_map_locker *sync.RWMutex
+
+func AccountPlayerListInit() {
+	player_list_map = make(map[string]*PlayerList)
+	player_list_map_locker = &sync.RWMutex{}
+}
 
 func LoadAccountsPlayerList(redis_conn *utils.RedisConn) bool {
 	var values map[string]string
@@ -25,11 +35,6 @@ func LoadAccountsPlayerList(redis_conn *utils.RedisConn) bool {
 		log.Error("redis get hashset %v all data err %v", ACCOUNT_PLAYER_LIST_KEY, err.Error())
 		return false
 	}
-
-	if player_list_map == nil {
-		player_list_map = make(map[string]PlayerList)
-	}
-
 	var msg msg_client_message.S2CAccountPlayerListResponse
 	for k, v := range values {
 		err = proto.Unmarshal([]byte(v), &msg)
@@ -38,7 +43,11 @@ func LoadAccountsPlayerList(redis_conn *utils.RedisConn) bool {
 			return false
 		}
 
-		player_list_map[k] = msg.InfoList
+		pl := &PlayerList{
+			player_list:        msg.InfoList,
+			player_list_locker: &sync.RWMutex{},
+		}
+		player_list_map[k] = pl
 	}
 
 	return true
@@ -51,10 +60,6 @@ func LoadAccountPlayerList(redis_conn *utils.RedisConn, account string) bool {
 		return false
 	}
 
-	if player_list_map == nil {
-		player_list_map = make(map[string]PlayerList)
-	}
-
 	var msg msg_client_message.S2CAccountPlayerListResponse
 	err = proto.Unmarshal(data, &msg)
 	if err != nil {
@@ -62,40 +67,55 @@ func LoadAccountPlayerList(redis_conn *utils.RedisConn, account string) bool {
 		return false
 	}
 
-	player_list_map[account] = msg.InfoList
+	player_list_map_locker.Lock()
+	pl := &PlayerList{
+		player_list:        msg.InfoList,
+		player_list_locker: &sync.RWMutex{},
+	}
+	player_list_map[account] = pl
+	player_list_map_locker.Unlock()
 
 	return true
 }
 
 func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *msg_client_message.AccountPlayerInfo) {
-	if player_list_map == nil {
-		player_list_map = make(map[string]PlayerList)
-	}
+	player_list_map_locker.RLock()
 	player_list := player_list_map[account]
+	player_list_map_locker.RUnlock()
+
 	if player_list == nil {
-		player_list = []*msg_client_message.AccountPlayerInfo{info}
+		player_list_map_locker.Lock()
+		player_list = player_list_map[account]
+		if player_list != nil {
+			return
+		}
+		player_list = &PlayerList{
+			player_list:        []*msg_client_message.AccountPlayerInfo{info},
+			player_list_locker: &sync.RWMutex{},
+		}
 		player_list_map[account] = player_list
+		player_list_map_locker.Unlock()
 	} else {
 		i := 0
-		for ; i < len(player_list); i++ {
-			if player_list[i] == nil {
+		for ; i < len(player_list.player_list); i++ {
+			if player_list.player_list[i] == nil {
 				continue
 			}
-			if player_list[i].GetServerId() == info.GetServerId() {
-				player_list[i].PlayerName = info.GetPlayerName()
-				player_list[i].PlayerLevel = info.GetPlayerLevel()
-				player_list[i].PlayerHead = info.GetPlayerHead()
+			if player_list.player_list[i].GetServerId() == info.GetServerId() {
+				player_list.player_list[i].PlayerName = info.GetPlayerName()
+				player_list.player_list[i].PlayerLevel = info.GetPlayerLevel()
+				player_list.player_list[i].PlayerHead = info.GetPlayerHead()
 				break
 			}
 		}
-		if i >= len(player_list) {
-			player_list = append(player_list, info)
+		if i >= len(player_list.player_list) {
+			player_list.player_list = append(player_list.player_list, info)
 			player_list_map[account] = player_list
 		}
 	}
 
 	var msg msg_client_message.S2CAccountPlayerListResponse
-	msg.InfoList = player_list
+	msg.InfoList = player_list.player_list
 	data, err := proto.Marshal(&msg)
 	if err != nil {
 		log.Error("redis marshal account %v info err %v", account, err.Error())
@@ -108,10 +128,9 @@ func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *ms
 	}
 }
 
-func GetAccountPlayerList(account string) PlayerList {
-	if player_list_map == nil {
-		return nil
-	}
+func GetAccountPlayerList(account string) *PlayerList {
+	player_list_map_locker.RLock()
+	defer player_list_map_locker.RUnlock()
 	return player_list_map[account]
 }
 
@@ -120,7 +139,7 @@ func GetAccountPlayer(account string, server_id int32) *msg_client_message.Accou
 	if player_list == nil {
 		return nil
 	}
-	for _, p := range player_list {
+	for _, p := range player_list.player_list {
 		if p.GetServerId() == server_id {
 			return p
 		}
