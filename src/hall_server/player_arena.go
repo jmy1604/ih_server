@@ -510,7 +510,13 @@ func (this *Player) arena_match() int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TEAM_MEMBERS_IS_EMPTY)
 	}
 
-	pid := this.MatchArenaPlayer()
+	var pid int32
+	if this.db.Arena.GetScore() == 0 {
+		l := arena_robot_table_mgr.Array
+		pid = l[len(l)-1].Id
+	} else {
+		pid = this.MatchArenaPlayer()
+	}
 
 	var robot *ArenaRobot
 	p := player_mgr.GetPlayerById(pid)
