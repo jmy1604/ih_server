@@ -583,6 +583,12 @@ func register_http_handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	if !config.VerifyAccount {
+		response_error(-1, w)
+		log.Error("no need verify account and no need register")
+		return
+	}
+
 	account := r.URL.Query().Get("account")
 
 	password := r.URL.Query().Get("password")
@@ -622,6 +628,7 @@ func register_http_handler(w http.ResponseWriter, r *http.Request) {
 	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_REGISTER_RESPONSE), MsgData: data}
 	data, err = json.Marshal(http_res)
 	if nil != err {
+		response_error(-1, w)
 		log.Error("login_http_handler json mashal error")
 		return
 	}
@@ -671,6 +678,7 @@ func bind_new_account_http_handler(w http.ResponseWriter, r *http.Request) {
 	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE), MsgData: data}
 	data, err = json.Marshal(http_res)
 	if nil != err {
+		response_error(-1, w)
 		log.Error("login_http_handler json mashal error")
 		return
 	}
@@ -723,6 +731,7 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	data, err = json.Marshal(http_res)
 	if nil != err {
+		response_error(-1, w)
 		log.Error("login_http_handler json mashal error")
 		return
 	}
@@ -786,6 +795,7 @@ func select_server_http_handler(w http.ResponseWriter, r *http.Request) {
 	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_SELECT_SERVER_RESPONSE), MsgData: data}
 	data, err = json.Marshal(http_res)
 	if nil != err {
+		response_error(-1, w)
 		log.Error("login_http_handler json mashal error")
 		return
 	}
