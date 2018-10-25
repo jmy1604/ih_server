@@ -44,6 +44,29 @@ func LoadAccountsPlayerList(redis_conn *utils.RedisConn) bool {
 	return true
 }
 
+func LoadAccountPlayerList(redis_conn *utils.RedisConn, account string) bool {
+	data, err := redis.Bytes(redis_conn.Do("HGET", ACCOUNT_PLAYER_LIST_KEY, account))
+	if err != nil {
+		log.Error("redis get hashset %v with key %v err %v", ACCOUNT_PLAYER_LIST_KEY, account, err.Error())
+		return false
+	}
+
+	if player_list_map == nil {
+		player_list_map = make(map[string]PlayerList)
+	}
+
+	var msg msg_client_message.S2CAccountPlayerListResponse
+	err = proto.Unmarshal(data, &msg)
+	if err != nil {
+		log.Error("account %v S2CAccountPlayerListResponse data unmarshal err %v", account, err.Error())
+		return false
+	}
+
+	player_list_map[account] = msg.InfoList
+
+	return true
+}
+
 func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *msg_client_message.AccountPlayerInfo) {
 	if player_list_map == nil {
 		player_list_map = make(map[string]PlayerList)

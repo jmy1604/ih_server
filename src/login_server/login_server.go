@@ -65,9 +65,9 @@ func (this *LoginServer) Start(use_https bool) bool {
 		return false
 	}
 
-	if !share_data.LoadAccountsPlayerList(this.redis_conn) {
+	/*if !share_data.LoadAccountsPlayerList(this.redis_conn) {
 		return false
-	}
+	}*/
 
 	if use_https {
 		go this.StartHttps(server_config.GetConfPathFile("server.crt"), server_config.GetConfPathFile("server.key"))
@@ -427,9 +427,9 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 }
 
 func login_handler(account, password, channel string) (err_code int32, resp_data []byte) {
+	acc_row := dbc.Accounts.GetRow(account)
 	if config.VerifyAccount {
 		if channel == "" || channel == "guest" {
-			acc_row := dbc.Accounts.GetRow(account)
 			if acc_row == nil {
 				err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
 				log.Error("Account %v not exist", account)
@@ -444,12 +444,17 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 		} else if channel == "facebook" {
 
 		}
+	} else {
+		if acc_row == nil {
+			acc_row = dbc.Accounts.AddRow(account)
+		}
 	}
 
 	account_login(account)
 
 	// 验证
-	token := fmt.Sprintf("%v_%v", time.Now().Unix()+time.Now().UnixNano(), account)
+	now_time := time.Now()
+	token := fmt.Sprintf("%v_%v", now_time.Unix()+now_time.UnixNano(), account)
 	acc := get_account(account)
 	acc.token = token
 
@@ -472,6 +477,13 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 		}
 	}
 
+	if acc_row != nil {
+		last_time := acc_row.GetLastGetAccountPlayerListTime()
+		if int32(now_time.Unix())-last_time >= 5*60 {
+			share_data.LoadAccountPlayerList(server.redis_conn, account)
+			acc_row.SetLastGetAccountPlayerListTime(int32(now_time.Unix()))
+		}
+	}
 	response.InfoList = share_data.GetAccountPlayerList(account)
 
 	var err error
