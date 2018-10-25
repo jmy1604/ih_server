@@ -54,6 +54,7 @@ func (this *LoginServer) Init() (ok bool) {
 	this.acc2c_wait = make(map[string]*WaitCenterInfo)
 	this.acc2c_wait_lock = &sync.RWMutex{}
 	this.redis_conn = &utils.RedisConn{}
+	account_mgr_init()
 
 	this.initialized = true
 
@@ -450,13 +451,10 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 		}
 	}
 
-	account_login(account)
-
 	// 验证
 	now_time := time.Now()
 	token := fmt.Sprintf("%v_%v", now_time.Unix()+now_time.UnixNano(), account)
-	acc := get_account(account)
-	acc.token = token
+	account_login(account, token)
 
 	response := &msg_client_message.S2CLoginResponse{
 		Acc:   account,
@@ -500,20 +498,20 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 }
 
 func select_server_handler(account, token string, server_id int32) (err_code int32, resp_data []byte) {
-	acc := get_account(account)
+	acc := account_info_get(account, false)
 	if acc == nil {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 		log.Error("select_server_handler player[%v] not found", account)
 		return
 	}
 
-	if acc.state != 1 {
+	if acc.get_state() != 1 {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_ALREADY_SELECTED_SERVER)
 		log.Error("select_server_handler player[%v] already selected server", account)
 		return
 	}
 
-	if token != acc.token {
+	if token != acc.get_token() {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_TOKEN_ERROR)
 		log.Error("select_server_handler player[%v] token[%v] invalid, need[%v]", account, token, acc.token)
 		return
@@ -534,11 +532,10 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 	}
 
 	token = fmt.Sprintf("%v_%v", time.Now().Unix()+time.Now().UnixNano(), account)
-	req_2h := &msg_server_message.L2HSyncAccountToken{}
-	req_2h.Account = account
-	req_2h.Token = token
-	//req_2h.PlayerId = 0
-	hall_agent.Send(uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN), req_2h)
+	hall_agent.Send(uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN), &msg_server_message.L2HSyncAccountToken{
+		Account: account,
+		Token:   token,
+	})
 
 	var hall_ip string
 	if server.use_https {

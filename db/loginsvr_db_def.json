@@ -51,6 +51,18 @@
 					"Fields":[]
 				},
 				{
+					"ColumnName":"Token",
+					"DBColumnName":"Token",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[]
+				},
+				{
 					"ColumnName":"LastGetAccountPlayerListTime",
 					"DBColumnName":"LastGetAccountPlayerListTime",
 					"InUse":true,

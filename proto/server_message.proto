@@ -16,6 +16,7 @@ enum MSGID {
 	L2H_SYNC_ACCOUNT_TOKEN		= 21003;
 	L2H_BIND_NEW_ACCOUNT_REQUEST= 22000;
 	H2L_BIND_NEW_ACCOUNT_RESPONSE = 22001;
+	H2L_ACCOUNT_LOGOUT_NOTIFY	= 23000;
 	
 	L2C_LOGIN_SERVER_REGISTER	= 21004;
 	L2C_LOGIN_SERVER_UNREGISTER	= 21005;
@@ -122,6 +123,11 @@ message L2HBindNewAccountRequest {
 message H2LBindNewAccountResponse {
 	string Account = 1;
 	string NewAccount = 2;
+}
+
+// hall->login 登出游戏通知
+message H2LAccountLogoutNotify {
+	string Account = 1;
 }
 
 /*************************************** end ********************************************/

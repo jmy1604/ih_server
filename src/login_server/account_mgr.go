@@ -1,42 +1,100 @@
 package main
 
+import (
+	"sync"
+)
+
 type AccountInfo struct {
 	account string
 	token   string
 	state   int32 // 0 未登录   1 已登陆   2 已进入游戏
+	locker  *sync.RWMutex
+}
+
+func (this *AccountInfo) get_account() string {
+	this.locker.RLock()
+	account := this.account
+	this.locker.RUnlock()
+	return account
+}
+
+func (this *AccountInfo) get_token() string {
+	this.locker.RLock()
+	token := this.token
+	this.locker.RUnlock()
+	return token
+}
+
+func (this *AccountInfo) get_state() int32 {
+	this.locker.RLock()
+	state := this.state
+	this.locker.RUnlock()
+	return state
+}
+
+func (this *AccountInfo) set_token(token string) {
+	this.locker.Lock()
+	defer this.locker.Unlock()
+	this.token = token
+}
+
+func (this *AccountInfo) set_state(state int32) {
+	this.locker.Lock()
+	defer this.locker.Unlock()
+	this.state = state
 }
 
 var account_mgr map[string]*AccountInfo
+var account_locker *sync.RWMutex
 
-func acc_mgr_check_create() map[string]*AccountInfo {
-	if account_mgr == nil {
-		account_mgr = make(map[string]*AccountInfo)
+func account_mgr_init() {
+	account_mgr = make(map[string]*AccountInfo)
+	account_locker = &sync.RWMutex{}
+}
+
+func account_info_get(account string, first_create bool) *AccountInfo {
+	account_locker.RLock()
+	account_info := account_mgr[account]
+	account_locker.RUnlock()
+
+	if first_create && account_info == nil {
+		account_locker.Lock()
+		account_info = account_mgr[account]
+		// double check
+		if account_info == nil {
+			account_info = &AccountInfo{
+				account: account,
+				locker:  &sync.RWMutex{},
+			}
+			account_mgr[account] = account_info
+		}
+		account_locker.Unlock()
 	}
-	return account_mgr
+
+	return account_info
 }
 
 func has_account_login(acc string) bool {
-	mgr := acc_mgr_check_create()
-	if mgr[acc] == nil {
-		return false
-	}
-	if mgr[acc].state != 1 {
+	account_info := account_info_get(acc, false)
+	state := account_info.get_state()
+	if state != 1 {
 		return false
 	}
 	return true
 }
 
-func account_login(acc string) {
-	mgr := acc_mgr_check_create()
-	if mgr[acc] == nil {
-		mgr[acc] = &AccountInfo{
-			account: acc,
-		}
-	}
-	mgr[acc].state = 1
+func account_login(acc, token string) {
+	account_info := account_info_get(acc, true)
+	account_info.set_state(1)
+	account_info.set_token(token)
 }
 
-func get_account(acc string) *AccountInfo {
-	mgr := acc_mgr_check_create()
-	return mgr[acc]
+func account_enter_game(acc string) {
+	account_info := account_info_get(acc, false)
+	account_info.set_state(2)
+}
+
+func account_logout(acc string) {
+	account_info := account_info_get(acc, false)
+	account_info.set_state(0)
 }

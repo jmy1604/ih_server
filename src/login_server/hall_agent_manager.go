@@ -399,11 +399,14 @@ func (this *HallAgentManager) GetSuitableHallAgent() *HallAgent {
 func (this *HallAgentManager) init_message_handle() {
 	this.net.SetPid2P(hall_agent_msgid2msg)
 	this.SetMessageHandler(uint16(msg_server_message.MSGID_H2L_HALL_SERVER_REGISTER), H2LHallServerRegisterHandler)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY), H2LAccountLogoutNotifyHandler)
 }
 
 func hall_agent_msgid2msg(msg_id uint16) proto.Message {
 	if msg_id == uint16(msg_server_message.MSGID_H2L_HALL_SERVER_REGISTER) {
 		return &msg_server_message.H2LHallServerRegister{}
+	} else if msg_id == uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY) {
+		return &msg_server_message.H2LAccountLogoutNotify{}
 	} else {
 		log.Error("Cant found proto message by msg_id[%v]", msg_id)
 	}
@@ -413,7 +416,7 @@ func hall_agent_msgid2msg(msg_id uint16) proto.Message {
 func H2LHallServerRegisterHandler(conn *server_conn.ServerConn, m proto.Message) {
 	req := m.(*msg_server_message.H2LHallServerRegister)
 	if nil == req {
-		log.Error("M2LMatchServerRegisterHandler param error !")
+		log.Error("H2LHallServerRegisterHandler param error !")
 		return
 	}
 
@@ -440,4 +443,16 @@ func H2LHallServerRegisterHandler(conn *server_conn.ServerConn, m proto.Message)
 	hall_agent_manager.SetAgentByID(server_id, a)
 
 	log.Trace("大厅服务器[%d %s %s]已连接", server_id, server_name, a.listen_client_ip)
+}
+
+func H2LAccountLogoutNotifyHandler(conn *server_conn.ServerConn, m proto.Message) {
+	req := m.(*msg_server_message.H2LAccountLogoutNotify)
+	if req == nil {
+		log.Error("H2LAccountLogoutNotifyHandler param invalid")
+		return
+	}
+
+	account_logout(req.GetAccount())
+
+	log.Trace("Account %v log out notify", req.GetAccount())
 }

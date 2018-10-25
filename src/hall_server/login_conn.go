@@ -185,6 +185,8 @@ func L2HSyncAccountTokenHandler(conn *server_conn.ServerConn, msg proto.Message)
 	}
 
 	login_token_mgr.AddToAcc2Token(req.GetAccount(), req.GetToken(), int32(req.GetPlayerId()))
+	p := player_mgr.GetPlayerByAcc(req.GetAccount())
+	p.login_server = conn
 	log.Info("ID_L2HSyncAccountTokenHandler Account[%v] Token[%v] PlayerId[%v]", req.GetAccount(), req.GetToken(), req.GetPlayerId())
 }
 
