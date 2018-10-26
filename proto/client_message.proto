@@ -355,6 +355,7 @@ message S2CLoginResponse {
 	repeated ServerInfo Servers 			= 3; // 服务器列表, key是服务器ID
 	string Channel							= 4; // 渠道
 	repeated AccountPlayerInfo InfoList		= 5; // 账号玩家列表
+	int32 LastServerId						= 6; // 上次登陆的游戏服
 }
 
 /// 其它地方登录

@@ -73,6 +73,18 @@
 					"AutoIndex":false,
 					"DefaultValue":0,
 					"Fields":[]	
+				},
+				{
+					"ColumnName":"LastSelectServerId",
+					"DBColumnName":"LastSelectServerId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]	
 				}
 			]
 		}

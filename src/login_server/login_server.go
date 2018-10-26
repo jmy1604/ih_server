@@ -484,6 +484,7 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 		}
 	}
 	response.InfoList = share_data.GetAccountPlayerList(account)
+	response.LastServerId = acc_row.GetLastSelectServerId()
 
 	var err error
 	resp_data, err = proto.Marshal(response)
@@ -557,6 +558,11 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		err_code = int32(msg_client_message.E_ERR_INTERNAL)
 		log.Error("select_server_handler marshal response error: %v", err.Error())
 		return
+	}
+
+	row := dbc.Accounts.GetRow(account)
+	if row != nil {
+		row.SetLastSelectServerId(server_id)
 	}
 
 	return
