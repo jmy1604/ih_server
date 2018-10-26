@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"ih_server/libs/log"
+	"ih_server/libs/server_conn"
 	"sync"
 	"time"
 
@@ -20,10 +21,11 @@ type RedisLoginTokenInfo struct {
 }
 
 type LoginTokenInfo struct {
-	acc         string
-	token       string
-	playerid    int32
-	create_time int32
+	acc          string
+	token        string
+	playerid     int32
+	create_time  int32
+	login_server *server_conn.ServerConn
 }
 
 type LoginTokenMgr struct {
@@ -68,7 +70,7 @@ func (this *LoginTokenMgr) LoadRedisData() int32 {
 	return 1
 }
 
-func (this *LoginTokenMgr) AddToAcc2Token(acc, token string, playerid int32) {
+func (this *LoginTokenMgr) AddToAcc2Token(acc, token string, playerid int32, login_server *server_conn.ServerConn) {
 	if "" == acc {
 		log.Error("LoginTokenMgr AddToAcc2Token acc empty")
 		return
@@ -78,7 +80,7 @@ func (this *LoginTokenMgr) AddToAcc2Token(acc, token string, playerid int32) {
 	defer this.acc2token_lock.Unlock()
 
 	now_time := int32(time.Now().Unix())
-	this.acc2token[acc] = &LoginTokenInfo{acc: acc, token: token, create_time: now_time, playerid: playerid}
+	this.acc2token[acc] = &LoginTokenInfo{acc: acc, token: token, create_time: now_time, playerid: playerid, login_server: login_server}
 
 	// serialize to redis
 	item := &RedisLoginTokenInfo{
@@ -124,6 +126,17 @@ func (this *LoginTokenMgr) GetTokenByAcc(acc string) *LoginTokenInfo {
 	defer this.acc2token_lock.Unlock()
 
 	return this.acc2token[acc]
+}
+
+func (this *LoginTokenMgr) GetLoginServerByAcc(acc string) *server_conn.ServerConn {
+	this.acc2token_lock.RLock()
+	defer this.acc2token_lock.RUnlock()
+
+	item := this.acc2token[acc]
+	if item == nil {
+		return nil
+	}
+	return item.login_server
 }
 
 func (this *LoginTokenMgr) AddToId2Acc(playerid int32, acc string) {

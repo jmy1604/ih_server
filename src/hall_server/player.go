@@ -2,7 +2,6 @@ package main
 
 import (
 	"ih_server/libs/log"
-	"ih_server/libs/server_conn"
 	"ih_server/libs/utils"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
@@ -73,10 +72,9 @@ func (this *IdChangeInfo) reset() {
 }
 
 type Player struct {
-	Id           int32
-	Account      string
-	Token        string
-	login_server *server_conn.ServerConn
+	Id      int32
+	Account string
+	Token   string
 
 	ol_array_idx  int32
 	all_array_idx int32
@@ -390,10 +388,11 @@ func (this *Player) OnLogout() {
 	this.campaign_hangup_income_get(1, true)
 	this.is_login = false
 
-	if this.login_server != nil {
+	login_server := login_token_mgr.GetLoginServerByAcc(this.Account)
+	if login_server != nil {
 		var notify msg_server_message.H2LAccountLogoutNotify
 		notify.Account = this.Account
-		this.login_server.Send(uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY), &notify, true)
+		login_server.Send(uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY), &notify, true)
 	}
 
 	log.Info("玩家[%d] 登出 ！！", this.Id)
