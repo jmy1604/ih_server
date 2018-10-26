@@ -54,6 +54,7 @@ func (this *LoginServer) Init() (ok bool) {
 	this.acc2c_wait = make(map[string]*WaitCenterInfo)
 	this.acc2c_wait_lock = &sync.RWMutex{}
 	this.redis_conn = &utils.RedisConn{}
+	share_data.AccountPlayerListInit()
 	account_mgr_init()
 
 	this.initialized = true

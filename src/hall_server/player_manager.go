@@ -593,7 +593,7 @@ func C2SRedPointStatesHandler(w http.ResponseWriter, r *http.Request, p *Player,
 
 func (this *Player) send_account_player_list() int32 {
 	response := &msg_client_message.S2CAccountPlayerListResponse{
-		InfoList: share_data.GetAccountPlayerList(this.Account).player_list,
+		InfoList: share_data.GetAccountPlayerList(this.Account),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACCOUNT_PLAYER_LIST_RESPONSE), response)
 	log.Debug("Account[%v] player list %v", this.Account, response)

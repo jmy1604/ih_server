@@ -29,6 +29,8 @@ func AccountPlayerListInit() {
 }
 
 func LoadAccountsPlayerList(redis_conn *utils.RedisConn) bool {
+	AccountPlayerListInit()
+
 	var values map[string]string
 	values, err := redis.StringMap(redis_conn.Do("HGETALL", ACCOUNT_PLAYER_LIST_KEY))
 	if err != nil {
@@ -128,10 +130,14 @@ func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *ms
 	}
 }
 
-func GetAccountPlayerList(account string) *PlayerList {
+func GetAccountPlayerList(account string) []*msg_client_message.AccountPlayerInfo {
 	player_list_map_locker.RLock()
 	defer player_list_map_locker.RUnlock()
-	return player_list_map[account]
+	pl := player_list_map[account]
+	if pl == nil {
+		return nil
+	}
+	return pl.player_list
 }
 
 func GetAccountPlayer(account string, server_id int32) *msg_client_message.AccountPlayerInfo {
@@ -139,7 +145,7 @@ func GetAccountPlayer(account string, server_id int32) *msg_client_message.Accou
 	if player_list == nil {
 		return nil
 	}
-	for _, p := range player_list.player_list {
+	for _, p := range player_list {
 		if p.GetServerId() == server_id {
 			return p
 		}

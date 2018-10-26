@@ -41,10 +41,11 @@ func (this *HallServer) Init() (ok bool) {
 	if !this.redis_conn.Connect(config.RedisServerIP) {
 		return
 	}
-	login_token_mgr.LoadRedisData()
 	if !share_data.LoadAccountsPlayerList(this.redis_conn) {
 		return
 	}
+
+	login_token_mgr.LoadRedisData()
 
 	// rpc初始化
 	if !this.init_rpc_service() {
