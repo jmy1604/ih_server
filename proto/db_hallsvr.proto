@@ -448,6 +448,10 @@ message PlayerPayList{
 	repeated PlayerPay List=1;
 }
 
+message PlayerGuideData{
+	optional bytes Data=1;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }

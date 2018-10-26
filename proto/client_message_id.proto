@@ -316,4 +316,8 @@ enum MSGID {
 	
 	C2S_RED_POINT_STATES_REQUEST			= 12300; // 红点状态请求 C2SRedPointStatesRequest
 	S2C_RED_POINT_STATES_RESPONSE			= 12301; // 红点状态返回 S2CRedPointStatesResponse
+	
+	C2S_GUIDE_DATA_SAVE_REQUEST				= 12400; // 保存引导数据 C2SGuideDataSaveRequest
+	S2C_GUIDE_DATA_SAVE_RESPONSE			= 12401; // 保存引导数据返回 S2CGuideDataSaveResponse
+	S2C_GUIDE_DATA_RESPONSE					= 12410; // 引导数据 S2CGuideDataResponse
 }

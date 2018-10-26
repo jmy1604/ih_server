@@ -788,6 +788,19 @@
 						{"Type":"int32","Index":3,"Name":"LastAwardTime"},
 						{"Type":"int32","Index":4,"Name":"SendMailNum","Incby":true}
 					]
+				},
+				{
+					"ColumnName":"GuideData",
+					"DBColumnName":"GuildData",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"bytes","Index":1,"Name":"Data"}
+					]
 				}
 			]
 		},

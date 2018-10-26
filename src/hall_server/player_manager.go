@@ -394,6 +394,9 @@ func (this *PlayerManager) RegMsgHandler() {
 
 	// 红点提示
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_RED_POINT_STATES_REQUEST), C2SRedPointStatesHandler)
+
+	// 引导
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_GUIDE_DATA_SAVE_REQUEST), C2SGuideDataSaveHandler)
 }
 
 func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data []byte) (int32, *Player) {
@@ -474,6 +477,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 	p.send_talent_list()
 	p.send_info()
 	p.send_teams()
+	p.send_guide_data()
 	p.notify_enter_complete()
 
 	log.Info("PlayerEnterGameHandler account[%s] token[%s]", req.GetAcc(), req.GetToken())
@@ -620,4 +624,27 @@ func C2SAccountPlayerListHandler(w http.ResponseWriter, r *http.Request, p *Play
 		return -1
 	}
 	return p.send_account_player_list()
+}
+
+func (this *Player) send_guide_data() int32 {
+	response := &msg_client_message.S2CGuideDataResponse{
+		Data: this.db.GuideData.GetData(),
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUIDE_DATA_RESPONSE), response)
+	return 1
+}
+
+func C2SGuideDataSaveHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuideDataSaveRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	p.db.GuideData.SetData(req.GetData())
+	response := &msg_client_message.S2CGuideDataSaveResponse{
+		Data: req.GetData(),
+	}
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_GUIDE_DATA_SAVE_RESPONSE), response)
+	return 1
 }

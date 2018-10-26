@@ -2126,3 +2126,18 @@ message S2CRedPointStatesResponse {
 	repeated int32 Modules                  = 1; // 需要功能序列
 	repeated int32 States 					= 2; // 状态序列  0 不提示  大于0 提示  索引为红点功能
 }
+
+// ----------------------------------- 引导 -----------------------------------
+// 引导数据保存
+message C2SGuideDataSaveRequest {
+	bytes Data 								= 1;
+}
+
+message S2CGuideDataSaveResponse {
+	bytes Data								= 1;
+}
+
+// 引导数据  进入游戏后主动通知
+message S2CGuideDataResponse {
+	bytes Data								= 1;
+}
