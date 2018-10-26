@@ -20,6 +20,12 @@ type PlayerList struct {
 	player_list_locker *sync.RWMutex
 }
 
+func (this *PlayerList) GetList() []*msg_client_message.AccountPlayerInfo {
+	this.player_list_locker.RLock()
+	defer this.player_list_locker.RUnlock()
+	return this.player_list
+}
+
 var player_list_map map[string]*PlayerList
 var player_list_map_locker *sync.RWMutex
 
@@ -137,7 +143,7 @@ func GetAccountPlayerList(account string) []*msg_client_message.AccountPlayerInf
 	if pl == nil {
 		return nil
 	}
-	return pl.player_list
+	return pl.GetList()
 }
 
 func GetAccountPlayer(account string, server_id int32) *msg_client_message.AccountPlayerInfo {
