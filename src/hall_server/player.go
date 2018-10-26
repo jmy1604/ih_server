@@ -363,15 +363,6 @@ func (this *Player) OnLogin() {
 	friend_recommend_mgr.AddPlayer(this.Id)
 	atomic.StoreInt32(&this.is_lock, 0)
 	log.Info("Player[%v] login", this.Id)
-
-	if share_data.GetAccountPlayer(this.Account, config.ServerId) == nil {
-		share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, &msg_client_message.AccountPlayerInfo{
-			ServerId:    config.ServerId,
-			PlayerName:  this.db.GetName(),
-			PlayerLevel: this.db.Info.GetLvl(),
-			PlayerHead:  this.db.Info.GetHead(),
-		})
-	}
 }
 
 func (this *Player) OnLogout() {

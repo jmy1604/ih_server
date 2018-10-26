@@ -505,7 +505,10 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 		return int32(msg_client_message.E_ERR_PLAYER_IS_OFFLINE)
 	}
 
-	p.check_and_send_tower_data()
+	need_level := system_unlock_table_mgr.GetUnlockLevel("TowerEnterLevel")
+	if need_level <= p.db.Info.GetLvl() {
+		p.check_and_send_tower_data()
+	}
 
 	response := &msg_client_message.S2CHeartbeat{
 		SysTime: int32(time.Now().Unix()),
@@ -592,6 +595,15 @@ func C2SRedPointStatesHandler(w http.ResponseWriter, r *http.Request, p *Player,
 }
 
 func (this *Player) send_account_player_list() int32 {
+	share_data.LoadAccountPlayerList(hall_server.redis_conn, this.Account)
+	if share_data.GetAccountPlayer(this.Account, config.ServerId) == nil {
+		share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, &msg_client_message.AccountPlayerInfo{
+			ServerId:    config.ServerId,
+			PlayerName:  this.db.GetName(),
+			PlayerLevel: this.db.Info.GetLvl(),
+			PlayerHead:  this.db.Info.GetHead(),
+		})
+	}
 	response := &msg_client_message.S2CAccountPlayerListResponse{
 		InfoList: share_data.GetAccountPlayerList(this.Account),
 	}
