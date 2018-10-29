@@ -33,6 +33,7 @@ func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
 			Level:   v.Level,
 			IsLock:  is_lock,
 			Equips:  v.Equip,
+			State:   v.State,
 		}
 		roles = append(roles, role)
 	}
@@ -60,6 +61,7 @@ func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_m
 			Level:   v.Level,
 			IsLock:  is_lock,
 			Equips:  v.Equip,
+			State:   v.State,
 		}
 		roles = append(roles, role)
 	}

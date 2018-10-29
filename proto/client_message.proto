@@ -764,6 +764,7 @@ message Role {
 	bool IsLock								= 5; // 锁定
 	repeated int32 Equips           		= 6; // 装备
 	int32 PlayerId							= 7; // 玩家ID
+	int32 State                             = 8; // 状态   0 空闲   1 阵型中   2 探索中
 }
 // 请求角色返回
 message S2CRolesResponse {
