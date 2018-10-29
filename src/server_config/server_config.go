@@ -68,6 +68,8 @@ type LoginServerConfig struct {
 	CenterServerIP     string // 连接AssistServer
 	RedisServerIP      string // 连接redis
 	VerifyAccount      bool   // 验证账号
+	FacebookAppID      string
+	FacebookAppSecret  string
 
 	MYSQL_IP      string
 	MYSQL_ACCOUNT string

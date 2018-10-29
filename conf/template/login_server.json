@@ -13,6 +13,8 @@
 	
 	"VerifyAccount": false,
 	"VERIFY_EXPIRATION": 600,
+	"FacebookAppID":"304901123447167",
+	"FacebookAppSecret":"dfbd6006d929459ec7410942264cefd6",
 	
 	"MYSQL_IP":"127.0.0.1:3306",
 	"MYSQL_ACCOUNT":"root",

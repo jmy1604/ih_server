@@ -12,6 +12,7 @@ import (
 	"ih_server/proto/gen_go/server_message"
 	"ih_server/src/server_config"
 	"ih_server/src/share_data"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"regexp"
@@ -428,6 +429,59 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	return
 }
 
+func _verify_facebook_login(user_id, input_token string) int32 {
+	type facebook_data struct {
+		AppID     string `json:"app_id"`
+		IsValid   bool   `json:"is_valid"`
+		UserID    string `json:"user_id"`
+		IssuedAt  int    `json:"issued_at"`
+		ExpiresAt int    `json:"expires_at"`
+	}
+
+	var resp *http.Response
+	var err error
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	url_str := fmt.Sprintf("%s", "https://graph.facebook.com/debug_token?access_token=%v&input_token=%v", config.FacebookAppSecret, input_token)
+	resp, err = client.Get(url_str)
+	if nil != err {
+		log.Error("Facebook verify error %s", err.Error())
+		return -1
+	}
+
+	var data []byte
+	data, err = ioutil.ReadAll(resp.Body)
+	if nil != err {
+		log.Error("Read facebook verify result err(%s) !", err.Error())
+		return -1
+	}
+
+	log.Debug("facebook verify result data: %v", data)
+
+	var fdata facebook_data
+	err = json.Unmarshal(data, &fdata)
+	if nil != err {
+		log.Error("Facebook verify ummarshal err(%s)", err.Error())
+		return -1
+	}
+
+	if !fdata.IsValid {
+		log.Error("Facebook verify app_secret[%v] and input_token[%v] failed", config.FacebookAppSecret, input_token)
+		return -1
+	}
+
+	if fdata.UserID != user_id {
+		log.Error("Facebook verify client user_id[%v] different to result user_id[%v]", user_id, fdata.UserID)
+		return -1
+	}
+
+	log.Debug("Facebook verify user_id[%v] and input_token[%v] success", user_id, input_token)
+
+	return 1
+}
+
 func login_handler(account, password, channel string) (err_code int32, resp_data []byte) {
 	acc_row := dbc.Accounts.GetRow(account)
 	if config.VerifyAccount {
@@ -444,7 +498,10 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 				return
 			}
 		} else if channel == "facebook" {
-
+			err_code = _verify_facebook_login(account, password)
+			if err_code < 0 {
+				return
+			}
 		}
 	} else {
 		if acc_row == nil {
