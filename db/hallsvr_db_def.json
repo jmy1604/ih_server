@@ -791,7 +791,7 @@
 				},
 				{
 					"ColumnName":"GuideData",
-					"DBColumnName":"GuildData",
+					"DBColumnName":"GuideData",
 					"InUse":true,
 					"Simple":false,
 					"SimpleType":"",

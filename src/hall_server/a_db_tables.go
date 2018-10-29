@@ -11593,11 +11593,11 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasGuildData := columns["GuildData"]
-	if !hasGuildData {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN GuildData LONGBLOB")
+	_, hasGuideData := columns["GuideData"]
+	if !hasGuideData {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN GuideData LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN GuildData failed")
+			log.Error("ADD COLUMN GuideData failed")
 			return
 		}
 	}

@@ -280,6 +280,20 @@ message C2SDataSyncRequest {
 	bool Roles								= 3;
 	bool Teams								= 4;
 	bool Campaigns							= 5;
+	bool Tower								= 6;
+	bool Arena								= 7;
+	bool Task								= 8;
+	bool ActiveStage						= 9;
+	bool Guild 								= 10;
+	bool Friend								= 11;
+	bool Chat                               = 12;
+	bool Explore							= 13;
+	bool Mail								= 14;
+	bool Sign  								= 15;
+	bool SevenDays                          = 16;
+	bool Talent								= 17;
+	bool GoldHand							= 18;
+	bool Guide                              = 19;
 }
 
 ////////////////////////////////////end////////////////////////////////////////

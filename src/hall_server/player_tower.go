@@ -77,10 +77,7 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_
 }
 
 func (this *Player) check_and_send_tower_data() {
-	//is_update, _, _ := this.check_tower_keys()
-	//if is_update {
 	this.send_tower_data(false)
-	//}
 }
 
 func (this *Player) fight_tower(tower_id int32) int32 {

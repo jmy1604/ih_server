@@ -544,6 +544,47 @@ func C2SDataSyncHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	if req.Campaigns {
 		p.send_campaigns()
 	}
+	if req.ActiveStage {
+		p.send_active_stage_data(0)
+	}
+	if req.Arena {
+		p.send_arena_data()
+	}
+	if req.Chat {
+		p.pull_chat(CHAT_CHANNEL_WORLD)
+		p.pull_chat(CHAT_CHANNEL_WORLD)
+		p.pull_chat(CHAT_CHANNEL_WORLD)
+	}
+	if req.Explore {
+		p.send_explore_data()
+	}
+	if req.Friend {
+		p.send_friend_list()
+	}
+	if req.GoldHand {
+		p.send_gold_hand()
+	}
+	if req.Guide {
+		p.send_guide_data()
+	}
+	if req.Mail {
+		p.GetMailList()
+	}
+	if req.SevenDays {
+		p.seven_days_data()
+	}
+	if req.Sign {
+		p.get_sign_data()
+	}
+	if req.Talent {
+		p.send_talent_list()
+	}
+	if req.Task {
+		p.send_task(0)
+	}
+	if req.Tower {
+		p.send_tower_data(true)
+	}
 	return 1
 }
 
