@@ -481,7 +481,7 @@ func (this *Player) _levelup_role(role_id, lvl int32) int32 {
 }
 
 func (this *Player) levelup_role(role_id, up_num int32) int32 {
-	if up_num == 0 {
+	if up_num <= 0 {
 		up_num = 1
 	}
 

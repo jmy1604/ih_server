@@ -230,7 +230,7 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_SHOP_GUILD_NOT_JOIN)
 	}
 
-	if buy_num < 0 {
+	if buy_num <= 0 {
 		log.Error("Player[%v] buy shop item num[%v] must greater than 0", this.Id, buy_num)
 		return -1
 	}
