@@ -367,6 +367,59 @@ func select_server_func(account string, token string, server_id int32) {
 	cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), req2s)
 }
 
+func set_password_func(account, password, new_password string) {
+	url_str := fmt.Sprintf(config.SetPasswordUrl, config.LoginServerIP, account, password, new_password)
+	log.Debug("set password Url str %s", url_str)
+
+	var resp *http.Response
+	var err error
+	if config.UseHttps {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := &http.Client{Transport: tr}
+		resp, err = client.Get(url_str)
+	} else {
+		resp, err = http.Get(url_str)
+	}
+	if nil != err {
+		log.Error("set password http get err (%s)", err.Error())
+		return
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if nil != err {
+		log.Error("set password ioutil readall failed err(%s) !", err.Error())
+		return
+	}
+
+	res := &JsonResponseData{}
+	err = json.Unmarshal(data, res)
+	if nil != err {
+		log.Error("set password ummarshal failed err(%s)", err.Error())
+		return
+	}
+
+	if res.Code < 0 {
+		log.Warn("return error_code[%v]", res.Code)
+		return
+	}
+
+	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_SET_LOGIN_PASSWORD_RESPONSE) {
+		log.Warn("returned msg_id[%v] is not correct")
+		return
+	}
+
+	var msg msg_client_message.S2CSetLoginPasswordResponse
+	err = proto.Unmarshal(res.MsgData, &msg)
+	if err != nil {
+		log.Error("unmarshal error[%v]", err.Error())
+		return
+	}
+
+	log.Debug("Account[%v] set password[%v] replace old password[%v]", account, new_password, password)
+}
+
 func (this *TestClient) cmd_register(use_https bool) {
 	fmt.Printf("请输入账号: ")
 	var acc, pwd, is_guest string
@@ -453,6 +506,37 @@ func (this *TestClient) cmd_login(use_https bool) {
 	}
 }
 
+func (this *TestClient) cmd_set_password(use_https bool) {
+	var acc, pwd, new_pwd string
+	fmt.Printf("请输入账号: ")
+	fmt.Scanf("%s\n", &acc)
+	fmt.Printf("请输入密码: ")
+	fmt.Scanf("%s\n", &pwd)
+	fmt.Printf("请输入新密码: ")
+	fmt.Scanf("%s\n", &new_pwd)
+	cur_hall_conn = hall_conn_mgr.GetHallConnByAcc(acc)
+	if nil != cur_hall_conn && cur_hall_conn.blogin {
+		log.Info("[%s] already login", acc)
+		return
+	}
+
+	if config.AccountNum == 0 {
+		config.AccountNum = 1
+	}
+	for i := int32(0); i < config.AccountNum; i++ {
+		account := acc
+		if config.AccountNum > 1 {
+			account = fmt.Sprintf("%s_%v", acc, i)
+		}
+
+		set_password_func(account, pwd, new_pwd)
+
+		if config.AccountNum > 1 {
+			log.Debug("Account[%v] set password, total count[%v]", account, i+1)
+		}
+	}
+}
+
 var is_test bool
 
 func (this *TestClient) OnTick(t timer.TickTime) {
@@ -473,6 +557,10 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 			{
 				this.cmd_login(true)
 				is_test = true
+			}
+		case "set_password":
+			{
+				this.cmd_set_password(true)
 			}
 		case "enter_test":
 			{

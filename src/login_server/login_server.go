@@ -259,6 +259,7 @@ func (this *LoginServer) reg_http_mux() {
 	login_http_mux["/bind_new_account"] = bind_new_account_http_handler
 	login_http_mux["/login"] = login_http_handler
 	login_http_mux["/select_server"] = select_server_http_handler
+	login_http_mux["/set_password"] = set_password_http_handler
 }
 
 func (this *LoginHttpHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -625,6 +626,39 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 	return
 }
 
+func set_password_handler(account, password, new_password string) (err_code int32, resp_data []byte) {
+	row := dbc.Accounts.GetRow(account)
+	if row == nil {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		log.Error("set_password_handler account[%v] not found", account)
+		return
+	}
+
+	if row.GetPassword() != password {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_PASSWORD_INVALID)
+		log.Error("set_password_handler account[%v] password is invalid", account)
+		return
+	}
+
+	row.SetPassword(new_password)
+
+	response := &msg_client_message.S2CSetLoginPasswordResponse{
+		Account:     account,
+		Password:    password,
+		NewPassword: new_password,
+	}
+
+	var err error
+	resp_data, err = proto.Marshal(response)
+	if err != nil {
+		err_code = int32(msg_client_message.E_ERR_INTERNAL)
+		log.Error("set_password_handler marshal response error: %v", err.Error())
+		return
+	}
+
+	return
+}
+
 func response_error(err_code int32, w http.ResponseWriter) {
 	err_response := JsonResponseData{
 		Code: err_code,
@@ -859,6 +893,65 @@ func select_server_http_handler(w http.ResponseWriter, r *http.Request) {
 	if nil != err {
 		response_error(-1, w)
 		log.Error("login_http_handler json mashal error")
+		return
+	}
+	w.Write(data)
+}
+
+func set_password_http_handler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+			return
+		}
+	}()
+
+	account := r.URL.Query().Get("account")
+	if "" == account {
+		response_error(-1, w)
+		log.Error("set_password_http_handler get account is empty")
+		return
+	}
+
+	password := r.URL.Query().Get("password")
+
+	new_password := r.URL.Query().Get("new_password")
+	if "" == new_password {
+		response_error(-1, w)
+		log.Error("set_password_http_handler get new password is empty")
+		return
+	}
+
+	if password == new_password {
+		response_error(-1, w)
+		log.Error("set_password_http_handler set password must different to old password")
+		return
+	}
+
+	log.Debug("account: %v, password: %v, new_password: %v", account, password, new_password)
+
+	var err_code int32
+	var data []byte
+	err_code, data = set_password_handler(account, password, new_password)
+
+	if err_code < 0 {
+		response_error(err_code, w)
+		log.Error("set_password_http_handler err_code[%v]", err_code)
+		return
+	}
+
+	if data == nil {
+		response_error(-1, w)
+		log.Error("cant get response data")
+		return
+	}
+
+	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_SET_LOGIN_PASSWORD_RESPONSE), MsgData: data}
+	var err error
+	data, err = json.Marshal(http_res)
+	if nil != err {
+		response_error(-1, w)
+		log.Error("set_password_http_handler json mashal error")
 		return
 	}
 	w.Write(data)

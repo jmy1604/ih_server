@@ -147,6 +147,7 @@ type TestClientConfig struct {
 	BindNewAccountUrl string
 	LoginUrl          string
 	SelectServerUrl   string
+	SetPasswordUrl    string
 	AccountPrefix     string
 	AccountStartIndex int32
 	AccountNum        int32

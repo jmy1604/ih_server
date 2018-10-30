@@ -399,6 +399,19 @@ message S2CAccountPlayerListResponse {
 	repeated AccountPlayerInfo InfoList		= 1; // 列表
 }
 
+// 修改密码
+message C2SSetLoginPasswordRequest {
+	string Account							= 1;
+	string Password							= 2;
+	string NewPassword						= 3;
+}
+
+message S2CSetLoginPasswordResponse {
+	string Account							= 1;
+	string Password							= 2;
+	string NewPassword						= 3;
+}
+
 ///////////////////////////////////start///////////////////////////////////////
 
 message C2S_MSG_DATA {

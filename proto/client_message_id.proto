@@ -22,6 +22,8 @@ enum MSGID {
 	S2C_SELECT_SERVER_RESPONSE  			= 10004; // 选择服务器返回 S2CSelectServerResponse
 	C2S_ACCOUNT_PLAYER_LIST_REQUEST			= 10005; // 玩家列表 C2SAccountPlayerListRequest
 	S2C_ACCOUNT_PLAYER_LIST_RESPONSE		= 10006; // 玩家列表返回 S2CAccountPlayerListResponse
+	C2S_SET_LOGIN_PASSWORD_REQUEST			= 10007; // 玩家修改登陆密码 C2SSetLoginPasswordRequest
+	S2C_SET_LOGIN_PASSWORD_RESPONSE      	= 10008; // 玩家修改登陆密码返回 S2CSetLoginPasswordResponse
 	
 	C2S_ENTER_GAME_REQUEST					= 10020; // 进入游戏 C2SEnterGameRequest
 	S2C_ENTER_GAME_RESPONSE					= 10021; // 进入游戏返回 S2CEnterGameResponse

@@ -5,6 +5,7 @@
 	"BindNewAccountUrl":"https://%v/bind_new_account?server_id=%v&account=%v&password=%v&new_account=%v&new_password=%v",
 	"LoginUrl":"https://%v/login?account=%v&password=%v&channel=%v",
 	"SelectServerUrl":"https://%v/select_server?account=%v&token=%v&server_id=%v",
+	"SetPasswordUrl":"https://%v/set_password?account=%v&password=%v&new_password=%v",
 	"AccountPrefix":"test",
 	"AccountStartIndex":1,
 	"AccountNum":1,
