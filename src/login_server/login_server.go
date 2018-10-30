@@ -654,17 +654,17 @@ func register_http_handler(w http.ResponseWriter, r *http.Request) {
 	account := r.URL.Query().Get("account")
 
 	password := r.URL.Query().Get("password")
-	if password == "" {
-		response_error(-1, w)
-		log.Error("password can not set to empty")
-		return
-	}
-
 	is_guest := r.URL.Query().Get("is_guest")
 	ig, err := strconv.Atoi(is_guest)
 	if err != nil {
 		response_error(-1, w)
 		log.Error("is_guest %v set invalid", is_guest)
+		return
+	}
+
+	if ig == 0 && password == "" {
+		response_error(-1, w)
+		log.Error("password can not set to empty")
 		return
 	}
 
