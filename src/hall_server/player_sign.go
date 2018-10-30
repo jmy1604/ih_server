@@ -58,6 +58,7 @@ func (this *Player) check_signed() (signed int32) {
 				}
 				this.db.Sign.SetCurrGroup(next_group)
 				this.db.Sign.SetSignedIndex(1)
+				this.db.Sign.SetAwardIndex(0)
 			} else {
 				this.db.Sign.SetSignedIndex(curr_signed + 1)
 			}
