@@ -2149,7 +2149,7 @@ func account_players_cmd(p *Player, args []string) int32 {
 	return p.send_account_player_list()
 }
 
-func reset_sign_index_cmd(p *Player, args []string) int32 {
+func reset_sign_award_cmd(p *Player, args []string) int32 {
 	p.db.Sign.SetAwardIndex(0)
 	return 1
 }
@@ -2292,7 +2292,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"get_red_states":         get_red_states_cmd,
 	"clear_tower_save":       clear_tower_save_cmd,
 	"account_players":        account_players_cmd,
-	"reset_sign_index":       reset_sign_index_cmd,
+	"reset_sign_award":       reset_sign_award_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
