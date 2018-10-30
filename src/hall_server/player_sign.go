@@ -41,14 +41,14 @@ func (this *Player) check_signed() (signed int32) {
 		signed = 1
 	} else {
 		t := time.Unix(int64(last_signed), 0)
+		curr_group := this.db.Sign.GetCurrGroup()
+		group_items := sign_table_mgr.GetGroup(curr_group)
+		if group_items == nil {
+			log.Error("Sign table not found group %v data", curr_group)
+			return int32(msg_client_message.E_ERR_SIGN_TABLE_DATA_NOT_FOUND)
+		}
 		if !(now_time.Year() == t.Year() && now_time.Month() == t.Month() && now_time.Day() == t.Day()) {
 			curr_signed := this.db.Sign.GetSignedIndex()
-			curr_group := this.db.Sign.GetCurrGroup()
-			group_items := sign_table_mgr.GetGroup(curr_group)
-			if group_items == nil {
-				log.Error("Sign table not found group %v data", curr_group)
-				return int32(msg_client_message.E_ERR_SIGN_TABLE_DATA_NOT_FOUND)
-			}
 			if int(curr_signed) >= len(group_items) {
 				next_group := curr_group + 1
 				group_items = sign_table_mgr.GetGroup(next_group)
@@ -62,13 +62,12 @@ func (this *Player) check_signed() (signed int32) {
 			} else {
 				this.db.Sign.SetSignedIndex(curr_signed + 1)
 			}
-
-			// 纠正错误数据
-			curr_award := this.db.Sign.GetAwardIndex()
-			if int(curr_award) >= len(group_items) {
-				this.db.Sign.SetAwardIndex(0)
-			}
 			signed = 1
+		}
+		// 纠正错误数据
+		curr_award := this.db.Sign.GetAwardIndex()
+		if int(curr_award) >= len(group_items) {
+			this.db.Sign.SetAwardIndex(0)
 		}
 	}
 
