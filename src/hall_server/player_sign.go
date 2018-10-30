@@ -64,11 +64,6 @@ func (this *Player) check_signed() (signed int32) {
 			}
 			signed = 1
 		}
-		// 纠正错误数据
-		curr_award := this.db.Sign.GetAwardIndex()
-		if int(curr_award) >= len(group_items) {
-			this.db.Sign.SetAwardIndex(0)
-		}
 	}
 
 	if signed > 0 {
