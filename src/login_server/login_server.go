@@ -552,7 +552,9 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 		}
 	}
 	response.InfoList = share_data.GetAccountPlayerList(account)
-	response.LastServerId = acc_row.GetLastSelectServerId()
+	if acc_row != nil {
+		response.LastServerId = acc_row.GetLastSelectServerId()
+	}
 
 	var err error
 	resp_data, err = proto.Marshal(response)
