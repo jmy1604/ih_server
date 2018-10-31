@@ -322,7 +322,7 @@ func (this *Player) OnCreate() {
 	this.add_init_roles()
 	this.db.Info.IncbyDiamond(global_config.InitDiamond)
 	this.db.Info.IncbyGold(global_config.InitCoin)
-	this.db.SetName(this.Account) // 昵称用默认账号名
+	//this.db.SetName(this.Account) // 昵称用默认账号名
 	if global_config.InitHeads != nil && len(global_config.InitHeads) > 0 {
 		for i := 0; i < len(global_config.InitHeads); i++ {
 			this.add_resource(global_config.InitHeads[i], 1)
