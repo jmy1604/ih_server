@@ -750,11 +750,11 @@ func bind_new_account_http_handler(w http.ResponseWriter, r *http.Request) {
 	}
 	account := r.URL.Query().Get("account")
 	password := r.URL.Query().Get("password")
-	if password == "" {
+	/*if password == "" {
 		response_error(-1, w)
 		log.Error("password can not set to empty")
 		return
-	}
+	}*/
 
 	new_account := r.URL.Query().Get("new_account")
 	new_password := r.URL.Query().Get("new_password")
