@@ -448,9 +448,11 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	client := &http.Client{Transport: tr}
+
 	url_str := fmt.Sprintf("https://graph.facebook.com/debug_token?input_token=%v&access_token=%v", input_token, input_token)
 	log.Debug("verify facebook url: %v", url_str)
+
+	client := &http.Client{Transport: tr}
 	resp, err = client.Get(url_str)
 	if nil != err {
 		log.Error("Facebook verify error %s", err.Error())
