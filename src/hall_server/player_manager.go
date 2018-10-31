@@ -599,11 +599,13 @@ func C2SPlayerChangeNameHandler(w http.ResponseWriter, r *http.Request, p *Playe
 		log.Error("Player[%v] change new name[%v] is too long", p.Id, req.GetNewName())
 		return int32(msg_client_message.E_ERR_PLAYER_NAME_TOO_LONG)
 	}
-	if global_config.ChgNameCost != nil && len(global_config.ChgNameCost) > 0 {
-		if p.get_diamond() < global_config.ChgNameCost[0] {
-			return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
+	if p.db.GetName() != "" {
+		if global_config.ChgNameCost != nil && len(global_config.ChgNameCost) > 0 {
+			if p.get_diamond() < global_config.ChgNameCost[0] {
+				return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
+			}
+			p.add_diamond(-global_config.ChgNameCost[0])
 		}
-		p.add_diamond(-global_config.ChgNameCost[0])
 	}
 	p.db.SetName(req.GetNewName())
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_CHANGE_NAME_RESPONSE), &msg_client_message.S2CPlayerChangeNameResponse{
