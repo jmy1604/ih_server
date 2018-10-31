@@ -459,7 +459,7 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 		return -1
 	}
 
-	log.Debug("facebook verify result data: %v", data)
+	log.Debug("facebook verify result data: %v", string(data))
 
 	var fdata facebook_data
 	err = json.Unmarshal(data, &fdata)
