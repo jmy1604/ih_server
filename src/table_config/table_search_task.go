@@ -31,6 +31,7 @@ type XmlSearchTaskItem struct {
 	ConstRewardStr      string `xml:"ConstReward,attr"`
 	ConstReward         []int32
 	RandomReward        int32  `xml:"RandomReward,attr"`
+	BonusStageLevelCond int32  `xml:"BonusStageLevelCond,attr"`
 	BonusStageChance    int32  `xml:"BonusStageChance,attr"`
 	BonusStageListID    int32  `xml:"BonusStageListID,attr"`
 	TaskHeroNameListStr string `xml:"TaskHeroNameList,attr"`

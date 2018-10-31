@@ -979,7 +979,7 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 
 	// 触发关卡
 	var reward_stage_id int32
-	if rand.Int31n(10000) < task.BonusStageChance {
+	if rand.Int31n(10000) < task.BonusStageChance && this.db.Info.GetLvl() >= task.BonusStageLevelCond {
 		boss := explore_task_boss_mgr.Random(task.BonusStageListID)
 		if boss != nil {
 			if is_story {
