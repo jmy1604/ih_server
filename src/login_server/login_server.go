@@ -431,12 +431,16 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 }
 
 func _verify_facebook_login(user_id, input_token string) int32 {
-	type facebook_data struct {
+	type _facebook_data struct {
 		AppID     string `json:"app_id"`
 		IsValid   bool   `json:"is_valid"`
 		UserID    string `json:"user_id"`
 		IssuedAt  int    `json:"issued_at"`
 		ExpiresAt int    `json:"expires_at"`
+	}
+
+	type facebook_data struct {
+		Data _facebook_data `json:"data"`
 	}
 
 	var resp *http.Response
@@ -474,13 +478,13 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 		return -1
 	}
 
-	if !fdata.IsValid {
+	if !fdata.Data.IsValid {
 		log.Error("Facebook verify app_secret[%v] and input_token[%v] failed", config.FacebookAppSecret, input_token)
 		return -1
 	}
 
-	if fdata.UserID != user_id {
-		log.Error("Facebook verify client user_id[%v] different to result user_id[%v]", user_id, fdata.UserID)
+	if fdata.Data.UserID != user_id {
+		log.Error("Facebook verify client user_id[%v] different to result user_id[%v]", user_id, fdata.Data.UserID)
 		return -1
 	}
 
