@@ -516,6 +516,10 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 			if err_code < 0 {
 				return
 			}
+			if acc_row == nil {
+				acc_row = dbc.Accounts.AddRow(account)
+				acc_row.SetChannel("facebook")
+			}
 		}
 	} else {
 		if acc_row == nil {
