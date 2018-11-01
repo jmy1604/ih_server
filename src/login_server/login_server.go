@@ -396,6 +396,7 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 
 	row.SetPassword(new_password)
 	row.SetRegisterTime(register_time)
+	row.SetOldTempAccount(account)
 	dbc.Accounts.RemoveRow(account)
 
 	hall_agent := hall_agent_manager.GetAgentByID(server_id)

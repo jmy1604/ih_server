@@ -292,6 +292,18 @@ func (this *dbAccountRow)SetToken(v string){
 	this.m_Token_changed=true
 	return
 }
+func (this *dbAccountRow)GetOldTempAccount( )(r string ){
+	this.m_lock.UnSafeRLock("dbAccountRow.GetdbAccountOldTempAccountColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_OldTempAccount)
+}
+func (this *dbAccountRow)SetOldTempAccount(v string){
+	this.m_lock.UnSafeLock("dbAccountRow.SetdbAccountOldTempAccountColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_OldTempAccount=string(v)
+	this.m_OldTempAccount_changed=true
+	return
+}
 func (this *dbAccountRow)GetLastGetAccountPlayerListTime( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbAccountRow.GetdbAccountLastGetAccountPlayerListTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -334,6 +346,8 @@ type dbAccountRow struct {
 	m_Channel string
 	m_Token_changed bool
 	m_Token string
+	m_OldTempAccount_changed bool
+	m_OldTempAccount string
 	m_LastGetAccountPlayerListTime_changed bool
 	m_LastGetAccountPlayerListTime int32
 	m_LastSelectServerId_changed bool
@@ -348,6 +362,7 @@ func new_dbAccountRow(table *dbAccountTable, AccountId string) (r *dbAccountRow)
 	this.m_RegisterTime_changed=true
 	this.m_Channel_changed=true
 	this.m_Token_changed=true
+	this.m_OldTempAccount_changed=true
 	this.m_LastGetAccountPlayerListTime_changed=true
 	this.m_LastSelectServerId_changed=true
 	return this
@@ -359,20 +374,21 @@ func (this *dbAccountRow) save_data(release bool) (err error, released bool, sta
 	this.m_lock.UnSafeLock("dbAccountRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(7)
+		db_args:=new_db_args(8)
 		db_args.Push(this.m_AccountId)
 		db_args.Push(this.m_Password)
 		db_args.Push(this.m_RegisterTime)
 		db_args.Push(this.m_Channel)
 		db_args.Push(this.m_Token)
+		db_args.Push(this.m_OldTempAccount)
 		db_args.Push(this.m_LastGetAccountPlayerListTime)
 		db_args.Push(this.m_LastSelectServerId)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Password_changed||this.m_RegisterTime_changed||this.m_Channel_changed||this.m_Token_changed||this.m_LastGetAccountPlayerListTime_changed||this.m_LastSelectServerId_changed{
+		if this.m_Password_changed||this.m_RegisterTime_changed||this.m_Channel_changed||this.m_Token_changed||this.m_OldTempAccount_changed||this.m_LastGetAccountPlayerListTime_changed||this.m_LastSelectServerId_changed{
 			update_string = "UPDATE Accounts SET "
-			db_args:=new_db_args(7)
+			db_args:=new_db_args(8)
 			if this.m_Password_changed{
 				update_string+="Password=?,"
 				db_args.Push(this.m_Password)
@@ -388,6 +404,10 @@ func (this *dbAccountRow) save_data(release bool) (err error, released bool, sta
 			if this.m_Token_changed{
 				update_string+="Token=?,"
 				db_args.Push(this.m_Token)
+			}
+			if this.m_OldTempAccount_changed{
+				update_string+="OldTempAccount=?,"
+				db_args.Push(this.m_OldTempAccount)
 			}
 			if this.m_LastGetAccountPlayerListTime_changed{
 				update_string+="LastGetAccountPlayerListTime=?,"
@@ -409,6 +429,7 @@ func (this *dbAccountRow) save_data(release bool) (err error, released bool, sta
 	this.m_RegisterTime_changed = false
 	this.m_Channel_changed = false
 	this.m_Token_changed = false
+	this.m_OldTempAccount_changed = false
 	this.m_LastGetAccountPlayerListTime_changed = false
 	this.m_LastSelectServerId_changed = false
 	if release && this.m_loaded {
@@ -542,6 +563,14 @@ func (this *dbAccountTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasOldTempAccount := columns["OldTempAccount"]
+	if !hasOldTempAccount {
+		_, err = this.m_dbc.Exec("ALTER TABLE Accounts ADD COLUMN OldTempAccount varchar(45) DEFAULT ''")
+		if err != nil {
+			log.Error("ADD COLUMN OldTempAccount failed")
+			return
+		}
+	}
 	_, hasLastGetAccountPlayerListTime := columns["LastGetAccountPlayerListTime"]
 	if !hasLastGetAccountPlayerListTime {
 		_, err = this.m_dbc.Exec("ALTER TABLE Accounts ADD COLUMN LastGetAccountPlayerListTime int(11) DEFAULT 0")
@@ -561,7 +590,7 @@ func (this *dbAccountTable) check_create_table() (err error) {
 	return
 }
 func (this *dbAccountTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT AccountId,Password,RegisterTime,Channel,Token,LastGetAccountPlayerListTime,LastSelectServerId FROM Accounts")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT AccountId,Password,RegisterTime,Channel,Token,OldTempAccount,LastGetAccountPlayerListTime,LastSelectServerId FROM Accounts")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -569,7 +598,7 @@ func (this *dbAccountTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbAccountTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Accounts (AccountId,Password,RegisterTime,Channel,Token,LastGetAccountPlayerListTime,LastSelectServerId) VALUES (?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Accounts (AccountId,Password,RegisterTime,Channel,Token,OldTempAccount,LastGetAccountPlayerListTime,LastSelectServerId) VALUES (?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -618,10 +647,11 @@ func (this *dbAccountTable) Preload() (err error) {
 	var dRegisterTime int32
 	var dChannel string
 	var dToken string
+	var dOldTempAccount string
 	var dLastGetAccountPlayerListTime int32
 	var dLastSelectServerId int32
 	for r.Next() {
-		err = r.Scan(&AccountId,&dPassword,&dRegisterTime,&dChannel,&dToken,&dLastGetAccountPlayerListTime,&dLastSelectServerId)
+		err = r.Scan(&AccountId,&dPassword,&dRegisterTime,&dChannel,&dToken,&dOldTempAccount,&dLastGetAccountPlayerListTime,&dLastSelectServerId)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -631,12 +661,14 @@ func (this *dbAccountTable) Preload() (err error) {
 		row.m_RegisterTime=dRegisterTime
 		row.m_Channel=dChannel
 		row.m_Token=dToken
+		row.m_OldTempAccount=dOldTempAccount
 		row.m_LastGetAccountPlayerListTime=dLastGetAccountPlayerListTime
 		row.m_LastSelectServerId=dLastSelectServerId
 		row.m_Password_changed=false
 		row.m_RegisterTime_changed=false
 		row.m_Channel_changed=false
 		row.m_Token_changed=false
+		row.m_OldTempAccount_changed=false
 		row.m_LastGetAccountPlayerListTime_changed=false
 		row.m_LastSelectServerId_changed=false
 		row.m_valid = true
