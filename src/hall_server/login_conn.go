@@ -208,8 +208,17 @@ func L2HBindNewAccountHandler(conn *server_conn.ServerConn, msg proto.Message) {
 		return
 	}
 
+	row := dbc.Players.GetRow(p.Id)
+	if row == nil {
+		log.Error("Cant found db row with player account[%v] and id[%v]", req.GetAccount(), p.Id)
+		return
+	}
+
 	player_mgr.RemoveFromAccMap(req.GetAccount())
+	p.Account = req.GetNewAccount()
 	player_mgr.Add2AccMap(p)
+
+	row.SetAccount(req.GetNewAccount())
 
 	log.Debug("Account %v bind new account %v", req.GetAccount(), req.GetNewAccount())
 }
