@@ -420,8 +420,6 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 		// 关卡奖励
 		rewards := append(stage.RewardList, guild_stage.BattleReward...)
 		this.send_stage_reward(rewards, 7, 0)
-		// 排名奖励
-		guild_stage_manager.RankListReward(guild.GetId(), boss_id)
 	} else {
 		this.send_stage_reward(guild_stage.BattleReward, 7, 0)
 	}
@@ -442,6 +440,11 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 
 		// 保存
 		guild_stage_manager.SaveDamageLog(guild.GetId(), boss_id, this.Id, this_fight_damage)
+	}
+
+	if is_win && !has_next_wave {
+		// 排名奖励
+		guild_stage_manager.RankListReward(guild.GetId(), boss_id)
 	}
 
 	Output_S2CBattleResult(this, response)

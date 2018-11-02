@@ -244,6 +244,373 @@ const DBC_VERSION = 1
 const DBC_SUB_VERSION = 0
 
 
+func (this *dbAccount2UniqueIdRow)GetUniqueId( )(r string ){
+	this.m_lock.UnSafeRLock("dbAccount2UniqueIdRow.GetdbAccount2UniqueIdUniqueIdColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_UniqueId)
+}
+func (this *dbAccount2UniqueIdRow)SetUniqueId(v string){
+	this.m_lock.UnSafeLock("dbAccount2UniqueIdRow.SetdbAccount2UniqueIdUniqueIdColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_UniqueId=string(v)
+	this.m_UniqueId_changed=true
+	return
+}
+type dbAccount2UniqueIdRow struct {
+	m_table *dbAccount2UniqueIdTable
+	m_lock       *RWMutex
+	m_loaded  bool
+	m_new     bool
+	m_remove  bool
+	m_touch      int32
+	m_releasable bool
+	m_valid   bool
+	m_Account        string
+	m_UniqueId_changed bool
+	m_UniqueId string
+}
+func new_dbAccount2UniqueIdRow(table *dbAccount2UniqueIdTable, Account string) (r *dbAccount2UniqueIdRow) {
+	this := &dbAccount2UniqueIdRow{}
+	this.m_table = table
+	this.m_Account = Account
+	this.m_lock = NewRWMutex()
+	this.m_UniqueId_changed=true
+	return this
+}
+func (this *dbAccount2UniqueIdRow) GetAccount() (r string) {
+	return this.m_Account
+}
+func (this *dbAccount2UniqueIdRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbAccount2UniqueIdRow.save_data")
+	defer this.m_lock.UnSafeUnlock()
+	if this.m_new {
+		db_args:=new_db_args(2)
+		db_args.Push(this.m_Account)
+		db_args.Push(this.m_UniqueId)
+		args=db_args.GetArgs()
+		state = 1
+	} else {
+		if this.m_UniqueId_changed{
+			update_string = "UPDATE Account2UniqueIds SET "
+			db_args:=new_db_args(2)
+			if this.m_UniqueId_changed{
+				update_string+="UniqueId=?,"
+				db_args.Push(this.m_UniqueId)
+			}
+			update_string = strings.TrimRight(update_string, ", ")
+			update_string+=" WHERE Account=?"
+			db_args.Push(this.m_Account)
+			args=db_args.GetArgs()
+			state = 2
+		}
+	}
+	this.m_new = false
+	this.m_UniqueId_changed = false
+	if release && this.m_loaded {
+		atomic.AddInt32(&this.m_table.m_gc_n, -1)
+		this.m_loaded = false
+		released = true
+	}
+	return nil,released,state,update_string,args
+}
+func (this *dbAccount2UniqueIdRow) Save(release bool) (err error, d bool, released bool) {
+	err,released, state, update_string, args := this.save_data(release)
+	if err != nil {
+		log.Error("save data failed")
+		return err, false, false
+	}
+	if state == 0 {
+		d = false
+	} else if state == 1 {
+		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
+		if err != nil {
+			log.Error("INSERT Account2UniqueIds exec failed %v ", this.m_Account)
+			return err, false, released
+		}
+		d = true
+	} else if state == 2 {
+		_, err = this.m_table.m_dbc.Exec(update_string, args...)
+		if err != nil {
+			log.Error("UPDATE Account2UniqueIds exec failed %v", this.m_Account)
+			return err, false, released
+		}
+		d = true
+	}
+	return nil, d, released
+}
+func (this *dbAccount2UniqueIdRow) Touch(releasable bool) {
+	this.m_touch = int32(time.Now().Unix())
+	this.m_releasable = releasable
+}
+type dbAccount2UniqueIdRowSort struct {
+	rows []*dbAccount2UniqueIdRow
+}
+func (this *dbAccount2UniqueIdRowSort) Len() (length int) {
+	return len(this.rows)
+}
+func (this *dbAccount2UniqueIdRowSort) Less(i int, j int) (less bool) {
+	return this.rows[i].m_touch < this.rows[j].m_touch
+}
+func (this *dbAccount2UniqueIdRowSort) Swap(i int, j int) {
+	temp := this.rows[i]
+	this.rows[i] = this.rows[j]
+	this.rows[j] = temp
+}
+type dbAccount2UniqueIdTable struct{
+	m_dbc *DBC
+	m_lock *RWMutex
+	m_rows map[string]*dbAccount2UniqueIdRow
+	m_new_rows map[string]*dbAccount2UniqueIdRow
+	m_removed_rows map[string]*dbAccount2UniqueIdRow
+	m_gc_n int32
+	m_gcing int32
+	m_pool_size int32
+	m_preload_select_stmt *sql.Stmt
+	m_preload_max_id int32
+	m_save_insert_stmt *sql.Stmt
+	m_delete_stmt *sql.Stmt
+}
+func new_dbAccount2UniqueIdTable(dbc *DBC) (this *dbAccount2UniqueIdTable) {
+	this = &dbAccount2UniqueIdTable{}
+	this.m_dbc = dbc
+	this.m_lock = NewRWMutex()
+	this.m_rows = make(map[string]*dbAccount2UniqueIdRow)
+	this.m_new_rows = make(map[string]*dbAccount2UniqueIdRow)
+	this.m_removed_rows = make(map[string]*dbAccount2UniqueIdRow)
+	return this
+}
+func (this *dbAccount2UniqueIdTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS Account2UniqueIds(Account varchar(64),PRIMARY KEY (Account))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS Account2UniqueIds failed")
+		return
+	}
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='Account2UniqueIds'", this.m_dbc.m_db_name)
+	if err != nil {
+		log.Error("SELECT information_schema failed")
+		return
+	}
+	columns := make(map[string]int32)
+	for rows.Next() {
+		var column_name string
+		var ordinal_position int32
+		err = rows.Scan(&column_name, &ordinal_position)
+		if err != nil {
+			log.Error("scan information_schema row failed")
+			return
+		}
+		if ordinal_position < 1 {
+			log.Error("col ordinal out of range")
+			continue
+		}
+		columns[column_name] = ordinal_position
+	}
+	_, hasUniqueId := columns["UniqueId"]
+	if !hasUniqueId {
+		_, err = this.m_dbc.Exec("ALTER TABLE Account2UniqueIds ADD COLUMN UniqueId varchar(45) DEFAULT ''")
+		if err != nil {
+			log.Error("ADD COLUMN UniqueId failed")
+			return
+		}
+	}
+	return
+}
+func (this *dbAccount2UniqueIdTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Account,UniqueId FROM Account2UniqueIds")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbAccount2UniqueIdTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Account2UniqueIds (Account,UniqueId) VALUES (?,?)")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbAccount2UniqueIdTable) prepare_delete_stmt() (err error) {
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM Account2UniqueIds WHERE Account=?")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbAccount2UniqueIdTable) Init() (err error) {
+	err=this.check_create_table()
+	if err!=nil{
+		log.Error("check_create_table failed")
+		return
+	}
+	err=this.prepare_preload_select_stmt()
+	if err!=nil{
+		log.Error("prepare_preload_select_stmt failed")
+		return
+	}
+	err=this.prepare_save_insert_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	err=this.prepare_delete_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	return
+}
+func (this *dbAccount2UniqueIdTable) Preload() (err error) {
+	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
+	if err != nil {
+		log.Error("SELECT")
+		return
+	}
+	var Account string
+	var dUniqueId string
+	for r.Next() {
+		err = r.Scan(&Account,&dUniqueId)
+		if err != nil {
+			log.Error("Scan err[%v]", err.Error())
+			return
+		}
+		row := new_dbAccount2UniqueIdRow(this,Account)
+		row.m_UniqueId=dUniqueId
+		row.m_UniqueId_changed=false
+		row.m_valid = true
+		this.m_rows[Account]=row
+	}
+	return
+}
+func (this *dbAccount2UniqueIdTable) GetPreloadedMaxId() (max_id int32) {
+	return this.m_preload_max_id
+}
+func (this *dbAccount2UniqueIdTable) fetch_rows(rows map[string]*dbAccount2UniqueIdRow) (r map[string]*dbAccount2UniqueIdRow) {
+	this.m_lock.UnSafeLock("dbAccount2UniqueIdTable.fetch_rows")
+	defer this.m_lock.UnSafeUnlock()
+	r = make(map[string]*dbAccount2UniqueIdRow)
+	for i, v := range rows {
+		r[i] = v
+	}
+	return r
+}
+func (this *dbAccount2UniqueIdTable) fetch_new_rows() (new_rows map[string]*dbAccount2UniqueIdRow) {
+	this.m_lock.UnSafeLock("dbAccount2UniqueIdTable.fetch_new_rows")
+	defer this.m_lock.UnSafeUnlock()
+	new_rows = make(map[string]*dbAccount2UniqueIdRow)
+	for i, v := range this.m_new_rows {
+		_, has := this.m_rows[i]
+		if has {
+			log.Error("rows already has new rows %v", i)
+			continue
+		}
+		this.m_rows[i] = v
+		new_rows[i] = v
+	}
+	for i, _ := range new_rows {
+		delete(this.m_new_rows, i)
+	}
+	return
+}
+func (this *dbAccount2UniqueIdTable) save_rows(rows map[string]*dbAccount2UniqueIdRow, quick bool) {
+	for _, v := range rows {
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		err, delay, _ := v.Save(false)
+		if err != nil {
+			log.Error("save failed %v", err)
+		}
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		if delay&&!quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+}
+func (this *dbAccount2UniqueIdTable) Save(quick bool) (err error){
+	removed_rows := this.fetch_rows(this.m_removed_rows)
+	for _, v := range removed_rows {
+		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetAccount())
+		if err != nil {
+			log.Error("exec delete stmt failed %v", err)
+		}
+		v.m_valid = false
+		if !quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+	this.m_removed_rows = make(map[string]*dbAccount2UniqueIdRow)
+	rows := this.fetch_rows(this.m_rows)
+	this.save_rows(rows, quick)
+	new_rows := this.fetch_new_rows()
+	this.save_rows(new_rows, quick)
+	return
+}
+func (this *dbAccount2UniqueIdTable) AddRow(Account string) (row *dbAccount2UniqueIdRow) {
+	this.m_lock.UnSafeLock("dbAccount2UniqueIdTable.AddRow")
+	defer this.m_lock.UnSafeUnlock()
+	row = new_dbAccount2UniqueIdRow(this,Account)
+	row.m_new = true
+	row.m_loaded = true
+	row.m_valid = true
+	_, has := this.m_new_rows[Account]
+	if has{
+		log.Error("已经存在 %v", Account)
+		return nil
+	}
+	this.m_new_rows[Account] = row
+	atomic.AddInt32(&this.m_gc_n,1)
+	return row
+}
+func (this *dbAccount2UniqueIdTable) RemoveRow(Account string) {
+	this.m_lock.UnSafeLock("dbAccount2UniqueIdTable.RemoveRow")
+	defer this.m_lock.UnSafeUnlock()
+	row := this.m_rows[Account]
+	if row != nil {
+		row.m_remove = true
+		delete(this.m_rows, Account)
+		rm_row := this.m_removed_rows[Account]
+		if rm_row != nil {
+			log.Error("rows and removed rows both has %v", Account)
+		}
+		this.m_removed_rows[Account] = row
+		_, has_new := this.m_new_rows[Account]
+		if has_new {
+			delete(this.m_new_rows, Account)
+			log.Error("rows and new_rows both has %v", Account)
+		}
+	} else {
+		row = this.m_removed_rows[Account]
+		if row == nil {
+			_, has_new := this.m_new_rows[Account]
+			if has_new {
+				delete(this.m_new_rows, Account)
+			} else {
+				log.Error("row not exist %v", Account)
+			}
+		} else {
+			log.Error("already removed %v", Account)
+			_, has_new := this.m_new_rows[Account]
+			if has_new {
+				delete(this.m_new_rows, Account)
+				log.Error("removed rows and new_rows both has %v", Account)
+			}
+		}
+	}
+}
+func (this *dbAccount2UniqueIdTable) GetRow(Account string) (row *dbAccount2UniqueIdRow) {
+	this.m_lock.UnSafeRLock("dbAccount2UniqueIdTable.GetRow")
+	defer this.m_lock.UnSafeRUnlock()
+	row = this.m_rows[Account]
+	if row == nil {
+		row = this.m_new_rows[Account]
+	}
+	return row
+}
 func (this *dbAccountRow)GetPassword( )(r string ){
 	this.m_lock.UnSafeRLock("dbAccountRow.GetdbAccountPasswordColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -817,9 +1184,16 @@ type DBC struct {
 	m_db_addr			string
 	m_db_account			string
 	m_db_password		string
+	Account2UniqueIds *dbAccount2UniqueIdTable
 	Accounts *dbAccountTable
 }
 func (this *DBC)init_tables()(err error){
+	this.Account2UniqueIds = new_dbAccount2UniqueIdTable(this)
+	err = this.Account2UniqueIds.Init()
+	if err != nil {
+		log.Error("init Account2UniqueIds table failed")
+		return
+	}
 	this.Accounts = new_dbAccountTable(this)
 	err = this.Accounts.Init()
 	if err != nil {
@@ -829,6 +1203,13 @@ func (this *DBC)init_tables()(err error){
 	return
 }
 func (this *DBC)Preload()(err error){
+	err = this.Account2UniqueIds.Preload()
+	if err != nil {
+		log.Error("preload Account2UniqueIds table failed")
+		return
+	}else{
+		log.Info("preload Account2UniqueIds table succeed !")
+	}
 	err = this.Accounts.Preload()
 	if err != nil {
 		log.Error("preload Accounts table failed")
@@ -849,6 +1230,11 @@ func (this *DBC)Preload()(err error){
 	return
 }
 func (this *DBC)Save(quick bool)(err error){
+	err = this.Account2UniqueIds.Save(quick)
+	if err != nil {
+		log.Error("save Account2UniqueIds table failed")
+		return
+	}
 	err = this.Accounts.Save(quick)
 	if err != nil {
 		log.Error("save Accounts table failed")

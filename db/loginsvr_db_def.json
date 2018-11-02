@@ -6,6 +6,29 @@
 	],
 	"Tables":[
 		{
+			"TableName":"Account2UniqueId",
+			"DBTableName":"Account2UniqueId",
+			"SingleRow":false,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"Account",
+			"PrimaryKeyType":"string",
+			"PrimaryKeySize":64,
+			"Columns":[
+				{
+					"ColumnName":"UniqueId",
+					"DBColumnName":"UniqueId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[]
+				}
+			]
+		},
+		{
 			"TableName":"Account",
 			"DBTableName":"Account",
 			"SingleRow":false,
