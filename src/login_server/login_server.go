@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/satori/go.uuid"
 )
 
 type WaitCenterInfo struct {
@@ -309,6 +310,15 @@ func _check_register(account, password string) (err_code int32) {
 	return
 }
 
+func _generate_account_uuid(account string) string {
+	uid, err := uuid.NewV1()
+	if err != nil {
+		log.Error("Account %v generate uuid error %v", account, err.Error())
+		return ""
+	}
+	return uid.String()
+}
+
 func register_handler(account, password string, is_guest bool) (err_code int32, resp_data []byte) {
 	if dbc.Accounts.GetRow(account) != nil {
 		log.Error("Account[%v] already exists", account)
@@ -322,7 +332,14 @@ func register_handler(account, password string, is_guest bool) (err_code int32, 
 		}
 	}
 
+	uid := _generate_account_uuid(account)
+	if uid == "" {
+		err_code = -1
+		return
+	}
+
 	row := dbc.Accounts.AddRow(account)
+	row.SetUniqueId(uid)
 	row.SetPassword(password)
 	row.SetRegisterTime(int32(time.Now().Unix()))
 	if is_guest {
@@ -386,7 +403,10 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 		return
 	}
 
+	row.SetBindNewAccount(new_account)
 	register_time := row.GetRegisterTime()
+	uid := row.GetUniqueId()
+
 	row = dbc.Accounts.AddRow(new_account)
 	if row == nil {
 		err_code = -1
@@ -396,8 +416,8 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 
 	row.SetPassword(new_password)
 	row.SetRegisterTime(register_time)
-	row.SetOldTempAccount(account)
-	dbc.Accounts.RemoveRow(account)
+	row.SetUniqueId(uid)
+	//dbc.Accounts.RemoveRow(account) // 暂且不删除
 
 	hall_agent := hall_agent_manager.GetAgentByID(server_id)
 	if nil == hall_agent {
@@ -497,6 +517,7 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 }
 
 func login_handler(account, password, channel string) (err_code int32, resp_data []byte) {
+	var err error
 	acc_row := dbc.Accounts.GetRow(account)
 	if config.VerifyAccount {
 		if channel == "" || channel == "guest" {
@@ -519,11 +540,24 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 			if acc_row == nil {
 				acc_row = dbc.Accounts.AddRow(account)
 				acc_row.SetChannel("facebook")
+				uid := _generate_account_uuid(account)
+				if uid == "" {
+					return -1, nil
+				}
+				acc_row.SetUniqueId(uid)
 			}
+		} else {
+			log.Error("Account %v use unsupported channel %v login", account, channel)
+			return -1, nil
 		}
 	} else {
 		if acc_row == nil {
 			acc_row = dbc.Accounts.AddRow(account)
+			uid := _generate_account_uuid(account)
+			if uid == "" {
+				return -1, nil
+			}
+			acc_row.SetUniqueId(uid)
 		}
 	}
 
@@ -563,7 +597,6 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 		response.LastServerId = acc_row.GetLastSelectServerId()
 	}
 
-	var err error
 	resp_data, err = proto.Marshal(response)
 	if err != nil {
 		err_code = int32(msg_client_message.E_ERR_INTERNAL)

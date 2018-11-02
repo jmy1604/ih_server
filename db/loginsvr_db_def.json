@@ -6,11 +6,11 @@
 	],
 	"Tables":[
 		{
-			"TableName":"Account2UniqueId",
-			"DBTableName":"Account2UniqueId",
+			"TableName":"Account",
+			"DBTableName":"Account",
 			"SingleRow":false,
 			"AutoPrimaryKey":false,
-			"PrimaryKeyName":"Account",
+			"PrimaryKeyName":"AccountId",
 			"PrimaryKeyType":"string",
 			"PrimaryKeySize":64,
 			"Columns":[
@@ -25,18 +25,7 @@
 					"AutoIndex":false,
 					"DefaultValue":"",
 					"Fields":[]
-				}
-			]
-		},
-		{
-			"TableName":"Account",
-			"DBTableName":"Account",
-			"SingleRow":false,
-			"AutoPrimaryKey":false,
-			"PrimaryKeyName":"AccountId",
-			"PrimaryKeyType":"string",
-			"PrimaryKeySize":64,
-			"Columns":[
+				},
 				{
 					"ColumnName":"Password",
 					"DBColumnName":"Password",
@@ -86,18 +75,6 @@
 					"Fields":[]
 				},
 				{
-					"ColumnName":"OldTempAccount",
-					"DBColumnName":"OldTempAccount",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"string",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"DefaultValue":"",
-					"Fields":[]
-				},
-				{
 					"ColumnName":"LastGetAccountPlayerListTime",
 					"DBColumnName":"LastGetAccountPlayerListTime",
 					"InUse":true,
@@ -120,6 +97,18 @@
 					"AutoIndex":false,
 					"DefaultValue":0,
 					"Fields":[]	
+				},
+				{
+					"ColumnName":"BindNewAccount",
+					"DBColumnName":"BindNewAccount",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
 				}
 			]
 		}
