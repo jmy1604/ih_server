@@ -1121,16 +1121,26 @@ func (this *Player) friend_set_assist_role(role_id int32) int32 {
 	}
 
 	old_assist_role := this.db.FriendCommon.GetAssistRoleId()
-	if old_assist_role > 0 {
-		//this.db.Roles.SetIsLock(old_assist_role, 0)
+	if old_assist_role == role_id {
+		log.Error("Player[%v] set assist role is same to old", this.Id)
+		return -1
 	}
+
+	if old_assist_role > 0 {
+		this.db.Roles.SetIsLock(old_assist_role, 0)
+		this.roles_id_change_info.id_update(old_assist_role)
+	}
+
 	this.db.FriendCommon.SetAssistRoleId(role_id)
-	//this.db.Roles.SetIsLock(role_id, 1)
+	this.db.Roles.SetIsLock(role_id, 1)
+	this.roles_id_change_info.id_update(role_id)
 
 	response := &msg_client_message.S2CFriendSetAssistRoleResponse{
 		RoleId: role_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_SET_ASSIST_ROLE_RESPONSE), response)
+
+	this.check_and_send_roles_change()
 
 	log.Debug("Player[%v] set assist role %v for friends", this.Id, role_id)
 
