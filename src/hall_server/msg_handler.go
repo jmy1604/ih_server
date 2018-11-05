@@ -183,14 +183,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		tokeninfo := login_token_mgr.GetTokenByAcc(p.Account)
-		if nil == tokeninfo || tokeninfo.token != tmp_msg.GetToken() {
-			ret_code = int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN)
-			if tokeninfo == nil {
-				log.Warn("Account[%v] no token info", p.Account)
-			} else {
-				log.Warn("Account[%v] token[%v] invalid, need[%v]", p.Account, tmp_msg.GetToken(), tokeninfo.token)
-			}
-		} else {
+		if nil != tokeninfo && tokeninfo.token == tmp_msg.GetToken() {
 			func() {
 				defer func() {
 					if err := recover(); err != nil {
@@ -214,11 +207,20 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 					atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
 				}
 			}()
+		} else {
+			ret_code = int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN)
+			if tokeninfo == nil {
+				log.Warn("Account[%v] no token info", p.Account)
+			} else {
+				log.Warn("Account[%v] token[%v] invalid, need[%v]", p.Account, tmp_msg.GetToken(), tokeninfo.token)
+			}
 		}
 
 	} else {
 		ret_code, p = handlerinfo.msg_handler(w, r /*req*/, tmp_msg.GetData())
-		data = p.PopCurMsgData()
+		if p != nil {
+			data = p.PopCurMsgData()
+		}
 	}
 
 	var old_msg_num, msg_num int32

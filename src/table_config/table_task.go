@@ -127,7 +127,7 @@ func (this *TaskTableMgr) LoadTask(table_file string) bool {
 		}
 
 		tmp_item.Rewards = rewards
-		if tmp_item.CompleteNum <= 0 {
+		if tmp_item.EventId != TASK_COMPLETE_TYPE_ALL_DAILY && tmp_item.CompleteNum <= 0 {
 			tmp_item.CompleteNum = 1
 		}
 

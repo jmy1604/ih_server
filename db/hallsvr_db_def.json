@@ -64,6 +64,18 @@
 			"PrimaryKeySize":11,
 			"Columns":[
 				{
+					"ColumnName":"UniqueId",
+					"DBColumnName":"UniqueId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[]
+				},
+				{
 					"ColumnName":"Account",
 					"DBColumnName":"Account",
 					"InUse":true,

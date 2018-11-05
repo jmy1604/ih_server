@@ -540,11 +540,6 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 			if acc_row == nil {
 				acc_row = dbc.Accounts.AddRow(account)
 				acc_row.SetChannel("facebook")
-				uid := _generate_account_uuid(account)
-				if uid == "" {
-					return -1, nil
-				}
-				acc_row.SetUniqueId(uid)
 			}
 		} else {
 			log.Error("Account %v use unsupported channel %v login", account, channel)
@@ -553,11 +548,6 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 	} else {
 		if acc_row == nil {
 			acc_row = dbc.Accounts.AddRow(account)
-			uid := _generate_account_uuid(account)
-			if uid == "" {
-				return -1, nil
-			}
-			acc_row.SetUniqueId(uid)
 		}
 	}
 
@@ -565,6 +555,21 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 	now_time := time.Now()
 	token := fmt.Sprintf("%v_%v", now_time.Unix()+now_time.UnixNano(), account)
 	account_login(account, token)
+
+	if acc_row != nil {
+		if acc_row.GetUniqueId() == "" {
+			uid := _generate_account_uuid(account)
+			if uid != "" {
+				acc_row.SetUniqueId(uid)
+			}
+		}
+
+		last_time := acc_row.GetLastGetAccountPlayerListTime()
+		if int32(now_time.Unix())-last_time >= 5*60 {
+			share_data.LoadAccountPlayerList(server.redis_conn, account)
+			acc_row.SetLastGetAccountPlayerListTime(int32(now_time.Unix()))
+		}
+	}
 
 	response := &msg_client_message.S2CLoginResponse{
 		Acc:   account,
@@ -585,13 +590,6 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 		}
 	}
 
-	if acc_row != nil {
-		last_time := acc_row.GetLastGetAccountPlayerListTime()
-		if int32(now_time.Unix())-last_time >= 5*60 {
-			share_data.LoadAccountPlayerList(server.redis_conn, account)
-			acc_row.SetLastGetAccountPlayerListTime(int32(now_time.Unix()))
-		}
-	}
 	response.InfoList = share_data.GetAccountPlayerList(account)
 	if acc_row != nil {
 		response.LastServerId = acc_row.GetLastSelectServerId()
@@ -610,10 +608,17 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 }
 
 func select_server_handler(account, token string, server_id int32) (err_code int32, resp_data []byte) {
+	row := dbc.Accounts.GetRow(account)
+	if row == nil {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NOT_REGISTERED)
+		log.Error("select_server_handler: account[%v] not register", account)
+		return
+	}
+
 	acc := account_info_get(account, false)
 	if acc == nil {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
-		log.Error("select_server_handler player[%v] not found", account)
+		log.Error("select_server_handler: player[%v] not found", account)
 		return
 	}
 
@@ -646,8 +651,9 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 
 	token = fmt.Sprintf("%v_%v", time.Now().Unix()+time.Now().UnixNano(), account)
 	hall_agent.Send(uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN), &msg_server_message.L2HSyncAccountToken{
-		Account: account,
-		Token:   token,
+		UniqueId: row.GetUniqueId(),
+		Account:  account,
+		Token:    token,
 	})
 
 	var hall_ip string
@@ -670,10 +676,7 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	row := dbc.Accounts.GetRow(account)
-	if row != nil {
-		row.SetLastSelectServerId(server_id)
-	}
+	row.SetLastSelectServerId(server_id)
 
 	return
 }

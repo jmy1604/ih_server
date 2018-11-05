@@ -28,29 +28,29 @@ enum MSGID {
 /**************************** common message struct define ******************************/
 
 message LoginServerInfo {
-	int32 ServerId = 1; // 服务器Id
-	string ServerName = 2; // 服务器名称
-	string ListenGameIP = 3; // 监听GameServer的IP地址
-	string ListenClientIP = 4; // 监听客户端的IP地址
+	int32 ServerId			= 1; // 服务器Id
+	string ServerName 		= 2; // 服务器名称
+	string ListenGameIP 	= 3; // 监听GameServer的IP地址
+	string ListenClientIP 	= 4; // 监听客户端的IP地址
 }
 
 message PlayerBaseInfo {
-	int32 Lvl = 1; // 我的等级
-	int32 Exp = 2; // 我的经验
-	int32 CurMaxStage = 3; // 最大关卡数目
-	string Name = 4; // 玩家名称
-	int32 Icon = 5; // 玩家图标
-	string CustomIcon = 6; // 玩家自定义图标
+	int32 Lvl 				= 1; // 我的等级
+	int32 Exp 				= 2; // 我的经验
+	int32 CurMaxStage 		= 3; // 最大关卡数目
+	string Name 			= 4; // 玩家名称
+	int32 Icon 				= 5; // 玩家图标
+	string CustomIcon 		= 6; // 玩家自定义图标
 }
 
 // 玩家某一个关卡的信息
 message PlayerStageInfo {
-	int32 PlayerId = 1; // 玩家Id
-	int32 Score = 2; // 我的积分
-	string Name = 3; // 玩家名称
-	int32 Lvl = 4; // 玩家等级
-	string Icon = 5; // 玩家图标
-	string CustomIcon = 6; // 玩家自定义图标
+	int32 PlayerId 			= 1; // 玩家Id
+	int32 Score 			= 2; // 我的积分
+	string Name 			= 3; // 玩家名称
+	int32 Lvl 				= 4; // 玩家等级
+	string Icon 			= 5; // 玩家图标
+	string CustomIcon 		= 6; // 玩家自定义图标
 }
 
 /*************************************** end ********************************************/
@@ -59,15 +59,15 @@ message PlayerStageInfo {
 
 /// hall->center hallServer注册
 message H2CHallServerRegister {
-	int32 ServerId = 1; // 服务器Id
-	string ServerName = 2; // 服务器名称
-	string ListenRoomIP = 3; // 监听Room的IP
-	string ListenClientIP = 4; // 监听客户端的地址
+	int32 ServerId 			= 1; // 服务器Id
+	string ServerName 		= 2; // 服务器名称
+	string ListenRoomIP 	= 3; // 监听Room的IP
+	string ListenClientIP 	= 4; // 监听客户端的地址
 }
 
 /// hall->center hallServer注销
 message H2CHallServerUnRegister {
-	int32 ServerId = 1; // 服务器Id
+	int32 ServerId 			= 1; // 服务器Id
 }
 
 // center->hall 同步服务器列表(仅仅会在收到注册消息的时候发这条消息)
@@ -77,12 +77,12 @@ message C2HLoginServerList {
 
 // center->hall 新的得LoginServer增加
 message C2HNewLoginServerAdd {
-	LoginServerInfo Server = 1; // 登录服务器信息
+	LoginServerInfo Server 	= 1; // 登录服务器信息
 }
 
 // center->hall HallServer断开连接
 message C2HLoginServerRemove {
-	int32 ServerId = 1; // 登录服务器ID
+	int32 ServerId 			= 1; // 登录服务器ID
 }
 
 /*************************************** end ********************************************/
@@ -91,43 +91,44 @@ message C2HLoginServerRemove {
 
 /// hall->login hall注册
 message H2LHallServerRegister {
-	int32 ServerId = 1; // 服务器Id
-	string ServerName = 2; // 服务器名称
-	string ListenClientIP = 3; // 监听客户端的地址
+	int32 ServerId 			= 1; // 服务器Id
+	string ServerName 		= 2; // 服务器名称
+	string ListenClientIP 	= 3; // 监听客户端的地址
 }
 
 /// hall->login hall注销
 message H2LHallServerUnRegister {
-	int32 ServerId = 1; // 服务器Id
-	int32 Reason = 2; // 断开原因
+	int32 ServerId 			= 1; // 服务器Id
+	int32 Reason 			= 2; // 断开原因
 }
 
 /// login->hall 强制断开
 message L2HDissconnectNotify {
-	int32 Reason = 1; // 断开原因
+	int32 Reason 			= 1; // 断开原因
 }
 
 /// login->hall 同步账号临时密码
 message L2HSyncAccountToken {
-	string Account = 1; // 账号
-	string Token = 2; // 临时token
-	int64 PlayerId = 3; // 玩家Id
+	string UniqueId			= 1; // 唯一ID
+	string Account 			= 2; // 账号
+	string Token 			= 3; // 临时token
+	int64 PlayerId 			= 4; // 玩家Id
 }
 
 /// login->hall 绑定新账号
 message L2HBindNewAccountRequest {
-	string Account = 1;
-	string NewAccount = 2;
+	string Account 			= 1;
+	string NewAccount 		= 2;
 }
 
 message H2LBindNewAccountResponse {
-	string Account = 1;
-	string NewAccount = 2;
+	string Account 			= 1;
+	string NewAccount 		= 2;
 }
 
 // hall->login 登出游戏通知
 message H2LAccountLogoutNotify {
-	string Account = 1;
+	string Account 			= 1;
 }
 
 /*************************************** end ********************************************/
@@ -136,31 +137,31 @@ message H2LAccountLogoutNotify {
 
 /// Login->Center Login注册
 message L2CLoginServerRegister {
-	int32 ServerId = 1; // 服务器Id
-	string ServerName = 2; // 服务器名称
-	string ListenGameIP = 3; // 监听MatchServer的IP
-	string ListenClientIP = 4; // 监听Client的IP
+	int32 ServerId 			= 1; // 服务器Id
+	string ServerName 		= 2; // 服务器名称
+	string ListenGameIP 	= 3; // 监听MatchServer的IP
+	string ListenClientIP 	= 4; // 监听Client的IP
 }
 
 /// Login->Center Login注销
 message L2CLoginServerUnRegister {
-	int32 ServerId = 1; // 服务器Id
-	int32 Reason = 2; // 断开原因
+	int32 ServerId 			= 1; // 服务器Id
+	int32 Reason 			= 2; // 断开原因
 }
 
 /// Login->Center 获取玩家账号Id和所在大厅信息
 message L2CGetPlayerAccInfo {
-	string Account = 1; // 玩家账号
+	string Account 			= 1; // 玩家账号
 }
 
 /// Center->Login 玩家账号信息回复
 message C2LPlayerAccInfo {
-	string Account = 1; // 玩家账号
-	int64 PlayerId = 2; // 玩家Id
-	int32 HallId = 3; // 大厅Id
-	string HallIP = 4; // 大厅IP地址
-	int32 IfForbidLogin = 5; // 是否被封了
-	string ForbidEndTime = 6; // 封号截至时间
+	string Account 			= 1; // 玩家账号
+	int64 PlayerId 			= 2; // 玩家Id
+	int32 HallId 			= 3; // 大厅Id
+	string HallIP 			= 4; // 大厅IP地址
+	int32 IfForbidLogin 	= 5; // 是否被封了
+	string ForbidEndTime 	= 6; // 封号截至时间
 }
 
 /*************************************** end ********************************************/
@@ -169,9 +170,9 @@ message C2LPlayerAccInfo {
 
 /// 玩家上线
 message SetPlayerOnOffline {
-	int32 PlayerId = 1; // 玩家Id
-	int32 TongId = 2; // 帮会Id
-	int32 OnOffLine = 3; // 1位上线 0为下线
+	int32 PlayerId 			= 1; // 玩家Id
+	int32 TongId 			= 2; // 帮会Id
+	int32 OnOffLine 		= 3; // 1位上线 0为下线
 }
 
 /*************************************** end ********************************************/
@@ -181,31 +182,31 @@ message SetPlayerOnOffline {
 
 // center->hall gm命令
 message C2HGmCommand {
-	string Command = 1; // gm命令字串
-	int32 SessionId = 2; // 会话Id
+	string Command 			= 1; // gm命令字串
+	int32 SessionId 		= 2; // 会话Id
 }
 
 // hall->center 返回执行结果
 message H2CGmResult {
-	int32 SessionId = 1; // 会话Id
-	string Result = 2; // 执行结果
+	int32 SessionId 		= 1; // 会话Id
+	string Result 			= 2; // 执行结果
 }
 
 // center->hall 查询物品某个玩家的物品
 message C2HItemQuery {
-	int32 PlayerId = 1; // 玩家Id
-	int32 SessionId = 2; // 会话Id
+	int32 PlayerId 			= 1; // 玩家Id
+	int32 SessionId 		= 2; // 会话Id
 }
 
 message IdNum {
-	int32 Id = 1; // 道具Id
-	int32 Num = 2; // 道具数目
+	int32 Id 				= 1; // 道具Id
+	int32 Num 				= 2; // 道具数目
 }
 
 // hall->center 回复物品查询结果
 message H2CItemQuery {
-	int32 SessionId = 1; // 会话Id
-	repeated IdNum Items = 2; // 道具列表
+	int32 SessionId 		= 1; // 会话Id
+	repeated IdNum Items 	= 2; // 道具列表
 }
 
 // hall->center 获取当前服务器奖励信息
@@ -215,11 +216,11 @@ message H2CGetServerReward {
 
 // center->hall 增加全服奖励信息
 message C2HAddServerReward {
-	int32 RewardId = 1; // 奖励Id
-	string Channel = 2; // 奖励渠道
-	int32 EndUnix = 3; // 结束时间
-	repeated IdNum Items = 4; // 奖励物品信息
-	string Content = 5; // 奖励邮件内容
+	int32 RewardId 			= 1; // 奖励Id
+	string Channel 			= 2; // 奖励渠道
+	int32 EndUnix 			= 3; // 结束时间
+	repeated IdNum Items 	= 4; // 奖励物品信息
+	string Content 			= 5; // 奖励邮件内容
 }
 
 // center->hall 同步当前全服奖励信息
