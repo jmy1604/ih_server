@@ -1227,7 +1227,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 							if report != nil {
 								report.User.Energy = self.energy
 							}
-							if report_target != nil {
+							if target != nil && report_target != nil {
 								report_target.Energy = target.energy
 							}
 						}
