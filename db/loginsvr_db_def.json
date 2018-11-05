@@ -84,7 +84,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[]	
+					"Fields":[]
 				},
 				{
 					"ColumnName":"LastSelectServerId",
@@ -96,7 +96,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[]	
+					"Fields":[]
 				},
 				{
 					"ColumnName":"BindNewAccount",
