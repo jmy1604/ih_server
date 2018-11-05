@@ -1223,8 +1223,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						}
 						// -------------------- 战报 ----------------------
 						if !self_team.IsSweep() && (effects[i][1] > 0 || effects[i][2] > 0) && skill_data.IsCancelReport == 0 {
-							report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], 0, false, false, false, 0)
-							report.User.Energy += self.energy
+							report, report_target = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], 0, false, false, false, 0)
+							if report != nil {
+								report.User.Energy = self.energy
+							}
+							if report_target != nil {
+								report_target.Energy = target.energy
+							}
 						}
 						// ------------------------------------------------
 						used = true
