@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	_ "github.com/dgrijalva/jwt-go"
+	// "github.com/dgrijalva/jwt-go"
 	"github.com/golang/protobuf/proto"
 	"github.com/satori/go.uuid"
 )
