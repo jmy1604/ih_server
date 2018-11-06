@@ -813,6 +813,7 @@ func (this* dbPlayerTowerData)clone_to(d *dbPlayerTowerData){
 type dbPlayerDrawData struct{
 	Type int32
 	LastDrawTime int32
+	Num int32
 }
 func (this* dbPlayerDrawData)from_pb(pb *db.PlayerDraw){
 	if pb == nil {
@@ -820,17 +821,20 @@ func (this* dbPlayerDrawData)from_pb(pb *db.PlayerDraw){
 	}
 	this.Type = pb.GetType()
 	this.LastDrawTime = pb.GetLastDrawTime()
+	this.Num = pb.GetNum()
 	return
 }
 func (this* dbPlayerDrawData)to_pb()(pb *db.PlayerDraw){
 	pb = &db.PlayerDraw{}
 	pb.Type = proto.Int32(this.Type)
 	pb.LastDrawTime = proto.Int32(this.LastDrawTime)
+	pb.Num = proto.Int32(this.Num)
 	return
 }
 func (this* dbPlayerDrawData)clone_to(d *dbPlayerDrawData){
 	d.Type = this.Type
 	d.LastDrawTime = this.LastDrawTime
+	d.Num = this.Num
 	return
 }
 type dbPlayerGoldHandData struct{
@@ -5019,6 +5023,28 @@ func (this *dbPlayerDrawColumn)SetLastDrawTime(id int32,v int32)(has bool){
 		return
 	}
 	d.LastDrawTime = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerDrawColumn)GetNum(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerDrawColumn.GetNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Num
+	return v,true
+}
+func (this *dbPlayerDrawColumn)SetNum(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerDrawColumn.SetNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Num = v
 	this.m_changed = true
 	return true
 }

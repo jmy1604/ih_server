@@ -44,6 +44,6 @@ func (this *dbGlobalRow) GetNextGuildId() int32 {
 	new_id := ((config.ServerId << 20) & 0x7ff00000) | curr_id
 	this.m_lock.UnSafeLock("dbGlobalRow.GetNextGuildId")
 	this.m_CurrentGuildId_changed = true
-	defer this.m_lock.UnSafeUnlock()
+	this.m_lock.UnSafeUnlock()
 	return new_id
 }

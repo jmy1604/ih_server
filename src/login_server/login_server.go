@@ -21,6 +21,7 @@ import (
 	"sync"
 	"time"
 
+	_ "github.com/dgrijalva/jwt-go"
 	"github.com/golang/protobuf/proto"
 	"github.com/satori/go.uuid"
 )
@@ -392,6 +393,11 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 		return
 	}
 
+	if row.GetBindNewAccount() != "" {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_ALREADY_BIND)
+		log.Error("Account %v already bind", account)
+	}
+
 	if dbc.Accounts.GetRow(new_account) != nil {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NEW_BIND_ALREADY_EXISTS)
 		log.Error("New Account %v to bind already exists", new_account)
@@ -427,6 +433,7 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	}
 
 	req := &msg_server_message.L2HBindNewAccountRequest{
+		UniqueId:   uid,
 		Account:    account,
 		NewAccount: new_account,
 	}

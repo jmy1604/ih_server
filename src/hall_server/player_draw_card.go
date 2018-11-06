@@ -92,7 +92,7 @@ func (this *Player) has_free_draw(draw_type int32, now_time int32) (bool, *table
 		return false, nil
 	}
 
-	is_free := false
+	var is_free bool
 
 	if draw.FreeExtractTime > 0 {
 		last_draw, o := this.db.Draws.GetLastDrawTime(draw_type)
@@ -159,10 +159,17 @@ func (this *Player) draw_card(draw_type int32) int32 {
 		}
 	}
 
+	var drop_id []int32
+	if (draw.FirstDropID != nil && len(draw.FirstDropID) > 0) && (!this.db.Draws.HasIndex(draw_type)) {
+		drop_id = draw.FirstDropID
+	} else {
+		drop_id = draw.DropId
+	}
+
 	var role_ids []int32
-	for i := 0; i < len(draw.DropId)/2; i++ {
-		did := draw.DropId[2*i]
-		dn := draw.DropId[2*i+1]
+	for i := 0; i < len(drop_id)/2; i++ {
+		did := drop_id[2*i]
+		dn := drop_id[2*i+1]
 		for j := 0; j < int(dn); j++ {
 			o, item := this.drop_item_by_id(did, true, nil)
 			if !o {
@@ -171,6 +178,13 @@ func (this *Player) draw_card(draw_type int32) int32 {
 			}
 			role_ids = append(role_ids, item.GetId())
 		}
+	}
+
+	if !this.db.Draws.HasIndex(draw_type) {
+		this.db.Draws.Add(&dbPlayerDrawData{
+			Type:         draw_type,
+			LastDrawTime: now_time,
+		})
 	}
 
 	if !is_free {
@@ -182,14 +196,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 			}
 		}
 	} else {
-		if !this.db.Draws.HasIndex(draw_type) {
-			this.db.Draws.Add(&dbPlayerDrawData{
-				Type:         draw_type,
-				LastDrawTime: now_time,
-			})
-		} else {
-			this.db.Draws.SetLastDrawTime(draw_type, now_time)
-		}
+		this.db.Draws.SetLastDrawTime(draw_type, now_time)
 	}
 
 	response := &msg_client_message.S2CDrawCardResponse{

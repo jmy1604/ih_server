@@ -117,13 +117,15 @@ message L2HSyncAccountToken {
 
 /// login->hall 绑定新账号
 message L2HBindNewAccountRequest {
-	string Account 			= 1;
-	string NewAccount 		= 2;
+	string UniqueId			= 1; // 唯一ID
+	string Account 			= 2; // 账号
+	string NewAccount 		= 3; // 新账号
 }
 
 message H2LBindNewAccountResponse {
-	string Account 			= 1;
-	string NewAccount 		= 2;
+	string UniqueId			= 1;
+	string Account 			= 2;
+	string NewAccount 		= 3;
 }
 
 // hall->login 登出游戏通知

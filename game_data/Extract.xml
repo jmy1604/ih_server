@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item Id="1" DropID="300001,1" ResCondition1="15,1" ResCondition2="" FreeExtractTime="28800" NeedBlank="1" />
-     <item Id="2" DropID="300001,10" ResCondition1="15,10" ResCondition2="" FreeExtractTime="0" NeedBlank="10" />
-     <item Id="3" DropID="300002,1,300031,1" ResCondition1="16,1" ResCondition2="3,250" FreeExtractTime="172800" NeedBlank="1" />
-     <item Id="4" DropID="300002,10,300032,1" ResCondition1="16,10" ResCondition2="3,2200" FreeExtractTime="0" NeedBlank="10" />
-     <item Id="5" DropID="300003,1" ResCondition1="9,100" ResCondition2="" FreeExtractTime="0" NeedBlank="1" />
-     <item Id="6" DropID="300003,10" ResCondition1="9,1000" ResCondition2="" FreeExtractTime="0" NeedBlank="10" />
-     <item Id="11" DropID="300005,1" ResCondition1="17,1000" ResCondition2="" FreeExtractTime="0" NeedBlank="1" />
+     <item Id="1" DropID="300001,1" ResCondition1="15,1" ResCondition2="" FreeExtractTime="28800" NeedBlank="1" FirstDropID="300041,1" />
+     <item Id="2" DropID="300001,10" ResCondition1="15,10" ResCondition2="" FreeExtractTime="0" NeedBlank="10" FirstDropID="" />
+     <item Id="3" DropID="300002,1,300031,1" ResCondition1="16,1" ResCondition2="3,250" FreeExtractTime="172800" NeedBlank="1" FirstDropID="300042,1,300031,1" />
+     <item Id="4" DropID="300002,10,300032,1" ResCondition1="16,10" ResCondition2="3,2200" FreeExtractTime="0" NeedBlank="10" FirstDropID="" />
+     <item Id="5" DropID="300003,1" ResCondition1="9,100" ResCondition2="" FreeExtractTime="0" NeedBlank="1" FirstDropID="" />
+     <item Id="6" DropID="300003,10" ResCondition1="9,1000" ResCondition2="" FreeExtractTime="0" NeedBlank="10" FirstDropID="" />
+     <item Id="11" DropID="300005,1" ResCondition1="17,1000" ResCondition2="" FreeExtractTime="0" NeedBlank="1" FirstDropID="" />
 </Config>

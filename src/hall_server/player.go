@@ -72,9 +72,10 @@ func (this *IdChangeInfo) reset() {
 }
 
 type Player struct {
-	Id      int32
-	Account string
-	Token   string
+	UniqueId string
+	Id       int32
+	Account  string
+	Token    string
 
 	ol_array_idx  int32
 	all_array_idx int32

@@ -214,8 +214,8 @@ func L2HBindNewAccountHandler(conn *server_conn.ServerConn, msg proto.Message) {
 		return
 	}
 
-	player_mgr.RemoveFromAccMap(req.GetAccount())
-	p.Account = req.GetNewAccount()
+	//player_mgr.RemoveFromAccMap(req.GetAccount())
+	p.Account = req.GetNewAccount() // 新账号
 	player_mgr.Add2AccMap(p)
 
 	row.SetAccount(req.GetNewAccount())

@@ -15,8 +15,10 @@ type XmlDrawItem struct {
 	ResCondition1    []int32
 	ResCondition2Str string `xml:"ResCondition2,attr"`
 	ResCondition2    []int32
-	FreeExtractTime  int32 `xml:"FreeExtractTime,attr"`
-	NeedBlank        int32 `xml:"NeedBlank,attr"`
+	FreeExtractTime  int32  `xml:"FreeExtractTime,attr"`
+	NeedBlank        int32  `xml:"NeedBlank,attr"`
+	FirstDropIDStr   string `xml:"FirstDropID,attr"`
+	FirstDropID      []int32
 }
 
 type XmlDrawConfig struct {
@@ -78,6 +80,11 @@ func (this *DrawTableMgr) Load(table_file string) bool {
 		tmp_item.ResCondition2 = parse_xml_str_arr2(tmp_item.ResCondition2Str, ",")
 		if tmp_item.ResCondition2 == nil || len(tmp_item.ResCondition2)%2 != 0 {
 			log.Error("DrawTableMgr field[ResCondition2] value[%v] with index[%v] invalid", tmp_item.ResCondition2Str, idx)
+			return false
+		}
+		tmp_item.FirstDropID = parse_xml_str_arr2(tmp_item.FirstDropIDStr, ",")
+		if tmp_item.FirstDropID == nil || len(tmp_item.FirstDropID)%2 != 0 {
+			log.Error("DrawTableMgr field[FirstDropID] value[%v] with index[%v] invalid", tmp_item.FirstDropIDStr, idx)
 			return false
 		}
 		this.Map[tmp_item.Id] = tmp_item

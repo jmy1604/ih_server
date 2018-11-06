@@ -4589,6 +4589,18 @@
      <item DropGroupID="300029" DropItemID="6054" Weight="7500" Min="1" Max="1" />
      <item DropGroupID="300031" DropItemID="17" Weight="10000" Min="10" Max="10" />
      <item DropGroupID="300032" DropItemID="17" Weight="10000" Min="100" Max="100" />
+     <item DropGroupID="300041" DropItemID="1011" Weight="75000" Min="1" Max="1" />
+     <item DropGroupID="300041" DropItemID="2011" Weight="45000" Min="1" Max="1" />
+     <item DropGroupID="300041" DropItemID="3011" Weight="60000" Min="1" Max="1" />
+     <item DropGroupID="300041" DropItemID="4011" Weight="75000" Min="1" Max="1" />
+     <item DropGroupID="300041" DropItemID="5011" Weight="45000" Min="1" Max="1" />
+     <item DropGroupID="300041" DropItemID="6011" Weight="60000" Min="1" Max="1" />
+     <item DropGroupID="300042" DropItemID="1021" Weight="7500" Min="1" Max="1" />
+     <item DropGroupID="300042" DropItemID="2021" Weight="10000" Min="1" Max="1" />
+     <item DropGroupID="300042" DropItemID="3021" Weight="12500" Min="1" Max="1" />
+     <item DropGroupID="300042" DropItemID="4021" Weight="7500" Min="1" Max="1" />
+     <item DropGroupID="300042" DropItemID="5021" Weight="10000" Min="1" Max="1" />
+     <item DropGroupID="300042" DropItemID="6021" Weight="12500" Min="1" Max="1" />
      <item DropGroupID="310001" DropItemID="3" Weight="10000" Min="3" Max="4" />
      <item DropGroupID="310001" DropItemID="15" Weight="3000" Min="1" Max="1" />
      <item DropGroupID="310001" DropItemID="57010" Weight="3000" Min="1" Max="1" />

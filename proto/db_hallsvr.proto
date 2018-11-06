@@ -154,6 +154,7 @@ message PlayerTowerList{
 message PlayerDraw{
 	optional int32 Type=1;
 	optional int32 LastDrawTime=2;
+	optional int32 Num=3;
 }
 
 message PlayerDrawList{
