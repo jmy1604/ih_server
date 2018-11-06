@@ -334,6 +334,10 @@ func (this *Player) check_notify_next_task(task *table_config.XmlTaskItem) {
 	v, _ := this.db.Tasks.GetValue(task.Next)
 	s, _ := this.db.Tasks.GetState(task.Next)
 
+	if next_task.CompleteNum >= v {
+		s = TASK_STATE_COMPLETE
+	}
+
 	notify := &msg_client_message.S2CTaskValueNotify{}
 	this.NotifyTaskValue(notify, task.Next, v, s)
 	log.Debug("Player[%v] notify new task %v value %v state %v", this.Id, task.Next, v, s)
