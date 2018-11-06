@@ -105,7 +105,7 @@
 	
 	"GuildNameLength": 64,
 	"GuildCreateCostGem": 1000,
-	"GuildChangeNameCostGem": 2000,
+	"GuildChangeNameCostGem": 1000,
 	"GuildSignReward": [20,10],
 	"GuildSignAddExp": 1,
 	"GuildMailSendIntervalSecs": 30,
