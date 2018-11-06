@@ -5,10 +5,11 @@ import (
 )
 
 type AccountInfo struct {
-	account string
-	token   string
-	state   int32 // 0 未登录   1 已登陆   2 已进入游戏
-	locker  *sync.RWMutex
+	account   string
+	token     string
+	unique_id string
+	state     int32 // 0 未登录   1 已登陆   2 已进入游戏
+	locker    *sync.RWMutex
 }
 
 func (this *AccountInfo) get_account() string {

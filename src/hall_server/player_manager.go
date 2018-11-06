@@ -14,44 +14,46 @@ import (
 )
 
 const (
-	PLAYER_DATA_UP_FRAME_COUNT = 30
-	PLAYER_CAMP_1              = 1 // 玩家阵营1
-	PLAYER_CAMP_2              = 2 // 玩家阵营2
-	DEFAULT_PLAYER_ARRAY_MAX   = 1
-	PLAYER_ARRAY_MAX_ADD_STEP  = 1
+	DEFAULT_PLAYER_ARRAY_MAX  = 1
+	PLAYER_ARRAY_MAX_ADD_STEP = 1
 )
 
 type PlayerManager struct {
+	uid2players        map[string]*Player
+	uid2players_locker *sync.RWMutex
+
 	id2players      map[int32]*Player
 	id2players_lock *sync.RWMutex
 
 	acc2players      map[string]*Player
 	acc2Players_lock *sync.RWMutex
 
-	all_player_array []*Player
+	/*all_player_array []*Player
 	cur_all_count    int32
 	cur_all_max      int32
 
 	ol_player_array []*Player
 	cur_ol_count    int32
-	cur_ol_max      int32
+	cur_ol_max      int32*/
 }
 
 var player_mgr PlayerManager
 
 func (this *PlayerManager) Init() bool {
+	this.uid2players = make(map[string]*Player)
+	this.uid2players_locker = &sync.RWMutex{}
 	this.id2players = make(map[int32]*Player)
 	this.id2players_lock = &sync.RWMutex{}
 	this.acc2players = make(map[string]*Player)
 	this.acc2Players_lock = &sync.RWMutex{}
 
-	this.ol_player_array = make([]*Player, DEFAULT_PLAYER_ARRAY_MAX)
+	/*this.ol_player_array = make([]*Player, DEFAULT_PLAYER_ARRAY_MAX)
 	this.cur_ol_count = 0
 	this.cur_ol_max = DEFAULT_PLAYER_ARRAY_MAX
 
 	this.all_player_array = make([]*Player, DEFAULT_PLAYER_ARRAY_MAX)
 	this.cur_all_count = 0
-	this.cur_all_max = DEFAULT_PLAYER_ARRAY_MAX
+	this.cur_all_max = DEFAULT_PLAYER_ARRAY_MAX*/
 
 	return true
 }
@@ -89,7 +91,7 @@ func (this *PlayerManager) Add2IdMap(p *Player) {
 
 	this.id2players[p.Id] = p
 
-	if this.cur_all_count >= this.cur_all_max {
+	/*if this.cur_all_count >= this.cur_all_max {
 		this.cur_all_max = this.cur_all_max + PLAYER_ARRAY_MAX_ADD_STEP
 		new_all_array := make([]*Player, this.cur_all_max)
 		for idx := int32(0); idx < this.cur_all_count; idx++ {
@@ -101,7 +103,7 @@ func (this *PlayerManager) Add2IdMap(p *Player) {
 
 	this.all_player_array[this.cur_all_count] = p
 	p.all_array_idx = this.cur_all_count
-	this.cur_all_count++
+	this.cur_all_count++*/
 
 	return
 }
@@ -115,20 +117,20 @@ func (this *PlayerManager) RemoveFromIdMap(id int32) {
 		delete(this.id2players, id)
 	}
 
-	if -1 != cur_p.all_array_idx {
+	/*if -1 != cur_p.all_array_idx {
 		if cur_p.all_array_idx != this.cur_all_count-1 {
 			this.all_player_array[cur_p.all_array_idx] = this.all_player_array[this.cur_all_count-1]
 			this.all_player_array[cur_p.all_array_idx].all_array_idx = cur_p.all_array_idx
 		}
 		this.cur_all_count--
-	}
+	}*/
 
 	return
 }
 
-func (this *PlayerManager) GetAllPlayerNum() int32 {
+/*func (this *PlayerManager) GetAllPlayerNum() int32 {
 	return this.cur_all_count
-}
+}*/
 
 func (this *PlayerManager) Add2AccMap(p *Player) {
 	if nil == p {
@@ -145,7 +147,7 @@ func (this *PlayerManager) Add2AccMap(p *Player) {
 
 	this.acc2players[p.Account] = p
 
-	if this.cur_ol_count >= this.cur_ol_max {
+	/*if this.cur_ol_count >= this.cur_ol_max {
 		tmp_player_array := make([]*Player, this.cur_ol_max+PLAYER_ARRAY_MAX_ADD_STEP)
 		for idx := int32(0); idx < this.cur_ol_max; idx++ {
 			tmp_player_array[idx] = this.ol_player_array[idx]
@@ -157,7 +159,7 @@ func (this *PlayerManager) Add2AccMap(p *Player) {
 
 	this.ol_player_array[this.cur_ol_count] = p
 	p.ol_array_idx = this.cur_ol_count
-	this.cur_ol_count++
+	this.cur_ol_count++*/
 
 	return
 }
@@ -172,7 +174,7 @@ func (this *PlayerManager) RemoveFromAccMap(acc string) {
 	defer this.acc2Players_lock.Unlock()
 	cur_p := this.acc2players[acc]
 	if nil != cur_p {
-		if cur_p.ol_array_idx != -1 {
+		/*if cur_p.ol_array_idx != -1 {
 			if cur_p.ol_array_idx != this.cur_ol_count-1 {
 				if nil != this.ol_player_array[this.cur_ol_count-1] {
 					this.ol_player_array[this.cur_ol_count-1].ol_array_idx = cur_p.ol_array_idx
@@ -180,16 +182,16 @@ func (this *PlayerManager) RemoveFromAccMap(acc string) {
 				this.ol_player_array[cur_p.ol_array_idx] = this.ol_player_array[this.cur_ol_count-1]
 			}
 			this.cur_ol_count = this.cur_ol_count - 1
-		}
+		}*/
 		delete(this.acc2players, acc)
 	}
 
 	return
 }
 
-func (this *PlayerManager) GetCurOnlineNum() int32 {
+/*func (this *PlayerManager) GetCurOnlineNum() int32 {
 	return this.cur_ol_count
-}
+}*/
 
 func (this *PlayerManager) GetPlayerByAcc(acc string) *Player {
 	if "" == acc {
@@ -200,6 +202,32 @@ func (this *PlayerManager) GetPlayerByAcc(acc string) *Player {
 	defer this.acc2Players_lock.Unlock()
 
 	return this.acc2players[acc]
+}
+
+func (this *PlayerManager) Add2UidMap(unique_id string, p *Player) {
+	this.uid2players_locker.Lock()
+	defer this.uid2players_locker.Unlock()
+
+	if this.uid2players[unique_id] != nil {
+		log.Warn("UniqueId %v already added", unique_id)
+		return
+	}
+
+	this.uid2players[unique_id] = p
+}
+
+func (this *PlayerManager) RemoveFromUidMap(unique_id string) {
+	this.uid2players_locker.Lock()
+	defer this.uid2players_locker.Unlock()
+
+	delete(this.uid2players, unique_id)
+}
+
+func (this *PlayerManager) GetPlayerByUid(unique_id string) *Player {
+	this.uid2players_locker.RLock()
+	defer this.uid2players_locker.RUnlock()
+
+	return this.uid2players[unique_id]
 }
 
 func (this *PlayerManager) PlayerLogout(p *Player) {
