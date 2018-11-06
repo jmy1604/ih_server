@@ -520,13 +520,12 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 	var err error
 	acc_row := dbc.Accounts.GetRow(account)
 	if config.VerifyAccount {
-		if channel == "" || channel == "guest" {
+		if channel == "" {
 			if acc_row == nil {
 				err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
 				log.Error("Account %v not exist", account)
 				return
 			}
-
 			if acc_row.GetPassword() != password {
 				err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
 				log.Error("Account %v password %v invalid", account, password)
@@ -540,6 +539,11 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 			if acc_row == nil {
 				acc_row = dbc.Accounts.AddRow(account)
 				acc_row.SetChannel("facebook")
+			}
+		} else if channel == "guest" {
+			if acc_row == nil {
+				acc_row = dbc.Accounts.AddRow(account)
+				acc_row.SetChannel("guest")
 			}
 		} else {
 			log.Error("Account %v use unsupported channel %v login", account, channel)
