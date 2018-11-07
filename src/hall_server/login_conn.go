@@ -202,7 +202,6 @@ func L2HBindNewAccountHandler(conn *server_conn.ServerConn, msg proto.Message) {
 		return
 	}
 
-	//p := player_mgr.GetPlayerByAcc(req.GetAccount())
 	p := player_mgr.GetPlayerByUid(req.GetUniqueId())
 	if p == nil {
 		log.Error("Cant found account %v to bind new account %v", req.GetAccount(), req.GetNewAccount())
@@ -215,10 +214,7 @@ func L2HBindNewAccountHandler(conn *server_conn.ServerConn, msg proto.Message) {
 		return
 	}
 
-	//player_mgr.RemoveFromAccMap(req.GetAccount())
 	p.Account = req.GetNewAccount() // 新账号
-	//player_mgr.Add2AccMap(p)
-
 	row.SetAccount(req.GetNewAccount())
 
 	log.Debug("Account %v bind new account %v", req.GetAccount(), req.GetNewAccount())

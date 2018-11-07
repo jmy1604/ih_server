@@ -22,8 +22,8 @@ type PlayerManager struct {
 	uid2players        map[string]*Player
 	uid2players_locker *sync.RWMutex
 
-	id2players      map[int32]*Player
-	id2players_lock *sync.RWMutex
+	id2players        map[int32]*Player
+	id2players_locker *sync.RWMutex
 
 	//acc2players      map[string]*Player
 	//acc2Players_lock *sync.RWMutex
@@ -43,7 +43,7 @@ func (this *PlayerManager) Init() bool {
 	this.uid2players = make(map[string]*Player)
 	this.uid2players_locker = &sync.RWMutex{}
 	this.id2players = make(map[int32]*Player)
-	this.id2players_lock = &sync.RWMutex{}
+	this.id2players_locker = &sync.RWMutex{}
 	//this.acc2players = make(map[string]*Player)
 	//this.acc2Players_lock = &sync.RWMutex{}
 
@@ -59,15 +59,15 @@ func (this *PlayerManager) Init() bool {
 }
 
 func (this *PlayerManager) GetPlayerById(id int32) *Player {
-	this.id2players_lock.Lock()
-	defer this.id2players_lock.Unlock()
+	this.id2players_locker.Lock()
+	defer this.id2players_locker.Unlock()
 
 	return this.id2players[id]
 }
 
 func (this *PlayerManager) GetAllPlayers() []*Player {
-	this.id2players_lock.RLock()
-	defer this.id2players_lock.RUnlock()
+	this.id2players_locker.RLock()
+	defer this.id2players_locker.RUnlock()
 
 	ret_ps := make([]*Player, 0, len(this.id2players))
 	for _, p := range this.id2players {
@@ -82,8 +82,8 @@ func (this *PlayerManager) Add2IdMap(p *Player) {
 		log.Error("Player_agent_mgr Add2IdMap p nil !")
 		return
 	}
-	this.id2players_lock.Lock()
-	defer this.id2players_lock.Unlock()
+	this.id2players_locker.Lock()
+	defer this.id2players_locker.Unlock()
 
 	if nil != this.id2players[p.Id] {
 		log.Error("PlayerManager Add2IdMap already have player(%d)", p.Id)
@@ -109,8 +109,8 @@ func (this *PlayerManager) Add2IdMap(p *Player) {
 }
 
 func (this *PlayerManager) RemoveFromIdMap(id int32) {
-	this.id2players_lock.Lock()
-	defer this.id2players_lock.Unlock()
+	this.id2players_locker.Lock()
+	defer this.id2players_locker.Unlock()
 
 	cur_p := this.id2players[id]
 	if nil != cur_p {
