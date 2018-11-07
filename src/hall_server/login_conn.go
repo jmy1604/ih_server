@@ -184,8 +184,8 @@ func L2HSyncAccountTokenHandler(conn *server_conn.ServerConn, msg proto.Message)
 		return
 	}
 
-	login_token_mgr.AddToAcc2Token(req.GetAccount(), req.GetToken(), int32(req.GetPlayerId()), conn)
-	log.Info("ID_L2HSyncAccountTokenHandler Account[%v] Token[%v] PlayerId[%v]", req.GetAccount(), req.GetToken(), req.GetPlayerId())
+	login_token_mgr.AddToUid2Token(req.GetUniqueId(), req.GetAccount(), req.GetToken(), int32(req.GetPlayerId()), conn)
+	log.Info("ID_L2HSyncAccountTokenHandler UniqueId[%v] Account[%v] Token[%v] PlayerId[%v]", req.GetUniqueId(), req.GetAccount(), req.GetToken(), req.GetPlayerId())
 }
 
 func L2HDissconnectNotifyHandler(conn *server_conn.ServerConn, msg proto.Message) {
@@ -202,7 +202,8 @@ func L2HBindNewAccountHandler(conn *server_conn.ServerConn, msg proto.Message) {
 		return
 	}
 
-	p := player_mgr.GetPlayerByAcc(req.GetAccount())
+	//p := player_mgr.GetPlayerByAcc(req.GetAccount())
+	p := player_mgr.GetPlayerByUid(req.GetUniqueId())
 	if p == nil {
 		log.Error("Cant found account %v to bind new account %v", req.GetAccount(), req.GetNewAccount())
 		return
@@ -216,7 +217,7 @@ func L2HBindNewAccountHandler(conn *server_conn.ServerConn, msg proto.Message) {
 
 	//player_mgr.RemoveFromAccMap(req.GetAccount())
 	p.Account = req.GetNewAccount() // 新账号
-	player_mgr.Add2AccMap(p)
+	//player_mgr.Add2AccMap(p)
 
 	row.SetAccount(req.GetNewAccount())
 

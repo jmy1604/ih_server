@@ -19,7 +19,8 @@ func (this *DBC) on_preload() (err error) {
 		}
 
 		player_mgr.Add2IdMap(p)
-		player_mgr.Add2AccMap(p)
+		//player_mgr.Add2AccMap(p)
+		player_mgr.Add2UidMap(p.UniqueId, p)
 
 		friend_recommend_mgr.CheckAndAddPlayer(p.Id)
 

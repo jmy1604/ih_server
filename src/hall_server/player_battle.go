@@ -151,6 +151,7 @@ type BattleTeam struct {
 	friend       *Player           // 用于好友BOSS
 	guild        *dbGuildRow       // 用于公会副本
 	first_hand   int32             // 先手值
+	is_sweeping  bool              // 是否正在扫荡
 }
 
 // 利用玩家初始化

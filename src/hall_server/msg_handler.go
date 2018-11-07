@@ -182,7 +182,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		tokeninfo := login_token_mgr.GetTokenByAcc(p.Account)
+		tokeninfo := login_token_mgr.GetTokenByUid(p.UniqueId)
 		if nil != tokeninfo && tokeninfo.token == tmp_msg.GetToken() {
 			func() {
 				defer func() {

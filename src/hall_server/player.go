@@ -155,8 +155,9 @@ func (this *Player) _init() {
 	this.join_guild_locker = &sync.Mutex{}
 }
 
-func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
+func new_player(id int32, uid, account, token string, db *dbPlayerRow) *Player {
 	ret_p := &Player{}
+	ret_p.UniqueId = uid
 	ret_p.Id = id
 	ret_p.Account = account
 	ret_p.Token = token
@@ -181,6 +182,7 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	ret_p.ol_array_idx = -1
 	ret_p.all_array_idx = -1
 	ret_p.Account = db.GetAccount()
+	ret_p.UniqueId = db.GetUniqueId()
 
 	ret_p._init()
 

@@ -660,11 +660,12 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	token = fmt.Sprintf("%v_%v", time.Now().Unix()+time.Now().UnixNano(), account)
+	//token = fmt.Sprintf("%v_%v", time.Now().Unix()+time.Now().UnixNano(), account)
+	access_token := share_data.GenerateAccessToken(row.GetUniqueId())
 	hall_agent.Send(uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN), &msg_server_message.L2HSyncAccountToken{
 		UniqueId: row.GetUniqueId(),
 		Account:  account,
-		Token:    token,
+		Token:    access_token,
 	})
 
 	var hall_ip string
@@ -675,7 +676,7 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 	}
 	response := &msg_client_message.S2CSelectServerResponse{
 		Acc:   account,
-		Token: token,
+		Token: access_token,
 		IP:    hall_ip,
 	}
 

@@ -25,8 +25,8 @@ type PlayerManager struct {
 	id2players      map[int32]*Player
 	id2players_lock *sync.RWMutex
 
-	acc2players      map[string]*Player
-	acc2Players_lock *sync.RWMutex
+	//acc2players      map[string]*Player
+	//acc2Players_lock *sync.RWMutex
 
 	/*all_player_array []*Player
 	cur_all_count    int32
@@ -44,8 +44,8 @@ func (this *PlayerManager) Init() bool {
 	this.uid2players_locker = &sync.RWMutex{}
 	this.id2players = make(map[int32]*Player)
 	this.id2players_lock = &sync.RWMutex{}
-	this.acc2players = make(map[string]*Player)
-	this.acc2Players_lock = &sync.RWMutex{}
+	//this.acc2players = make(map[string]*Player)
+	//this.acc2Players_lock = &sync.RWMutex{}
 
 	/*this.ol_player_array = make([]*Player, DEFAULT_PLAYER_ARRAY_MAX)
 	this.cur_ol_count = 0
@@ -132,7 +132,7 @@ func (this *PlayerManager) RemoveFromIdMap(id int32) {
 	return this.cur_all_count
 }*/
 
-func (this *PlayerManager) Add2AccMap(p *Player) {
+/*func (this *PlayerManager) Add2AccMap(p *Player) {
 	if nil == p {
 		log.Error("PlayerManager Add2AccMap p nil !")
 		return
@@ -147,7 +147,7 @@ func (this *PlayerManager) Add2AccMap(p *Player) {
 
 	this.acc2players[p.Account] = p
 
-	/*if this.cur_ol_count >= this.cur_ol_max {
+	if this.cur_ol_count >= this.cur_ol_max {
 		tmp_player_array := make([]*Player, this.cur_ol_max+PLAYER_ARRAY_MAX_ADD_STEP)
 		for idx := int32(0); idx < this.cur_ol_max; idx++ {
 			tmp_player_array[idx] = this.ol_player_array[idx]
@@ -159,12 +159,12 @@ func (this *PlayerManager) Add2AccMap(p *Player) {
 
 	this.ol_player_array[this.cur_ol_count] = p
 	p.ol_array_idx = this.cur_ol_count
-	this.cur_ol_count++*/
+	this.cur_ol_count++
 
 	return
-}
+}*/
 
-func (this *PlayerManager) RemoveFromAccMap(acc string) {
+/*func (this *PlayerManager) RemoveFromAccMap(acc string) {
 	if "" == acc {
 		log.Error("PlayerManager RemoveFromAccMap acc empty !")
 		return
@@ -174,7 +174,7 @@ func (this *PlayerManager) RemoveFromAccMap(acc string) {
 	defer this.acc2Players_lock.Unlock()
 	cur_p := this.acc2players[acc]
 	if nil != cur_p {
-		/*if cur_p.ol_array_idx != -1 {
+		if cur_p.ol_array_idx != -1 {
 			if cur_p.ol_array_idx != this.cur_ol_count-1 {
 				if nil != this.ol_player_array[this.cur_ol_count-1] {
 					this.ol_player_array[this.cur_ol_count-1].ol_array_idx = cur_p.ol_array_idx
@@ -182,18 +182,18 @@ func (this *PlayerManager) RemoveFromAccMap(acc string) {
 				this.ol_player_array[cur_p.ol_array_idx] = this.ol_player_array[this.cur_ol_count-1]
 			}
 			this.cur_ol_count = this.cur_ol_count - 1
-		}*/
+		}
 		delete(this.acc2players, acc)
 	}
 
 	return
-}
+}*/
 
 /*func (this *PlayerManager) GetCurOnlineNum() int32 {
 	return this.cur_ol_count
 }*/
 
-func (this *PlayerManager) GetPlayerByAcc(acc string) *Player {
+/*func (this *PlayerManager) GetPlayerByAcc(acc string) *Player {
 	if "" == acc {
 		return nil
 	}
@@ -202,7 +202,7 @@ func (this *PlayerManager) GetPlayerByAcc(acc string) *Player {
 	defer this.acc2Players_lock.Unlock()
 
 	return this.acc2players[acc]
-}
+}*/
 
 func (this *PlayerManager) Add2UidMap(unique_id string, p *Player) {
 	this.uid2players_locker.Lock()
@@ -236,7 +236,8 @@ func (this *PlayerManager) PlayerLogout(p *Player) {
 		return
 	}
 
-	this.RemoveFromAccMap(p.Account)
+	//this.RemoveFromAccMap(p.Account)
+	this.RemoveFromUidMap(p.UniqueId)
 
 	p.OnLogout()
 }
@@ -436,49 +437,44 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 		return -1, p
 	}
 
-	acc := req.GetAcc()
-	if "" == acc {
-		log.Error("PlayerEnterGameHandler acc empty !")
+	var access_token share_data.AccessTokenInfo
+	if !access_token.ParseString(req.GetToken()) {
+		log.Error("PlayerEnterGameHandler token string[%v] parse failed", req.GetToken())
 		return -1, p
 	}
 
-	token_info := login_token_mgr.GetTokenByAcc(acc)
+	token_info := login_token_mgr.GetTokenByUid(access_token.UniqueId)
 	if nil == token_info {
-		log.Error("PlayerEnterGameHandler account[%v] no token info!", acc)
-		return -2, p
+		log.Error("PlayerEnterGameHandler unique_id[%v] no token info!", access_token.UniqueId)
+		return -1, p
 	}
 
-	if req.GetToken() != token_info.token {
-		log.Error("PlayerEnterGameHandler token check failed !(%s) != (%s)", req.GetToken(), token_info.token)
-		return -3, p
+	if req.Acc != token_info.account {
+		log.Error("PlayerEnterGameHandler account[%v] check failed", req.GetAcc())
+		return int32(msg_client_message.E_ERR_PLAYER_TOKEN_ERROR), p
 	}
 
-	//p = player_mgr.GetPlayerById(player_id)
-	is_new := false
-	p = player_mgr.GetPlayerByAcc(acc)
+	var is_new bool
+	p = player_mgr.GetPlayerByUid(access_token.UniqueId)
 	if nil == p {
-		//pdb := dbc.Players.GetRow(p.Id)
-		//if nil == pdb {
 		global_row := dbc.Global.GetRow()
 		player_id := global_row.GetNextPlayerId()
 		pdb := dbc.Players.AddRow(player_id)
 		if nil == pdb {
 			log.Error("player_db_to_msg AddRow pid(%d) failed !", player_id)
-			return -4, p
+			return -1, p
 		}
-		pdb.SetAccount(token_info.acc)
+		pdb.SetUniqueId(access_token.UniqueId)
+		pdb.SetAccount(token_info.account)
 		pdb.SetCurrReplyMsgNum(0)
-		p = new_player(player_id, token_info.acc, token_info.token, pdb)
+		p = new_player(player_id, access_token.UniqueId, token_info.account, token_info.token, pdb)
 		p.OnCreate()
-		//} else {
-		//	p = new_player(p.Id, token_info.acc, token_info.token, pdb)
-		//}
-		player_mgr.Add2AccMap(p)
 		player_mgr.Add2IdMap(p)
+		player_mgr.Add2UidMap(access_token.UniqueId, p)
 		is_new = true
 		log.Info("player_db_to_msg new player(%d) !", player_id)
 	} else {
-		p.Account = token_info.acc
+		p.Account = token_info.account
 		p.Token = token_info.token
 		pdb := dbc.Players.GetRow(p.Id)
 		if pdb != nil {
@@ -493,7 +489,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 
 	//p.bhandling = true
 
-	p.send_enter_game(acc, p.Id)
+	p.send_enter_game(req.Acc, p.Id)
 	p.OnLogin()
 	if !is_new {
 		p.send_items()

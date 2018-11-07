@@ -287,7 +287,22 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 
 	my_team = attack_team._format_members_for_msg()
 	target_team = this.target_stage_team._format_members_for_msg()
+
+	// 扫荡状态
+	if this.sweep_num > 0 {
+		attack_team.is_sweeping = true
+		this.target_stage_team.is_sweeping = true
+	}
+
 	is_win, enter_reports, rounds = attack_team.Fight(this.target_stage_team, BATTLE_END_BY_ROUND_OVER, stage.MaxRound)
+
+	// 清除扫荡状态
+	if attack_team.is_sweeping {
+		attack_team.is_sweeping = false
+	}
+	if this.target_stage_team.is_sweeping {
+		this.target_stage_team.is_sweeping = false
+	}
 
 	this.stage_id = stage.Id
 	this.stage_wave += 1
