@@ -572,7 +572,7 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_RED_POINT_STATES_RESPONSE), &response)
 
-	log.Debug("Player[%v] red point states %v", this.Id, states)
+	//log.Debug("Player[%v] red point states %v", this.Id, states)
 
 	return 1
 }

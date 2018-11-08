@@ -443,6 +443,7 @@ message PlayerPay{
 	optional int32 LastPayedTime=2;
 	optional int32 LastAwardTime=3;
 	optional int32 SendMailNum=4;
+	optional int32 ChargeNum=5;
 }
 
 message PlayerPayList{

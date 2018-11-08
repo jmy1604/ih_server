@@ -64,8 +64,8 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, use
 							if res == 0 {
 								log.Error("Player[%v] rand dropid[%d] not role resource", this.Id, tmp_item.DropItemID)
 								continue
-							} else {
-								log.Info("Player[%v] rand dropid[%v] transfer to piece because role bag is full", this.Id, tmp_item.DropItemID)
+							} else if res < 0 {
+								log.Warn("Player[%v] rand dropid[%v] transfer to piece because role bag is full", this.Id, tmp_item.DropItemID)
 							}
 						}
 					}

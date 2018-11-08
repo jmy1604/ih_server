@@ -1891,6 +1891,7 @@ type dbPlayerPayData struct{
 	LastPayedTime int32
 	LastAwardTime int32
 	SendMailNum int32
+	ChargeNum int32
 }
 func (this* dbPlayerPayData)from_pb(pb *db.PlayerPay){
 	if pb == nil {
@@ -1900,6 +1901,7 @@ func (this* dbPlayerPayData)from_pb(pb *db.PlayerPay){
 	this.LastPayedTime = pb.GetLastPayedTime()
 	this.LastAwardTime = pb.GetLastAwardTime()
 	this.SendMailNum = pb.GetSendMailNum()
+	this.ChargeNum = pb.GetChargeNum()
 	return
 }
 func (this* dbPlayerPayData)to_pb()(pb *db.PlayerPay){
@@ -1908,6 +1910,7 @@ func (this* dbPlayerPayData)to_pb()(pb *db.PlayerPay){
 	pb.LastPayedTime = proto.Int32(this.LastPayedTime)
 	pb.LastAwardTime = proto.Int32(this.LastAwardTime)
 	pb.SendMailNum = proto.Int32(this.SendMailNum)
+	pb.ChargeNum = proto.Int32(this.ChargeNum)
 	return
 }
 func (this* dbPlayerPayData)clone_to(d *dbPlayerPayData){
@@ -1915,6 +1918,7 @@ func (this* dbPlayerPayData)clone_to(d *dbPlayerPayData){
 	d.LastPayedTime = this.LastPayedTime
 	d.LastAwardTime = this.LastAwardTime
 	d.SendMailNum = this.SendMailNum
+	d.ChargeNum = this.ChargeNum
 	return
 }
 type dbPlayerGuideDataData struct{
@@ -9987,6 +9991,40 @@ func (this *dbPlayerPayColumn)IncbySendMailNum(id string,v int32)(r int32){
 	d.SendMailNum +=  v
 	this.m_changed = true
 	return d.SendMailNum
+}
+func (this *dbPlayerPayColumn)GetChargeNum(id string)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerPayColumn.GetChargeNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.ChargeNum
+	return v,true
+}
+func (this *dbPlayerPayColumn)SetChargeNum(id string,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerPayColumn.SetChargeNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.ChargeNum = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerPayColumn)IncbyChargeNum(id string,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerPayColumn.IncbyChargeNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerPayData{}
+		this.m_data[id] = d
+	}
+	d.ChargeNum +=  v
+	this.m_changed = true
+	return d.ChargeNum
 }
 type dbPlayerGuideDataColumn struct{
 	m_row *dbPlayerRow

@@ -30,6 +30,7 @@ func _get_today_config_time(now_time time.Time, day_time_config string) (res int
 
 	today_config_time = time.Date(now_time.Year(), now_time.Month(), now_time.Day(), tm.Hour(), tm.Minute(), tm.Second(), tm.Nanosecond(), tm.Location())
 	if tm.Unix() >= today_config_time.Unix() {
+		log.Error("!!!!!!! config day time greater today config time")
 		res = -1
 		return
 	}
@@ -37,37 +38,6 @@ func _get_today_config_time(now_time time.Time, day_time_config string) (res int
 	res = 1
 	return
 }
-
-/*func CheckWeekTimeArrival(last_time_point int32, week_time_string string) bool {
-	last_time := time.Unix(int64(last_time_point), 0)
-	now_time := time.Now()
-
-	if now_time.Unix() <= last_time.Unix() {
-		return false
-	}
-
-	if now_time.Unix()-last_time.Unix() >= 7*24*3600 {
-		return true
-	}
-
-	res, tmp := _get_today_config_time(now_time, week_time_string)
-	if res < 0 {
-		return false
-	}
-
-	last_refresh_time := int64(0)
-	if now_time.Weekday() < tm.Weekday() {
-		last_refresh_time = tmp.Unix() - int64((7+now_time.Weekday()-tm.Weekday())*24*3600)
-	} else {
-		last_refresh_time = tmp.Unix() - int64((now_time.Weekday()-tm.Weekday())*24*3600)
-	}
-
-	if now_time.Unix() >= last_refresh_time && last_refresh_time > int64(last_time_point) {
-		return true
-	}
-
-	return false
-}*/
 
 func CheckDayTimeArrival(last_time_point int32, day_time_string string) bool {
 	last_time := time.Unix(int64(last_time_point), 0)
@@ -114,65 +84,42 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_config string)
 	}
 }
 
-/*func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_config string, interval_days int32) int32 {
-	if last_save <= 0 || interval_days <= 0 {
-		return -1
-	}
-	last_time := time.Unix(int64(last_save), 0)
-	now_time := time.Now()
-	if last_time.Unix() > now_time.Unix() {
-		return -1
-	}
-
-	res, today_tm := _get_today_config_time(now_time, day_time_config)
-	if res < 0 {
-		return -1
-	}
-
-	diff_days := (today_tm.Unix() - tm.Unix()) / (24 * 3600)
-	y := int(diff_days) % int(interval_days)
-
-	next_refresh_time := int64(0)
-	if y == 0 && now_time.Unix() < today_tm.Unix() {
-		next_refresh_time = today_tm.Unix()
-	} else {
-		next_refresh_time = today_tm.Unix() + int64((int(interval_days)-y)*24*3600)
-	}
-
-	return int32(next_refresh_time - now_time.Unix())
-}*/
-
-func GetDaysNumToLastSaveTime(last_save int32, day_time_config string) int32 {
+func GetDaysNumToLastSaveTime(last_save int32, day_time_config string, now_time time.Time) (num int32) {
 	if last_save < 0 {
 		return -1
 	} else if last_save == 0 {
-		return 1
+		num = 1
+		last_save = int32(now_time.Unix())
 	}
 
 	last_time := time.Unix(int64(last_save), 0)
-	now_time := time.Now()
 	if last_time.Unix() > now_time.Unix() {
 		return -1
 	}
 
-	res, today_config_time := _get_today_config_time(now_time, day_time_config)
+	res, last_config_time := _get_today_config_time(last_time, day_time_config)
 	if res < 0 {
 		return -1
 	}
 
-	diff_secs := int32(today_config_time.Unix()) - last_save
-	if diff_secs <= 0 {
-		return 0
+	if last_save < int32(last_config_time.Unix()) {
+		if now_time.Unix() < last_config_time.Unix() {
+
+		} else {
+			num += (int32(now_time.Unix()-last_config_time.Unix())/(24*3600) + 1)
+		}
+	} else {
+		num += int32(now_time.Unix()-last_config_time.Unix()) / (24 * 3600)
 	}
 
-	days_num := ((diff_secs) + (24*3600 - 1)) / (24 * 3600)
+	//log.Trace("@@@@@@@@@@@@@ days num %v", num)
 
-	return days_num
+	return
 }
 
 type DaysTimeChecker struct {
-	time_tm       time.Time // 配置时间
-	first_tm      time.Time // 第一次开始计算的时间，相当于开服时间
+	time_tm time.Time // 配置时间
+	//first_tm      time.Time // 第一次开始计算的时间，相当于开服时间
 	interval_days int32
 	next_time     int64
 }

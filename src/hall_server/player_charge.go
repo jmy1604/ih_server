@@ -188,7 +188,6 @@ func check_apple_order_exist(order_id string) bool {
 func (this *Player) _charge_month_card_award(month_card *table_config.XmlPayItem, now_time time.Time) (send_num int32) {
 	SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Month Card Award", "Month Card Award", []int32{ITEM_RESOURCE_ID_DIAMOND, month_card.MonthCardReward})
 	send_num = this.db.Pays.IncbySendMailNum(month_card.BundleId, 1)
-	this.db.Pays.SetLastAwardTime(month_card.BundleId, int32(now_time.Unix()))
 	log.Debug("Player[%v] charge month card %v get reward, send_num %v", this.Id, month_card.BundleId, send_num)
 	return
 }
@@ -203,8 +202,13 @@ func (this *Player) charge_month_card_award(month_cards []*table_config.XmlPayIt
 			continue
 		}
 
-		if utils.GetRemainSeconds2NextDayTime(last_award_time, global_config.MonthCardSendRewardTime) <= 0 {
+		//if utils.GetRemainSeconds2NextDayTime(last_award_time, global_config.MonthCardSendRewardTime) <= 0 {
+		num := utils.GetDaysNumToLastSaveTime(last_award_time, global_config.MonthCardSendRewardTime, now_time)
+		for i := int32(0); i < num; i++ {
 			this._charge_month_card_award(m, now_time)
+		}
+		if num > 0 {
+			this.db.Pays.SetLastAwardTime(m.BundleId, int32(now_time.Unix()))
 		}
 	}
 	return true
@@ -220,8 +224,8 @@ func (this *Player) charge_has_month_card() bool {
 	for i := 0; i < len(arr); i++ {
 		bundle_id := arr[i].BundleId
 		send_num, o := this.db.Pays.GetSendMailNum(bundle_id)
-		payed_time, _ := this.db.Pays.GetLastPayedTime(bundle_id)
-		if o && payed_time > 0 && send_num < 30 {
+		//payed_time, _ := this.db.Pays.GetLastPayedTime(bundle_id)
+		if o /*&& payed_time > 0*/ && send_num < 30 {
 			return true
 		}
 	}
@@ -526,6 +530,8 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 				log.Error("Player[%v] payed month card %v is using, not outdate", this.Id, bundle_id)
 				return int32(msg_client_message.E_ERR_CHARGE_MONTH_CARD_ALREADY_PAYED)
 			}
+			this.db.Pays.SetSendMailNum(bundle_id, 0)
+			this.db.Pays.IncbyChargeNum(bundle_id, 1)
 		}
 	} else {
 		this.db.Pays.Add(&dbPlayerPayData{
@@ -534,14 +540,13 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 		this.add_diamond(pay_item.GemRewardFirst) // 首次充值奖励
 	}
 
-	this.db.Pays.SetLastPayedTime(bundle_id, int32(now_time.Unix()))
-
 	this.add_diamond(pay_item.GemReward) // 充值获得钻石
 
 	if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
-		this._charge_month_card_award(pay_item, now_time)
+		//this._charge_month_card_award(pay_item, now_time)
 		charge_month_card_manager.InsertPlayer(this.Id)
 	}
+	this.db.Pays.SetLastPayedTime(bundle_id, int32(now_time.Unix()))
 
 	response := &msg_client_message.S2CChargeResponse{
 		BundleId: bundle_id,

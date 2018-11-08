@@ -2127,7 +2127,7 @@ func charge_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return p.charge(1, int32(id))
+	return p.charge(0, int32(id))
 }
 
 func charge_first_award_cmd(p *Player, args []string) int32 {
