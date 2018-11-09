@@ -224,14 +224,17 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 
 	if is_win {
 		add_score = division.WinScore
-		if this.db.Arena.GetRepeatedWinNum() >= global_config.ArenaRepeatedWinNum {
+		if this.db.Arena.IncbyRepeatedWinNum(1) >= global_config.ArenaRepeatedWinNum {
 			add_score += division.WinningStreakScoreBonus
 		}
 		if this.db.Arena.GetRepeatedLoseNum() > 0 {
 			this.db.Arena.SetRepeatedLoseNum(0)
 		}
-		this.db.Arena.IncbyRepeatedWinNum(1)
 	} else {
+		if this.db.Arena.GetRepeatedWinNum() > 0 {
+			this.db.Arena.SetRepeatedWinNum(0)
+		}
+		this.db.Arena.IncbyRepeatedLoseNum(1)
 		add_score = division.LoseScore
 	}
 

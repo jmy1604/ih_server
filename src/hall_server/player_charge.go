@@ -201,11 +201,16 @@ func (this *Player) charge_month_card_award(month_cards []*table_config.XmlPayIt
 		if !o {
 			continue
 		}
-
-		//if utils.GetRemainSeconds2NextDayTime(last_award_time, global_config.MonthCardSendRewardTime) <= 0 {
+		send_num, _ := this.db.Pays.GetSendMailNum(m.BundleId)
+		if send_num >= 30 {
+			continue
+		}
 		num := utils.GetDaysNumToLastSaveTime(last_award_time, global_config.MonthCardSendRewardTime, now_time)
 		for i := int32(0); i < num; i++ {
-			this._charge_month_card_award(m, now_time)
+			send_num = this._charge_month_card_award(m, now_time)
+			if send_num >= 30 {
+				break
+			}
 		}
 		if num > 0 {
 			this.db.Pays.SetLastAwardTime(m.BundleId, int32(now_time.Unix()))
@@ -224,8 +229,7 @@ func (this *Player) charge_has_month_card() bool {
 	for i := 0; i < len(arr); i++ {
 		bundle_id := arr[i].BundleId
 		send_num, o := this.db.Pays.GetSendMailNum(bundle_id)
-		//payed_time, _ := this.db.Pays.GetLastPayedTime(bundle_id)
-		if o /*&& payed_time > 0*/ && send_num < 30 {
+		if o && send_num < 30 {
 			return true
 		}
 	}
