@@ -541,6 +541,7 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 	}
 
 	this.add_diamond(pay_item.GemReward) // 充值获得钻石
+	this.add_resources(pay_item.ItemReward)
 
 	if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
 		//this._charge_month_card_award(pay_item, now_time)

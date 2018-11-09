@@ -17,8 +17,10 @@ type XmlPayItem struct {
 	BundleId        string `xml:"BundleID,attr"`
 	GemRewardFirst  int32  `xml:"GemRewardFirst,attr"`
 	GemReward       int32  `xml:"GemReward,attr"`
-	MonthCardDay    int32  `xml:"MonthCardDay,attr"`
-	MonthCardReward int32  `xml:"MonthCardReward,attr"`
+	ItemRewardStr   string `xml:"ItemReward,attr"`
+	ItemReward      []int32
+	MonthCardDay    int32 `xml:"MonthCardDay,attr"`
+	MonthCardReward int32 `xml:"MonthCardReward,attr"`
 	PayType         int32
 }
 
@@ -76,6 +78,12 @@ func (this *PayTableMgr) Load(table_file string) bool {
 
 		if tmp_item.MonthCardDay == 30 {
 			tmp_item.PayType = PAY_TYPE_MONTH_CARD
+		}
+
+		tmp_item.ItemReward = parse_xml_str_arr2(tmp_item.ItemRewardStr, ",")
+		if tmp_item.ItemReward == nil || len(tmp_item.ItemReward) == 0 {
+			log.Error("Pay Table idx[%v] column[ItemReward] %v parse invalid", idx, tmp_item.ItemReward)
+			return false
 		}
 
 		this.Map[tmp_item.Id] = tmp_item
