@@ -584,6 +584,8 @@ func (this *Player) charge_first_award() int32 {
 		}
 	}
 
+	this.db.PayCommon.SetFirstPayState(1)
+
 	response := &msg_client_message.S2CChargeFirstAwardResponse{
 		Rewards: Map2ItemInfos(rewards),
 	}
