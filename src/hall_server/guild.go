@@ -560,6 +560,8 @@ func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_clien
 		MemberNum:                guild.Members.NumAll(),
 		MemberNumLimit:           _guild_member_num_limit(guild),
 		Position:                 this.db.Guild.GetPosition(),
+		DonateNum:                this.db.Guild.GetDonateNum(),
+		MaxDonateNum:             global_config.GuildDonateLimitDay,
 	}
 	return
 }
