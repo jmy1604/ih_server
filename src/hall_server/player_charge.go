@@ -525,8 +525,8 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 	has = this.db.Pays.HasIndex(bundle_id)
 	if has {
 		if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
-			payed_time, _ := this.db.Pays.GetLastPayedTime(bundle_id)
-			if int32(now_time.Unix())-payed_time < 30*24*3600 {
+			mail_num, _ := this.db.Pays.GetSendMailNum(bundle_id)
+			if mail_num < 30 {
 				log.Error("Player[%v] payed month card %v is using, not outdate", this.Id, bundle_id)
 				return int32(msg_client_message.E_ERR_CHARGE_MONTH_CARD_ALREADY_PAYED)
 			}

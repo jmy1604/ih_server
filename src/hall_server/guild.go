@@ -1456,7 +1456,7 @@ func (this *Player) send_guild_donate_list(guild *dbGuildRow) {
 			item_num, _ := guild.AskDonates.GetItemNum(player_id)
 			ask_time, _ := guild.AskDonates.GetAskTime(player_id)
 			name, level, head := GetPlayerBaseInfo(player_id)
-			remain_exist_seconds := GetRemainSeconds(ask_time, global_config.GuildAskDonateCDSecs)
+			remain_exist_seconds := GetRemainSeconds(ask_time, global_config.GuildAskDonateExistSeconds)
 			donate_item := &msg_client_message.GuildAskDonateInfo{
 				PlayerId:           player_id,
 				PlayerName:         name,
