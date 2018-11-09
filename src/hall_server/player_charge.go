@@ -500,15 +500,6 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 		return int32(msg_client_message.E_ERR_CHARGE_TABLE_DATA_NOT_FOUND)
 	}
 
-	if pay_item.PayType != table_config.PAY_TYPE_MONTH_CARD {
-		if this.db.PayCommon.GetFirstPayState() == 0 {
-			this.db.PayCommon.SetFirstPayState(1)
-			// 首充通知
-			notify := &msg_client_message.S2CChargeFirstRewardNotify{}
-			this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_FIRST_REWARD_NOTIFY), notify)
-		}
-	}
-
 	if channel == 1 {
 		err_code := this.verify_google_purchase_data(bundle_id, purchase_data, extra_data)
 		if err_code < 0 {
@@ -548,10 +539,18 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 	this.add_resources(pay_item.ItemReward)
 
 	if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
-		//this._charge_month_card_award(pay_item, now_time)
 		charge_month_card_manager.InsertPlayer(this.Id)
 	}
 	this.db.Pays.SetLastPayedTime(bundle_id, int32(now_time.Unix()))
+
+	//if pay_item.PayType != table_config.PAY_TYPE_MONTH_CARD {
+	if this.db.PayCommon.GetFirstPayState() == 0 {
+		this.db.PayCommon.SetFirstPayState(1)
+		// 首充通知
+		notify := &msg_client_message.S2CChargeFirstRewardNotify{}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_FIRST_REWARD_NOTIFY), notify)
+	}
+	//}
 
 	response := &msg_client_message.S2CChargeResponse{
 		BundleId: bundle_id,
@@ -572,6 +571,9 @@ func (this *Player) charge_first_award() int32 {
 	} else if pay_state == 2 {
 		log.Error("Player[%v] first charge cant award repeated", this.Id)
 		return int32(msg_client_message.E_ERR_CHARGE_FIRST_ALREADY_AWARD)
+	} else if pay_state != 1 {
+		log.Error("Player[%v] first charge state %v invalid", this.Id, pay_state)
+		return -1
 	}
 
 	var rewards map[int32]int32
@@ -589,7 +591,7 @@ func (this *Player) charge_first_award() int32 {
 		}
 	}
 
-	this.db.PayCommon.SetFirstPayState(1)
+	this.db.PayCommon.SetFirstPayState(2)
 
 	response := &msg_client_message.S2CChargeFirstAwardResponse{
 		Rewards: Map2ItemInfos(rewards),
