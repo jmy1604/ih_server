@@ -528,6 +528,7 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 			this.db.Pays.SetSendMailNum(bundle_id, 0)
 			this.db.Pays.IncbyChargeNum(bundle_id, 1)
 		}
+		this.add_diamond(pay_item.GemReward) // 充值获得钻石
 	} else {
 		this.db.Pays.Add(&dbPlayerPayData{
 			BundleId: bundle_id,
@@ -535,7 +536,6 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 		this.add_diamond(pay_item.GemRewardFirst) // 首次充值奖励
 	}
 
-	this.add_diamond(pay_item.GemReward) // 充值获得钻石
 	this.add_resources(pay_item.ItemReward)
 
 	if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
