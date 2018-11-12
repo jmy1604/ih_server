@@ -500,6 +500,18 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 		return int32(msg_client_message.E_ERR_CHARGE_TABLE_DATA_NOT_FOUND)
 	}
 
+	var has bool
+	has = this.db.Pays.HasIndex(bundle_id)
+	if has {
+		if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
+			mail_num, o := this.db.Pays.GetSendMailNum(bundle_id)
+			if o && mail_num < 30 {
+				log.Error("Player[%v] payed month card %v is using, not outdate", this.Id, bundle_id)
+				return int32(msg_client_message.E_ERR_CHARGE_MONTH_CARD_ALREADY_PAYED)
+			}
+		}
+	}
+
 	if channel == 1 {
 		err_code := this.verify_google_purchase_data(bundle_id, purchase_data, extra_data)
 		if err_code < 0 {
@@ -515,19 +527,9 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 		return int32(msg_client_message.E_ERR_CHARGE_CHANNEL_INVALID)
 	}
 
-	now_time := time.Now()
-	var has bool
-	has = this.db.Pays.HasIndex(bundle_id)
 	if has {
-		if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
-			mail_num, _ := this.db.Pays.GetSendMailNum(bundle_id)
-			if mail_num < 30 {
-				log.Error("Player[%v] payed month card %v is using, not outdate", this.Id, bundle_id)
-				return int32(msg_client_message.E_ERR_CHARGE_MONTH_CARD_ALREADY_PAYED)
-			}
-			this.db.Pays.SetSendMailNum(bundle_id, 0)
-			this.db.Pays.IncbyChargeNum(bundle_id, 1)
-		}
+		this.db.Pays.SetSendMailNum(bundle_id, 0)
+		this.db.Pays.IncbyChargeNum(bundle_id, 1)
 		this.add_diamond(pay_item.GemReward) // 充值获得钻石
 	} else {
 		this.db.Pays.Add(&dbPlayerPayData{
@@ -541,6 +543,8 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 	if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
 		charge_month_card_manager.InsertPlayer(this.Id)
 	}
+
+	now_time := time.Now()
 	this.db.Pays.SetLastPayedTime(bundle_id, int32(now_time.Unix()))
 
 	//if pay_item.PayType != table_config.PAY_TYPE_MONTH_CARD {

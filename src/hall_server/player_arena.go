@@ -296,7 +296,7 @@ func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
 }
 
 // 匹配对手
-func (this *Player) MatchArenaPlayer() (player_id int32) {
+func (this *Player) MatchArenaPlayer() (player_id, player_rank int32) {
 	rank := rank_list_mgr.GetRankByKey(RANK_LIST_TYPE_ARENA, this.Id)
 	if rank < 0 {
 		log.Error("Player[%v] get arena rank list rank failed", this.Id)
@@ -369,6 +369,7 @@ func (this *Player) MatchArenaPlayer() (player_id int32) {
 	}
 
 	player_id = item.(*ArenaRankItem).PlayerId
+	player_rank = r
 
 	log.Debug("Player[%v] match arena players rank range [start:%v, num:%v], rand the rank %v, match player[%v]", this.Id, start_rank, rank_num, r, player_id)
 
@@ -513,12 +514,18 @@ func (this *Player) arena_match() int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TEAM_MEMBERS_IS_EMPTY)
 	}
 
-	var pid int32
+	rank_list := rank_list_mgr.GetRankList(RANK_LIST_TYPE_ARENA)
+	if rank_list == nil {
+		log.Error("rank list %v not found, arena match failed", RANK_LIST_TYPE_ARENA)
+		return -1
+	}
+
+	var pid, rank int32
 	if this.db.Arena.GetScore() == 0 {
 		l := arena_robot_table_mgr.Array
-		pid = l[0].Id
+		pid, rank = l[0].Id, rank_list.RankNum()
 	} else {
-		pid = this.MatchArenaPlayer()
+		pid, rank = this.MatchArenaPlayer()
 	}
 
 	var robot *ArenaRobot
@@ -544,6 +551,7 @@ func (this *Player) arena_match() int32 {
 		PlayerScore: score,
 		PlayerGrade: grade,
 		PlayerPower: power,
+		PlayerRank:  rank,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_MATCH_PLAYER_RESPONSE), response)
 	log.Debug("Player[%v] matched arena player[%v]", this.Id, response)

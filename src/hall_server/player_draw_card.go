@@ -105,8 +105,8 @@ func (this *Player) has_free_draw(draw_type int32, now_time int32) (bool, *table
 }
 
 func (this *Player) draw_card(draw_type int32) int32 {
-	now_time := int32(time.Now().Unix())
-	is_free, draw := this.has_free_draw(draw_type, now_time)
+	now_time := time.Now()
+	is_free, draw := this.has_free_draw(draw_type, int32(now_time.Unix()))
 	if draw == nil {
 		return -1
 	}
@@ -166,6 +166,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 		drop_id = draw.DropId
 	}
 
+	rand.Seed(now_time.Unix() + now_time.UnixNano())
 	var role_ids []int32
 	for i := 0; i < len(drop_id)/2; i++ {
 		did := drop_id[2*i]
@@ -183,7 +184,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 	if !this.db.Draws.HasIndex(draw_type) {
 		this.db.Draws.Add(&dbPlayerDrawData{
 			Type:         draw_type,
-			LastDrawTime: now_time,
+			LastDrawTime: int32(now_time.Unix()),
 		})
 	}
 
@@ -196,7 +197,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 			}
 		}
 	} else {
-		this.db.Draws.SetLastDrawTime(draw_type, now_time)
+		this.db.Draws.SetLastDrawTime(draw_type, int32(now_time.Unix()))
 	}
 
 	response := &msg_client_message.S2CDrawCardResponse{

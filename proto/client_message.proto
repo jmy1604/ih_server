@@ -656,6 +656,9 @@ message S2CCampaignDataResponse {
 	int32 HangupCampaignId					= 3; // 挂机战役关卡
 	repeated ItemInfo StaticIncomes			= 4; // 当前挂机固定收益
 	int32 IncomeRemainSeconds				= 5; // 收益剩余秒数
+	int32 RemainAccelerateNum				= 6; // 剩余加速次数
+	int32 AccelerateCostDiamond				= 7; // 加速需要消耗钻石
+	int32 AccelerateRefreshRemainSeconds	= 8; // 加速刷新剩余时间
 }
 
 // 请求战役挂机收益
@@ -678,6 +681,17 @@ message C2SBattleSetHangupCampaignRequest {
 // 设置挂机战役关卡返回
 message S2CBattleSetHangupCampaignResponse {
 	int32 CampaignId						= 1; // 战役ID
+}
+
+// 请求加速获取收益
+message C2SCampaignAccelerateIncomeRequest {
+}
+
+// 请求加速获取收益返回
+message S2CCampaignAccelerateIncomeResponse {
+	repeated ItemInfo Incomes 				= 1; // 收益
+	int32 RemainNum 						= 2; // 剩余次数
+	int32 NextCostDiamond				    = 3; // 下一次消耗钻石
 }
 
 // ----------------------------------- 物品 ------------------------------------
@@ -1235,6 +1249,7 @@ message S2CArenaMatchPlayerResponse {
 	int32 PlayerGrade 						= 5; // 段位
 	int32 PlayerScore                       = 6; // 积分
 	int32 PlayerPower						= 7; // 战力
+	int32 PlayerRank						= 8; // 名次
 }
 
 // 段位奖励
