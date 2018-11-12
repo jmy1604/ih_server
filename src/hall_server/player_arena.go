@@ -516,7 +516,7 @@ func (this *Player) arena_match() int32 {
 	var pid int32
 	if this.db.Arena.GetScore() == 0 {
 		l := arena_robot_table_mgr.Array
-		pid = l[len(l)-1].Id
+		pid = l[0].Id
 	} else {
 		pid = this.MatchArenaPlayer()
 	}
