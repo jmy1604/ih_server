@@ -86,7 +86,7 @@
 		"PullMsgCooldown": 3,
 		"MsgMaxBytes": 200,
 		"MsgExistTime": 100,
-		"SendMsgCooldown": 180
+		"SendMsgCooldown": 10
 	},
 	
 	"RecruitChatData": {
