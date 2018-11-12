@@ -1627,6 +1627,11 @@ func (this *Player) guild_donate(player_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ENOUGH_DONATE_SCORE)
 	}
 
+	if this.get_resource(item_id) < 1 {
+		log.Error("Player[%v] not enough %v to donate", this.Id, item_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
+	}
+
 	var donate_over bool
 	item_num, _ := guild.AskDonates.GetItemNum(player_id)
 	if item_num < item.RequestNum {
