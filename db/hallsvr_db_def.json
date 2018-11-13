@@ -136,8 +136,8 @@
 						{"Type":"int32","Index":5,"Name":"Diamond","Incby":true},
 						{"Type":"int32","Index":9,"Name":"LastLogout"},
 						{"Type":"int32","Index":10,"Name":"LastLogin"},
-						{"Type":"int32","Index":16,"Name":"VipLvl"},
-						{"Type":"int32","Index":17,"Name":"Head"}
+						{"Type":"int32","Index":11,"Name":"VipLvl"},
+						{"Type":"int32","Index":12,"Name":"Head"}
 					]
 				},
 				{
@@ -216,7 +216,9 @@
 						{"Type":"int32","Index":3,"Name":"HangupLastDropRandomIncomeTime"},
 						{"Type":"int32","Index":4,"Name":"HangupCampaignId"},
 						{"Type":"int32","Index":5,"Name":"LastestPassedCampaignId"},
-						{"Type":"int32","Index":6,"Name":"RankSerialId","Incby":true}
+						{"Type":"int32","Index":6,"Name":"RankSerialId","Incby":true},
+						{"Type":"int32","Index":7,"Name":"VipAccelNum","Incby":true},
+						{"Type":"int32","Index":8,"Name":"VipAccelRefreshTime","Incby":true}
 					]
 				},
 				{
@@ -443,7 +445,8 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Type"},
 						{"Type":"int32","Index":2,"Name":"CanChallengeNum","Incby":true},
-						{"Type":"int32","Index":3,"Name":"PurchasedNum","Incby":true}
+						{"Type":"int32","Index":3,"Name":"PurchasedNum","Incby":true},
+						{"Type":"int32","Index":4,"Name":"BuyNum","Incby":true}
 					]
 				},
 				{
@@ -462,7 +465,9 @@
 						{"Type":"int32","Index":6,"Name":"LastGetStaminaTime"},
 						{"Type":"int32","Index":7,"Name":"AssistRoleId"},
 						{"Type":"int32","Index":8,"Name":"LastGetPointsTime"},
-						{"Type":"int32","Index":9,"Name":"GetPointsDay","Incby":true}
+						{"Type":"int32","Index":9,"Name":"GetPointsDay","Incby":true},
+						{"Type":"int32","Index":10,"Name":"SearchedBossNum","Incby":true},
+						{"Type":"int32","Index":11,"Name":"LastSearchBossNumRefreshTime"}
 					]
 				},
 				{

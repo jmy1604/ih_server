@@ -135,7 +135,13 @@ func (this *Player) touch_gold(t int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
 	}
 
-	this.add_gold(gold)
+	var vip_gold int32
+	vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
+	if vip_info != nil {
+		vip_gold = gold * vip_info.GoldFingerBonus / 10000
+	}
+
+	this.add_gold(gold + vip_gold)
 	this.add_diamond(-diamond)
 
 	if this.if_gold_hand_reseted() {
@@ -147,7 +153,7 @@ func (this *Player) touch_gold(t int32) int32 {
 
 	response := &msg_client_message.S2CTouchGoldResponse{
 		Type:                     t,
-		GetGold:                  gold,
+		GetGold:                  gold + vip_gold,
 		CostDiamond:              diamond,
 		NextRefreshRemainSeconds: gold_hand.RefreshCD,
 	}

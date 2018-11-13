@@ -30,13 +30,23 @@ var active_stage_types []int32 = []int32{
 	ACTIVE_STAGE_TYPE_HERO_CHALLENGE,
 }
 
+func (this *Player) _get_active_stage_purchase_num() int32 {
+	var purchase_num int32
+	vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
+	if vip_info != nil {
+		purchase_num = vip_info.ActiveStageBuyTimes
+	}
+	return purchase_num
+}
+
 func (this *Player) _active_stage_get_data(t int32) *msg_client_message.ActiveStageData {
+	purchase_num := this._get_active_stage_purchase_num()
 	remain_num, _ := this.db.ActiveStages.GetCanChallengeNum(t)
-	purchase_num, _ := this.db.ActiveStages.GetPurchasedNum(t)
+	purchased_num, _ := this.db.ActiveStages.GetPurchasedNum(t)
 	return &msg_client_message.ActiveStageData{
 		StageType:             t,
 		RemainChallengeNum:    remain_num,
-		RemainBuyChallengeNum: global_config.ActiveStagePurchaseNum - purchase_num,
+		RemainBuyChallengeNum: purchase_num - purchased_num,
 	}
 }
 
@@ -82,7 +92,7 @@ func (this *Player) check_active_stage_refresh(send bool) bool {
 			this.db.ActiveStages.Add(&dbPlayerActiveStageData{
 				Type:            t,
 				CanChallengeNum: global_config.ActiveStageChallengeNumOfDay,
-				PurchasedNum:    global_config.ActiveStagePurchaseNum,
+				PurchasedNum:    0,
 			})
 		}
 	} else {
@@ -131,7 +141,8 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 
 	// 剩余购买次数
 	purchased_num, _ := this.db.ActiveStages.GetPurchasedNum(typ)
-	if global_config.ActiveStagePurchaseNum-purchased_num <= 0 {
+	purchase_num := this._get_active_stage_purchase_num()
+	if purchase_num <= purchased_num {
 		log.Error("Player[%v] purchased num for active stage used out", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_PURCHASE_NUM_OUT)
 	}

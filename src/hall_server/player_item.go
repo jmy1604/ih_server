@@ -31,6 +31,7 @@ const (
 	ITEM_RESOURCE_ID_STAMINA     = 8  // 体力
 	ITEM_RESOURCE_ID_FRIENDPOINT = 9  // 友情点
 	ITEM_RESOURCE_ID_HEROCOIN    = 10 // 英雄币
+	ITEM_RESOURCE_ID_HONOR       = 17 // 荣誉点
 	ITEM_RESOURCE_ID_VIP_EXP     = 21 // vip经验
 )
 
@@ -69,6 +70,15 @@ func (this *Player) add_item(id int32, count int32) bool {
 
 	if count < 0 {
 		return false
+	}
+
+	if id == ITEM_RESOURCE_ID_HONOR {
+		var vip_count int32
+		vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
+		if vip_info != nil {
+			vip_count = count * vip_info.HonorPointBonus / 10000
+		}
+		count += vip_count
 	}
 
 	if !this.db.Items.HasIndex(id) {

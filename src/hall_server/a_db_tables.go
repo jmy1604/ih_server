@@ -514,6 +514,8 @@ type dbPlayerCampaignCommonData struct{
 	HangupCampaignId int32
 	LastestPassedCampaignId int32
 	RankSerialId int32
+	VipAccelNum int32
+	VipAccelRefreshTime int32
 }
 func (this* dbPlayerCampaignCommonData)from_pb(pb *db.PlayerCampaignCommon){
 	if pb == nil {
@@ -525,6 +527,8 @@ func (this* dbPlayerCampaignCommonData)from_pb(pb *db.PlayerCampaignCommon){
 	this.HangupCampaignId = pb.GetHangupCampaignId()
 	this.LastestPassedCampaignId = pb.GetLastestPassedCampaignId()
 	this.RankSerialId = pb.GetRankSerialId()
+	this.VipAccelNum = pb.GetVipAccelNum()
+	this.VipAccelRefreshTime = pb.GetVipAccelRefreshTime()
 	return
 }
 func (this* dbPlayerCampaignCommonData)to_pb()(pb *db.PlayerCampaignCommon){
@@ -535,6 +539,8 @@ func (this* dbPlayerCampaignCommonData)to_pb()(pb *db.PlayerCampaignCommon){
 	pb.HangupCampaignId = proto.Int32(this.HangupCampaignId)
 	pb.LastestPassedCampaignId = proto.Int32(this.LastestPassedCampaignId)
 	pb.RankSerialId = proto.Int32(this.RankSerialId)
+	pb.VipAccelNum = proto.Int32(this.VipAccelNum)
+	pb.VipAccelRefreshTime = proto.Int32(this.VipAccelRefreshTime)
 	return
 }
 func (this* dbPlayerCampaignCommonData)clone_to(d *dbPlayerCampaignCommonData){
@@ -544,6 +550,8 @@ func (this* dbPlayerCampaignCommonData)clone_to(d *dbPlayerCampaignCommonData){
 	d.HangupCampaignId = this.HangupCampaignId
 	d.LastestPassedCampaignId = this.LastestPassedCampaignId
 	d.RankSerialId = this.RankSerialId
+	d.VipAccelNum = this.VipAccelNum
+	d.VipAccelRefreshTime = this.VipAccelRefreshTime
 	return
 }
 type dbPlayerCampaignData struct{
@@ -1037,6 +1045,7 @@ type dbPlayerActiveStageData struct{
 	Type int32
 	CanChallengeNum int32
 	PurchasedNum int32
+	BuyNum int32
 }
 func (this* dbPlayerActiveStageData)from_pb(pb *db.PlayerActiveStage){
 	if pb == nil {
@@ -1045,6 +1054,7 @@ func (this* dbPlayerActiveStageData)from_pb(pb *db.PlayerActiveStage){
 	this.Type = pb.GetType()
 	this.CanChallengeNum = pb.GetCanChallengeNum()
 	this.PurchasedNum = pb.GetPurchasedNum()
+	this.BuyNum = pb.GetBuyNum()
 	return
 }
 func (this* dbPlayerActiveStageData)to_pb()(pb *db.PlayerActiveStage){
@@ -1052,12 +1062,14 @@ func (this* dbPlayerActiveStageData)to_pb()(pb *db.PlayerActiveStage){
 	pb.Type = proto.Int32(this.Type)
 	pb.CanChallengeNum = proto.Int32(this.CanChallengeNum)
 	pb.PurchasedNum = proto.Int32(this.PurchasedNum)
+	pb.BuyNum = proto.Int32(this.BuyNum)
 	return
 }
 func (this* dbPlayerActiveStageData)clone_to(d *dbPlayerActiveStageData){
 	d.Type = this.Type
 	d.CanChallengeNum = this.CanChallengeNum
 	d.PurchasedNum = this.PurchasedNum
+	d.BuyNum = this.BuyNum
 	return
 }
 type dbPlayerFriendCommonData struct{
@@ -1070,6 +1082,8 @@ type dbPlayerFriendCommonData struct{
 	AssistRoleId int32
 	LastGetPointsTime int32
 	GetPointsDay int32
+	SearchedBossNum int32
+	LastSearchBossNumRefreshTime int32
 }
 func (this* dbPlayerFriendCommonData)from_pb(pb *db.PlayerFriendCommon){
 	if pb == nil {
@@ -1088,6 +1102,8 @@ func (this* dbPlayerFriendCommonData)from_pb(pb *db.PlayerFriendCommon){
 	this.AssistRoleId = pb.GetAssistRoleId()
 	this.LastGetPointsTime = pb.GetLastGetPointsTime()
 	this.GetPointsDay = pb.GetGetPointsDay()
+	this.SearchedBossNum = pb.GetSearchedBossNum()
+	this.LastSearchBossNumRefreshTime = pb.GetLastSearchBossNumRefreshTime()
 	return
 }
 func (this* dbPlayerFriendCommonData)to_pb()(pb *db.PlayerFriendCommon){
@@ -1104,6 +1120,8 @@ func (this* dbPlayerFriendCommonData)to_pb()(pb *db.PlayerFriendCommon){
 	pb.AssistRoleId = proto.Int32(this.AssistRoleId)
 	pb.LastGetPointsTime = proto.Int32(this.LastGetPointsTime)
 	pb.GetPointsDay = proto.Int32(this.GetPointsDay)
+	pb.SearchedBossNum = proto.Int32(this.SearchedBossNum)
+	pb.LastSearchBossNumRefreshTime = proto.Int32(this.LastSearchBossNumRefreshTime)
 	return
 }
 func (this* dbPlayerFriendCommonData)clone_to(d *dbPlayerFriendCommonData){
@@ -1119,6 +1137,8 @@ func (this* dbPlayerFriendCommonData)clone_to(d *dbPlayerFriendCommonData){
 	d.AssistRoleId = this.AssistRoleId
 	d.LastGetPointsTime = this.LastGetPointsTime
 	d.GetPointsDay = this.GetPointsDay
+	d.SearchedBossNum = this.SearchedBossNum
+	d.LastSearchBossNumRefreshTime = this.LastSearchBossNumRefreshTime
 	return
 }
 type dbPlayerFriendData struct{
@@ -3459,6 +3479,46 @@ func (this *dbPlayerCampaignCommonColumn)IncbyRankSerialId(v int32)(r int32){
 	this.m_data.RankSerialId += v
 	this.m_changed = true
 	return this.m_data.RankSerialId
+}
+func (this *dbPlayerCampaignCommonColumn)GetVipAccelNum( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignCommonColumn.GetVipAccelNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.VipAccelNum
+	return
+}
+func (this *dbPlayerCampaignCommonColumn)SetVipAccelNum(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignCommonColumn.SetVipAccelNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.VipAccelNum = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerCampaignCommonColumn)IncbyVipAccelNum(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignCommonColumn.IncbyVipAccelNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.VipAccelNum += v
+	this.m_changed = true
+	return this.m_data.VipAccelNum
+}
+func (this *dbPlayerCampaignCommonColumn)GetVipAccelRefreshTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignCommonColumn.GetVipAccelRefreshTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.VipAccelRefreshTime
+	return
+}
+func (this *dbPlayerCampaignCommonColumn)SetVipAccelRefreshTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignCommonColumn.SetVipAccelRefreshTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.VipAccelRefreshTime = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerCampaignCommonColumn)IncbyVipAccelRefreshTime(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignCommonColumn.IncbyVipAccelRefreshTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.VipAccelRefreshTime += v
+	this.m_changed = true
+	return this.m_data.VipAccelRefreshTime
 }
 type dbPlayerCampaignColumn struct{
 	m_row *dbPlayerRow
@@ -6094,6 +6154,40 @@ func (this *dbPlayerActiveStageColumn)IncbyPurchasedNum(id int32,v int32)(r int3
 	this.m_changed = true
 	return d.PurchasedNum
 }
+func (this *dbPlayerActiveStageColumn)GetBuyNum(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActiveStageColumn.GetBuyNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.BuyNum
+	return v,true
+}
+func (this *dbPlayerActiveStageColumn)SetBuyNum(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActiveStageColumn.SetBuyNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.BuyNum = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerActiveStageColumn)IncbyBuyNum(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActiveStageColumn.IncbyBuyNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerActiveStageData{}
+		this.m_data[id] = d
+	}
+	d.BuyNum +=  v
+	this.m_changed = true
+	return d.BuyNum
+}
 type dbPlayerFriendCommonColumn struct{
 	m_row *dbPlayerRow
 	m_data *dbPlayerFriendCommonData
@@ -6270,6 +6364,39 @@ func (this *dbPlayerFriendCommonColumn)IncbyGetPointsDay(v int32)(r int32){
 	this.m_data.GetPointsDay += v
 	this.m_changed = true
 	return this.m_data.GetPointsDay
+}
+func (this *dbPlayerFriendCommonColumn)GetSearchedBossNum( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetSearchedBossNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.SearchedBossNum
+	return
+}
+func (this *dbPlayerFriendCommonColumn)SetSearchedBossNum(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetSearchedBossNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.SearchedBossNum = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerFriendCommonColumn)IncbySearchedBossNum(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.IncbySearchedBossNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.SearchedBossNum += v
+	this.m_changed = true
+	return this.m_data.SearchedBossNum
+}
+func (this *dbPlayerFriendCommonColumn)GetLastSearchBossNumRefreshTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetLastSearchBossNumRefreshTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastSearchBossNumRefreshTime
+	return
+}
+func (this *dbPlayerFriendCommonColumn)SetLastSearchBossNumRefreshTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetLastSearchBossNumRefreshTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastSearchBossNumRefreshTime = v
+	this.m_changed = true
+	return
 }
 type dbPlayerFriendColumn struct{
 	m_row *dbPlayerRow

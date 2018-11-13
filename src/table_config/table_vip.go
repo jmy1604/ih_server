@@ -8,8 +8,15 @@ import (
 )
 
 type XmlVipItem struct {
-	Id  int32 `xml:"VipLevel,attr"`
-	Exp int32 `xml:"Money,attr"`
+	Id                    int32  `xml:"VipLevel,attr"`
+	Exp                   int32  `xml:"Money,attr"`
+	AccelTimes            int32  `xml:"AccelTimes,attr"`
+	ActiveStageBuyTimes   int32  `xml:"ActiveStageBuyTimes,attr"`
+	GoldFingerBonus       int32  `xml:"GoldFingerBonus,attr"`
+	HonorPointBonus       int32  `xml:"HonorPointBonus,attr"`
+	MonthCardItemBonusStr string `xml:"MonthCardItemBonus,attr"`
+	MonthCardItemBonus    []int32
+	SearchTaskCount       int32 `xml:"SearchTaskCount,attr"`
 }
 
 type XmlVipConfig struct {
@@ -58,6 +65,12 @@ func (this *VipTableMgr) Load(table_file string) bool {
 	var tmp_item *XmlVipItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
+
+		tmp_item.MonthCardItemBonus = parse_xml_str_arr2(tmp_item.MonthCardItemBonusStr, ",")
+		/*if tmp_item.MonthCardItemBonus == nil || len(tmp_item.MonthCardItemBonus) == 0 {
+			log.Error("VipTableMgr parse column %v field[MonthCardItemBonusStr] invalid", idx)
+			return false
+		}*/
 
 		this.Map[tmp_item.Id] = tmp_item
 		this.Array = append(this.Array, tmp_item)

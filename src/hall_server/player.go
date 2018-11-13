@@ -455,7 +455,7 @@ func (this *Player) notify_enter_complete() {
 // 红点状态
 func (this *Player) send_red_point_states(modules []int32) int32 {
 	var states = make([]int32, msg_client_message.RED_POINT_MAX)
-	var now_time = int32(time.Now().Unix())
+	var now_time = time.Now()
 
 	// 任务检测 1
 	id := int(msg_client_message.RED_POINT_TASK)
@@ -490,12 +490,12 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 	id = int(msg_client_message.RED_POINT_DRAW)
 	if modules == nil || (len(modules) > id && modules[id] > 0) {
 		// 普通
-		is_free, _ := this.has_free_draw(1, now_time)
+		is_free, _ := this.has_free_draw(1, int32(now_time.Unix()))
 		if is_free {
 			states[id] |= 1
 		}
 		// 高级
-		is_free, _ = this.has_free_draw(3, now_time)
+		is_free, _ = this.has_free_draw(3, int32(now_time.Unix()))
 		if is_free {
 			states[id] |= 2
 		}

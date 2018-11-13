@@ -116,6 +116,8 @@ type GlobalConfig struct {
 	FirstChargeRewards []int32 // 首充奖励
 
 	MonthCardSendRewardTime string // 月卡发奖时间
+
+	AccelHungupRefreshCostDiamond int32 // 加速挂机刷新花费钻石
 }
 
 func (this *GlobalConfig) Init(config_file string) bool {

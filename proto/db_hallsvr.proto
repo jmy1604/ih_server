@@ -20,8 +20,8 @@ message PlayerInfo{
 	optional int32 Diamond=5;
 	optional int32 LastLogout=9;
 	optional int32 LastLogin=10;
-	optional int32 VipLvl=16;
-	optional int32 Head=17;
+	optional int32 VipLvl=11;
+	optional int32 Head=12;
 }
 
 message PlayerGlobal{
@@ -67,6 +67,8 @@ message PlayerCampaignCommon{
 	optional int32 HangupCampaignId=4;
 	optional int32 LastestPassedCampaignId=5;
 	optional int32 RankSerialId=6;
+	optional int32 VipAccelNum=7;
+	optional int32 VipAccelRefreshTime=8;
 }
 
 message PlayerCampaign{
@@ -215,6 +217,7 @@ message PlayerActiveStage{
 	optional int32 Type=1;
 	optional int32 CanChallengeNum=2;
 	optional int32 PurchasedNum=3;
+	optional int32 BuyNum=4;
 }
 
 message PlayerActiveStageList{
@@ -231,6 +234,8 @@ message PlayerFriendCommon{
 	optional int32 AssistRoleId=7;
 	optional int32 LastGetPointsTime=8;
 	optional int32 GetPointsDay=9;
+	optional int32 SearchedBossNum=10;
+	optional int32 LastSearchBossNumRefreshTime=11;
 }
 
 message PlayerFriend{

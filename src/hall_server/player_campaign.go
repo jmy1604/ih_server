@@ -9,6 +9,10 @@ import (
 	"math/rand"
 	"sync/atomic"
 	"time"
+
+	"net/http"
+
+	"github.com/golang/protobuf/proto"
 )
 
 // -------------------------------- 关卡排行榜 --------------------------------
@@ -682,5 +686,162 @@ func (this *Player) send_campaigns() {
 	response.HangupCampaignId = this.db.CampaignCommon.GetHangupCampaignId()
 	response.StaticIncomes = incomes
 	response.IncomeRemainSeconds = remain_seconds
+	response.AccelerateRefreshRemainSeconds, response.RemainAccelerateNum, response.AccelerateCostDiamond = this.campaign_check_accel_refresh()
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_DATA_RESPONSE), response)
+
+	log.Trace("Player[%v] campaign data %v", this.Id, response)
+}
+
+func (this *Player) campaign_check_accel_refresh() (remain_refresh_seconds, remain_accel_num, next_cost_diamond int32) {
+	last_refresh := this.db.CampaignCommon.GetVipAccelRefreshTime()
+	remain_refresh_seconds = utils.GetRemainSeconds2NextDayTime(last_refresh, "00:00:00")
+	if remain_refresh_seconds <= 0 {
+		this.db.CampaignCommon.SetVipAccelNum(0)
+		now_time := time.Now()
+		this.db.CampaignCommon.SetVipAccelRefreshTime(int32(now_time.Unix()))
+		remain_refresh_seconds = utils.GetRemainSeconds2NextDayTime(int32(now_time.Unix()), "00:00:00")
+	}
+	accel_num := this.db.CampaignCommon.GetVipAccelNum()
+	vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
+	if vip_info != nil {
+		remain_accel_num = vip_info.AccelTimes - accel_num
+	}
+	accel_info := accel_cost_table_mgr.Get(accel_num + 1)
+	if accel_info != nil {
+		next_cost_diamond = accel_info.Cost
+	}
+	return
+}
+
+func (this *Player) campaign_accel_get_income() int32 {
+	this.campaign_check_accel_refresh()
+
+	lvl := this.db.Info.GetVipLvl()
+	vip_info := vip_table_mgr.Get(lvl)
+	if vip_info == nil {
+		log.Error("Player[%v] vip level %v not found in vip table", this.Id, lvl)
+		return -1
+	}
+
+	accel_num := this.db.CampaignCommon.GetVipAccelNum()
+	if accel_num >= vip_info.AccelTimes {
+		log.Error("Player[%v] vip level %v accelerate campaign income num %v used out", this.Id, lvl, vip_info.AccelTimes)
+		return -1
+	}
+
+	accel_info := accel_cost_table_mgr.Get(accel_num + 1)
+	if accel_info == nil {
+		log.Error("AccelCost table data with accel num %v not found", accel_num)
+		return -1
+	}
+
+	if this.get_diamond() < accel_info.Cost {
+		log.Error("Player[%v] accelerate get campagin income not enough diamond", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH_FOR_ACCEL)
+	}
+
+	hungup_id := this.db.CampaignCommon.GetHangupCampaignId()
+	campaign := campaign_table_mgr.Get(hungup_id)
+	if campaign == nil {
+		log.Error("Player %v hung up campagin %v table data not found", this.Id, hungup_id)
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_FOUND_CAMPAIGN_TABLE_DATA)
+	}
+
+	var incomes map[int32]int32 = make(map[int32]int32)
+	// 固定掉落
+	n := 2 * 3600 / campaign.StaticRewardSec
+	for i := 0; i < len(campaign.StaticRewardItem)/2; i++ {
+		item_id := campaign.StaticRewardItem[2*i]
+		item_num := n * campaign.StaticRewardItem[2*i+1]
+		this.add_resource(item_id, item_num)
+		incomes[item_id] += item_num
+	}
+	// 随机掉落
+	rand.Seed(time.Now().Unix() + time.Now().UnixNano())
+	n = 2 * 3600 / campaign.RandomDropSec
+	for k := 0; k < int(n); k++ {
+		for i := 0; i < len(campaign.RandomDropIDList)/2; i++ {
+			group_id := campaign.RandomDropIDList[2*i]
+			count := campaign.RandomDropIDList[2*i+1]
+			for j := 0; j < int(count); j++ {
+				if o, item := this.drop_item_by_id(group_id, false, nil); o && item != nil {
+					this.add_resource(item.GetId(), item.GetValue())
+					incomes[item.GetId()] += item.GetValue()
+				}
+			}
+		}
+	}
+
+	this.add_diamond(-accel_info.Cost)
+	accel_num = this.db.CampaignCommon.IncbyVipAccelNum(1)
+
+	var next_cost_diamond int32
+	accel_info = accel_cost_table_mgr.Get(accel_num)
+	if accel_info != nil {
+		next_cost_diamond = accel_info.Cost
+	}
+
+	response := &msg_client_message.S2CCampaignAccelerateIncomeResponse{
+		Incomes:         Map2ItemInfos(incomes),
+		RemainNum:       vip_info.AccelTimes - accel_num,
+		NextCostDiamond: next_cost_diamond,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_ACCELERATE_INCOME_RESPONSE), response)
+
+	log.Trace("Player[%v] accelerate campagin %v income response %v", this.Id, hungup_id, response)
+
+	return 1
+}
+
+func (this *Player) campaign_accel_num_refresh() int32 {
+	this.campaign_check_accel_refresh()
+
+	vip_lvl := this.db.Info.GetVipLvl()
+	vip_info := vip_table_mgr.Get(vip_lvl)
+	if vip_info == nil {
+		log.Error("Player[%v] vip level %v not found in vip table", this.Id, vip_lvl)
+		return -1
+	}
+
+	if this.get_diamond() < global_config.AccelHungupRefreshCostDiamond {
+		log.Error("Player[%v] not enough diamond to refresh accel hungup", this.Id)
+		return -1
+	}
+
+	if this.db.CampaignCommon.GetVipAccelNum() == 0 {
+		log.Error("Player[%v] no need to refresh campaign accel num", this.Id)
+		return -1
+	}
+
+	this.db.CampaignCommon.SetVipAccelNum(0)
+	this.add_diamond(-global_config.AccelHungupRefreshCostDiamond)
+
+	response := &msg_client_message.S2CCampaignAccelerateRefreshResponse{
+		RemainNum: vip_info.AccelTimes,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_ACCELERATE_REFRESH_RESPONSE), response)
+
+	log.Trace("Player[%v] refreshed hungup accel num", this.Id)
+
+	return 1
+}
+
+func C2SCampaignAccelGetIncomeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SCampaignAccelerateIncomeRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.campaign_accel_get_income()
+}
+
+func C2SCampaignAccelNumRefreshHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SCampaignAccelerateRefreshRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.campaign_accel_num_refresh()
 }

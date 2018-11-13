@@ -620,12 +620,35 @@ func (this *Player) get_friend_points(friend_ids []int32) int32 {
 	return 1
 }
 
-func (this *Player) friend_search_boss_check(now_time int32) (int32, *table_config.XmlFriendBossItem) {
+func (this *Player) friend_get_search_boss_remain_num() (remain_num int32) {
+	vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
+	if vip_info != nil {
+		remain_num = vip_info.SearchTaskCount - this.db.FriendCommon.GetSearchedBossNum()
+		if remain_num < 0 {
+			remain_num = 0
+		}
+	}
+	return
+}
+
+func (this *Player) friend_search_boss_num_refresh(now_time time.Time) (remain_seconds, remain_num int32) {
+	last_refresh := this.db.FriendCommon.GetLastSearchBossNumRefreshTime()
+	if utils.GetRemainSeconds2NextDayTime(last_refresh, "00:00:00") <= 0 {
+		this.db.FriendCommon.SetSearchedBossNum(0)
+		last_refresh = int32(now_time.Unix())
+		this.db.FriendCommon.SetLastSearchBossNumRefreshTime(last_refresh)
+		remain_seconds = utils.GetRemainSeconds2NextDayTime(last_refresh, "00:00:00")
+	}
+	remain_num = this.friend_get_search_boss_remain_num()
+	return
+}
+
+func (this *Player) friend_search_boss_check(now_time time.Time) (int32, *table_config.XmlFriendBossItem) {
 	if this.db.FriendCommon.GetFriendBossTableId() > 0 {
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NO_NEED_TO_REFRESH), nil
 	}
 	last_refresh_time := this.db.FriendCommon.GetLastBossRefreshTime()
-	if last_refresh_time > 0 && now_time-last_refresh_time < global_config.FriendSearchBossRefreshMinutes*60 {
+	if last_refresh_time > 0 && int32(now_time.Unix())-last_refresh_time < global_config.FriendSearchBossRefreshMinutes*60 {
 		log.Error("Player[%v] friend boss search is cool down", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_REFRESH_IS_COOLDOWN), nil
 	}
@@ -646,7 +669,13 @@ func (this *Player) friend_search_boss() int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
 	}
 
-	now_time := int32(time.Now().Unix())
+	now_time := time.Now()
+	_, remain_num := this.friend_search_boss_num_refresh(now_time)
+	if remain_num <= 0 {
+		log.Error("Player[%v] friend search boss num used out", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_SEARCH_BOSS_NUM_USEDOUT)
+	}
+
 	res, friend_boss_tdata := this.friend_search_boss_check(now_time)
 	if res < 0 {
 		return res
@@ -686,12 +715,14 @@ func (this *Player) friend_search_boss() int32 {
 		boss_id = friend_boss_tdata.Id
 	}
 
-	this.db.FriendCommon.SetLastBossRefreshTime(now_time)
+	this.db.FriendCommon.SetLastBossRefreshTime(int32(now_time.Unix()))
 	this.db.FriendCommon.SetAttackBossPlayerList(nil)
+	this.db.FriendCommon.IncbySearchedBossNum(1)
 
 	response := &msg_client_message.S2CFriendSearchBossResponse{
 		FriendBossTableId: boss_id,
 		Items:             items,
+		RemainSearchNum:   this.friend_get_search_boss_remain_num(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_SEARCH_BOSS_RESPONSE), response)
 
@@ -1082,8 +1113,8 @@ func (this *Player) friend_data(send bool) int32 {
 	add_stamina, remain_seconds := this.check_and_add_friend_stamina()
 	if send {
 		last_refresh_boss_time := this.db.FriendCommon.GetLastBossRefreshTime()
-		now_time := int32(time.Now().Unix())
-		boss_remain_seconds := global_config.FriendSearchBossRefreshMinutes*60 - (now_time - last_refresh_boss_time)
+		now_time := time.Now()
+		boss_remain_seconds := global_config.FriendSearchBossRefreshMinutes*60 - (int32(now_time.Unix()) - last_refresh_boss_time)
 		if boss_remain_seconds < 0 {
 			boss_remain_seconds = 0
 		}
@@ -1103,6 +1134,7 @@ func (this *Player) friend_data(send bool) int32 {
 			TotalAssistGetPoints:     this.db.ActiveStageCommon.GetWithdrawPoints(),
 			TotalFriendGiveGetPoints: this.db.FriendCommon.GetGetPointsDay(),
 		}
+		response.SearchBossNumRefreshRemainSeconds, response.RemainSearchBossNum = this.friend_search_boss_num_refresh(now_time)
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_DATA_RESPONSE), response)
 
 		log.Debug("Player[%v] friend data %v", this.Id, response)

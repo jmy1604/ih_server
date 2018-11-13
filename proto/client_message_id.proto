@@ -100,6 +100,10 @@ enum MSGID {
 	S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE		= 10403; // 战役挂机收益返回 S2CCampaignHangupIncomeResponse
 	C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST  = 10404; // 设置挂机战役ID C2SBattleSetHangupCampaignRequest
 	S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE = 10405; // 设置挂机战役ID返回 S2CBattleSetHangupCampaignResponse
+	C2S_CAMPAIGN_ACCELERATE_INCOME_REQUEST  = 10406; // 挂机加速请求 C2SCampaignAccelerateIncomeRequest
+	S2C_CAMPAIGN_ACCELERATE_INCOME_RESPONSE = 10407; // 挂机请求加速返回 S2CCampaignAccelerateIncomeResponse
+	C2S_CAMPAIGN_ACCELERATE_REFRESH_REQUEST = 10408; // 手动刷新加速 C2SCampaignAccelerateRefreshRequest
+	S2C_CAMPAIGN_ACCELERATE_REFRESH_RESPONSE= 10409; // 手动刷新加速返回 S2CCampaignAccelerateRefreshResponse
 	
 	C2S_MAIL_SEND_REQUEST					= 10500; // 请求发送邮件 C2SMailSendRequest
 	S2C_MAIL_SEND_RESPONSE					= 10501; // 发送邮件返回 S2CMailSendResponse

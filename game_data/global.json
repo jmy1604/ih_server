@@ -125,6 +125,8 @@
 	"FirstChargeRewards": [53056,50,1,80000,2,40000],
 	"MonthCardSendRewardTime": "00:00:00",
 	
+	"AccelHungupRefreshCostDiamond": 20,
+	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
 	"AppleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
 	"FaceBookLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",

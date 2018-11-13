@@ -186,7 +186,14 @@ func check_apple_order_exist(order_id string) bool {
 }
 
 func (this *Player) _charge_month_card_award(month_card *table_config.XmlPayItem, now_time time.Time) (send_num int32) {
-	SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Month Card Award", "Month Card Award", []int32{ITEM_RESOURCE_ID_DIAMOND, month_card.MonthCardReward})
+	var bonus []int32 = []int32{ITEM_RESOURCE_ID_DIAMOND, month_card.MonthCardReward}
+	if month_card.Id == 2 {
+		vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
+		if vip_info != nil && vip_info.MonthCardItemBonus != nil && len(vip_info.MonthCardItemBonus) > 0 {
+			bonus = append(bonus, vip_info.MonthCardItemBonus...)
+		}
+	}
+	SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Month Card Award", "Month Card Award", bonus)
 	send_num = this.db.Pays.IncbySendMailNum(month_card.BundleId, 1)
 	log.Debug("Player[%v] charge month card %v get reward, send_num %v", this.Id, month_card.BundleId, send_num)
 	return
@@ -528,9 +535,11 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 	}
 
 	if has {
-		this.db.Pays.SetSendMailNum(bundle_id, 0)
 		this.db.Pays.IncbyChargeNum(bundle_id, 1)
 		this.add_diamond(pay_item.GemReward) // 充值获得钻石
+		if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
+			this.db.Pays.SetSendMailNum(bundle_id, 0)
+		}
 	} else {
 		this.db.Pays.Add(&dbPlayerPayData{
 			BundleId: bundle_id,
@@ -547,14 +556,12 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 	now_time := time.Now()
 	this.db.Pays.SetLastPayedTime(bundle_id, int32(now_time.Unix()))
 
-	//if pay_item.PayType != table_config.PAY_TYPE_MONTH_CARD {
 	if this.db.PayCommon.GetFirstPayState() == 0 {
 		this.db.PayCommon.SetFirstPayState(1)
 		// 首充通知
 		notify := &msg_client_message.S2CChargeFirstRewardNotify{}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_FIRST_REWARD_NOTIFY), notify)
 	}
-	//}
 
 	response := &msg_client_message.S2CChargeResponse{
 		BundleId: bundle_id,

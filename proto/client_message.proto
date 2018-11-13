@@ -90,6 +90,7 @@ enum E_ERR {
 	PLAYER_CANT_FIGHT_THE_CAMPAIGN			= -13004; // 不能打该战役
 	PLAYER_STAGE_TABLE_DATA_INVALID			= -13005; // 关卡数据错误
 	PLAYER_STAGE_ROLE_NUM_LIMITED			= -13006; // 关卡人数限制
+	PLAYER_DIAMOND_NOT_ENOUGH_FOR_ACCEL		= -13007; // 钻石不足，无法加速战斗
 	
 	// 邮件
 	PLAYER_MAIL_OVER_MAX_COUNT				= -14000; // 超出邮件最大数量
@@ -158,6 +159,7 @@ enum E_ERR {
 	PLAYER_FRIEND_BOSS_STAMINA_NOT_ENOUGH	= -21010; // 好友BOSS体力不足
 	PLAYER_FRIEND_BOSS_NO_NEED_TO_REFRESH	= -21011; // 好友BOSS无需刷新
 	PLAYER_FRIEND_NUM_MAX					= -21012; // 好友数量已达上限
+	PLAYER_FRIEND_SEARCH_BOSS_NUM_USEDOUT   = -21013; // 好友BOSS搜索次数用完
 	
 	// 任务
 	PLAYER_TASK_NOT_FOUND					= -22000; // 任务不存在
@@ -692,6 +694,14 @@ message S2CCampaignAccelerateIncomeResponse {
 	repeated ItemInfo Incomes 				= 1; // 收益
 	int32 RemainNum 						= 2; // 剩余次数
 	int32 NextCostDiamond				    = 3; // 下一次消耗钻石
+}
+
+// 手动刷新加速
+message C2SCampaignAccelerateRefreshRequest {
+}
+
+message S2CCampaignAccelerateRefreshResponse {
+	int32 RemainNum							= 1; // 剩余次数
 }
 
 // ----------------------------------- 物品 ------------------------------------
@@ -1424,6 +1434,7 @@ message C2SFriendSearchBossRequest {
 message S2CFriendSearchBossResponse {
 	int32 FriendBossTableId					= 1; // 好友BOSS配置表ID
 	repeated ItemInfo Items				 	= 2; // 搜索不到关卡的掉落物品
+	int32 RemainSearchNum					= 3; // 剩余搜索次数
 }
 
 // 获得好友BOSS列表
@@ -1466,6 +1477,8 @@ message S2CFriendDataResponse {
 	int32 AssistRoleId						= 10; // 助战角色
 	int32 TotalAssistGetPoints				= 11; // 总共获取助战友情点
 	int32 TotalFriendGiveGetPoints			= 12; // 总共好友赠送获取友情点
+	int32 SearchBossNumRefreshRemainSeconds = 13; // 搜索次数刷新剩余秒数
+	int32 RemainSearchBossNum				= 14; // 剩余搜索BOSS次数
 }
 
 // 设置助战角色给好友
