@@ -1434,7 +1434,6 @@ message C2SFriendSearchBossRequest {
 message S2CFriendSearchBossResponse {
 	int32 FriendBossTableId					= 1; // 好友BOSS配置表ID
 	repeated ItemInfo Items				 	= 2; // 搜索不到关卡的掉落物品
-	int32 RemainSearchNum					= 3; // 剩余搜索次数
 }
 
 // 获得好友BOSS列表
@@ -1477,8 +1476,6 @@ message S2CFriendDataResponse {
 	int32 AssistRoleId						= 10; // 助战角色
 	int32 TotalAssistGetPoints				= 11; // 总共获取助战友情点
 	int32 TotalFriendGiveGetPoints			= 12; // 总共好友赠送获取友情点
-	int32 SearchBossNumRefreshRemainSeconds = 13; // 搜索次数刷新剩余秒数
-	int32 RemainSearchBossNum				= 14; // 剩余搜索BOSS次数
 }
 
 // 设置助战角色给好友

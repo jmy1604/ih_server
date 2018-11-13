@@ -194,8 +194,14 @@ func (this *Player) explore_gen_story_task(task_id int32) {
 }
 
 func (this *Player) explore_random_task(is_auto bool) (datas []*msg_client_message.ExploreData) {
+	var need_random_num int32
+	vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
+	if vip_info != nil {
+		need_random_num = vip_info.SearchTaskCount
+	} else {
+		need_random_num = START_EXPLORE_TASKS_NUM
+	}
 	rand.Seed(time.Now().Unix())
-	need_random_num := START_EXPLORE_TASKS_NUM
 	if this.db.Explores.NumAll() > 0 {
 		all := this.db.Explores.GetAllIndex()
 		if all != nil {
@@ -218,7 +224,7 @@ func (this *Player) explore_random_task(is_auto bool) (datas []*msg_client_messa
 	}
 
 	if is_auto {
-		for i := 0; i < need_random_num; i++ {
+		for i := int32(0); i < need_random_num; i++ {
 			id := this.db.ExploreCommon.IncbyCurrentId(1)
 			data := this.explore_rand_one_task(id, true)
 			datas = append(datas, data)

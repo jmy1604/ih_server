@@ -65,11 +65,9 @@ type LoginServerConfig struct {
 	ListenGameIP       string // 监听game_server连接
 	MaxGameConnections int32  // game_server最大连接数
 	LogConfigFile      string // 日志配置文件
-	CenterServerIP     string // 连接AssistServer
+	CenterServerIP     string // 连接CenterServer
 	RedisServerIP      string // 连接redis
 	VerifyAccount      bool   // 验证账号
-	FacebookAppID      string
-	FacebookAppSecret  string
 
 	MYSQL_IP      string
 	MYSQL_ACCOUNT string

@@ -540,7 +540,7 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 		// 可搜索好友BOSS
 		need_level = system_unlock_table_mgr.GetUnlockLevel("FriendBossEnterLevel")
 		if need_level <= this.db.Info.GetLvl() {
-			res, _ := this.friend_search_boss_check(now_time)
+			res, _ := this.friend_search_boss_check(int32(now_time.Unix()))
 			if res > 0 {
 				states[id] |= 1
 			}
