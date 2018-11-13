@@ -31,7 +31,7 @@ func (this *AccelCostTableMgr) Init(table_file string) bool {
 
 func (this *AccelCostTableMgr) Load(table_file string) bool {
 	if table_file == "" {
-		table_file = "Vip.xml"
+		table_file = "AccelCost.xml"
 	}
 	table_path := server_config.GetGameDataPathFile(table_file)
 	data, err := ioutil.ReadFile(table_path)
