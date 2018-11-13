@@ -509,7 +509,7 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 	}
 
 	if !fdata.Data.IsValid {
-		log.Error("Facebook verify app_secret[%v] and input_token[%v] failed", config.FacebookAppSecret, input_token)
+		log.Error("Facebook verify input_token[%v] failed", input_token)
 		return -1
 	}
 
