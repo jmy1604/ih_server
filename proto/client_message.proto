@@ -1301,6 +1301,7 @@ message C2SActiveStageBuyChallengeNumRequest {
 
 message S2CActiveStageBuyChallengeNumResponse {
 	int32 StageType							= 1; // 类型
+	int32 RemainBuyNum						= 2; // 剩余购买次数
 }
 
 // 活动副本刷新通知
