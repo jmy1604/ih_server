@@ -140,7 +140,12 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 	}*/
 
 	// 剩余购买次数
-	purchased_num, _ := this.db.ActiveStages.GetPurchasedNum(typ)
+	purchased_num, o := this.db.ActiveStages.GetPurchasedNum(typ)
+	if !o {
+		log.Error("Player[%v] purchase active stage challenge num with type %v invalid", this.Id, typ)
+		return -1
+	}
+
 	purchase_num := this._get_active_stage_purchase_num()
 	if purchase_num <= purchased_num {
 		log.Error("Player[%v] purchased num for active stage used out", this.Id)
@@ -158,6 +163,8 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_BUY_CHALLENGE_NUM_RESPONSE), response)
 
 	this._send_active_stage_data(typ)
+
+	log.Trace("Player[%v] active stage purchased challenge num %v", this.Id, response)
 
 	return 1
 }
