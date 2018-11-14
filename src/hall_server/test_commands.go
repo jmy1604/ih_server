@@ -1293,7 +1293,7 @@ func active_stage_buy_cmd(p *Player, args []string) int32 {
 		log.Error("活动副本类型[%v]转换失败[%v]", args[0], err.Error())
 		return -1
 	}
-	return p.active_stage_challenge_num_purchase(int32(active_stage_type))
+	return p.active_stage_challenge_num_purchase(int32(active_stage_type), 1)
 }
 
 func fight_active_stage_cmd(p *Player, args []string) int32 {

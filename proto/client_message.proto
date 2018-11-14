@@ -1297,6 +1297,7 @@ message S2CActiveStageDataResponse{
 // 活动副本挑战次数购买
 message C2SActiveStageBuyChallengeNumRequest {
 	int32 StageType							= 1; // 类型
+	int32 Num								= 2; // 购买次数
 }
 
 message S2CActiveStageBuyChallengeNumResponse {

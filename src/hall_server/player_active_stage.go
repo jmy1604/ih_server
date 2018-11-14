@@ -125,21 +125,18 @@ func (this *Player) send_active_stage_data(typ int32) int32 {
 	return 1
 }
 
-func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
+func (this *Player) active_stage_challenge_num_purchase(typ, num int32) int32 {
 	diamond := this.get_resource(ITEM_RESOURCE_ID_DIAMOND)
 	if diamond < global_config.ActiveStageChallengeNumPrice {
 		log.Error("Player[%v] buy active stage challenge num failed, diamond %v not enough, need %v", this.Id, diamond, global_config.ActiveStageChallengeNumPrice)
 		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
 	}
 
-	// 挑战次数最大
-	/*can_num, _ := this.db.ActiveStages.GetCanChallengeNum(typ)
-	if can_num >= global_config.ActiveStageChallengeNumOfDay {
-		log.Error("Player[%v] no need to purchase num for active stage", this.Id)
-		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_CHALLENGE_NUM_MAX)
-	}*/
+	if num == 0 {
+		log.Error("Player[%v] active stage challenge num cant buy with 0", this.Id)
+		return -1
+	}
 
-	// 剩余购买次数
 	purchased_num, o := this.db.ActiveStages.GetPurchasedNum(typ)
 	if !o {
 		log.Error("Player[%v] purchase active stage challenge num with type %v invalid", this.Id, typ)
@@ -147,13 +144,13 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 	}
 
 	purchase_num := this._get_active_stage_purchase_num()
-	if purchase_num <= purchased_num {
-		log.Error("Player[%v] purchased num %v for active stage type %v used out", this.Id, purchased_num, typ)
+	if purchase_num-purchased_num < num {
+		log.Error("Player[%v] left purchase num %v for active stage type %v not enough", this.Id, purchased_num-purchase_num, typ)
 		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_PURCHASE_NUM_OUT)
 	}
 
-	this.db.ActiveStages.IncbyCanChallengeNum(typ, 1)
-	purchased_num = this.db.ActiveStages.IncbyPurchasedNum(typ, 1)
+	this.db.ActiveStages.IncbyCanChallengeNum(typ, num)
+	purchased_num = this.db.ActiveStages.IncbyPurchasedNum(typ, num)
 	this.add_resource(ITEM_RESOURCE_ID_DIAMOND, -global_config.ActiveStageChallengeNumPrice)
 
 	response := &msg_client_message.S2CActiveStageBuyChallengeNumResponse{
@@ -338,7 +335,7 @@ func C2SActiveStageBuyChallengeNumHandler(w http.ResponseWriter, r *http.Request
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.active_stage_challenge_num_purchase(req.GetStageType())
+	return p.active_stage_challenge_num_purchase(req.GetStageType(), req.GetNum())
 }
 
 func C2SActiveStageGetAssistRoleListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
