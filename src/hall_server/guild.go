@@ -1055,10 +1055,10 @@ func (this *Player) guild_ask_list() int32 {
 func (this *Player) clear_guild_data() {
 	this.db.Guild.SetId(0)
 	this.db.Guild.SetPosition(0)
-	this.db.Guild.SetDonateNum(0)
-	this.db.Guild.SetSignTime(0)
+	//this.db.Guild.SetDonateNum(0)
+	//this.db.Guild.SetSignTime(0)
 	this.db.Guild.SetJoinTime(0)
-	this.db.Guild.SetLastAskDonateTime(0)
+	//this.db.Guild.SetLastAskDonateTime(0)
 	this.db.Guild.SetQuitTime(int32(time.Now().Unix()))
 }
 

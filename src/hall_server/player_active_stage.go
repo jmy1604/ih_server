@@ -148,7 +148,7 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 
 	purchase_num := this._get_active_stage_purchase_num()
 	if purchase_num <= purchased_num {
-		log.Error("Player[%v] purchased num for active stage used out", this.Id)
+		log.Error("Player[%v] purchased num %v for active stage type %v used out", this.Id, purchased_num, typ)
 		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_PURCHASE_NUM_OUT)
 	}
 
@@ -164,7 +164,7 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 
 	this._send_active_stage_data(typ)
 
-	log.Trace("Player[%v] active stage purchased challenge num %v", this.Id, response)
+	log.Trace("Player[%v] active stage purchased challenge num response %v", this.Id, response)
 
 	return 1
 }
