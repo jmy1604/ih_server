@@ -133,11 +133,11 @@ func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 	}
 
 	// 挑战次数最大
-	can_num, _ := this.db.ActiveStages.GetCanChallengeNum(typ)
+	/*can_num, _ := this.db.ActiveStages.GetCanChallengeNum(typ)
 	if can_num >= global_config.ActiveStageChallengeNumOfDay {
 		log.Error("Player[%v] no need to purchase num for active stage", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_CHALLENGE_NUM_MAX)
-	}
+	}*/
 
 	// 剩余购买次数
 	purchased_num, _ := this.db.ActiveStages.GetPurchasedNum(typ)

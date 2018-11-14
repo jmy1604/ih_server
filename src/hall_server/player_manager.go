@@ -246,13 +246,6 @@ func (this *PlayerManager) OnTick() {
 
 }
 
-func (this *PlayerManager) SendMsgToAllPlayers(msg proto.Message) {
-	if nil == msg {
-		log.Error("PlayerManager SendMsgToAllPlayers msg nil !")
-		return
-	}
-}
-
 //==============================================================================
 func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), C2SEnterGameRequestHandler)
