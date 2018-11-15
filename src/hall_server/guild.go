@@ -381,16 +381,18 @@ func (this *GuildManager) Recommend(player_id int32) (err int32, guild_ids []int
 
 func (this *GuildManager) Search(key string) (guild_ids []int32) {
 	guild_id, err := strconv.Atoi(key)
-	if err != nil {
+	/*if err != nil {
 		log.Error("!!!! search key %v must be number", key)
 		return
-	}
+	}*/
 
 	this.guild_ids_locker.RLock()
 	defer this.guild_ids_locker.RUnlock()
 
-	if this.guild_id_map[int32(guild_id)] > 0 {
-		guild_ids = []int32{int32(guild_id)}
+	if err == nil {
+		if this.guild_id_map[int32(guild_id)] > 0 {
+			guild_ids = []int32{int32(guild_id)}
+		}
 	}
 
 	if guild_id, o := this.guild_name_map[key]; o {
