@@ -211,6 +211,15 @@ func (this *Player) check_and_send_items_change() {
 				Id:    k,
 				Value: v,
 			})
+
+			c, o := this.db.Items.GetCount(k)
+			if !o {
+				c = 0
+			}
+			msg.Items = append(msg.Items, &msg_client_message.ItemInfo{
+				Id:    k,
+				Value: c,
+			})
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEMS_UPDATE), &msg)
 		this.items_changed_info = nil
@@ -272,8 +281,6 @@ func (this *Player) PopCurMsgData() []byte {
 	this.msg_items_lock.Lock()
 	defer this.msg_items_lock.Unlock()
 
-	//this.bhandling = false
-
 	out_bytes := make([]byte, this.total_msg_data_len)
 	tmp_len := int32(0)
 	var tmp_item *PlayerMsgItem
@@ -298,20 +305,12 @@ func (this *Player) PopCurMsgData() []byte {
 }
 
 func (this *Player) Send(msg_id uint16, msg proto.Message) (msg_data []byte) {
-	/*if !this.bhandling {
-		log.Error("Player [%d] send msg[%d] no bhandling !", this.Id, msg_id)
-		return
-	}*/
-
-	//log.Debug("[发送] [玩家%d:%v] [%s] !", this.Id, msg_id, msg.String())
-
 	var err error
 	msg_data, err = proto.Marshal(msg)
 	if nil != err {
 		log.Error("Player Marshal msg failed err[%s] !", err.Error())
 		return
 	}
-
 	this.add_msg_data(msg_id, msg_data)
 	return
 }
@@ -319,13 +318,11 @@ func (this *Player) Send(msg_id uint16, msg proto.Message) (msg_data []byte) {
 func (this *Player) OnCreate() {
 	// 初始成就任务
 	this.first_gen_achieve_tasks()
-
 	this.db.Info.SetLvl(1)
 	this.db.Info.SetCreateUnix(int32(time.Now().Unix()))
 	this.add_init_roles()
 	this.db.Info.IncbyDiamond(global_config.InitDiamond)
 	this.db.Info.IncbyGold(global_config.InitCoin)
-	//this.db.SetName(this.Account) // 昵称用默认账号名
 	if global_config.InitHeads != nil && len(global_config.InitHeads) > 0 {
 		for i := 0; i < len(global_config.InitHeads); i++ {
 			this.add_resource(global_config.InitHeads[i], 1)
@@ -333,7 +330,6 @@ func (this *Player) OnCreate() {
 		r := rand.Int31n(int32(len(global_config.InitHeads)))
 		this.db.Info.SetHead(global_config.InitHeads[r])
 	}
-
 	info := &msg_client_message.AccountPlayerInfo{
 		ServerId:    config.ServerId,
 		PlayerName:  this.db.GetName(),
@@ -341,7 +337,6 @@ func (this *Player) OnCreate() {
 		PlayerHead:  this.db.Info.GetHead(),
 	}
 	share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, info)
-
 	return
 }
 
@@ -374,14 +369,12 @@ func (this *Player) OnLogout() {
 	} else {
 		conn_timer_wheel.Remove(this.Id)
 	}
-
 	// 离线收益时间开始
 	this.db.Info.SetLastLogout(int32(time.Now().Unix()))
 	// 离线时结算挂机收益
 	this.campaign_hangup_income_get(0, true)
 	this.campaign_hangup_income_get(1, true)
 	this.is_login = false
-
 	login_server := login_token_mgr.GetLoginServerByAcc(this.Account)
 	if login_server != nil {
 		var notify msg_server_message.H2LAccountLogoutNotify

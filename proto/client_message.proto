@@ -717,6 +717,7 @@ message S2CItemsSync {
 // 物品数据更新
 message S2CItemsUpdate {
 	repeated ItemInfo ItemsAdd				= 1; // 增加的物品
+	repeated ItemInfo Items					= 2; // 物品的数量
 }
 
 // 物品合成

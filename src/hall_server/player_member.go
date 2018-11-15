@@ -59,7 +59,7 @@ const (
 
 // 最大回合数
 const (
-	BATTLE_ROUND_MAX_NUM = 30
+	BATTLE_ROUND_MAX_NUM = 15
 )
 
 const (
