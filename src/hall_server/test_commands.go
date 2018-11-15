@@ -2025,29 +2025,6 @@ func guild_stage_respawn_cmd(p *Player, args []string) int32 {
 }
 
 func test_short_rank_cmd(p *Player, args []string) int32 {
-	/*var items []*utils.TestShortRankItem = []*utils.TestShortRankItem{
-		{Id: 1, Value: 1},
-		{Id: 2, Value: 2},
-		{Id: 3, Value: 3},
-		{Id: 4, Value: 4},
-		{Id: 5, Value: 5},
-		{Id: 6, Value: 6},
-		{Id: 7, Value: 7},
-		{Id: 8, Value: 8},
-		{Id: 9, Value: 9},
-		{Id: 10, Value: 10},
-		{Id: 11, Value: 11},
-		{Id: 12, Value: 12},
-		{Id: 1, Value: 11},
-		{Id: 3, Value: 33},
-		{Id: 9, Value: 99},
-		{Id: 3, Value: 3},
-		{Id: 1, Value: 2},
-		{Id: 4, Value: -1},
-		{Id: 4, Value: 3},
-		{Id: 8, Value: 8},
-	}*/
-
 	var rank_list utils.ShortRankList
 	rank_list.Init(300)
 
