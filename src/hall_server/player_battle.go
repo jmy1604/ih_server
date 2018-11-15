@@ -559,6 +559,7 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 	if mem == nil || mem.is_dead() || mem.is_will_dead() {
 		return -1
 	}
+
 	for mem.get_use_skill() > 0 {
 		if target_team.IsAllDead() {
 			return 0
@@ -596,6 +597,48 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 	return 1
 }
 
+func (this *BattleTeam) _is_slave(index int32) bool {
+	if this.members == nil {
+		return false
+	}
+	if int(index) >= len(this.members) {
+		return false
+	}
+	m := this.members[index]
+	if m == nil {
+		return false
+	}
+	if m.is_dead() || m.is_will_dead() {
+		return false
+	}
+	if !m.is_slave {
+		return false
+	}
+	return true
+}
+
+func (this *BattleTeam) _fight_pair(self_index, target_index int32, target_team *BattleTeam) (int32, int32) {
+	for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
+		if this.UseSkill(self_index, target_team) >= 0 {
+			if this._is_slave(self_index) {
+				continue
+			}
+			self_index += 1
+			break
+		}
+	}
+	for ; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
+		if target_team.UseSkill(target_index, this) >= 0 {
+			if this._is_slave(target_index) {
+				continue
+			}
+			target_index += 1
+			break
+		}
+	}
+	return self_index, target_index
+}
+
 // 回合
 func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 	this.RoundStart()
@@ -610,31 +653,9 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 	var self_index, target_index int32
 	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM || target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
 		if this.first_hand >= target_team.first_hand {
-			for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
-				if this.UseSkill(self_index, target_team) >= 0 {
-					self_index += 1
-					break
-				}
-			}
-			for ; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
-				if target_team.UseSkill(target_index, this) >= 0 {
-					target_index += 1
-					break
-				}
-			}
+			self_index, target_index = this._fight_pair(self_index, target_index, target_team)
 		} else {
-			for ; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
-				if target_team.UseSkill(target_index, this) >= 0 {
-					target_index += 1
-					break
-				}
-			}
-			for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
-				if this.UseSkill(self_index, target_team) >= 0 {
-					self_index += 1
-					break
-				}
-			}
+			target_index, self_index = target_team._fight_pair(target_index, self_index, this)
 		}
 	}
 

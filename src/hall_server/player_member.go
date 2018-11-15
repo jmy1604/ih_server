@@ -239,6 +239,7 @@ type TeamMember struct {
 	passive_skills          map[int32]int32                   // 被动技
 	attacker                *TeamMember                       // 攻击者
 	attacker_skill_data     *table_config.XmlSkillItem        // 攻击者使用的技能
+	is_slave                bool                              // 是否分身
 }
 
 func (this *TeamMember) clear_data() {
@@ -650,6 +651,7 @@ func (this *TeamMember) init_with_team(team *BattleTeam, id int32, pos int32) {
 		this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
 	}
 	this.act_num = 0
+	this.is_slave = false
 }
 
 func (this *TeamMember) init_all_no_calc(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, equips, extra_equips []int32) {
