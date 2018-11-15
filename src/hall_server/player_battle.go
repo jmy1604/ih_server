@@ -605,7 +605,7 @@ func (this *BattleTeam) _is_slave(index int32) bool {
 		return false
 	}
 	m := this.members[index]
-	if m == nil || m.is_dead() || m.is_will_dead() || !m.is_slave {
+	if m == nil || !m.is_slave {
 		return false
 	}
 	return true
@@ -614,20 +614,18 @@ func (this *BattleTeam) _is_slave(index int32) bool {
 func (this *BattleTeam) _fight_pair(self_index, target_index int32, target_team *BattleTeam) (int32, int32) {
 	for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
 		if this.UseSkill(self_index, target_team) >= 0 {
-			if this._is_slave(self_index) {
-				continue
+			if !this._is_slave(self_index) {
+				self_index += 1
+				break
 			}
-			self_index += 1
-			break
 		}
 	}
 	for ; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
 		if target_team.UseSkill(target_index, this) >= 0 {
-			if target_team._is_slave(target_index) {
-				continue
+			if !target_team._is_slave(target_index) {
+				target_index += 1
+				break
 			}
-			target_index += 1
-			break
 		}
 	}
 	return self_index, target_index
