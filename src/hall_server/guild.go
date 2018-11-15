@@ -940,6 +940,8 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 
 	player2res := make(map[int32]int32)
 	for _, player_id := range player_ids {
+		player2res[player_id] = 1
+
 		if is_refuse {
 			guild.AskLists.Remove(player_id)
 			continue
@@ -990,7 +992,6 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 		player.join_guild_locker.Unlock()
 
 		guild.AskLists.Remove(player_id)
-		player2res[player_id] = 1
 	}
 
 	response := &msg_client_message.S2CGuildAgreeJoinResponse{
