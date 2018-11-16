@@ -713,6 +713,7 @@ func C2SGuideDataSaveHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 		Data: req.GetData(),
 	}
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_GUIDE_DATA_SAVE_RESPONSE), response)
+	log.Debug("Player[%v] guide save %v", p.Id, req.GetData())
 	return 1
 }
 
