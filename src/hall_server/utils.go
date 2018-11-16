@@ -91,7 +91,7 @@ func GetFighterInfo(fighter_id int32) (name string, level, head, score, grade, p
 			return
 		}
 		name = robot.robot_data.RobotName
-		level = 1
+		level = robot.robot_data.RobotLevel
 		head = robot.robot_data.RobotHead
 		score = robot.robot_data.RobotScore
 		power = robot.power
