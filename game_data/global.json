@@ -26,7 +26,7 @@
 	"TowerKeyGetInterval": 1800,
 	"TowerKeyId": 8,
 	
-	"ItemLeftSlotOpenLevel": 40,
+	"ItemLeftSlotOpenLevel": 45,
 	"LeftSlotDropId": 200001,
 	
 	"ArenaTicketItemId": 18,
@@ -122,7 +122,7 @@
 	
 	"TalentResetCostDiamond": 10000,
 	
-	"FirstChargeRewards": [56054,50,2,40000,15051,1],
+	"FirstChargeRewards": [56054,50,2,10000,15051,1],
 	"MonthCardSendRewardTime": "00:00:00",
 	
 	"AccelHungupRefreshCostDiamond": 20,
