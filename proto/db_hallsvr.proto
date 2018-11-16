@@ -2,16 +2,6 @@ syntax = "proto2";
 package db;
 
 
-message LimitShopItem{
-	optional int32 CommodityId=1;
-	optional int32 LeftNum=2;
-}
-
-message GuildStageDamageItem{
-	optional int32 AttackerId=1;
-	optional int32 Damage=2;
-}
-
 message PlayerInfo{
 	optional int32 Lvl=1;
 	optional int32 Exp=2;

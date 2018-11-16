@@ -243,52 +243,6 @@ func (this *DBC) Shutdown() {
 const DBC_VERSION = 1
 const DBC_SUB_VERSION = 0
 
-type dbLimitShopItemData struct{
-	CommodityId int32
-	LeftNum int32
-}
-func (this* dbLimitShopItemData)from_pb(pb *db.LimitShopItem){
-	if pb == nil {
-		return
-	}
-	this.CommodityId = pb.GetCommodityId()
-	this.LeftNum = pb.GetLeftNum()
-	return
-}
-func (this* dbLimitShopItemData)to_pb()(pb *db.LimitShopItem){
-	pb = &db.LimitShopItem{}
-	pb.CommodityId = proto.Int32(this.CommodityId)
-	pb.LeftNum = proto.Int32(this.LeftNum)
-	return
-}
-func (this* dbLimitShopItemData)clone_to(d *dbLimitShopItemData){
-	d.CommodityId = this.CommodityId
-	d.LeftNum = this.LeftNum
-	return
-}
-type dbGuildStageDamageItemData struct{
-	AttackerId int32
-	Damage int32
-}
-func (this* dbGuildStageDamageItemData)from_pb(pb *db.GuildStageDamageItem){
-	if pb == nil {
-		return
-	}
-	this.AttackerId = pb.GetAttackerId()
-	this.Damage = pb.GetDamage()
-	return
-}
-func (this* dbGuildStageDamageItemData)to_pb()(pb *db.GuildStageDamageItem){
-	pb = &db.GuildStageDamageItem{}
-	pb.AttackerId = proto.Int32(this.AttackerId)
-	pb.Damage = proto.Int32(this.Damage)
-	return
-}
-func (this* dbGuildStageDamageItemData)clone_to(d *dbGuildStageDamageItemData){
-	d.AttackerId = this.AttackerId
-	d.Damage = this.Damage
-	return
-}
 type dbPlayerInfoData struct{
 	Lvl int32
 	Exp int32

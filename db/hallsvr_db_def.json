@@ -3,20 +3,6 @@
 	"SubVersion":0,
 	"Namespace":"db",
 	"Structs":[
-		{
-			"Name":"LimitShopItem",
-			"Fields":[
-				{"Type":"int32","Index":1,"Name":"CommodityId"},
-				{"Type":"int32","Index":2,"Name":"LeftNum"}
-			]
-		},
-		{
-			"Name":"GuildStageDamageItem",
-			"Fields":[
-				{"Type":"int32","Index":1,"Name":"AttackerId"},
-				{"Type":"int32","Index":2,"Name":"Damage"}
-			]
-		}
 	],
 	"Tables":[
 		{
