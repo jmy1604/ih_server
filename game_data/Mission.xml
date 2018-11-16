@@ -13,7 +13,7 @@
      <item Id="20011" Type="1" EventId="110" EventParam="" CompleteNum="2" Prev="" Next="" Reward="3,20" Hyperlink="9" />
      <item Id="21001" Type="2" EventId="201" EventParam="1" CompleteNum="0" Prev="" Next="21002" Reward="1,5000,3,30" Hyperlink="0" />
      <item Id="21002" Type="2" EventId="201" EventParam="5" CompleteNum="0" Prev="21001" Next="21003" Reward="56031,40,3,50" Hyperlink="0" />
-     <item Id="21003" Type="2" EventId="201" EventParam="10" CompleteNum="0" Prev="21002" Next="21004" Reward="52054,50,3,50" Hyperlink="0" />
+     <item Id="21003" Type="2" EventId="201" EventParam="10" CompleteNum="0" Prev="21002" Next="21004" Reward="52054,50,5,50" Hyperlink="0" />
      <item Id="21004" Type="2" EventId="201" EventParam="20" CompleteNum="0" Prev="21003" Next="21005" Reward="1,50000,3,120" Hyperlink="0" />
      <item Id="21005" Type="2" EventId="201" EventParam="35" CompleteNum="0" Prev="21004" Next="21006" Reward="1,80000,3,150" Hyperlink="0" />
      <item Id="21006" Type="2" EventId="201" EventParam="50" CompleteNum="0" Prev="21005" Next="21007" Reward="1,120000,3,180" Hyperlink="0" />
