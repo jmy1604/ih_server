@@ -259,6 +259,9 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_ACCELERATE_INCOME_REQUEST), C2SCampaignAccelGetIncomeHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_ACCELERATE_REFRESH_REQUEST), C2SCampaignAccelNumRefreshHandler)
 
+	// 重连
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_RECONNECT_REQUEST), C2SReconnectHandler)
+
 	// 战役
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST), C2SFightHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_SET_TEAM_REQUEST), C2SSetTeamHandler)
@@ -710,4 +713,35 @@ func C2SGuideDataSaveHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 	}
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_GUIDE_DATA_SAVE_RESPONSE), response)
 	return 1
+}
+
+func (p *Player) reconnect() int32 {
+	var token_info share_data.AccessTokenInfo
+	o, new_token := token_info.GetString()
+	if !o {
+		log.Error("Player[%v] reconnect gen new token failed", p.Id)
+		return -1
+	}
+	p.Token = new_token
+	login_token_mgr.SetToken(p.UniqueId, new_token)
+	conn_timer_wheel.Remove(p.Id)
+
+	response := &msg_client_message.S2CReconnectResponse{
+		NewToken: new_token,
+	}
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_RECONNECT_RESPONSE), response)
+
+	log.Trace("Player[%v] reconnected, new token %v", p.Id, new_token)
+	return 1
+}
+
+func C2SReconnectHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SReconnectRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+
+	return p.reconnect()
 }

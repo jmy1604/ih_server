@@ -36,6 +36,9 @@ enum MSGID {
 	C2S_PLAYER_CHANGE_HEAD_REQUEST			= 10028; // 换头像 C2SPlayerChangeHeadRequest
 	S2C_PLAYER_CHANGE_HEAD_RESPONSE			= 10029; // 换头像返回 S2CPlayerChangeHeadResponse
 	
+	C2S_RECONNECT_REQUEST					= 10030; // 重新连接游戏服务器
+	S2C_RECONNECT_RESPONSE					= 10031; // 重连返回
+	
 	C2S_ROLES_REQUEST						= 10050; // 角色请求同步 C2SRolesRequest
 	S2C_ROLES_RESPONSE						= 10051; // 角色请求不同返回 S2CRolesResponse
 	S2C_ROLES_CHANGE_NOTIFY					= 10052; // 角色更新 S2CRolesChangeNotify

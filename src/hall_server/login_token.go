@@ -31,12 +31,6 @@ type LoginTokenInfo struct {
 type LoginTokenMgr struct {
 	uid2token        map[string]*LoginTokenInfo
 	uid2token_locker *sync.RWMutex
-
-	//acc2token      map[string]*LoginTokenInfo
-	//acc2token_lock *sync.RWMutex
-
-	id2uid        map[int32]string
-	id2uid_locker *sync.RWMutex
 }
 
 var login_token_mgr LoginTokenMgr
@@ -44,12 +38,6 @@ var login_token_mgr LoginTokenMgr
 func (this *LoginTokenMgr) Init() bool {
 	this.uid2token = make(map[string]*LoginTokenInfo)
 	this.uid2token_locker = &sync.RWMutex{}
-
-	//this.acc2token = make(map[string]*LoginTokenInfo)
-	//this.acc2token_lock = &sync.RWMutex{}
-
-	this.id2uid = make(map[int32]string)
-	this.id2uid_locker = &sync.RWMutex{}
 	return true
 }
 
@@ -148,7 +136,7 @@ func (this *LoginTokenMgr) GetTokenByUid(uid string) *LoginTokenInfo {
 	return this.uid2token[uid]
 }
 
-func (this *LoginTokenMgr) GetLoginServerByAcc(uid string) *server_conn.ServerConn {
+func (this *LoginTokenMgr) GetLoginServerByUid(uid string) *server_conn.ServerConn {
 	this.uid2token_locker.RLock()
 	defer this.uid2token_locker.RUnlock()
 
@@ -159,33 +147,14 @@ func (this *LoginTokenMgr) GetLoginServerByAcc(uid string) *server_conn.ServerCo
 	return item.login_server
 }
 
-func (this *LoginTokenMgr) AddToId2Uid(playerid int32, uid string) {
-	if "" == uid {
-		log.Error("LoginTokenMgr AddToId2Uid uid empty !")
-		return
+func (this *LoginTokenMgr) SetToken(uid, token string) bool {
+	this.uid2token_locker.Lock()
+	defer this.uid2token_locker.Unlock()
+
+	item := this.uid2token[uid]
+	if item == nil {
+		return false
 	}
-
-	this.id2uid_locker.Lock()
-	defer this.id2uid_locker.Unlock()
-
-	this.id2uid[playerid] = uid
-	return
-}
-
-func (this *LoginTokenMgr) RemoveFromId2Uid(playerid int32) {
-	this.id2uid_locker.Lock()
-	defer this.id2uid_locker.Unlock()
-
-	if "" != this.id2uid[playerid] {
-		delete(this.id2uid, playerid)
-	}
-
-	return
-}
-
-func (this *LoginTokenMgr) GetUidById(playerid int32) string {
-	this.id2uid_locker.RLock()
-	defer this.id2uid_locker.RUnlock()
-
-	return this.id2uid[playerid]
+	item.token = token
+	return true
 }

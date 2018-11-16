@@ -375,7 +375,7 @@ func (this *Player) OnLogout() {
 	this.campaign_hangup_income_get(0, true)
 	this.campaign_hangup_income_get(1, true)
 	this.is_login = false
-	login_server := login_token_mgr.GetLoginServerByAcc(this.Account)
+	login_server := login_token_mgr.GetLoginServerByUid(this.UniqueId)
 	if login_server != nil {
 		var notify msg_server_message.H2LAccountLogoutNotify
 		notify.Account = this.Account

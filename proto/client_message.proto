@@ -487,6 +487,14 @@ message S2CPlayerChangeHeadResponse {
 	int32 NewHead							= 1;
 }
 
+// 重连
+message C2SReconnectRequest {
+}
+
+message S2CReconnectResponse {
+	string NewToken							= 1;
+}
+
 //----------------------------------- 战斗 -----------------------------------
 // 设置阵容
 message C2SSetTeamRequest {

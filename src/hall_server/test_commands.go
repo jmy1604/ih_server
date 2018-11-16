@@ -2135,6 +2135,10 @@ func accel_campaign_cmd(p *Player, args []string) int32 {
 	return p.campaign_accel_get_income()
 }
 
+func reconnect_cmd(p *Player, args []string) int32 {
+	return p.reconnect()
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2275,6 +2279,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"account_players":        account_players_cmd,
 	"reset_sign_award":       reset_sign_award_cmd,
 	"accel_campaign":         accel_campaign_cmd,
+	"reconnect":              reconnect_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
