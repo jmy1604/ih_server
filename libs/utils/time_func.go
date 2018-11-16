@@ -112,14 +112,11 @@ func GetDaysNumToLastSaveTime(last_save int32, day_time_config string, now_time 
 		num += int32(now_time.Unix()-last_config_time.Unix()) / (24 * 3600)
 	}
 
-	//log.Trace("@@@@@@@@@@@@@ days num %v", num)
-
 	return
 }
 
 type DaysTimeChecker struct {
-	time_tm time.Time // 配置时间
-	//first_tm      time.Time // 第一次开始计算的时间，相当于开服时间
+	time_tm       time.Time // 配置时间
 	interval_days int32
 	next_time     int64
 }

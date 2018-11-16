@@ -422,7 +422,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 			log.Error("Player[%v] not found", player_id)
 			return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 		}
-		level = 0
+		level = robot.robot_data.RobotLevel
 		head = robot.robot_data.RobotHead
 		guild_id = 0
 	} else {
