@@ -22,6 +22,7 @@ enum E_ERR {
 	PLAYER_HEAD_TABLE_DATA_NOT_FOUND		= -14; // 头像配置不存在
 	PLAYER_NO_SUCH_HEAD						= -15; // 没有该头像
 	PLAYER_LEVEL_NOT_ENOUGH					= -16; // 等级不够
+	PLAYER_MUEST_RECONN_WITH_DISCONN_STATE  = -17; // 断开状态下必须先重连
 	
 	// 账号
 	ACCOUNT_ALREADY_REGISTERED				= -100; // 账号已注册

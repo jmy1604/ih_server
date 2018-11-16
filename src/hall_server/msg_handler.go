@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
+	"ih_server/proto/gen_go/client_message_id"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -197,7 +198,11 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 				} else {
 					p.b_base_prop_chg = false
 					p.OnInit()
-					ret_code = handlerinfo.player_msg_handler(w, r, p, tmp_msg.GetData())
+					if atomic.LoadInt32(&p.is_login) > 0 || tmp_msg.GetMsgCode() == int32(msg_client_message_id.MSGID_C2S_RECONNECT_REQUEST) {
+						ret_code = handlerinfo.player_msg_handler(w, r, p, tmp_msg.GetData())
+					} else {
+						ret_code = int32(msg_client_message.E_ERR_PLAYER_MUEST_RECONN_WITH_DISCONN_STATE)
+					}
 					data = p.PopCurMsgData()
 					if USE_CONN_TIMER_WHEEL == 0 {
 						conn_timer_mgr.Insert(p.Id)

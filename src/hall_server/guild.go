@@ -797,7 +797,7 @@ func (this *Player) guild_anouncement(content string) int32 {
 
 func (this *Player) _get_offline_seconds() int32 {
 	var offline_seconds int32
-	if !this.is_login {
+	if atomic.LoadInt32(&this.is_login) == 0 {
 		last_login := this.db.Info.GetLastLogin()
 		last_logout := this.db.Info.GetLastLogout()
 		if last_logout < last_login {

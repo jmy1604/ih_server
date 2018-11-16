@@ -447,7 +447,7 @@ func campaign_data_cmd(p *Player, args []string) int32 {
 }
 
 func leave_game_cmd(p *Player, args []string) int32 {
-	p.OnLogout()
+	p.OnLogout(true)
 	return 1
 }
 

@@ -134,7 +134,7 @@ type Player struct {
 	recruit_chat_data      PlayerChatData                        // 招募聊天缓存
 	anouncement_data       PlayerAnouncementData                 // 公告缓存数据
 	inited                 bool                                  // 是否已初始化
-	is_login               bool                                  // 是否在线
+	is_login               int32                                 // 是否在线
 	sweep_num              int32                                 // 扫荡次数
 	curr_sweep             int32                                 // 已扫荡次数
 	role_power_ranklist    *utils.ShortRankList                  // 角色战力排行
@@ -341,7 +341,6 @@ func (this *Player) OnCreate() {
 }
 
 func (this *Player) OnInit() {
-	this.is_login = true
 	if this.inited {
 		return
 	}
@@ -360,33 +359,39 @@ func (this *Player) OnLogin() {
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
 	friend_recommend_mgr.AddPlayer(this.Id)
 	atomic.StoreInt32(&this.is_lock, 0)
+	atomic.StoreInt32(&this.is_login, 1)
 	log.Info("Player[%v] login", this.Id)
 }
 
-func (this *Player) OnLogout() {
-	if USE_CONN_TIMER_WHEEL == 0 {
-		conn_timer_mgr.Remove(this.Id)
-	} else {
-		conn_timer_wheel.Remove(this.Id)
-	}
-	// 离线收益时间开始
-	this.db.Info.SetLastLogout(int32(time.Now().Unix()))
-	// 离线时结算挂机收益
-	this.campaign_hangup_income_get(0, true)
-	this.campaign_hangup_income_get(1, true)
-	this.is_login = false
-	login_server := login_token_mgr.GetLoginServerByUid(this.UniqueId)
-	if login_server != nil {
-		var notify msg_server_message.H2LAccountLogoutNotify
-		notify.Account = this.Account
-		login_server.Send(uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY), &notify, true)
+func (this *Player) OnLogout(remove_timer bool) {
+	if remove_timer {
+		if USE_CONN_TIMER_WHEEL == 0 {
+			conn_timer_mgr.Remove(this.Id)
+		} else {
+			conn_timer_wheel.Remove(this.Id)
+		}
 	}
 
-	log.Info("玩家[%d] 登出 ！！", this.Id)
+	if atomic.CompareAndSwapInt32(&this.is_login, 1, 0) {
+		// 离线收益时间开始
+		this.db.Info.SetLastLogout(int32(time.Now().Unix()))
+		// 离线时结算挂机收益
+		this.campaign_hangup_income_get(0, true)
+		this.campaign_hangup_income_get(1, true)
+		login_server := login_token_mgr.GetLoginServerByUid(this.UniqueId)
+		if login_server != nil {
+			var notify msg_server_message.H2LAccountLogoutNotify
+			notify.Account = this.Account
+			login_server.Send(uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY), &notify, true)
+		}
+		log.Info("Player[%v] log out !!!", this.Id)
+	} else {
+		log.Warn("Player[%v] already loged out", this.Id)
+	}
 }
 
 func (this *Player) IsOffline() bool {
-	return !this.is_login
+	return atomic.LoadInt32(&this.is_login) == 0
 }
 
 func (this *Player) send_enter_game(acc string, id int32) {

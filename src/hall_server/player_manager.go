@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -239,7 +240,7 @@ func (this *PlayerManager) PlayerLogout(p *Player) {
 	//this.RemoveFromAccMap(p.Account)
 	this.RemoveFromUidMap(p.UniqueId)
 
-	p.OnLogout()
+	p.OnLogout(true)
 }
 
 func (this *PlayerManager) OnTick() {
@@ -515,7 +516,7 @@ func C2SLeaveGameRequestHandler(w http.ResponseWriter, r *http.Request, p *Playe
 		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
-	p.OnLogout()
+	p.OnLogout(true)
 	return 1
 }
 
@@ -725,6 +726,7 @@ func (p *Player) reconnect() int32 {
 	p.Token = new_token
 	login_token_mgr.SetToken(p.UniqueId, new_token)
 	conn_timer_wheel.Remove(p.Id)
+	atomic.StoreInt32(&p.is_login, 1)
 
 	response := &msg_client_message.S2CReconnectResponse{
 		NewToken: new_token,

@@ -175,7 +175,7 @@ func (this *ConnTimerMgr) Run() {
 		if players != nil {
 			for i := 0; i < len(players); i++ {
 				if players[i] != nil {
-					players[i].OnLogout()
+					players[i].OnLogout(true)
 				}
 			}
 		}

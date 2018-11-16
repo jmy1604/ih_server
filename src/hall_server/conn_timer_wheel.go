@@ -147,7 +147,7 @@ func (this *ConnTimerWheel) Run() {
 						if p != nil {
 							log.Debug("############### to offline player[%v]", t.player_id)
 							this.remove(p.Id)
-							p.OnLogout()
+							p.OnLogout(false)
 						}
 						t = t.next
 					}
