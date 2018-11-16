@@ -328,7 +328,11 @@ func (this *Player) OnCreate() {
 			this.add_resource(global_config.InitHeads[i], 1)
 		}
 		r := rand.Int31n(int32(len(global_config.InitHeads)))
-		this.db.Info.SetHead(global_config.InitHeads[r])
+		head_id := global_config.InitHeads[r]
+		if head_id <= 0 {
+			log.Warn("Player[%v] set head id is zero", this.Id)
+		}
+		this.db.Info.SetHead(head_id)
 	}
 	info := &msg_client_message.AccountPlayerInfo{
 		ServerId:    config.ServerId,
