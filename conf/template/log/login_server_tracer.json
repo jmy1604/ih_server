@@ -5,14 +5,14 @@
 			"enable":"true",
 			"tag":"stdout",
 			"type":"console",
-			"level":"TRACE",
+			"level":"DEBUG",
 			"property":null
 		},
 		{
 			"enable":"true",
 			"tag":"file",
 			"type":"file",
-			"level":"TRACE",
+			"level":"DEBUG",
 			"property":
 			[
 				{ "name":"logdir", "value":"logs/login_server" },
