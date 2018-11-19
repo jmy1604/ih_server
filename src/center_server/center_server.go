@@ -121,7 +121,8 @@ func (this *CenterServer) Shutdown() {
 			break
 		}
 
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Second * 1)
+		log.Trace("Wait shutdown_completed")
 	}
 
 	login_agent_mgr.server_node.Shutdown()
