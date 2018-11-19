@@ -1271,8 +1271,8 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	}
 
 	// 被动技，对方有死亡触发
-	if /*skill_data.Type != SKILL_TYPE_PASSIVE &&*/ has_target_dead {
-		passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, self_team, self_pos, target_team, target_pos, true)
+	if has_target_dead {
+		//passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, self_team, self_pos, target_team, target_pos, true)
 	}
 
 	if !self.is_will_dead() {
