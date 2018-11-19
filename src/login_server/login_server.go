@@ -807,6 +807,12 @@ func bind_new_account_http_handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	if !config.VerifyAccount {
+		response_error(-1, w)
+		log.Error("no need bind new account")
+		return
+	}
+
 	server_id_str := r.URL.Query().Get("server_id")
 	server_id, err := strconv.Atoi(server_id_str)
 	if err != nil {

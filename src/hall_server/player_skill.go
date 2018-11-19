@@ -1101,11 +1101,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						target.on_after_will_dead(self)
 					}
 
-					// 延迟被动技有没有死亡后触发
-					if !self_team.HasDelayTriggerEventSkill(EVENT_AFTER_TARGET_DEAD, target) {
-						target.set_dead(self, skill_data)
-					} else {
-						log.Debug("-+-+-+-+-+-+- 有延迟死亡后触发器 team[%v] member[%v]", target.team.side, target.pos)
+					if target.is_will_dead() {
+						// 延迟被动技有没有死亡后触发
+						if !self_team.HasDelayTriggerEventSkill(EVENT_AFTER_TARGET_DEAD, target) {
+							target.set_dead(self, skill_data)
+						} else {
+							log.Debug("-+-+-+-+-+-+- 有延迟死亡后触发器 team[%v] member[%v]", target.team.side, target.pos)
+						}
 					}
 
 					// 修改战报目标血量表示真死
