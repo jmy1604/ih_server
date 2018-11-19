@@ -127,7 +127,7 @@ func L2CLoginServerRegisterHandler(conn *server_conn.ServerConn, msg proto.Messa
 }
 
 func L2CGetPlayerAccInfoHandler(conn *server_conn.ServerConn, m proto.Message) {
-	req := m.(*msg_server_message.L2CGetPlayerAccInfo)
+	/*req := m.(*msg_server_message.L2CGetPlayerAccInfo)
 	if nil == conn || nil == req {
 		log.Error("L2CGetPlayerAccInfoHandler param error !")
 		return
@@ -145,7 +145,7 @@ func L2CGetPlayerAccInfoHandler(conn *server_conn.ServerConn, m proto.Message) {
 	}
 
 	// 检查玩家是否被封
-	/*forbid_l_db := dbc.ForbidLogins.GetRow(player_id)
+	forbid_l_db := dbc.ForbidLogins.GetRow(player_id)
 	if nil != forbid_l_db && forbid_l_db.GetEndUnix() > int32(time.Now().Unix()) {
 		end_t := time.Unix(int64(forbid_l_db.GetEndUnix()), 0)
 		res.IfForbidLogin = 1

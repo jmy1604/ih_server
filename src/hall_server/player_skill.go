@@ -1634,9 +1634,11 @@ func (this *BuffList) on_round_end() {
 						if this.owner.has_trigger_event([]int32{EVENT_AFTER_TARGET_DEAD}) {
 							this.owner.on_after_will_dead(bf.attacker)
 						}
-						// 延迟被动技有没有死亡后触发
-						if !bf.attacker.team.HasDelayTriggerEventSkill(EVENT_AFTER_TARGET_DEAD, this.owner) {
-							this.owner.set_dead(bf.attacker, nil)
+						if this.owner.is_will_dead() {
+							// 延迟被动技有没有死亡后触发
+							if !bf.attacker.team.HasDelayTriggerEventSkill(EVENT_AFTER_TARGET_DEAD, this.owner) {
+								this.owner.set_dead(bf.attacker, nil)
+							}
 						}
 					}
 					// --------------------------- 战报 ---------------------------

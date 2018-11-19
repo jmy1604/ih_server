@@ -127,8 +127,8 @@ func (this *CenterServer) Shutdown() {
 	login_agent_mgr.server_node.Shutdown()
 	hall_agent_mgr.server_node.Shutdown()
 
-	dbc.Save(false)
-	dbc_account.Save(false)
+	//dbc.Save(false)
+	//dbc_account.Save(false)
 
 	log.Trace("关闭游戏主循环耗时 %v 秒", time.Now().Sub(begin).Seconds())
 }
