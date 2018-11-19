@@ -783,6 +783,7 @@ func (this *ServerConn) Close(reason E_DISCONNECT_REASON) {
 			if !logged {
 				logged = true
 				log.Error("关闭连接超时 %v %v %v", this.addr, this.T, dur)
+				break
 			}
 		}
 	}
