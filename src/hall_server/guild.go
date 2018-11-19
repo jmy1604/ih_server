@@ -489,7 +489,7 @@ func _guild_get_dismiss_remain_seconds(guild *dbGuildRow) (dismiss_remain_second
 				p.db.Guild.SetQuitTime(0)
 				//p.db.Guild.SetSignTime(0)
 				p.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DELETE_NOTIFY), notify)
-				SendMail(p, mid, MAIL_TYPE_GUILD, "Guild Dismissed", "Guild Dismissed", nil)
+				RealSendMail(p, mid, MAIL_TYPE_GUILD, 1108, "", "", nil, 0)
 			}
 		}
 		_remove_guild(guild)

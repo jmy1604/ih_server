@@ -688,7 +688,7 @@ func send_mail_cmd(p *Player, args []string) int32 {
 		}
 		items = []*msg_client_message.ItemInfo{item}
 	}
-	return SendMail(p, int32(receiver_id), int32(mail_type), args[2], args[3], items)
+	return SendMail(p, int32(receiver_id), int32(mail_type), 0, args[2], args[3], items, 0)
 }
 
 func mail_list_cmd(p *Player, args []string) int32 {

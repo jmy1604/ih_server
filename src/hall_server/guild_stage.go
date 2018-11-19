@@ -7,7 +7,6 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	_ "math/rand"
 	"net/http"
-	"strconv"
 	_ "sync"
 	"time"
 
@@ -171,7 +170,7 @@ func (this *GuildStageManager) RankListReward(guild_id, boss_id int32) {
 				if pid <= 0 {
 					continue
 				}
-				SendMail2(nil, pid, MAIL_TYPE_SYSTEM, "Guild Stage Rank List Reward", "Guild Stage Rank List Reward for rank "+strconv.Itoa(int(r)), rewards[i])
+				RealSendMail(nil, pid, MAIL_TYPE_SYSTEM, 1107, "", "", rewards[i], 0)
 			}
 		}
 		if b {

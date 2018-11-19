@@ -608,6 +608,8 @@ type dbPlayerMailData struct{
 	IsGetAttached int32
 	SenderId int32
 	SenderName string
+	Subtype int32
+	ExtraValue int32
 }
 func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 	if pb == nil {
@@ -632,6 +634,8 @@ func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 	this.IsGetAttached = pb.GetIsGetAttached()
 	this.SenderId = pb.GetSenderId()
 	this.SenderName = pb.GetSenderName()
+	this.Subtype = pb.GetSubtype()
+	this.ExtraValue = pb.GetExtraValue()
 	return
 }
 func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
@@ -654,6 +658,8 @@ func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
 	pb.IsGetAttached = proto.Int32(this.IsGetAttached)
 	pb.SenderId = proto.Int32(this.SenderId)
 	pb.SenderName = proto.String(this.SenderName)
+	pb.Subtype = proto.Int32(this.Subtype)
+	pb.ExtraValue = proto.Int32(this.ExtraValue)
 	return
 }
 func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
@@ -674,6 +680,8 @@ func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
 	d.IsGetAttached = this.IsGetAttached
 	d.SenderId = this.SenderId
 	d.SenderName = this.SenderName
+	d.Subtype = this.Subtype
+	d.ExtraValue = this.ExtraValue
 	return
 }
 type dbPlayerBattleSaveData struct{
@@ -4359,6 +4367,50 @@ func (this *dbPlayerMailColumn)SetSenderName(id int32,v string)(has bool){
 		return
 	}
 	d.SenderName = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerMailColumn)GetSubtype(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetSubtype")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Subtype
+	return v,true
+}
+func (this *dbPlayerMailColumn)SetSubtype(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetSubtype")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Subtype = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerMailColumn)GetExtraValue(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetExtraValue")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.ExtraValue
+	return v,true
+}
+func (this *dbPlayerMailColumn)SetExtraValue(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetExtraValue")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.ExtraValue = v
 	this.m_changed = true
 	return true
 }

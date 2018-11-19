@@ -272,7 +272,9 @@
 						{"Type":"int32","Index":8,"Name":"IsRead"},
 						{"Type":"int32","Index":11,"Name":"IsGetAttached"},
 						{"Type":"int32","Index":12,"Name":"SenderId"},
-						{"Type":"string","Index":13,"Name":"SenderName"}
+						{"Type":"string","Index":13,"Name":"SenderName"},
+						{"Type":"int32","Index":14,"Name":"Subtype"},
+						{"Type":"int32","Index":15,"Name":"ExtraValue"}
 					]
 				},
 				{

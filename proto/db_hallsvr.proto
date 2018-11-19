@@ -104,6 +104,8 @@ message PlayerMail{
 	optional int32 IsGetAttached=11;
 	optional int32 SenderId=12;
 	optional string SenderName=13;
+	optional int32 Subtype=14;
+	optional int32 ExtraValue=15;
 }
 
 message PlayerMailList{

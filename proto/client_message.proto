@@ -956,9 +956,10 @@ message S2CRoleLeftSlotResultCancelResponse {
 message C2SMailSendRequest {
 	int32 ReceiverId						= 1; // 接收者ID
 	int32 MailType							= 2; // 邮件类型
-	string MailTitle						= 3; // 邮件标题
-	string MailContent						= 4; // 邮件内容
-	repeated ItemInfo AttachedItems			= 5; // 附加物品
+	int32 MailSubtype						= 3; // 子类型
+	string MailTitle						= 4; // 邮件标题
+	string MailContent						= 5; // 邮件内容
+	repeated ItemInfo AttachedItems			= 6; // 附加物品
 }
 message S2CMailSendResponse {
 	int32 MailId							= 1; // 邮件ID
@@ -970,13 +971,15 @@ message C2SMailListRequest {
 message MailBasicData {
 	int32 Id								= 1; // 邮件ID
 	int32 Type								= 2; // 邮件类型   1 系统  2 个人  3 公会群发
-	string Title							= 3; // 邮件标题
-	string SenderName						= 4; // 发送者
-	int32 SenderId							= 5; // 发送者ID
-	int32 SendTime							= 6; // 发送时间
-	bool IsRead								= 7; // 是否已读
-	bool IsGetAttached						= 8; // 是否已领取附件
-	bool HasAttached						= 9; // 是否有附件
+	int32 Subtype							= 3; // 子类型
+	string Title							= 4; // 邮件标题
+	string SenderName						= 5; // 发送者
+	int32 SenderId							= 6; // 发送者ID
+	int32 SendTime							= 7; // 发送时间
+	bool IsRead								= 8; // 是否已读
+	bool IsGetAttached						= 9; // 是否已领取附件
+	bool HasAttached						= 10; // 是否有附件
+	int32 Value								= 11; // 额外数据
 }
 message S2CMailListResponse {
 	repeated MailBasicData Mails            = 1; //

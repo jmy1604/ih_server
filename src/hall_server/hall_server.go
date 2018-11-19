@@ -302,6 +302,7 @@ var vip_table_mgr table_config.VipTableMgr
 var pay_table_mgr table_config.PayTableMgr
 var system_unlock_table_mgr table_config.SystemUnlockTableMgr
 var accel_cost_table_mgr table_config.AccelCostTableMgr
+var mail_table_mgr table_config.MailTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool
@@ -545,6 +546,10 @@ func table_init() error {
 
 	if !accel_cost_table_mgr.Init("") {
 		return errors.New("accel_cost_table_mgr init failed")
+	}
+
+	if !mail_table_mgr.Init("") {
+		return errors.New("mail_table_mgr init failed")
 	}
 
 	return nil

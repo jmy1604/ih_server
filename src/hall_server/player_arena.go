@@ -259,7 +259,7 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 		// 段位奖励
 		new_division := arena_division_table_mgr.GetByScore(score)
 		if new_division != nil && new_division.Id > division.Id {
-			SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Arena Grade Reward", "", new_division.RewardList)
+			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, 1104, "", "", new_division.RewardList, 0)
 			notify := &msg_client_message.S2CArenaGradeRewardNotify{
 				Grade: new_division.Id,
 			}
@@ -712,9 +712,9 @@ func (this *ArenaSeasonMgr) Reward(typ int32) {
 		}
 
 		if typ == 1 {
-			SendMail2(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, "Arena Day Reward", "", bonus.DayRewardList)
+			RealSendMail(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, 1102, "", "", bonus.DayRewardList, 0)
 		} else if typ == 2 {
-			SendMail2(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, "Arena Season Reward", "", bonus.SeasonRewardList)
+			RealSendMail(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, 1103, "", "", bonus.SeasonRewardList, rank)
 		}
 	}
 }

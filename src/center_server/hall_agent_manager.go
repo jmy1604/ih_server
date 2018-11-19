@@ -196,7 +196,7 @@ func H2CHallServerRegisterHandler(conn *server_conn.ServerConn, m proto.Message)
 	cur_agent := hall_agent_mgr.GetAgentById(req.GetServerId())
 	if nil != cur_agent {
 		conn.Close(server_conn.E_DISCONNECT_REASON_FORCE_CLOSED)
-		log.Error("H2MHallServerRegisterHandler cur_agent not nil [%d]", req.GetServerId())
+		log.Error("H2MHallServerRegisterHandler Server Id [%v] Already Registered, Check server config file !!!!!!!!!!!!!!! ", req.GetServerId())
 		return
 	}
 

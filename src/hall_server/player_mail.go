@@ -52,6 +52,7 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 		d := &msg_client_message.MailBasicData{
 			Id:            v.Id,
 			Type:          int32(v.Type),
+			Subtype:       v.Subtype,
 			Title:         v.Title,
 			SenderId:      v.SenderId,
 			SenderName:    v.SenderName,
@@ -59,6 +60,7 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 			IsRead:        is_read,
 			IsGetAttached: is_get_attached,
 			HasAttached:   has_attached,
+			Value:         v.ExtraValue,
 		}
 		mails = append(mails, d)
 	}
@@ -99,6 +101,7 @@ func (this *dbPlayerMailColumn) GetMailListByIds(mail_ids []int32) (mails []*msg
 		d := &msg_client_message.MailBasicData{
 			Id:            md.Id,
 			Type:          int32(md.Type),
+			Subtype:       md.Subtype,
 			Title:         md.Title,
 			SendTime:      md.SendUnix,
 			SenderId:      md.SenderId,
@@ -106,6 +109,7 @@ func (this *dbPlayerMailColumn) GetMailListByIds(mail_ids []int32) (mails []*msg
 			IsRead:        is_read,
 			IsGetAttached: is_get_attached,
 			HasAttached:   has_attached,
+			Value:         md.ExtraValue,
 		}
 		mails = append(mails, d)
 	}
@@ -161,7 +165,7 @@ func (this *dbPlayerMailColumn) HasUnreadMail() bool {
 	return false
 }
 
-func (this *Player) new_mail(typ int32, sender_id int32, sender_name, title, content string) int32 {
+func (this *Player) new_mail(typ int32, subtype int32, sender_id int32, sender_name, title, content string, extra_value int32) int32 {
 	mail_max := global_config.MailMaxCount
 	if this.db.Mails.NumAll() >= mail_max {
 		first_id := int32(0)
@@ -181,11 +185,13 @@ func (this *Player) new_mail(typ int32, sender_id int32, sender_name, title, con
 	this.db.Mails.Add(&dbPlayerMailData{
 		Id:         new_id,
 		Type:       int8(typ),
+		Subtype:    subtype,
 		Title:      title,
 		Content:    content,
 		SendUnix:   int32(time.Now().Unix()),
 		SenderId:   sender_id,
 		SenderName: sender_name,
+		ExtraValue: extra_value,
 	})
 
 	return new_id
@@ -242,7 +248,7 @@ func (this *Player) get_and_clear_cache_new_mails() (mails []*msg_client_message
 	return
 }
 
-func SendMail(sender *Player, receiver_id, mail_type int32, title string, content string, attached_items []*msg_client_message.ItemInfo) int32 {
+func SendMail(sender *Player, receiver_id, mail_type, mail_subtype int32, title string, content string, attached_items []*msg_client_message.ItemInfo, extra_value int32) int32 {
 	var items []int32
 	if attached_items != nil {
 		items = make([]int32, 2*len(attached_items))
@@ -268,19 +274,19 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 		}
 		ids := guild.Members.GetAllIndex()
 		for _, id := range ids {
-			err = SendMail2(sender, id, mail_type, title, content, items)
+			err = RealSendMail(sender, id, mail_type, mail_subtype, title, content, items, 0)
 			if err < 0 {
 				break
 			}
 		}
 	} else {
-		err = SendMail2(sender, receiver_id, mail_type, title, content, items)
+		err = RealSendMail(sender, receiver_id, mail_type, mail_subtype, title, content, items, 0)
 	}
 
 	return err
 }
 
-func SendMail2(sender *Player, receiver_id, mail_type int32, title string, content string, items []int32) int32 {
+func RealSendMail(sender *Player, receiver_id, mail_type, mail_subtype int32, title string, content string, items []int32, extra_value int32) int32 {
 	if int32(len(title)) > global_config.MailTitleBytes {
 		if sender != nil {
 			log.Error("Player[%v] send Mail title[%v] too long", sender.Id, title)
@@ -326,7 +332,7 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 	// 锁住保证新邮件生成的原子性
 	receiver.receive_mail_locker.Lock()
 
-	mail_id := receiver.new_mail(mail_type, sender_id, sender_name, title, content)
+	mail_id := receiver.new_mail(mail_type, mail_subtype, sender_id, sender_name, title, content, extra_value)
 	if mail_id <= 0 {
 		receiver.receive_mail_locker.Unlock()
 		log.Error("new mail create failed")
@@ -534,7 +540,7 @@ func C2SMailSendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	mail_id := SendMail(p, req.GetReceiverId(), req.GetMailType(), req.GetMailTitle(), req.GetMailContent(), req.GetAttachedItems())
+	mail_id := SendMail(p, req.GetReceiverId(), req.GetMailType(), req.GetMailSubtype(), req.GetMailTitle(), req.GetMailContent(), req.GetAttachedItems(), 0)
 	if mail_id > 0 {
 		response := &msg_client_message.S2CMailSendResponse{
 			MailId: mail_id,

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item MailID="1101" MailType="1" MailTitleID="5002820" MailContentID="5002821" />
+     <item MailID="1102" MailType="1" MailTitleID="5002822" MailContentID="5002823" />
+     <item MailID="1103" MailType="1" MailTitleID="5002824" MailContentID="5002825" />
+     <item MailID="1104" MailType="1" MailTitleID="5002826" MailContentID="5002827" />
+     <item MailID="1105" MailType="1" MailTitleID="5002828" MailContentID="5002829" />
+     <item MailID="1106" MailType="1" MailTitleID="5002830" MailContentID="5002831" />
+     <item MailID="1107" MailType="1" MailTitleID="5002832" MailContentID="5002833" />
+     <item MailID="1201" MailType="2" MailTitleID="5002880" MailContentID="" />
+     <item MailID="1202" MailType="2" MailTitleID="5002881" MailContentID="" />
+</Config>
