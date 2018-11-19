@@ -142,6 +142,26 @@ func (this *MsgHandlerMgr) reg_http_mux() {
 	msg_handler_http_mux["/client_msg"] = client_msg_handler
 }
 
+func _send_error(w http.ResponseWriter, ret_code, msg_num int32) {
+	res2cli := &msg_client_message.S2C_MSG_DATA{}
+	res2cli.ErrorCode = ret_code
+	if msg_num > 0 {
+		res2cli.CurrMsgNum = msg_num
+	}
+
+	final_data, err := proto.Marshal(res2cli)
+	if nil != err {
+		log.Error("client_msg_handler marshal 1 client msg failed err(%s)", err.Error())
+		return
+	}
+
+	iret, err := w.Write(final_data)
+	if nil != err {
+		log.Error("client_msg_handler write data 1 failed err[%s] ret %d", err.Error(), iret)
+		return
+	}
+}
+
 func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -152,8 +172,10 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
+	var ret_code int32
 	data, err := ioutil.ReadAll(r.Body)
 	if nil != err {
+		_send_error(w, -1, 0)
 		log.Error("client_msg_handler ReadAll err[%s]", err.Error())
 		return
 	}
@@ -162,23 +184,25 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	tmp_msg := &msg_client_message.C2S_MSG_DATA{}
 	err = proto.Unmarshal(data, tmp_msg)
 	if nil != err {
+		_send_error(w, -1, 0)
 		log.Error("client_msg_handler proto Unmarshal err[%s]", err.Error())
 		return
 	}
 
 	handlerinfo := msg_handler_mgr.msgid2handler[tmp_msg.GetMsgCode()]
 	if nil == handlerinfo {
+		_send_error(w, -1, 0)
 		log.Error("client_msg_handler msg_handler_mgr[%d] nil ", tmp_msg.GetMsgCode())
 		return
 	}
 
 	var p *Player
-	var ret_code int32
 	if handlerinfo.if_player_msg {
 		pid := tmp_msg.GetPlayerId()
 
 		p = player_mgr.GetPlayerById(pid)
 		if nil == p {
+			_send_error(w, -1, 0)
 			log.Error("client_msg_handler failed to GetPlayerById [%d]", tmp_msg.GetPlayerId())
 			return
 		}
@@ -244,27 +268,12 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if ret_code <= 0 {
+		_send_error(w, ret_code, 0)
 		log.Error("client_msg_handler exec msg_handler ret error_code %d", ret_code)
-		res2cli := &msg_client_message.S2C_MSG_DATA{}
-		res2cli.ErrorCode = ret_code
-		if msg_num > 0 {
-			res2cli.CurrMsgNum = msg_num
-		}
-
-		final_data, err := proto.Marshal(res2cli)
-		if nil != err {
-			log.Error("client_msg_handler marshal 1 client msg failed err(%s)", err.Error())
-			return
-		}
-
-		iret, err := w.Write(final_data)
-		if nil != err {
-			log.Error("client_msg_handler write data 1 failed err[%s] ret %d", err.Error(), iret)
-			return
-		}
 		//log.Info("write http resp data error %v", final_data)
 	} else {
 		if nil == p {
+			_send_error(w, -1, 0)
 			log.Error("client_msg_handler after handle p nil")
 			return
 		}
@@ -285,12 +294,14 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 
 		final_data, err := proto.Marshal(res2cli)
 		if nil != err {
+			_send_error(w, -1, 0)
 			log.Error("client_msg_handler marshal 2 client msg failed err(%s)", err.Error())
 			return
 		}
 
 		iret, err := w.Write(final_data)
 		if nil != err {
+			_send_error(w, -1, 0)
 			log.Error("client_msg_handler write data 2 failed err[%s] ret %d", err.Error(), iret)
 			return
 		}
