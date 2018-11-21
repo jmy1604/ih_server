@@ -259,7 +259,7 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 		// 段位奖励
 		new_division := arena_division_table_mgr.GetByScore(score)
 		if new_division != nil && new_division.Id > division.Id {
-			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, 1104, "", "", new_division.RewardList, 0)
+			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, 1104, "", "", new_division.RewardList, new_division.Id)
 			notify := &msg_client_message.S2CArenaGradeRewardNotify{
 				Grade: new_division.Id,
 			}
