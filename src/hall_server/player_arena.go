@@ -712,7 +712,7 @@ func (this *ArenaSeasonMgr) Reward(typ int32) {
 		}
 
 		if typ == 1 {
-			RealSendMail(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, 1102, "", "", bonus.DayRewardList, 0)
+			RealSendMail(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, 1102, "", "", bonus.DayRewardList, rank)
 		} else if typ == 2 {
 			RealSendMail(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, 1103, "", "", bonus.SeasonRewardList, rank)
 		}
