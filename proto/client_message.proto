@@ -2142,6 +2142,7 @@ message MonthCardData {
 message S2CChargeDataResponse {
 	int32 FirstChargeState					= 1; // 首充状态 0 未充  1 已充可领取  2 已领取
 	repeated MonthCardData Datas			= 2; // 月卡数据
+	repeated string ChargedBundleIds		= 3; // 已充过值的BundleId
 }
 
 // 充值请求 

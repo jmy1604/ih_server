@@ -245,6 +245,7 @@ func (this *Player) charge_has_month_card() bool {
 }
 
 func (this *Player) charge_data() int32 {
+	var charged_ids []string
 	var datas []*msg_client_message.MonthCardData
 	all_index := this.db.Pays.GetAllIndex()
 	for _, idx := range all_index {
@@ -261,11 +262,13 @@ func (this *Player) charge_data() int32 {
 				SendMailNum: send_mail_num,
 			})
 		}
+		charged_ids = append(charged_ids, idx)
 	}
 
 	response := &msg_client_message.S2CChargeDataResponse{
 		FirstChargeState: this.db.PayCommon.GetFirstPayState(),
 		Datas:            datas,
+		ChargedBundleIds: charged_ids,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_DATA_RESPONSE), response)
 
