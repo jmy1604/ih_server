@@ -551,6 +551,12 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 			if acc_row == nil {
 				acc_row = dbc.Accounts.AddRow(account)
 				acc_row.SetChannel("guest")
+			} else {
+				if acc_row.GetPassword() != password {
+					err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
+					log.Error("Account %v password %v invalid", account, password)
+					return
+				}
 			}
 		} else {
 			log.Error("Account %v use unsupported channel %v login", account, channel)
