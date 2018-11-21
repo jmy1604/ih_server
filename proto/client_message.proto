@@ -259,6 +259,7 @@ enum E_ERR {
 	CHARGE_APPLE_PAY_VERIFY_NO_PASS			= -29018; // apple支付验证未通过
 	CHARGE_APPLE_ORDER_ALREADY_EXIST        = -29019; // apple支付订单已存在
 	CHARGE_CHANNEL_INVALID					= -30000; // 充值渠道非法
+	CHARGE_PAY_REPEATED_VERIFY				= -30001; // 充值支付重复验证
 	
 	// 保留
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
