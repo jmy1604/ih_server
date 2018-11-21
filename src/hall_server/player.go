@@ -139,6 +139,7 @@ type Player struct {
 	curr_sweep             int32                                 // 已扫荡次数
 	role_power_ranklist    *utils.ShortRankList                  // 角色战力排行
 	join_guild_locker      *sync.Mutex                           // 加入公会锁
+	is_paying              int32                                 // 是否正在支付
 }
 
 func (this *Player) _init() {

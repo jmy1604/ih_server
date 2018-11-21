@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
      <item VipLevel="0" Money="0" AccelTimes="1" ActiveStageBuyTimes="0" GoldFingerBonus="0" HonorPointBonus="0" MonthCardItemBonus="" SearchTaskCount="5" />
-     <item VipLevel="1" Money="6" AccelTimes="2" ActiveStageBuyTimes="1" GoldFingerBonus="2000" HonorPointBonus="0" MonthCardItemBonus="" SearchTaskCount="6" />
-     <item VipLevel="2" Money="30" AccelTimes="3" ActiveStageBuyTimes="1" GoldFingerBonus="4000" HonorPointBonus="0" MonthCardItemBonus="" SearchTaskCount="6" />
-     <item VipLevel="3" Money="100" AccelTimes="4" ActiveStageBuyTimes="2" GoldFingerBonus="6000" HonorPointBonus="0" MonthCardItemBonus="3,40,15,1" SearchTaskCount="7" />
-     <item VipLevel="4" Money="200" AccelTimes="5" ActiveStageBuyTimes="2" GoldFingerBonus="8000" HonorPointBonus="0" MonthCardItemBonus="3,60,15,1" SearchTaskCount="8" />
-     <item VipLevel="5" Money="500" AccelTimes="6" ActiveStageBuyTimes="3" GoldFingerBonus="10000" HonorPointBonus="2000" MonthCardItemBonus="3,80,15,1" SearchTaskCount="9" />
-     <item VipLevel="6" Money="1000" AccelTimes="7" ActiveStageBuyTimes="3" GoldFingerBonus="12000" HonorPointBonus="4000" MonthCardItemBonus="3,100,15,2" SearchTaskCount="10" />
-     <item VipLevel="7" Money="2000" AccelTimes="8" ActiveStageBuyTimes="4" GoldFingerBonus="15000" HonorPointBonus="6000" MonthCardItemBonus="3,120,15,2,57020,1" SearchTaskCount="11" />
-     <item VipLevel="8" Money="5000" AccelTimes="9" ActiveStageBuyTimes="4" GoldFingerBonus="20000" HonorPointBonus="9000" MonthCardItemBonus="3,140,15,3,57020,2" SearchTaskCount="12" />
-     <item VipLevel="9" Money="10000" AccelTimes="10" ActiveStageBuyTimes="5" GoldFingerBonus="25000" HonorPointBonus="12000" MonthCardItemBonus="3,160,15,4,57020,3" SearchTaskCount="13" />
-     <item VipLevel="10" Money="20000" AccelTimes="11" ActiveStageBuyTimes="5" GoldFingerBonus="30000" HonorPointBonus="15000" MonthCardItemBonus="3,180,15,5,57020,4" SearchTaskCount="14" />
-     <item VipLevel="11" Money="50000" AccelTimes="12" ActiveStageBuyTimes="6" GoldFingerBonus="40000" HonorPointBonus="20000" MonthCardItemBonus="3,200,15,5,57020,5" SearchTaskCount="15" />
+     <item VipLevel="1" Money="60" AccelTimes="2" ActiveStageBuyTimes="1" GoldFingerBonus="2000" HonorPointBonus="0" MonthCardItemBonus="" SearchTaskCount="6" />
+     <item VipLevel="2" Money="300" AccelTimes="3" ActiveStageBuyTimes="1" GoldFingerBonus="4000" HonorPointBonus="0" MonthCardItemBonus="" SearchTaskCount="6" />
+     <item VipLevel="3" Money="1000" AccelTimes="4" ActiveStageBuyTimes="2" GoldFingerBonus="6000" HonorPointBonus="0" MonthCardItemBonus="3,40,15,1" SearchTaskCount="7" />
+     <item VipLevel="4" Money="2000" AccelTimes="5" ActiveStageBuyTimes="2" GoldFingerBonus="8000" HonorPointBonus="0" MonthCardItemBonus="3,60,15,1" SearchTaskCount="8" />
+     <item VipLevel="5" Money="5000" AccelTimes="6" ActiveStageBuyTimes="3" GoldFingerBonus="10000" HonorPointBonus="2000" MonthCardItemBonus="3,80,15,1" SearchTaskCount="9" />
+     <item VipLevel="6" Money="10000" AccelTimes="7" ActiveStageBuyTimes="3" GoldFingerBonus="12000" HonorPointBonus="4000" MonthCardItemBonus="3,100,15,2" SearchTaskCount="10" />
+     <item VipLevel="7" Money="20000" AccelTimes="8" ActiveStageBuyTimes="4" GoldFingerBonus="15000" HonorPointBonus="6000" MonthCardItemBonus="3,120,15,2,57020,1" SearchTaskCount="11" />
+     <item VipLevel="8" Money="50000" AccelTimes="9" ActiveStageBuyTimes="4" GoldFingerBonus="20000" HonorPointBonus="9000" MonthCardItemBonus="3,140,15,3,57020,2" SearchTaskCount="12" />
+     <item VipLevel="9" Money="100000" AccelTimes="10" ActiveStageBuyTimes="5" GoldFingerBonus="25000" HonorPointBonus="12000" MonthCardItemBonus="3,160,15,4,57020,3" SearchTaskCount="13" />
+     <item VipLevel="10" Money="200000" AccelTimes="11" ActiveStageBuyTimes="5" GoldFingerBonus="30000" HonorPointBonus="15000" MonthCardItemBonus="3,180,15,5,57020,4" SearchTaskCount="14" />
+     <item VipLevel="11" Money="500000" AccelTimes="12" ActiveStageBuyTimes="6" GoldFingerBonus="40000" HonorPointBonus="20000" MonthCardItemBonus="3,200,15,5,57020,5" SearchTaskCount="15" />
 </Config>

@@ -245,6 +245,7 @@ func (this *Player) charge_has_month_card() bool {
 }
 
 func (this *Player) charge_data() int32 {
+	var charged_ids []string
 	var datas []*msg_client_message.MonthCardData
 	all_index := this.db.Pays.GetAllIndex()
 	for _, idx := range all_index {
@@ -261,11 +262,13 @@ func (this *Player) charge_data() int32 {
 				SendMailNum: send_mail_num,
 			})
 		}
+		charged_ids = append(charged_ids, idx)
 	}
 
 	response := &msg_client_message.S2CChargeDataResponse{
 		FirstChargeState: this.db.PayCommon.GetFirstPayState(),
 		Datas:            datas,
+		ChargedBundleIds: charged_ids,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_DATA_RESPONSE), response)
 
@@ -382,7 +385,13 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		return -1
 	}
 
+	if !atomic.CompareAndSwapInt32(&this.is_paying, 0, 1) {
+		log.Error("Player[%v] is paying for google purchase", this.Id)
+		return int32(msg_client_message.E_ERR_CHARGE_PAY_REPEATED_VERIFY)
+	}
+
 	if check_google_order_exist(data.OrderId) {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] google order[%v] already exists", this.Id, data.OrderId)
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_ORDER_ALREADY_EXIST)
 	}
@@ -391,6 +400,7 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 	var decodedSignature []byte
 	decodedSignature, err = base64.StdEncoding.DecodeString(string(signature))
 	if err != nil {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] failed to decode signature[%v], err %v", this.Id, signature, err.Error())
 		return -1
 	}
@@ -398,23 +408,21 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 	sha1.Write(purchase_data)
 	hashedReceipt := sha1.Sum(nil)
 	if hashedReceipt == nil {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] purchase_data[%v] hased result is null", purchase_data)
 		return -1
 	}
 
-	log.Debug("@@@@@@@@@@@ purchase_data(%v)  signature(%v)", string(purchase_data), string(signature))
-
-	log.Debug("@@@@@@@@@@@ google_pay_pub(%v)  hashedReceipt(%v)  decodedSignature(%v)", pay_mgr.google_pay_pub, hashedReceipt, decodedSignature)
-
 	err = rsa.VerifyPKCS1v15(pay_mgr.google_pay_pub, crypto.SHA1, hashedReceipt, decodedSignature)
 	if err != nil {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] failed to verify decoded signature[%v] with hashed purchase data[%v]: %v", this.Id, decodedSignature, hashedReceipt, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_SIGNATURE_INVALID)
 	}
 
-	log.Info("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", this.Id, bundle_id, purchase_data, signature)
-
 	google_pay_save(data.OrderId, bundle_id, this.Id)
+
+	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 
 	// 验证PurchaseToken
 	/*err = _verify_google_purchase_token(data.PackageName, data.ProductId, data.PurchaseToken)
@@ -422,6 +430,8 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		log.Error("Player[%v] verify google purchase token err %v", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_PURCHASE_TOKEN_INVALID)
 	}*/
+
+	log.Info("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", this.Id, bundle_id, purchase_data, signature)
 
 	return 1
 }
@@ -432,7 +442,13 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_EMPTY)
 	}
 
+	if !atomic.CompareAndSwapInt32(&this.is_paying, 0, 1) {
+		log.Error("Player[%v] is paying for apple purchase", this.Id)
+		return int32(msg_client_message.E_ERR_CHARGE_PAY_REPEATED_VERIFY)
+	}
+
 	if check_apple_order_exist(string(purchase_data)) {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] apple order[%v] already exists", this.Id, string(purchase_data))
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_ORDER_ALREADY_EXIST)
 	}
@@ -454,6 +470,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	check_data := &AppleCheck{Receipt: string(purchase_data)}
 	data, err := json.Marshal(check_data)
 	if nil != err {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] marshal apple pay verify purchase_data[%v] failed: %v", this.Id, purchase_data, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
 	}
@@ -466,6 +483,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	}
 	req, err := http.NewRequest("POST", pay_url, strings.NewReader(final_str))
 	if err != nil {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] new apple pay request failed(%s) !", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_NEW_REQUEST_FAILED)
 	}
@@ -475,6 +493,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	resp, err := client.Do(req)
 
 	if err != nil {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] post apple pay request failed(%s) !", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_REQUEST_FAILED)
 	}
@@ -484,18 +503,22 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	tmp_res := &AppleCheckRes{}
 	err = json.Unmarshal(body, tmp_res)
 	if nil != err {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] get apple pay verify result unmarshal failed(%s) !", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_RESULT_UNMARSHAL_FAILED)
 	}
 
 	if 0 != tmp_res.Status {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] apple pay verify Receipt check failed(%d) !", this.Id, tmp_res.Status)
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_VERIFY_NO_PASS)
 	}
 
-	log.Info("Player[%v] apple pay bunder_id[%v] verify success", this.Id, bundle_id)
-
 	apple_pay_save(string(purchase_data), bundle_id, this.Id)
+
+	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
+
+	log.Info("Player[%v] apple pay bunder_id[%v] verify success", this.Id, bundle_id)
 
 	return 1
 }
