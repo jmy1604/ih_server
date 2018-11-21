@@ -16,7 +16,9 @@ func main() {
 		if err := recover(); err != nil {
 			log.Stack(err)
 		}
-		server.Shutdown()
+		if server != nil {
+			server.Shutdown()
+		}
 		log.Close()
 	}()
 
