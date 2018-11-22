@@ -437,7 +437,12 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 	return 1
 }
 
-func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *AppleCheckRes) {
+type ApplePurchaseCheckRes struct {
+	Status int32 `json:"status"`
+	//Receipt string `json:"receipt"`
+}
+
+func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *ApplePurchaseCheckRes) {
 	var err error
 	var req *http.Request
 	req, err = http.NewRequest("POST", url, strings.NewReader(string(data)))
@@ -466,7 +471,7 @@ func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *App
 
 	var body []byte
 	body, err = ioutil.ReadAll(resp.Body)
-	tmp_res := &AppleCheckRes{}
+	tmp_res := &ApplePurchaseCheckRes{}
 	err = json.Unmarshal(body, tmp_res)
 	if nil != err {
 		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
