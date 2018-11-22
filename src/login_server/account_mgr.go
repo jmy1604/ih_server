@@ -77,6 +77,9 @@ func account_info_get(account string, first_create bool) *AccountInfo {
 
 func has_account_login(acc string) bool {
 	account_info := account_info_get(acc, false)
+	if account_info == nil {
+		return false
+	}
 	state := account_info.get_state()
 	if state != 1 {
 		return false
@@ -86,16 +89,25 @@ func has_account_login(acc string) bool {
 
 func account_login(acc, token string) {
 	account_info := account_info_get(acc, true)
+	if account_info == nil {
+		return
+	}
 	account_info.set_state(1)
 	account_info.set_token(token)
 }
 
 func account_enter_game(acc string) {
 	account_info := account_info_get(acc, false)
+	if account_info == nil {
+		return
+	}
 	account_info.set_state(2)
 }
 
 func account_logout(acc string) {
 	account_info := account_info_get(acc, false)
+	if account_info == nil {
+		return
+	}
 	account_info.set_state(0)
 }

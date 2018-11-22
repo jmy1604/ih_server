@@ -24,7 +24,7 @@ func (this *LoginConnectionMgr) Init() bool {
 func (this *LoginConnectionMgr) DisconnectAll() {
 	log.Info("LoginConnectionMgr DisconnectAll")
 
-	cur_conns := this.retset()
+	cur_conns := this.reset()
 	for _, conn := range cur_conns {
 		if nil != conn {
 			conn.ForceClose(true)
@@ -34,8 +34,8 @@ func (this *LoginConnectionMgr) DisconnectAll() {
 	return
 }
 
-func (this *LoginConnectionMgr) retset() []*LoginConnection {
-	log.Info("LoginConnectionMgr retset")
+func (this *LoginConnectionMgr) reset() []*LoginConnection {
+	log.Info("LoginConnectionMgr reset")
 
 	this.id2loginconn_lock.Lock()
 	defer this.id2loginconn_lock.Unlock()
