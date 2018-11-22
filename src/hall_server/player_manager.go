@@ -725,7 +725,7 @@ func (p *Player) reconnect() int32 {
 		return -1
 	}
 	p.Token = new_token
-	login_token_mgr.SetToken(p.UniqueId, new_token)
+	login_token_mgr.SetToken(p.UniqueId, new_token, p.Id)
 	conn_timer_wheel.Remove(p.Id)
 	atomic.StoreInt32(&p.is_login, 1)
 

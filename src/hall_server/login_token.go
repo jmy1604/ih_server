@@ -63,6 +63,25 @@ func (this *LoginTokenMgr) LoadRedisData() int32 {
 	return 1
 }
 
+func _save_redis_login_token(uid, token string, now_time time.Time, player_id int32) {
+	// serialize to redis
+	var item RedisLoginTokenInfo = RedisLoginTokenInfo{
+		Token:      token,
+		CreateTime: int32(now_time.Unix()),
+		PlayerId:   player_id,
+	}
+	bytes, err := json.Marshal(item)
+	if err != nil {
+		log.Error("##### Serialize item[%v] error[%v]", item, err.Error())
+		return
+	}
+	err = hall_server.redis_conn.Post("HSET", UID_TOKEN_KEY, uid, string(bytes))
+	if err != nil {
+		log.Error("redis设置集合[%v]数据失败[%v]", UID_TOKEN_KEY, err.Error())
+		return
+	}
+}
+
 func (this *LoginTokenMgr) AddToUid2Token(uid, acc, token string, playerid int32, login_server *server_conn.ServerConn) {
 	if uid == "" || acc == "" || token == "" {
 		log.Error("LoginTokenMgr AddToUid2Token uid or acc or token empty")
@@ -72,25 +91,10 @@ func (this *LoginTokenMgr) AddToUid2Token(uid, acc, token string, playerid int32
 	this.uid2token_locker.Lock()
 	defer this.uid2token_locker.Unlock()
 
-	now_time := int32(time.Now().Unix())
-	this.uid2token[uid] = &LoginTokenInfo{account: acc, token: token, create_time: now_time, playerid: playerid, login_server: login_server}
+	now_time := time.Now()
+	this.uid2token[uid] = &LoginTokenInfo{account: acc, token: token, create_time: int32(now_time.Unix()), playerid: playerid, login_server: login_server}
 
-	// serialize to redis
-	item := &RedisLoginTokenInfo{
-		Token:      token,
-		CreateTime: now_time,
-		PlayerId:   playerid,
-	}
-	bytes, err := json.Marshal(item)
-	if err != nil {
-		log.Error("##### Serialize item[%v] error[%v]", *item, err.Error())
-		return
-	}
-	err = hall_server.redis_conn.Post("HSET", UID_TOKEN_KEY, uid, string(bytes))
-	if err != nil {
-		log.Error("redis设置集合[%v]数据失败[%v]", UID_TOKEN_KEY, err.Error())
-		return
-	}
+	_save_redis_login_token(uid, token, now_time, playerid)
 }
 
 func (this *LoginTokenMgr) BindNewAccount(uid, acc, new_acc string) bool {
@@ -147,7 +151,7 @@ func (this *LoginTokenMgr) GetLoginServerByUid(uid string) *server_conn.ServerCo
 	return item.login_server
 }
 
-func (this *LoginTokenMgr) SetToken(uid, token string) bool {
+func (this *LoginTokenMgr) SetToken(uid, token string, player_id int32) bool {
 	this.uid2token_locker.Lock()
 	defer this.uid2token_locker.Unlock()
 
@@ -156,5 +160,8 @@ func (this *LoginTokenMgr) SetToken(uid, token string) bool {
 		return false
 	}
 	item.token = token
+
+	_save_redis_login_token(uid, token, time.Now(), player_id)
+
 	return true
 }
