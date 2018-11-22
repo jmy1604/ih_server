@@ -483,10 +483,7 @@ func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *App
 }
 
 type ApplePurchaseInfo struct {
-	ProductIdentifier     string `json:"productIdentifier"`
-	State                 int32  `json:"state"`
-	Receipt               string `json:"receipt"`
-	TransactionIdentifier int32  `json:"transactionIdentifier"`
+	PurchaseInfo string `json:"purchase-info"`
 }
 
 func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data []byte) int32 { //ordername, receipt string
@@ -497,7 +494,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	}
 
 	var err error
-	/*var purchase_info ApplePurchaseInfo
+	var purchase_info ApplePurchaseInfo
 	err = json.Unmarshal(purchase_data, &purchase_info)
 	if nil != err {
 		log.Error("Player[%v] apple purchase data Unmarshal failed(%s) !", this.Id, err.Error())
@@ -505,11 +502,13 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	}
 
 	var decode_bytes []byte
-	decode_bytes, err = base64.StdEncoding.DecodeString(string(purchase_info.Receipt))
+	decode_bytes, err = base64.StdEncoding.DecodeString(purchase_info.PurchaseInfo)
 	if err != nil {
 		log.Error("Player[%v] decode apple purchase data [%v] invalid, err %v", this.Id, purchase_data, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
-	}*/
+	}
+
+	log.Debug("Player[%v] purchase info string %v", this.Id, string(decode_bytes))
 
 	if !atomic.CompareAndSwapInt32(&this.is_paying, 0, 1) {
 		log.Error("Player[%v] is paying for apple purchase", this.Id)
