@@ -482,8 +482,12 @@ func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *App
 	return 1, tmp_res
 }
 
-type ApplePurchaseInfo struct {
+type AppleReceiptData struct {
 	PurchaseInfo string `json:"purchase-info"`
+}
+
+type ApplePurchaseInfo struct {
+	TransactionId string `json:"transaction-id"`
 }
 
 func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data []byte) int32 { //ordername, receipt string
@@ -494,28 +498,35 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	}
 
 	var err error
-	var purchase_info ApplePurchaseInfo
-	err = json.Unmarshal(purchase_data, &purchase_info)
+	var receipt_data AppleReceiptData
+	err = json.Unmarshal(purchase_data, &receipt_data)
 	if nil != err {
-		log.Error("Player[%v] apple purchase data Unmarshal failed(%s) !", this.Id, err.Error())
+		log.Error("Player[%v] apple purchase data Unmarshal failed(%s)!!!", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
 	}
 
 	var decode_bytes []byte
-	decode_bytes, err = base64.StdEncoding.DecodeString(purchase_info.PurchaseInfo)
+	decode_bytes, err = base64.StdEncoding.DecodeString(receipt_data.PurchaseInfo)
 	if err != nil {
-		log.Error("Player[%v] decode apple purchase data [%v] invalid, err %v", this.Id, purchase_data, err.Error())
+		log.Error("Player[%v] decode apple purchase data [%v] invalid, err %v", this.Id, receipt_data.PurchaseInfo, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
 	}
 
 	log.Debug("Player[%v] purchase info string %v", this.Id, string(decode_bytes))
+
+	var purchase_info ApplePurchaseInfo
+	err = json.Unmarshal([]byte(receipt_data.PurchaseInfo), &purchase_info)
+	if err != nil {
+		log.Error("Player[%v] apple purchase info unmarshal failed(%s)!!!", this.Id, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
+	}
 
 	if !atomic.CompareAndSwapInt32(&this.is_paying, 0, 1) {
 		log.Error("Player[%v] is paying for apple purchase", this.Id)
 		return int32(msg_client_message.E_ERR_CHARGE_PAY_REPEATED_VERIFY)
 	}
 
-	if check_apple_order_exist( /*strconv.Itoa(int(purchase_info.TransactionIdentifier))*/ string(purchase_data)) {
+	if check_apple_order_exist(purchase_info.TransactionId) {
 		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] apple order[%v] already exists", this.Id, string(purchase_data))
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_ORDER_ALREADY_EXIST)
@@ -549,7 +560,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_VERIFY_NO_PASS)
 	}
 
-	apple_pay_save( /*strconv.Itoa(int(purchase_info.TransactionIdentifier))*/ string(purchase_data), bundle_id, this.Id)
+	apple_pay_save(purchase_info.TransactionId, bundle_id, this.Id)
 
 	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 
