@@ -489,7 +489,6 @@ func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *App
 }
 
 func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data []byte) int32 { //ordername, receipt string
-	log.Debug("Player[%v] verify apple purchase data %v", this.Id, string(purchase_data))
 	if purchase_data == nil || len(purchase_data) == 0 {
 		log.Error("Player[%v] apple purchase data empty!")
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_EMPTY)
@@ -522,9 +521,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 			atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 			return res
 		}
-	}
-
-	if 0 != tmp_res.Status {
+	} else if 0 != tmp_res.Status {
 		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] apple pay verify Receipt check failed(%d) !", this.Id, tmp_res.Status)
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_VERIFY_NO_PASS)
