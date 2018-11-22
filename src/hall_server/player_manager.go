@@ -718,12 +718,7 @@ func C2SGuideDataSaveHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 }
 
 func (p *Player) reconnect() int32 {
-	var token_info share_data.AccessTokenInfo
-	o, new_token := token_info.GetString()
-	if !o {
-		log.Error("Player[%v] reconnect gen new token failed", p.Id)
-		return -1
-	}
+	new_token := share_data.GenerateAccessToken(p.UniqueId)
 	p.Token = new_token
 	login_token_mgr.SetToken(p.UniqueId, new_token, p.Id)
 	conn_timer_wheel.Remove(p.Id)
