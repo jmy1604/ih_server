@@ -383,12 +383,9 @@ func (this *Player) OnLogout(remove_timer bool) {
 		// 离线时结算挂机收益
 		this.campaign_hangup_income_get(0, true)
 		this.campaign_hangup_income_get(1, true)
-		login_server := login_token_mgr.GetLoginServerByUid(this.UniqueId)
-		if login_server != nil {
-			var notify msg_server_message.H2LAccountLogoutNotify
-			notify.Account = this.Account
-			login_server.Send(uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY), &notify, true)
-		}
+		var notify msg_server_message.H2LAccountLogoutNotify
+		notify.Account = this.Account
+		login_conn_mgr.Send(uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY), &notify)
 		log.Info("Player[%v] log out !!!", this.Id)
 	} else {
 		log.Warn("Player[%v] already loged out", this.Id)

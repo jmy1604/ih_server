@@ -4,6 +4,8 @@ import (
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/server_message"
 	"sync"
+
+	"github.com/golang/protobuf/proto"
 )
 
 type LoginConnectionMgr struct {
@@ -90,4 +92,15 @@ func (this *LoginConnectionMgr) RemoveLogin(id int32) {
 	}
 
 	return
+}
+
+func (this *LoginConnectionMgr) Send(msg_id uint16, msg proto.Message) {
+	this.id2loginconn_lock.Lock()
+	defer this.id2loginconn_lock.Unlock()
+
+	for _, c := range this.id2loginconn {
+		if c != nil {
+			c.Send(msg_id, msg)
+		}
+	}
 }
