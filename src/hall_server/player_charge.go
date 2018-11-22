@@ -17,7 +17,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
+	_ "strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -491,8 +491,8 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_EMPTY)
 	}
 
-	var purchase_info ApplePurchaseInfo
 	var err error
+	/*var purchase_info ApplePurchaseInfo
 	err = json.Unmarshal(purchase_data, &purchase_info)
 	if nil != err {
 		log.Error("Player[%v] apple purchase data Unmarshal failed(%s) !", this.Id, err.Error())
@@ -504,20 +504,20 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	if err != nil {
 		log.Error("Player[%v] decode apple purchase data [%v] invalid, err %v", this.Id, purchase_data, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
-	}
+	}*/
 
 	if !atomic.CompareAndSwapInt32(&this.is_paying, 0, 1) {
 		log.Error("Player[%v] is paying for apple purchase", this.Id)
 		return int32(msg_client_message.E_ERR_CHARGE_PAY_REPEATED_VERIFY)
 	}
 
-	if check_apple_order_exist(strconv.Itoa(int(purchase_info.TransactionIdentifier))) {
+	if check_apple_order_exist( /*strconv.Itoa(int(purchase_info.TransactionIdentifier))*/ string(purchase_data)) {
 		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] apple order[%v] already exists", this.Id, string(purchase_data))
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_ORDER_ALREADY_EXIST)
 	}
 
-	check_data := &AppleCheck{Receipt: string(decode_bytes)}
+	check_data := &AppleCheck{Receipt: string(purchase_data)}
 	var data []byte
 	data, err = json.Marshal(check_data)
 	if nil != err {
@@ -545,7 +545,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_VERIFY_NO_PASS)
 	}
 
-	apple_pay_save(strconv.Itoa(int(purchase_info.TransactionIdentifier)), bundle_id, this.Id)
+	apple_pay_save( /*strconv.Itoa(int(purchase_info.TransactionIdentifier))*/ string(purchase_data), bundle_id, this.Id)
 
 	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 
