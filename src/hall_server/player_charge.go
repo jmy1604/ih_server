@@ -436,6 +436,46 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 	return 1
 }
 
+func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *AppleCheckRes) {
+	var err error
+	var req *http.Request
+	req, err = http.NewRequest("POST", url, strings.NewReader(string(data)))
+	if err != nil {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
+		log.Error("Player[%v] new apple pay request failed(%s) !", this.Id, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_NEW_REQUEST_FAILED), nil
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	var resp *http.Response
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	resp, err = client.Do(req)
+
+	if err != nil {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
+		log.Error("Player[%v] post apple pay request failed(%s) !", this.Id, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_REQUEST_FAILED), nil
+	}
+
+	defer resp.Body.Close()
+
+	var body []byte
+	body, err = ioutil.ReadAll(resp.Body)
+	tmp_res := &AppleCheckRes{}
+	err = json.Unmarshal(body, tmp_res)
+	if nil != err {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
+		log.Error("Player[%v] get apple pay verify result unmarshal failed(%s) !", this.Id, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_RESULT_UNMARSHAL_FAILED), nil
+	}
+
+	return 1, tmp_res
+}
+
 func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data []byte) int32 { //ordername, receipt string
 	if purchase_data == nil || len(purchase_data) == 0 {
 		log.Error("Player[%v] apple purchase data empty!")
@@ -463,49 +503,34 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	ordername := tmp_order.OrderName
 	receipt := tmp_order.Receipt*/
 
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	var err error
+	var decode_bytes []byte
+	decode_bytes, err = base64.StdEncoding.DecodeString(string(purchase_data))
+	if err != nil {
+		log.Error("Player[%v] decode apple purchase data [%v] invalid, err %v", this.Id, purchase_data, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
 	}
-	client := &http.Client{Transport: tr}
-	check_data := &AppleCheck{Receipt: string(purchase_data)}
-	data, err := json.Marshal(check_data)
+
+	check_data := &AppleCheck{Receipt: string(decode_bytes)}
+	var data []byte
+	data, err = json.Marshal(check_data)
 	if nil != err {
 		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] marshal apple pay verify purchase_data[%v] failed: %v", this.Id, purchase_data, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
 	}
-	final_str := base64.StdEncoding.EncodeToString(data)
-	var pay_url string
-	if config.ApplePayIsSandBox {
-		pay_url = global_config.ApplePaySandBoxUrl
-	} else {
-		pay_url = global_config.ApplePayUrl
-	}
-	req, err := http.NewRequest("POST", pay_url, strings.NewReader(final_str))
-	if err != nil {
-		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
-		log.Error("Player[%v] new apple pay request failed(%s) !", this.Id, err.Error())
-		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_NEW_REQUEST_FAILED)
+
+	res, tmp_res := this._send_apple_verify_url(global_config.ApplePayUrl, data)
+	if res < 0 {
+		return res
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := client.Do(req)
-
-	if err != nil {
-		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
-		log.Error("Player[%v] post apple pay request failed(%s) !", this.Id, err.Error())
-		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_REQUEST_FAILED)
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	tmp_res := &AppleCheckRes{}
-	err = json.Unmarshal(body, tmp_res)
-	if nil != err {
-		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
-		log.Error("Player[%v] get apple pay verify result unmarshal failed(%s) !", this.Id, err.Error())
-		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_RESULT_UNMARSHAL_FAILED)
+	// 发送到沙箱验证
+	if tmp_res.Status == 21007 {
+		res, tmp_res = this._send_apple_verify_url(global_config.ApplePaySandBoxUrl, data)
+		if res < 0 {
+			return res
+		}
 	}
 
 	if 0 != tmp_res.Status {
