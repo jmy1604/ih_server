@@ -111,7 +111,7 @@ type GameServerConfig struct {
 	DBCST_MIN            int
 	DBCST_MAX            int
 	MYSQL_COPY_PATH      string
-	ApplePayIsSandBox    bool
+	DisableTestCommand   bool
 }
 
 func (this *GameServerConfig) GetType() int32 {
