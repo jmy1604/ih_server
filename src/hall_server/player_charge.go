@@ -451,7 +451,6 @@ func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *App
 	var req *http.Request
 	req, err = http.NewRequest("POST", url, strings.NewReader(string(data)))
 	if err != nil {
-		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] new apple pay request failed(%s) !", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_NEW_REQUEST_FAILED), nil
 	}
@@ -466,7 +465,6 @@ func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *App
 	resp, err = client.Do(req)
 
 	if err != nil {
-		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] post apple pay request failed(%s) !", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_REQUEST_FAILED), nil
 	}
@@ -478,27 +476,17 @@ func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *App
 	tmp_res := &ApplePurchaseCheckRes{}
 	err = json.Unmarshal(body, tmp_res)
 	if nil != err {
-		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] get apple pay verify result unmarshal failed(%s) !", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_RESULT_UNMARSHAL_FAILED), nil
 	}
 
 	if check_apple_order_exist(tmp_res.Receipt.TransactionId) {
-		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] apple transaction is[%v] already exists", this.Id, tmp_res.Receipt.TransactionId)
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_ORDER_ALREADY_EXIST), nil
 	}
 
 	return 1, tmp_res
 }
-
-/*type ApplePurchaseInfo struct {
-	TransactionId string `json:"transaction-id"`
-}
-
-type AppleReceiptData struct {
-	PurchaseInfo string `json:"purchase-info"`
-}*/
 
 func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data []byte) int32 { //ordername, receipt string
 	log.Debug("Player[%v] verify apple purchase data %v", this.Id, string(purchase_data))
@@ -507,52 +495,23 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_EMPTY)
 	}
 
+	check_data := &AppleCheck{Receipt: string(purchase_data)}
+	var data []byte
 	var err error
-	/*var decode_bytes []byte
-	decode_bytes, err = base64.StdEncoding.DecodeString(string(purchase_data))
-	if err != nil {
-		log.Error("Player[%v] decode apple purchase data [%v] invalid, err %v", this.Id, purchase_data, err.Error())
-		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
-	}
-
-	var receipt_data AppleReceiptData
-	err = json.Unmarshal(decode_bytes, &receipt_data)
+	data, err = json.Marshal(check_data)
 	if nil != err {
-		log.Error("Player[%v] apple purchase data Unmarshal failed(%s)!!!", this.Id, err.Error())
+		log.Error("Player[%v] marshal apple pay verify purchase_data[%v] failed: %v", this.Id, purchase_data, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
 	}
-
-	decode_bytes, err = base64.StdEncoding.DecodeString(receipt_data.PurchaseInfo)
-	if err != nil {
-		log.Error("Player[%v] decode apple purchase data [%v] invalid, err %v", this.Id, receipt_data.PurchaseInfo, err.Error())
-		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
-	}
-
-	log.Debug("Player[%v] purchase info string %v", this.Id, string(decode_bytes))
-
-	var purchase_info ApplePurchaseInfo
-	err = json.Unmarshal([]byte(receipt_data.PurchaseInfo), &purchase_info)
-	if err != nil {
-		log.Error("Player[%v] apple purchase info unmarshal failed(%s)!!!", this.Id, err.Error())
-		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
-	}*/
 
 	if !atomic.CompareAndSwapInt32(&this.is_paying, 0, 1) {
 		log.Error("Player[%v] is paying for apple purchase", this.Id)
 		return int32(msg_client_message.E_ERR_CHARGE_PAY_REPEATED_VERIFY)
 	}
 
-	check_data := &AppleCheck{Receipt: string(purchase_data)}
-	var data []byte
-	data, err = json.Marshal(check_data)
-	if nil != err {
-		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
-		log.Error("Player[%v] marshal apple pay verify purchase_data[%v] failed: %v", this.Id, purchase_data, err.Error())
-		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
-	}
-
 	res, tmp_res := this._send_apple_verify_url(global_config.ApplePayUrl, data)
 	if res < 0 {
+		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		return res
 	}
 
@@ -560,6 +519,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	if tmp_res.Status == 21007 {
 		res, tmp_res = this._send_apple_verify_url(global_config.ApplePaySandBoxUrl, data)
 		if res < 0 {
+			atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 			return res
 		}
 	}

@@ -23,6 +23,4 @@
 	"DBCST_MAX":350,
 	"DBPM_MIN":0,
 	"DBPM_MAX":10000,
-	
-	"ApplePayIsSandBox": true
 }
