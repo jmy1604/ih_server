@@ -44,7 +44,7 @@
 	
 	"ActiveStageRefreshTime": "00:00:00",
 	"ActiveStageChallengeNumOfDay": 2,
-	"ActiveStageChallengeNumPrice": 100,
+	"ActiveStageChallengeNumPrice": 20,
 	"ActiveStagePurchaseNum": 10,
 	
 	"FriendMaxNum": 30,
