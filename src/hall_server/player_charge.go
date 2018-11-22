@@ -283,7 +283,7 @@ func (this *Player) charge(channel, id int32) int32 {
 	if pay_item == nil {
 		return -1
 	}
-	return this.charge_with_bundle_id(channel, pay_item.BundleId, nil, nil)
+	return this.charge_with_bundle_id(channel, pay_item.BundleId, nil, nil, 0)
 }
 
 type GooglePurchaseInfo struct {
@@ -498,14 +498,20 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	}
 
 	var err error
+	var decode_bytes []byte
+	decode_bytes, err = base64.StdEncoding.DecodeString(string(purchase_data))
+	if err != nil {
+		log.Error("Player[%v] decode apple purchase data [%v] invalid, err %v", this.Id, purchase_data, err.Error())
+		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
+	}
+
 	var receipt_data AppleReceiptData
-	err = json.Unmarshal(purchase_data, &receipt_data)
+	err = json.Unmarshal(decode_bytes, &receipt_data)
 	if nil != err {
 		log.Error("Player[%v] apple purchase data Unmarshal failed(%s)!!!", this.Id, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PURCHASE_DATA_INVALID)
 	}
 
-	var decode_bytes []byte
 	decode_bytes, err = base64.StdEncoding.DecodeString(receipt_data.PurchaseInfo)
 	if err != nil {
 		log.Error("Player[%v] decode apple purchase data [%v] invalid, err %v", this.Id, receipt_data.PurchaseInfo, err.Error())
@@ -569,7 +575,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	return 1
 }
 
-func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purchase_data []byte, extra_data []byte) int32 {
+func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purchase_data []byte, extra_data []byte, index int32) int32 {
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
 	if pay_item == nil {
 		log.Error("pay %v table data not found", bundle_id)
@@ -633,8 +639,9 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 	}
 
 	response := &msg_client_message.S2CChargeResponse{
-		BundleId: bundle_id,
-		IsFirst:  !has,
+		BundleId:    bundle_id,
+		IsFirst:     !has,
+		ClientIndex: index,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_RESPONSE), response)
 
@@ -700,7 +707,7 @@ func C2SChargeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_dat
 		log.Error("Unmarshal msg failed err(%v)", err.Error())
 		return -1
 	}
-	return p.charge_with_bundle_id(req.GetChannel(), req.GetBundleId(), req.GetPurchareData(), req.GetExtraData())
+	return p.charge_with_bundle_id(req.GetChannel(), req.GetBundleId(), req.GetPurchareData(), req.GetExtraData(), req.GetClientIndex())
 }
 
 func C2SChargeFirstAwardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

@@ -2151,12 +2151,14 @@ message C2SChargeRequest {
 	string BundleId							= 2; // BundleId
 	bytes PurchareData						= 3; // 需要验证的支付数据
 	bytes ExtraData							= 4; // 额外数据
+	int32 ClientIndex						= 5; // 客户端索引，用于标记充值记录
 }
 
 message S2CChargeResponse {
 	int32 Channel							= 1; // 渠道  1 google   2 appele
 	string BundleId							= 2; // BundleId
 	bool IsFirst							= 3; // 是否首次
+	int32 ClientIndex						= 4; // 客户端索引，用于标记充值记录
 }
 
 // 首充奖励通知, 第一次充值会通知
