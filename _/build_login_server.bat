@@ -1,9 +1,6 @@
 call build_framework.bat
 if errorlevel 1 goto exit
 
-go install ih_server/src/login_server
-if errorlevel 1 goto exit
-
 go build -i -o ../bin/login_server.exe ih_server/src/login_server
 if errorlevel 1 goto exit
 
