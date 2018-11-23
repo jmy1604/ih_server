@@ -338,12 +338,14 @@ message C2SGuestBindNewAccountRequest {
 	string Password							= 2; // 旧密码
 	string NewAccount						= 3; // 新账号
 	string NewPassword						= 4; // 新密码
+	string NewChannel						= 5; // 渠道
 }
 
 message S2CGuestBindNewAccountResponse {
 	string Account							= 1; // 旧帐号
 	string NewAccount						= 2; // 新账号
 	string NewPassword						= 3; // 新密码
+	string NewChannel						= 4; // 渠道
 }
 
 // 登陆
