@@ -24,9 +24,6 @@ func (this *RolePowerRankItem) Less(item utils.ShortRankItem) bool {
 	if this.Power < it.Power {
 		return true
 	} else if this.Power == it.Power {
-		/*if this.SerialId > it.SerialId {
-			return true
-		}*/
 	}
 	return false
 }
@@ -39,9 +36,6 @@ func (this *RolePowerRankItem) Greater(item utils.ShortRankItem) bool {
 	if this.Power > it.Power {
 		return true
 	} else if this.Power == it.Power {
-		/*if this.SerialId < it.SerialId {
-			return true
-		}*/
 	}
 	return false
 }
@@ -61,7 +55,6 @@ func (this *RolePowerRankItem) Assign(item utils.ShortRankItem) {
 	}
 	this.RoleId = it.RoleId
 	this.Power = it.Power
-	//this.SerialId = it.SerialId
 }
 
 func (this *RolePowerRankItem) Add(item utils.ShortRankItem) {
@@ -168,12 +161,21 @@ func (this *Player) _update_role_power_rank_info(role_id, power int32) {
 	var item = RolePowerRankItem{
 		RoleId: role_id,
 		Power:  power,
-		//SerialId: atomic.AddInt32(&role_power_rank_serial_id, 1),
 	}
 	this.role_power_ranklist.Update(&item, false)
 }
 
-func (this *Player) _update_roles_power_rank_info(power int32) {
+func (this *Player) _update_roles_power_rank_info() {
+	// 放入所有玩家的角色战力中排序
+	var power int32
+	for r := 1; r <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM; r++ {
+		_, value := this.role_power_ranklist.GetByRank(int32(r))
+		if value == nil {
+			continue
+		}
+		p := value.(int32)
+		power += p
+	}
 	sid := atomic.AddInt32(&roles_power_rank_serial_id, 1)
 	var data = RolesPowerRankItem{
 		SerialId: sid,
@@ -183,34 +185,26 @@ func (this *Player) _update_roles_power_rank_info(power int32) {
 	rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ROLE_POWER, &data)
 }
 
-func (this *Player) _update_roles_power_rank_info2() {
-	var power int32
-	// 放入所有玩家的角色战力中排序
-	for r := 1; r <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM; r++ {
-		_, value := this.role_power_ranklist.GetByRank(int32(r))
-		if value == nil {
-			continue
-		}
-		p := value.(int32)
-		power += p
-	}
-	this._update_roles_power_rank_info(power)
-	//log.Debug("Player[%v] update roles power %v in rank list", this.Id, power)
-}
-
 func (this *Player) UpdateRolePowerRank(role_id int32) {
 	this.role_update_suit_attr_power(role_id, false, true)
 	power := this.get_role_power(role_id)
+	before_rank := this.role_power_ranklist.GetRank(role_id)
 	this._update_role_power_rank_info(role_id, power)
-	this._update_roles_power_rank_info2()
+	after_rank := this.role_power_ranklist.GetRank(role_id)
+	if (before_rank >= 1 && before_rank <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM) || (after_rank >= 1 && after_rank <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM) {
+		this._update_roles_power_rank_info()
+	}
 }
 
 func (this *Player) DeleteRolePowerRank(role_id int32) {
 	if this.role_power_ranklist == nil {
 		return
 	}
+	rank := this.role_power_ranklist.GetRank(role_id)
 	this.role_power_ranklist.Delete(role_id)
-	this._update_roles_power_rank_info2()
+	if rank >= 1 && rank <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM {
+		this._update_roles_power_rank_info()
+	}
 }
 
 // 载入数据库角色战力
@@ -224,9 +218,8 @@ func (this *Player) LoadRolesPowerRankData() {
 	for _, id := range ids {
 		this.role_update_suit_attr_power(id, false, true)
 		power := this.get_role_power(id)
-		//log.Debug("Player[%v] role[%v] power[%v]", this.Id, id, power)
 		this._update_role_power_rank_info(id, power)
 	}
 
-	this._update_roles_power_rank_info2()
+	this._update_roles_power_rank_info()
 }
