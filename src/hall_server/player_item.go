@@ -437,6 +437,9 @@ func (this *Player) equip(role_id, equip_id int32) int32 {
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_EQUIP_RESPONSE), response)
 
+	// 更新排行榜
+	this.UpdateRolePowerRank(role_id)
+
 	log.Debug("Player[%v] equip role[%v] item[%v] on equip type[%v]", this.Id, role_id, equip_id, item_tdata.EquipType)
 
 	return 1
@@ -470,6 +473,9 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 	}
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_UNEQUIP_RESPONSE), response)
+
+	// 更新排行榜
+	this.UpdateRolePowerRank(role_id)
 
 	log.Debug("Player[%v] unequip role[%v] equip type[%v]", this.Id, role_id, equip_type)
 
@@ -713,6 +719,9 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 
 	// 更新任务
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_FORGE_EQUIP_NUM, false, 0, item_num)
+
+	// 更新排行榜
+	this.UpdateRolePowerRank(role_id)
 
 	log.Debug("Player[%v] upgraded item[%v] to new item[%v]", this.Id, item_id, new_items)
 
