@@ -367,7 +367,7 @@ func register_handler(account, password string, is_guest bool) (err_code int32, 
 	return
 }
 
-func bind_new_account_handler(server_id int32, account, password, new_account, new_password string) (err_code int32, resp_data []byte) {
+func bind_new_account_handler(server_id int32, account, password, new_account, new_password, new_channel string) (err_code int32, resp_data []byte) {
 	if account == new_account {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NAME_MUST_DIFFRENT_TO_OLD)
 		log.Error("Account %v can not bind same new account", account)
@@ -404,9 +404,22 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 		return
 	}
 
-	err_code = _check_register(new_account, new_password)
-	if err_code < 0 {
-		return
+	if new_channel != "" {
+		if new_channel == "facebook" {
+			err_code = _verify_facebook_login(new_account, new_password)
+			if err_code < 0 {
+				return
+			}
+		} else {
+			err_code = -1
+			log.Error("Account %v bind a unsupported channel %v account %v", account, new_channel, new_account)
+			return
+		}
+	} else {
+		err_code = _check_register(new_account, new_password)
+		if err_code < 0 {
+			return
+		}
 	}
 
 	row.SetBindNewAccount(new_account)
@@ -420,7 +433,9 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 		return
 	}
 
-	row.SetPassword(new_password)
+	if new_channel == "" {
+		row.SetPassword(new_password)
+	}
 	row.SetRegisterTime(register_time)
 	row.SetUniqueId(uid)
 	//dbc.Accounts.RemoveRow(account) // 暂且不删除
@@ -443,6 +458,7 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 		Account:     account,
 		NewAccount:  new_account,
 		NewPassword: new_password,
+		NewChannel:  new_channel,
 	}
 
 	var err error
@@ -827,16 +843,12 @@ func bind_new_account_http_handler(w http.ResponseWriter, r *http.Request) {
 	}
 	account := r.URL.Query().Get("account")
 	password := r.URL.Query().Get("password")
-	/*if password == "" {
-		response_error(-1, w)
-		log.Error("password can not set to empty")
-		return
-	}*/
 
 	new_account := r.URL.Query().Get("new_account")
 	new_password := r.URL.Query().Get("new_password")
+	new_channel := r.URL.Query().Get("new_channel")
 
-	err_code, data := bind_new_account_handler(int32(server_id), account, password, new_account, new_password)
+	err_code, data := bind_new_account_handler(int32(server_id), account, password, new_account, new_password, new_channel)
 	if err_code < 0 {
 		response_error(err_code, w)
 		log.Error("login_http_handler err_code[%v]", err_code)

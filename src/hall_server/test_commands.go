@@ -2025,13 +2025,25 @@ func guild_stage_respawn_cmd(p *Player, args []string) int32 {
 }
 
 func test_short_rank_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var num int
+	var err error
+	num, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
 	var rank_list utils.ShortRankList
-	rank_list.Init(300)
+	rank_list.Init(int32(num))
 
 	var test_item utils.TestShortRankItem
 	rand.Seed(time.Now().Unix())
 	for i := 0; i < 30000; i++ {
-		o, id := rand31n_from_range(1, 300)
+		o, id := rand31n_from_range(1, int32(num))
 		if !o {
 			log.Error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 			break
@@ -2042,6 +2054,24 @@ func test_short_rank_cmd(p *Player, args []string) int32 {
 	}
 
 	log.Debug("Test Short Rank Item List:")
+	for r := int32(1); r <= rank_list.GetLength(); r++ {
+		k, v := rank_list.GetByRank(r)
+		idx := rank_list.GetIndex(r)
+		log.Debug("    rank: %v,  key[%v] value[%v] index[%v]", r, k, v, idx)
+	}
+
+	for i := 0; i < num/2; i++ {
+		o, id := rand31n_from_range(1, int32(num))
+		if o {
+			if !rank_list.Delete(id) {
+				log.Warn("Test Short Rank cant delete %v", id)
+			} else {
+				log.Trace("Test Short Rank deleted %v", id)
+			}
+		}
+	}
+
+	log.Debug("After deleted Test Short Rank Item List:")
 	for r := int32(1); r <= rank_list.GetLength(); r++ {
 		k, v := rank_list.GetByRank(r)
 		idx := rank_list.GetIndex(r)

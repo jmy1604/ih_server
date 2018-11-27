@@ -188,6 +188,7 @@ func check_apple_order_exist(order_id string) bool {
 
 func (this *Player) _charge_month_card_award(month_card *table_config.XmlPayItem, now_time time.Time) (send_num int32) {
 	var bonus []int32 = []int32{ITEM_RESOURCE_ID_DIAMOND, month_card.MonthCardReward}
+	// 大月卡
 	if month_card.Id == 2 {
 		vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
 		if vip_info != nil && vip_info.MonthCardItemBonus != nil && len(vip_info.MonthCardItemBonus) > 0 {

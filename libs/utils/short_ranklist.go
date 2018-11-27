@@ -148,6 +148,7 @@ func (this *ShortRankList) Delete(key interface{}) bool {
 
 	for i := idx; i < this.curr_num-1; i++ {
 		this.items[i] = this.items[i+1]
+		this.keys_map[this.items[i+1].GetKey()] = i
 	}
 	this.items[this.curr_num-1] = nil
 
@@ -174,7 +175,11 @@ func (this *ShortRankList) GetRank(key interface{}) (rank int32) {
 	this.locker.RLock()
 	defer this.locker.RUnlock()
 
-	rank, _ = this.keys_map[key]
+	var o bool
+	rank, o = this.keys_map[key]
+	if !o {
+		return
+	}
 	rank += 1
 	return
 }
