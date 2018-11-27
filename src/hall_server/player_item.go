@@ -76,7 +76,7 @@ func (this *Player) add_item(id int32, count int32) bool {
 		var vip_count int32
 		vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
 		if vip_info != nil {
-			vip_count = count * vip_info.HonorPointBonus / 10000
+			vip_count = int32(float32(count) * (float32(vip_info.HonorPointBonus) / 10000))
 		}
 		count += vip_count
 	}
