@@ -138,7 +138,7 @@ func (this *Player) touch_gold(t int32) int32 {
 	var vip_gold int32
 	vip_info := vip_table_mgr.Get(this.db.Info.GetVipLvl())
 	if vip_info != nil {
-		vip_gold = gold * vip_info.GoldFingerBonus / 10000
+		vip_gold = int32(int64(gold) * int64(vip_info.GoldFingerBonus) / 10000)
 	}
 
 	this.add_gold(gold + vip_gold)
