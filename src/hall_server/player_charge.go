@@ -117,14 +117,16 @@ const (
 type RedisPayInfo struct {
 	OrderId  string
 	BundleId string
+	Account  string
 	PlayerId int32
 	PayTime  int32
 }
 
-func google_pay_save(order_id, bundle_id string, player_id int32) {
+func google_pay_save(order_id, bundle_id, account string, player_id int32) {
 	var pay RedisPayInfo
 	pay.OrderId = order_id
 	pay.BundleId = bundle_id
+	pay.Account = account
 	pay.PlayerId = player_id
 	pay.PayTime = int32(time.Now().Unix())
 
@@ -155,10 +157,11 @@ func check_google_order_exist(order_id string) bool {
 	return true
 }
 
-func apple_pay_save(order_id, bundle_id string, player_id int32) {
+func apple_pay_save(order_id, bundle_id, account string, player_id int32) {
 	var pay RedisPayInfo
 	pay.OrderId = order_id
 	pay.BundleId = bundle_id
+	pay.Account = account
 	pay.PlayerId = player_id
 	pay.PayTime = int32(time.Now().Unix())
 	bytes, err := json.Marshal(&pay)
@@ -422,7 +425,7 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_SIGNATURE_INVALID)
 	}
 
-	google_pay_save(data.OrderId, bundle_id, this.Id)
+	google_pay_save(data.OrderId, bundle_id, this.Account, this.Id)
 
 	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 
@@ -528,7 +531,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_VERIFY_NO_PASS)
 	}
 
-	apple_pay_save(tmp_res.Receipt.TransactionId, bundle_id, this.Id)
+	apple_pay_save(tmp_res.Receipt.TransactionId, bundle_id, this.Account, this.Id)
 
 	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 
