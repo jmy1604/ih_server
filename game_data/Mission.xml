@@ -81,15 +81,15 @@
      <item Id="21158" Type="2" EventId="210" EventParam="5" CompleteNum="5" Prev="21157" Next="21159" Reward="1,200000,3,300" Hyperlink="0" />
      <item Id="21159" Type="2" EventId="210" EventParam="6" CompleteNum="1" Prev="21158" Next="21160" Reward="1,500000,3,400" Hyperlink="0" />
      <item Id="21160" Type="2" EventId="210" EventParam="6" CompleteNum="5" Prev="21159" Next="" Reward="1,1000000,3,600" Hyperlink="0" />
-     <item Id="21171" Type="2" EventId="209" EventParam="1" CompleteNum="0" Prev="" Next="21172" Reward="12005,1,13005,1" Hyperlink="0" />
-     <item Id="21172" Type="2" EventId="209" EventParam="2" CompleteNum="0" Prev="21171" Next="21173" Reward="10005,1,11005,1" Hyperlink="0" />
-     <item Id="21173" Type="2" EventId="209" EventParam="3" CompleteNum="0" Prev="21172" Next="21174" Reward="13007,1,53056,10" Hyperlink="0" />
-     <item Id="21174" Type="2" EventId="209" EventParam="4" CompleteNum="0" Prev="21173" Next="21175" Reward="12007,1,53056,10" Hyperlink="0" />
-     <item Id="21175" Type="2" EventId="209" EventParam="5" CompleteNum="0" Prev="21174" Next="21176" Reward="11007,1,53056,10" Hyperlink="0" />
-     <item Id="21176" Type="2" EventId="209" EventParam="6" CompleteNum="0" Prev="21175" Next="21177" Reward="10007,1,53056,20" Hyperlink="0" />
-     <item Id="21177" Type="2" EventId="209" EventParam="7" CompleteNum="0" Prev="21176" Next="21178" Reward="13009,1,52056,20" Hyperlink="0" />
-     <item Id="21178" Type="2" EventId="209" EventParam="8" CompleteNum="0" Prev="21177" Next="21179" Reward="12009,1,52056,30" Hyperlink="0" />
-     <item Id="21179" Type="2" EventId="209" EventParam="9" CompleteNum="0" Prev="21178" Next="21180" Reward="11009,1,53056,50" Hyperlink="0" />
-     <item Id="21180" Type="2" EventId="209" EventParam="10" CompleteNum="0" Prev="21179" Next="21181" Reward="10009,1,52056,50" Hyperlink="0" />
+     <item Id="21171" Type="2" EventId="209" EventParam="1" CompleteNum="0" Prev="" Next="21172" Reward="12006,1,13006,1" Hyperlink="0" />
+     <item Id="21172" Type="2" EventId="209" EventParam="2" CompleteNum="0" Prev="21171" Next="21173" Reward="10006,1,11006,1" Hyperlink="0" />
+     <item Id="21173" Type="2" EventId="209" EventParam="3" CompleteNum="0" Prev="21172" Next="21174" Reward="13009,1,53056,10" Hyperlink="0" />
+     <item Id="21174" Type="2" EventId="209" EventParam="4" CompleteNum="0" Prev="21173" Next="21175" Reward="12009,1,53056,10" Hyperlink="0" />
+     <item Id="21175" Type="2" EventId="209" EventParam="5" CompleteNum="0" Prev="21174" Next="21176" Reward="11009,1,53056,10" Hyperlink="0" />
+     <item Id="21176" Type="2" EventId="209" EventParam="6" CompleteNum="0" Prev="21175" Next="21177" Reward="10009,1,53056,20" Hyperlink="0" />
+     <item Id="21177" Type="2" EventId="209" EventParam="7" CompleteNum="0" Prev="21176" Next="21178" Reward="13012,1,52056,20" Hyperlink="0" />
+     <item Id="21178" Type="2" EventId="209" EventParam="8" CompleteNum="0" Prev="21177" Next="21179" Reward="12012,1,52056,30" Hyperlink="0" />
+     <item Id="21179" Type="2" EventId="209" EventParam="9" CompleteNum="0" Prev="21178" Next="21180" Reward="11012,1,53056,50" Hyperlink="0" />
+     <item Id="21180" Type="2" EventId="209" EventParam="10" CompleteNum="0" Prev="21179" Next="21181" Reward="10012,1,52056,50" Hyperlink="0" />
      <item Id="21181" Type="2" EventId="209" EventParam="11" CompleteNum="0" Prev="21180" Next="0" Reward="15211,1,52056,100" Hyperlink="0" />
 </Config>
