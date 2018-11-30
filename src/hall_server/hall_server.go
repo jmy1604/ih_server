@@ -303,6 +303,7 @@ var pay_table_mgr table_config.PayTableMgr
 var system_unlock_table_mgr table_config.SystemUnlockTableMgr
 var accel_cost_table_mgr table_config.AccelCostTableMgr
 var mail_table_mgr table_config.MailTableMgr
+var hero_convert_table_mgr table_config.HeroConvertTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool
@@ -550,6 +551,10 @@ func table_init() error {
 
 	if !mail_table_mgr.Init("") {
 		return errors.New("mail_table_mgr init failed")
+	}
+
+	if !hero_convert_table_mgr.Init("") {
+		return errors.New("hero_convert_table_mgr init failed")
 	}
 
 	return nil

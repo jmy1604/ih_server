@@ -390,6 +390,35 @@ func (this *Player) add_resources(items []int32) {
 	}
 }
 
+func (this *Player) check_resources(items []int32) bool {
+	if items == nil {
+		return false
+	}
+
+	for i := 0; i < len(items)/2; i++ {
+		if this.get_resource(items[2*i]) < items[2*i+1] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (this *Player) cost_resources(items []int32) bool {
+	if items == nil {
+		return false
+	}
+
+	if !this.check_resources(items) {
+		return false
+	}
+
+	for i := 0; i < len(items)/2; i++ {
+		this.add_resource(items[2*i], -items[2*i+1])
+	}
+	return true
+}
+
 func (this *Player) equip(role_id, equip_id int32) int32 {
 	var n int32
 	var o bool

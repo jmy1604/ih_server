@@ -41,6 +41,10 @@ type XmlCardItem struct {
 	HeadItem             int32  `xml:"HeadItem,attr"`
 	BagFullChangeItemStr string `xml:"BagFullChangeItem,attr"`
 	BagFullChangeItem    []int32
+	ConvertId1           int32  `xml:"ConvertID1,attr"`
+	ConvertId2           int32  `xml:"ConvertID2,attr"`
+	ConvertItemStr       string `xml:"ConvertItem,attr"`
+	ConvertItem          []int32
 }
 
 type XmlCardConfig struct {
@@ -114,7 +118,12 @@ func (this *CardTableMgr) Load(table_file string) bool {
 		}
 		tmp_item.BagFullChangeItem = parse_xml_str_arr2(tmp_item.BagFullChangeItemStr, ",")
 		if tmp_item.BagFullChangeItem == nil {
-			log.Error("CardTableMgr parse BagFullChangeItem with[%v] failed", tmp_item.BagFullChangeItem)
+			log.Error("CardTableMgr parse BagFullChangeItem with [%v] failed", tmp_item.BagFullChangeItemStr)
+			return false
+		}
+		tmp_item.ConvertItem = parse_xml_str_arr2(tmp_item.ConvertItemStr, ",")
+		if tmp_item.ConvertItem == nil {
+			log.Error("CardTableMgr parse ConvertItem with [%v] failed", tmp_item.ConvertItemStr)
 			return false
 		}
 

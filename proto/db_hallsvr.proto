@@ -27,6 +27,12 @@ message PlayerItemList{
 	repeated PlayerItem List=1;
 }
 
+message PlayerRoleCommon{
+	optional int32 DisplaceRoleId=1;
+	optional int32 DisplacedNewRoleTableId=2;
+	optional int32 DisplaceGroupId=3;
+}
+
 message PlayerRole{
 	optional int32 Id=1;
 	optional int32 TableId=2;

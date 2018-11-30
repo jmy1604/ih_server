@@ -82,6 +82,9 @@ enum E_ERR {
 	PLAYER_ROLE_LEFT_SLOT_DROP_FAILED		= -12017; // 角色左槽掉落失败
 	PLAYER_ROLE_OPEN_LEFTSLOT_LEVEL_NOT_ENOUGH = -12018; // 角色左槽开启等级不够
 	PLAYER_ROLE_LEFT_SLOT_ALREADY_OPENED	= -12019; // 角色左槽已激活
+	PLAYER_ROLE_DISPLACE_TABLE_DATA_INVALID = -12020; // 角色置换配置数据非法
+	PLAYER_ROLE_DISPLACE_FAILED				= -12021; // 角色置换失败，未获得新的角色
+	PLAYER_ROLE_DISPLACE_CONFIRM_FAILED     = -12022; // 角色置换确认失败
 	
 	// 关卡
 	PLAYER_STAGE_TABLE_DATA_NOT_FOUND		= -13000; // 关卡数据找不到
@@ -803,10 +806,6 @@ message S2CItemOneKeyUpgradeResponse {
 // 请求角色
 message C2SRolesRequest {
 }
-message AttrData {
-	int32 AttrId 							= 1;
-	int32 Value								= 2;
-}
 message Role {
 	int32 Id								= 1;
 	int32 TableId							= 2;
@@ -953,6 +952,24 @@ message S2CRoleLeftSlotResultCancelResponse {
 	int32 RoleId							= 1;
 }
 
+// 角色置换
+message C2SRoleDisplaceRequest {
+	int32 GroupId							= 1; // 组ID
+	int32 RoleId							= 2; // 被置换的角色ID
+}
+
+message S2CRoleDisplaceResponse {
+	int32 GroupId							= 1; // 组ID
+	int32 RoleId							= 2; // 被置换的角色ID
+	int32 NewRoleTableId					= 3; // 新置换的角色配置ID
+}
+
+// 角色置换确认
+message C2SRoleDisplaceConfirmRequest {
+}
+
+message S2CRoleDisplaceConfirmResponse {
+}
 
 // --------------------------------- 邮件 -------------------------------------
 // 发送邮件

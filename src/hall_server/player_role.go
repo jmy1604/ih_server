@@ -1322,6 +1322,108 @@ func (this *Player) get_defense_team_power() (power int32) {
 	return
 }
 
+func (this *Player) role_displace(group_id, role_id int32) int32 {
+	group := hero_convert_table_mgr.GetGroup(group_id)
+	if group == nil {
+		log.Error("Role Displace Group %v not found", group_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_DISPLACE_TABLE_DATA_INVALID)
+	}
+	role_table_id, o := this.db.Roles.GetTableId(role_id)
+	if !o {
+		log.Error("Player[%v] role %v not found", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+	rank, _ := this.db.Roles.GetRank(role_id)
+	card := card_table_mgr.GetRankCard(role_table_id, rank)
+	if card == nil {
+		log.Error("Card with table_id[%v] and rank[%v] not found", role_table_id, rank)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_TABLE_ID_NOT_FOUND)
+	}
+	if card.ConvertId1 != group_id && card.ConvertId2 != group_id {
+		log.Error("Player[%v] role %v cant displace with group_id %v", this.Id, role_id, group_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_DISPLACE_TABLE_DATA_INVALID)
+	}
+
+	if !this.check_resources(card.ConvertItem) {
+		log.Error("Player[%v] not enough resource, cant displace role %v with group id %v", this.Id, role_id, group_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
+	}
+
+	r := group.TotalWeight
+	var index int = -1
+	for i := 0; i < len(group.HeroItems); i++ {
+		if role_table_id == group.HeroItems[i].HeroId {
+			index = i
+			r -= group.HeroItems[i].Weight
+			break
+		}
+	}
+
+	var new_table_id int32
+	r = rand.Int31n(r)
+	for i := 0; i < len(group.HeroItems); i++ {
+		if index == i {
+			continue
+		}
+		if r < group.HeroItems[i].Weight {
+			new_table_id = group.HeroItems[i].HeroId
+			break
+		}
+		r -= group.HeroItems[i].Weight
+	}
+
+	if new_table_id == 0 {
+		log.Error("Player[%v] displace role %v with group_id %v failed", this.Id, role_id, group_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_DISPLACE_FAILED)
+	}
+
+	this.db.RoleCommon.SetDisplaceRoleId(role_id)
+	this.db.RoleCommon.SetDisplacedNewRoleTableId(new_table_id)
+	this.db.RoleCommon.SetDisplaceGroupId(group_id)
+
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_DISPLACE_RESPONSE), &msg_client_message.S2CRoleDisplaceResponse{
+		GroupId:        group_id,
+		RoleId:         role_id,
+		NewRoleTableId: new_table_id,
+	})
+
+	log.Trace("Player[%v] displace role %v and get new table id %v", this.Id, role_id, new_table_id)
+
+	return 1
+}
+
+func (this *Player) role_displace_confirm() int32 {
+	displace_role_id := this.db.RoleCommon.GetDisplaceRoleId()
+	displaced_new_table_id := this.db.RoleCommon.GetDisplacedNewRoleTableId()
+	group_id := this.db.RoleCommon.GetDisplaceGroupId()
+	if displace_role_id == 0 || displaced_new_table_id == 0 || group_id == 0 {
+		log.Error("Player[%v] no displaced role", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_DISPLACE_CONFIRM_FAILED)
+	}
+
+	role_table_id, _ := this.db.Roles.GetTableId(displace_role_id)
+	role_rank, _ := this.db.Roles.GetRank(displace_role_id)
+	card := card_table_mgr.GetRankCard(role_table_id, role_rank)
+	if card == nil {
+		log.Error("Cant get card with card id %v and rank %v", role_table_id, role_rank)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_TABLE_ID_NOT_FOUND)
+	}
+
+	this.cost_resources(card.ConvertItem)
+
+	this.db.Roles.SetTableId(displace_role_id, displaced_new_table_id)
+	this.db.RoleCommon.SetDisplaceRoleId(0)
+	this.db.RoleCommon.SetDisplacedNewRoleTableId(0)
+	this.db.RoleCommon.SetDisplaceGroupId(0)
+
+	this.roles_id_change_info.id_update(displace_role_id)
+	this.check_and_send_roles_change()
+
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_DISPLACE_CONFIRM_RESPONSE), &msg_client_message.S2CRoleDisplaceConfirmResponse{})
+
+	return 1
+}
+
 func C2SRoleAttrsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleAttrsRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -1441,4 +1543,24 @@ func C2SRoleLeftSlotResultCancelHandler(w http.ResponseWriter, r *http.Request, 
 		return -1
 	}
 	return p.role_left_slot_result_cancel()
+}
+
+func C2SRoleDisplaceHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleDisplaceRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.role_displace(req.GetGroupId(), req.GetRoleId())
+}
+
+func C2SRoleDisplaceConfirmHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleDisplaceConfirmRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.role_displace_confirm()
 }

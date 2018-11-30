@@ -66,6 +66,10 @@ enum MSGID {
 	S2C_ROLE_LEFTSLOT_RESULT_SAVE_RESPONSE	= 10074; // 请求左槽结果保存返回 S2CRoleLeftSlotResultSaveResponse
 	C2S_ROLE_LEFTSLOT_RESULT_CANCEL_REQUEST = 10075; // 请求左槽结果取消 C2SRoleLeftSlotResultCancelRequest
 	S2C_ROLE_LEFTSLOT_RESULT_CANCEL_RESPONSE= 10076; // 请求左槽结果取消返回 S2CRoleLeftSlotResultCancelResponse
+	C2S_ROLE_DISPLACE_REQUEST				= 10077; // 请求置换 C2SRoleDisplaceRequest
+	S2C_ROLE_DISPLACE_RESPONSE				= 10078; // 请求置换返回 S2CRoleDisplaceResponse
+	C2S_ROLE_DISPLACE_CONFIRM_REQUEST		= 10079; // 请求置换确认 C2SRoleDisplaceConfirmRequest
+	S2C_ROLE_DISPLACE_CONFIRM_RESPONSE		= 10080; // 请求置换确认返回 S2CRoleDisplaceConfirmResponse
 	
 	C2S_BATTLE_RESULT_REQUEST				= 10100; // 战斗结果请求 C2SBattleResultRequest
 	S2C_BATTLE_RESULT_RESPONSE				= 10101; // 战斗结果请求返回 S2CBattleResultResponse

@@ -336,6 +336,33 @@ func (this* dbPlayerItemData)clone_to(d *dbPlayerItemData){
 	d.Count = this.Count
 	return
 }
+type dbPlayerRoleCommonData struct{
+	DisplaceRoleId int32
+	DisplacedNewRoleTableId int32
+	DisplaceGroupId int32
+}
+func (this* dbPlayerRoleCommonData)from_pb(pb *db.PlayerRoleCommon){
+	if pb == nil {
+		return
+	}
+	this.DisplaceRoleId = pb.GetDisplaceRoleId()
+	this.DisplacedNewRoleTableId = pb.GetDisplacedNewRoleTableId()
+	this.DisplaceGroupId = pb.GetDisplaceGroupId()
+	return
+}
+func (this* dbPlayerRoleCommonData)to_pb()(pb *db.PlayerRoleCommon){
+	pb = &db.PlayerRoleCommon{}
+	pb.DisplaceRoleId = proto.Int32(this.DisplaceRoleId)
+	pb.DisplacedNewRoleTableId = proto.Int32(this.DisplacedNewRoleTableId)
+	pb.DisplaceGroupId = proto.Int32(this.DisplaceGroupId)
+	return
+}
+func (this* dbPlayerRoleCommonData)clone_to(d *dbPlayerRoleCommonData){
+	d.DisplaceRoleId = this.DisplaceRoleId
+	d.DisplacedNewRoleTableId = this.DisplacedNewRoleTableId
+	d.DisplaceGroupId = this.DisplaceGroupId
+	return
+}
 type dbPlayerRoleData struct{
 	Id int32
 	TableId int32
@@ -2893,6 +2920,92 @@ func (this *dbPlayerItemColumn)IncbyCount(id int32,v int32)(r int32){
 	d.Count +=  v
 	this.m_changed = true
 	return d.Count
+}
+type dbPlayerRoleCommonColumn struct{
+	m_row *dbPlayerRow
+	m_data *dbPlayerRoleCommonData
+	m_changed bool
+}
+func (this *dbPlayerRoleCommonColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbPlayerRoleCommonData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerRoleCommon{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_data = &dbPlayerRoleCommonData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerRoleCommonColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerRoleCommonColumn)Get( )(v *dbPlayerRoleCommonData ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleCommonColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbPlayerRoleCommonData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbPlayerRoleCommonColumn)Set(v dbPlayerRoleCommonData ){
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleCommonColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbPlayerRoleCommonData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbPlayerRoleCommonColumn)GetDisplaceRoleId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleCommonColumn.GetDisplaceRoleId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.DisplaceRoleId
+	return
+}
+func (this *dbPlayerRoleCommonColumn)SetDisplaceRoleId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleCommonColumn.SetDisplaceRoleId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.DisplaceRoleId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerRoleCommonColumn)GetDisplacedNewRoleTableId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleCommonColumn.GetDisplacedNewRoleTableId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.DisplacedNewRoleTableId
+	return
+}
+func (this *dbPlayerRoleCommonColumn)SetDisplacedNewRoleTableId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleCommonColumn.SetDisplacedNewRoleTableId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.DisplacedNewRoleTableId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerRoleCommonColumn)GetDisplaceGroupId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleCommonColumn.GetDisplaceGroupId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.DisplaceGroupId
+	return
+}
+func (this *dbPlayerRoleCommonColumn)SetDisplaceGroupId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleCommonColumn.SetDisplaceGroupId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.DisplaceGroupId = v
+	this.m_changed = true
+	return
 }
 type dbPlayerRoleColumn struct{
 	m_row *dbPlayerRow
@@ -10248,6 +10361,7 @@ type dbPlayerRow struct {
 	Info dbPlayerInfoColumn
 	Global dbPlayerGlobalColumn
 	Items dbPlayerItemColumn
+	RoleCommon dbPlayerRoleCommonColumn
 	Roles dbPlayerRoleColumn
 	RoleHandbook dbPlayerRoleHandbookColumn
 	BattleTeam dbPlayerBattleTeamColumn
@@ -10313,6 +10427,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.Global.m_data=&dbPlayerGlobalData{}
 	this.Items.m_row=this
 	this.Items.m_data=make(map[int32]*dbPlayerItemData)
+	this.RoleCommon.m_row=this
+	this.RoleCommon.m_data=&dbPlayerRoleCommonData{}
 	this.Roles.m_row=this
 	this.Roles.m_data=make(map[int32]*dbPlayerRoleData)
 	this.RoleHandbook.m_row=this
@@ -10418,7 +10534,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(57)
+		db_args:=new_db_args(58)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_UniqueId)
 		db_args.Push(this.m_Account)
@@ -10443,6 +10559,12 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dItems)
+		dRoleCommon,db_err:=this.RoleCommon.save()
+		if db_err!=nil{
+			log.Error("insert save RoleCommon failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dRoleCommon)
 		dRoles,db_err:=this.Roles.save()
 		if db_err!=nil{
 			log.Error("insert save Role failed")
@@ -10734,9 +10856,9 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed{
+		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(57)
+			db_args:=new_db_args(58)
 			if this.m_UniqueId_changed{
 				update_string+="UniqueId=?,"
 				db_args.Push(this.m_UniqueId)
@@ -10783,6 +10905,15 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 					return err,false,0,"",nil
 				}
 				db_args.Push(dItems)
+			}
+			if this.RoleCommon.m_changed{
+				update_string+="RoleCommon=?,"
+				dRoleCommon,err:=this.RoleCommon.save()
+				if err!=nil{
+					log.Error("update save RoleCommon failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dRoleCommon)
 			}
 			if this.Roles.m_changed{
 				update_string+="Roles=?,"
@@ -11232,6 +11363,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.Info.m_changed = false
 	this.Global.m_changed = false
 	this.Items.m_changed = false
+	this.RoleCommon.m_changed = false
 	this.Roles.m_changed = false
 	this.RoleHandbook.m_changed = false
 	this.BattleTeam.m_changed = false
@@ -11440,6 +11572,14 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Items LONGBLOB")
 		if err != nil {
 			log.Error("ADD COLUMN Items failed")
+			return
+		}
+	}
+	_, hasRoleCommon := columns["RoleCommon"]
+	if !hasRoleCommon {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN RoleCommon LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN RoleCommon failed")
 			return
 		}
 	}
@@ -11830,7 +11970,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -11838,7 +11978,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -11891,6 +12031,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dInfo []byte
 	var dGlobal []byte
 	var dItems []byte
+	var dRoleCommon []byte
 	var dRoles []byte
 	var dRoleHandbook []byte
 	var dBattleTeam []byte
@@ -11941,7 +12082,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dGuideData []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData)
+		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -11968,6 +12109,11 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.Items.load(dItems)
 		if err != nil {
 			log.Error("Items %v", PlayerId)
+			return
+		}
+		err = row.RoleCommon.load(dRoleCommon)
+		if err != nil {
+			log.Error("RoleCommon %v", PlayerId)
 			return
 		}
 		err = row.Roles.load(dRoles)

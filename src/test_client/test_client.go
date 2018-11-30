@@ -359,7 +359,19 @@ func select_server_func(account string, token string, server_id int32) {
 		return
 	}
 
-	cur_hall_conn := new_hall_connect(msg.GetIP(), account, msg.GetToken(), config.UseHttps)
+	strs := strings.Split(msg.GetIP(), ":")
+	if len(strs) == 0 {
+		log.Error("cant get game server port from ip %v", msg.GetIP())
+		return
+	}
+
+	var ip string
+	if config.UseHttps {
+		ip = fmt.Sprintf("https://%v:%v", strings.Split(config.LoginServerIP, ":")[0], strs[len(strs)-1])
+	} else {
+		ip = fmt.Sprintf("http://%v:%v", strings.Split(config.LoginServerIP, ":")[0], strs[len(strs)-1])
+	}
+	cur_hall_conn := new_hall_connect(ip, account, msg.GetToken(), config.UseHttps)
 	hall_conn_mgr.AddHallConn(cur_hall_conn)
 	req2s := &msg_client_message.C2SEnterGameRequest{}
 	req2s.Acc = account
