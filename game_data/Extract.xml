@@ -7,4 +7,10 @@
      <item Id="5" DropID="300003,1" ResCondition1="9,100" ResCondition2="" FreeExtractTime="0" NeedBlank="1" FirstDropID="" />
      <item Id="6" DropID="300003,10" ResCondition1="9,1000" ResCondition2="" FreeExtractTime="0" NeedBlank="10" FirstDropID="" />
      <item Id="11" DropID="300005,1" ResCondition1="17,1000" ResCondition2="" FreeExtractTime="0" NeedBlank="1" FirstDropID="" />
+     <item Id="101" DropID="300051,1,300033,1" ResCondition1="22,1" ResCondition2="" FreeExtractTime="0" NeedBlank="0" FirstDropID="" />
+     <item Id="102" DropID="300052,1,300033,1" ResCondition1="22,1" ResCondition2="" FreeExtractTime="0" NeedBlank="0" FirstDropID="" />
+     <item Id="103" DropID="300053,1,300033,1" ResCondition1="22,1" ResCondition2="" FreeExtractTime="0" NeedBlank="0" FirstDropID="" />
+     <item Id="104" DropID="300054,1,300033,1" ResCondition1="22,1" ResCondition2="" FreeExtractTime="0" NeedBlank="0" FirstDropID="" />
+     <item Id="105" DropID="300055,1,300033,1" ResCondition1="22,1" ResCondition2="" FreeExtractTime="0" NeedBlank="0" FirstDropID="" />
+     <item Id="106" DropID="300056,1,300033,1" ResCondition1="22,1" ResCondition2="" FreeExtractTime="0" NeedBlank="0" FirstDropID="" />
 </Config>
