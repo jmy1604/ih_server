@@ -18,6 +18,7 @@ type ConnTimerWheel struct {
 	timer_lists      []*ConnTimerList
 	curr_timer_index int32
 	last_check_time  int32
+	last_players_num int32
 	players          map[int32]*ConnTimerPlayer
 	op_chan          chan *conn_op_data
 }
@@ -160,6 +161,12 @@ func (this *ConnTimerWheel) Run() {
 			}
 			this.curr_timer_index = idx
 			this.last_check_time = now_time
+		}
+
+		curr_num := int32(len(this.players))
+		if this.last_players_num != curr_num {
+			this.last_players_num = curr_num
+			log.Trace("{@} Server Players Num: %v", curr_num)
 		}
 
 		time.Sleep(time.Second * 1)

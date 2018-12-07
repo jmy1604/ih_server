@@ -651,7 +651,7 @@ func (this *Player) guild_search(key string) int32 {
 }
 
 // 公会创建
-func (this *Player) guild_create(name string, logo int32) int32 {
+func (this *Player) guild_create(name, anouncement string, logo int32) int32 {
 	if this.db.Info.GetLvl() < global_config.GuildOpenLevel {
 		log.Error("Player[%v] cant create guild because level not enough", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ENOUGH_LEVEL_TO_OPEN)
@@ -674,6 +674,8 @@ func (this *Player) guild_create(name string, logo int32) int32 {
 	if guild == nil {
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
+	guild.SetAnouncement(anouncement)
+
 	guild_msg := this._format_guild_info_to_msg(guild)
 	response := &msg_client_message.S2CGuildCreateResponse{
 		Info: guild_msg,
@@ -1717,7 +1719,7 @@ func C2SGuildCreateHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 		return -1
 	}
 
-	return p.guild_create(req.GetGuildName(), req.GetGuildLogo())
+	return p.guild_create(req.GetGuildName(), string(req.GetAnouncement()), req.GetGuildLogo())
 }
 
 func C2SGuildDismissHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

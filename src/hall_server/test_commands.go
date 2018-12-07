@@ -1755,7 +1755,7 @@ func guild_create_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return p.guild_create(name, int32(logo))
+	return p.guild_create(name, "", int32(logo))
 }
 
 func guild_dismiss_cmd(p *Player, args []string) int32 {
