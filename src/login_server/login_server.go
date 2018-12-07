@@ -396,6 +396,7 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	if row.GetBindNewAccount() != "" {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_ALREADY_BIND)
 		log.Error("Account %v already bind", account)
+		return
 	}
 
 	if dbc.Accounts.GetRow(new_account) != nil {
