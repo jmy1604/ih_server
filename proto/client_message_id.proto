@@ -333,4 +333,10 @@ enum MSGID {
 	C2S_GUIDE_DATA_SAVE_REQUEST				= 12400; // 保存引导数据 C2SGuideDataSaveRequest
 	S2C_GUIDE_DATA_SAVE_RESPONSE			= 12401; // 保存引导数据返回 S2CGuideDataSaveResponse
 	S2C_GUIDE_DATA_RESPONSE					= 12410; // 引导数据 S2CGuideDataResponse
+	
+	C2S_ACTIVITY_DATA_REQUEST				= 12500; // 活动数据 C2SActivityDataRequest
+	S2C_ACTIVITY_DATA_RESPONSE				= 12501; // 活动数据返回 S2CActivityDataResponse
+	C2S_ACTIVITY_CHARGE_REQUEST             = 12502; // 充值 C2SActivityChargeRequest
+	S2C_ACTIVITY_CHARGE_RESPONSE            = 12503; // 充值返回 S2CActivityChargeResponse
+	S2C_ACTIVITY_DATA_NOTIFY				= 12504; // 充值数据通知 S2CActivityDataNotify
 }

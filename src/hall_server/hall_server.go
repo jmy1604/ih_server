@@ -158,6 +158,8 @@ func (this *HallServer) Run() {
 
 	go charge_month_card_manager.Run()
 
+	go activity_mgr.Run()
+
 	for {
 		select {
 		case d, ok := <-this.ticker.Chan:
@@ -304,6 +306,8 @@ var system_unlock_table_mgr table_config.SystemUnlockTableMgr
 var accel_cost_table_mgr table_config.AccelCostTableMgr
 var mail_table_mgr table_config.MailTableMgr
 var hero_convert_table_mgr table_config.HeroConvertTableMgr
+var activity_table_mgr table_config.ActivityTableMgr
+var sub_activity_table_mgr table_config.SubActivityTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool
@@ -555,6 +559,14 @@ func table_init() error {
 
 	if !hero_convert_table_mgr.Init("") {
 		return errors.New("hero_convert_table_mgr init failed")
+	}
+
+	if !activity_table_mgr.Init("") {
+		return errors.New("activity_table_mgr init failed")
+	}
+
+	if !sub_activity_table_mgr.Init("") {
+		return errors.New("sub_activity_table_mgr init failed")
 	}
 
 	return nil

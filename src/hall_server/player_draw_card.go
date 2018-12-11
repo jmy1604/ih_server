@@ -177,7 +177,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 				log.Error("Player[%v] draw type[%v] with drop_id[%v] failed", this.Id, draw_type, did)
 				return -1
 			}
-			role_ids = append(role_ids, item.GetId())
+			role_ids = append(role_ids, []int32{item.GetId(), item.GetValue()}...)
 		}
 	}
 
@@ -219,6 +219,9 @@ func (this *Player) draw_card(draw_type int32) int32 {
 		a = 2
 	}
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_DRAW_NUM, false, a, 1)
+	if a == 2 {
+		this.activity_update(ACTIVITY_EVENT_DRAW_SCORE, draw.NeedBlank, 0, 0, 0)
+	}
 
 	log.Debug("Player[%v] drawed card[%v] with draw type[%v], is free[%v]", this.Id, role_ids, draw_type, is_free)
 

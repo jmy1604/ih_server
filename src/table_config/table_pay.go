@@ -14,6 +14,7 @@ const (
 
 type XmlPayItem struct {
 	Id              int32  `xml:"ID,attr"`
+	ActivePay       int32  `xml:"ActivePay,attr"`
 	BundleId        string `xml:"BundleID,attr"`
 	GemRewardFirst  int32  `xml:"GemRewardFirst,attr"`
 	GemReward       int32  `xml:"GemReward,attr"`

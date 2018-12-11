@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto"
 	"crypto/rsa"
 	"crypto/sha1"
@@ -436,6 +437,11 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_PURCHASE_TOKEN_INVALID)
 	}*/
 
+	pay_item := pay_table_mgr.GetByBundle(bundle_id)
+	if pay_item != nil {
+		_post_talking_data(this.Account, "google pay", config.ServerName, config.InnerVersion, "google", data.OrderId, "android", "charge", "success", this.db.Info.GetLvl(), 0, "USD", pay_item.GemReward)
+	}
+
 	log.Info("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", this.Id, bundle_id, purchase_data, signature)
 
 	return 1
@@ -535,16 +541,145 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 
 	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 
+	pay_item := pay_table_mgr.GetByBundle(bundle_id)
+	if pay_item != nil {
+		_post_talking_data(this.Account, "apple pay", config.ServerName, config.InnerVersion, "apple", tmp_res.Receipt.TransactionId, "ios", "charge", "success", this.db.Info.GetLvl(), 0, "USD", pay_item.GemReward)
+	}
+
 	log.Info("Player[%v] apple pay bunder_id[%v] verify success", this.Id, bundle_id)
 
 	return 1
 }
 
-func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purchase_data []byte, extra_data []byte, index int32) int32 {
+type TalkingData struct {
+	MsgId                 string `json:"msgID"`
+	GameVersion           string `json:"gameVersion"`
+	OS                    string
+	AccountId             string `json:"accountID"`
+	Level                 int32  `json:"level"`
+	GameServer            string `json:"gameServer"`
+	OrderId               string `json:"orderID"`
+	IapId                 string `json:"iapID"`
+	CurrencyAmount        int32  `json:"currencyAmount"`
+	CurrencyType          string `json:"currencyType"`
+	VirtualCurrencyAmount int32  `json:"virtualCurrencyAmount"`
+	PaymentType           string `json:"paymentType"`
+	Status                string `json:"status"`
+	ChargeTime            int64  `json:"chargeTime"`
+	Mission               string `json:"mission"`
+}
+
+type TalkingDataStatus struct {
+	MsgId string `json:"msgID"`
+	Code  int32  `json:"code"`
+	Msg   string `json:"msg"`
+}
+
+type TalkingDataResponse struct {
+	Code       int32  `json:"code"`
+	Msg        string `json:"msg"`
+	DataStatus []*TalkingDataStatus
+}
+
+func _gzip_encode(data []byte) ([]byte, error) {
+	var (
+		buffer bytes.Buffer
+		out    []byte
+		err    error
+	)
+	writer := gzip.NewWriter(&buffer)
+	_, err = writer.Write(data)
+	if err != nil {
+		writer.Close()
+		return out, err
+	}
+	err = writer.Close()
+	if err != nil {
+		return out, err
+	}
+
+	return buffer.Bytes(), nil
+}
+
+func _post_talking_data(account, pay_type, game_server, game_version, partner, order_id, os, iap_id, status string, level, currency_amount int32, currency_type string, virtual_currency_amount int32) {
+	pay := &TalkingData{
+		MsgId:                 "Charge",
+		GameVersion:           game_version,
+		OS:                    os,
+		AccountId:             account,
+		Level:                 level,
+		GameServer:            game_server,
+		OrderId:               order_id,
+		IapId:                 iap_id,
+		CurrencyAmount:        currency_amount,
+		CurrencyType:          currency_type,
+		VirtualCurrencyAmount: virtual_currency_amount,
+		PaymentType:           pay_type,
+		Status:                status,
+		ChargeTime:            (time.Now().Unix())*1000 + time.Now().UnixNano()/(1000*1000),
+	}
+	bytes, err := json.Marshal([]*TalkingData{pay})
+	if err != nil {
+		log.Error("Account %v serialize TalkingData[%v] error[%v]", account, pay, err.Error())
+		return
+	}
+	bytes, err = _gzip_encode(bytes)
+	if err != nil {
+		log.Error("Account %v talking data gzip encode %v error %v", account, bytes, err.Error())
+		return
+	}
+	req, err := http.NewRequest("POST", "http://api.talkinggame.com/api/charge/78B77DA4D9BE48599D6482350A9B8976", strings.NewReader(string(bytes)))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if err != nil {
+		log.Error("Account %v talking data new request err %v", account, err.Error())
+		return
+	}
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Error("Account %v post talking data request err %v", account, err.Error())
+		return
+	}
+
+	var body []byte
+	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("Account %v read talking data response err %v", account, err.Error())
+		return
+	}
+
+	var tr TalkingDataResponse
+	err = json.Unmarshal(body, &tr)
+	if err != nil {
+		log.Error("Account %v unmarshal talking data resposne error %v", account, err.Error())
+		return
+	}
+
+	if tr.Code != 100 {
+		log.Error("Account %v post talking data with order_id %v error %v", account, order_id, tr.Code)
+		return
+	}
+
+	if tr.DataStatus != nil && len(tr.DataStatus) > 0 {
+		if tr.DataStatus[0].Code != 1 {
+			log.Error("Account %v post talking data with order_id %v to only data error %v", account, order_id, tr.DataStatus[0].Code)
+			return
+		}
+	}
+
+	log.Trace("Account %v posted talking data payment order id %v", account, order_id)
+}
+
+func (this *Player) _charge_with_bundle_id(is_activity bool, channel int32, bundle_id string, purchase_data []byte, extra_data []byte, index int32) (int32, bool) {
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
 	if pay_item == nil {
 		log.Error("pay %v table data not found", bundle_id)
-		return int32(msg_client_message.E_ERR_CHARGE_TABLE_DATA_NOT_FOUND)
+		return int32(msg_client_message.E_ERR_CHARGE_TABLE_DATA_NOT_FOUND), false
+	}
+
+	if (is_activity && pay_item.ActivePay == 0) || (!is_activity && pay_item.ActivePay != 0) {
+		return -1, false
 	}
 
 	var has bool
@@ -554,7 +689,7 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 			mail_num, o := this.db.Pays.GetSendMailNum(bundle_id)
 			if o && mail_num < 30 {
 				log.Error("Player[%v] payed month card %v is using, not outdate", this.Id, bundle_id)
-				return int32(msg_client_message.E_ERR_CHARGE_MONTH_CARD_ALREADY_PAYED)
+				return int32(msg_client_message.E_ERR_CHARGE_MONTH_CARD_ALREADY_PAYED), false
 			}
 		}
 	}
@@ -562,16 +697,16 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 	if channel == 1 {
 		err_code := this.verify_google_purchase_data(bundle_id, purchase_data, extra_data)
 		if err_code < 0 {
-			return err_code
+			return err_code, false
 		}
 	} else if channel == 2 {
 		err_code := this.verify_apple_purchase_data(bundle_id, purchase_data)
 		if err_code < 0 {
-			return err_code
+			return err_code, false
 		}
 	} else if channel != 0 {
 		log.Error("Player[%v] charge channel[%v] invalid", this.Id, channel)
-		return int32(msg_client_message.E_ERR_CHARGE_CHANNEL_INVALID)
+		return int32(msg_client_message.E_ERR_CHARGE_CHANNEL_INVALID), false
 	}
 
 	if has {
@@ -603,9 +738,18 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_FIRST_REWARD_NOTIFY), notify)
 	}
 
+	return 1, !has
+}
+
+func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purchase_data []byte, extra_data []byte, index int32) int32 {
+	res, is_first := this._charge_with_bundle_id(false, channel, bundle_id, purchase_data, extra_data, index)
+	if res < 0 {
+		return res
+	}
+
 	response := &msg_client_message.S2CChargeResponse{
 		BundleId:    bundle_id,
-		IsFirst:     !has,
+		IsFirst:     is_first,
 		ClientIndex: index,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_RESPONSE), response)

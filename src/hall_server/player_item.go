@@ -210,6 +210,11 @@ func (this *Player) add_diamond(add int32) int32 {
 		}
 		this.db.Info.SetDiamond(result)
 	}
+
+	if add < 0 {
+		this.activity_update(ACTIVITY_EVENT_DIAMOND_COST, -add, 0, 0, 0)
+	}
+
 	if add != 0 {
 		this.b_base_prop_chg = true
 	}

@@ -2193,6 +2193,10 @@ func role_displace_confirm_cmd(p *Player, args []string) int32 {
 	return p.role_displace_confirm()
 }
 
+func activity_data_cmd(p *Player, args []string) int32 {
+	return p.activity_data()
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2336,6 +2340,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"reconnect":              reconnect_cmd,
 	"role_displace":          role_displace_cmd,
 	"role_displace_confirm":  role_displace_confirm_cmd,
+	"activity_data":          activity_data_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

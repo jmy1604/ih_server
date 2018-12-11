@@ -321,6 +321,16 @@ func _generate_account_uuid(account string) string {
 }
 
 func register_handler(account, password string, is_guest bool) (err_code int32, resp_data []byte) {
+	if len(account) > 128 {
+		log.Error("Account[%v] length %v too long", account, len(account))
+		return -1, nil
+	}
+
+	if len(password) > 32 {
+		log.Error("Account[%v] password[%v] length %v too long", account, password, len(password))
+		return -1, nil
+	}
+
 	if dbc.Accounts.GetRow(account) != nil {
 		log.Error("Account[%v] already exists", account)
 		return int32(msg_client_message.E_ERR_ACCOUNT_ALREADY_REGISTERED), nil
@@ -368,6 +378,16 @@ func register_handler(account, password string, is_guest bool) (err_code int32, 
 }
 
 func bind_new_account_handler(server_id int32, account, password, new_account, new_password, new_channel string) (err_code int32, resp_data []byte) {
+	if len(new_account) > 128 {
+		log.Error("Account[%v] length %v too long", new_account, len(new_account))
+		return -1, nil
+	}
+
+	if len(new_password) > 32 {
+		log.Error("Account[%v] password[%v] length %v too long", new_account, new_password, len(new_password))
+		return -1, nil
+	}
+
 	if account == new_account {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NAME_MUST_DIFFRENT_TO_OLD)
 		log.Error("Account %v can not bind same new account", account)
