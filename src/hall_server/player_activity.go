@@ -288,13 +288,12 @@ func (this *Player) activity_charge(id, sub_id, channel int32, purchase_data, ex
 		}
 	}
 
-	if d == nil {
+	if d == nil || d.EventCount <= 0 {
 		log.Error("Activity %v no sub activity %v", id, sub_id)
 		return -1
 	}
 
-	this.activity_check_and_add_sub(id, sub_id)
-	purchased_num, _ := this.db.SubActivitys.GetPurchasedNum(sub_id)
+	purchased_num, o := this.db.SubActivitys.GetPurchasedNum(sub_id)
 	if purchased_num >= d.EventCount {
 		log.Error("Player[%v] use activity %v sub %v purchased num out", this.Id, id, sub_id)
 		return -1
@@ -307,7 +306,17 @@ func (this *Player) activity_charge(id, sub_id, channel int32, purchase_data, ex
 		return res
 	}
 
-	this.db.SubActivitys.SetPurchasedNum(sub_id, purchased_num+1)
+	if !o {
+		purchased_num = 1
+		this.db.SubActivitys.Add(&dbPlayerSubActivityData{
+			SubId:        id,
+			PurchasedNum: purchased_num,
+		})
+	} else {
+		purchased_num = this.db.SubActivitys.IncbyPurchasedNum(sub_id, 1)
+	}
+
+	this.activity_check_and_add_sub(id, sub_id)
 
 	response := &msg_client_message.S2CActivityChargeResponse{
 		Id:           id,
@@ -315,37 +324,14 @@ func (this *Player) activity_charge(id, sub_id, channel int32, purchase_data, ex
 		Channel:      channel,
 		IsFirst:      is_first,
 		ClientIndex:  client_index,
-		PurchasedNum: purchased_num + 1,
+		PurchasedNum: purchased_num,
 	}
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_CHARGE_RESPONSE), response)
 
-	return 1
-}
+	log.Trace("Player[%v] charged activity %v", this.Id, response)
 
-func (this *Player) _activity_add_sub_id(id, sub_id int32) {
-	sub_ids, o := this.db.Activitys.GetSubIds(id)
-	if !o {
-		sub_ids = []int32{sub_id}
-		this.db.Activitys.Add(&dbPlayerActivityData{
-			Id:     id,
-			SubIds: sub_ids,
-		})
-	} else {
-		var found bool
-		if sub_ids != nil {
-			for _, sid := range sub_ids {
-				if sid == sub_id {
-					found = true
-					break
-				}
-			}
-			if !found {
-				sub_ids = append(sub_ids, sub_id)
-				this.db.Activitys.SetSubIds(id, sub_ids)
-			}
-		}
-	}
+	return 1
 }
 
 // 英雄活动更新
@@ -362,10 +348,10 @@ func (this *Player) activity_update_get_hero(a *table_config.XmlActivityItem, he
 		if sa.Param1 != hero_star {
 			continue
 		}
-		if sa.Param3 != hero_camp {
+		if sa.Param3 > 0 && sa.Param3 != hero_camp {
 			continue
 		}
-		if sa.Param4 != hero_type {
+		if sa.Param4 > 0 && sa.Param4 != hero_type {
 			continue
 		}
 
@@ -383,7 +369,7 @@ func (this *Player) activity_update_get_hero(a *table_config.XmlActivityItem, he
 			num = this.db.SubActivitys.IncbyHeroNum(sa_id, hero_num)
 		}
 
-		this._activity_add_sub_id(a.Id, sa_id)
+		this.activity_check_and_add_sub(a.Id, sa_id)
 
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
 			Id:    a.Id,
@@ -425,7 +411,7 @@ func (this *Player) activity_update_cost_diamond(a *table_config.XmlActivityItem
 			cost_diamond = this.db.SubActivitys.IncbyCostDiamond(sa_id, diamond)
 		}
 
-		this._activity_add_sub_id(a.Id, sa_id)
+		this.activity_check_and_add_sub(a.Id, sa_id)
 
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
 			Id:    a.Id,
@@ -471,7 +457,7 @@ func (this *Player) activity_update_explore(a *table_config.XmlActivityItem, exp
 			num = this.db.SubActivitys.IncbyExploreNum(sa_id, explore_num)
 		}
 
-		this._activity_add_sub_id(a.Id, sa_id)
+		this.activity_check_and_add_sub(a.Id, sa_id)
 
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
 			Id:    a.Id,
@@ -512,7 +498,7 @@ func (this *Player) activity_update_draw_score(a *table_config.XmlActivityItem, 
 			num = this.db.SubActivitys.IncbyDrawNum(sa_id, draw_num)
 		}
 
-		this._activity_add_sub_id(a.Id, sa_id)
+		this.activity_check_and_add_sub(a.Id, sa_id)
 
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
 			Id:    a.Id,
@@ -554,7 +540,7 @@ func (this *Player) activity_update_arena_score(a *table_config.XmlActivityItem,
 			score = this.db.SubActivitys.IncbyArenaScore(sa_id, add_score)
 		}
 
-		this._activity_add_sub_id(a.Id, sa_id)
+		this.activity_check_and_add_sub(a.Id, sa_id)
 
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
 			Id:    a.Id,
