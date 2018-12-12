@@ -2289,3 +2289,14 @@ message S2CActivityDataNotify {
 	int32 SubId								= 2; // 子ID
 	int32 Value								= 3; // 数据
 }
+
+// 活动兑换
+message C2SActivityExchangeRequest {
+	int32 Id								= 1;
+	int32 SubId								= 2;
+}
+
+message S2CActivityExchangeResponse {
+	int32 Id								= 1;
+	int32 SubId								= 2;
+}

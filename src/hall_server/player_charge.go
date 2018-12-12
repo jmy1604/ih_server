@@ -439,7 +439,7 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
 	if pay_item != nil {
-		_post_talking_data(this.Account, "google pay", config.ServerName, config.InnerVersion, "google", data.OrderId, "android", "charge", "success", this.db.Info.GetLvl(), 0, "USD", pay_item.GemReward)
+		_post_talking_data(this.Account, "google pay", config.ServerName, config.InnerVersion, "google", data.OrderId, "android", "charge", "success", this.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 
 	log.Info("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", this.Id, bundle_id, purchase_data, signature)
@@ -543,7 +543,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
 	if pay_item != nil {
-		_post_talking_data(this.Account, "apple pay", config.ServerName, config.InnerVersion, "apple", tmp_res.Receipt.TransactionId, "ios", "charge", "success", this.db.Info.GetLvl(), 0, "USD", pay_item.GemReward)
+		_post_talking_data(this.Account, "apple pay", config.ServerName, config.InnerVersion, "apple", tmp_res.Receipt.TransactionId, "ios", "charge", "success", this.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 
 	log.Info("Player[%v] apple pay bunder_id[%v] verify success", this.Id, bundle_id)
@@ -555,18 +555,18 @@ type TalkingData struct {
 	MsgId                 string `json:"msgID"`
 	GameVersion           string `json:"gameVersion"`
 	OS                    string
-	AccountId             string `json:"accountID"`
-	Level                 int32  `json:"level"`
-	GameServer            string `json:"gameServer"`
-	OrderId               string `json:"orderID"`
-	IapId                 string `json:"iapID"`
-	CurrencyAmount        int32  `json:"currencyAmount"`
-	CurrencyType          string `json:"currencyType"`
-	VirtualCurrencyAmount int32  `json:"virtualCurrencyAmount"`
-	PaymentType           string `json:"paymentType"`
-	Status                string `json:"status"`
-	ChargeTime            int64  `json:"chargeTime"`
-	Mission               string `json:"mission"`
+	AccountId             string  `json:"accountID"`
+	Level                 int32   `json:"level"`
+	GameServer            string  `json:"gameServer"`
+	OrderId               string  `json:"orderID"`
+	IapId                 string  `json:"iapID"`
+	CurrencyAmount        float64 `json:"currencyAmount"`
+	CurrencyType          string  `json:"currencyType"`
+	VirtualCurrencyAmount float64 `json:"virtualCurrencyAmount"`
+	PaymentType           string  `json:"paymentType"`
+	Status                string  `json:"status"`
+	ChargeTime            int64   `json:"chargeTime"`
+	Mission               string  `json:"mission"`
 }
 
 type TalkingDataStatus struct {
@@ -601,7 +601,7 @@ func _gzip_encode(data []byte) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-func _post_talking_data(account, pay_type, game_server, game_version, partner, order_id, os, iap_id, status string, level, currency_amount int32, currency_type string, virtual_currency_amount int32) {
+func _post_talking_data(account, pay_type, game_server, game_version, partner, order_id, os, iap_id, status string, level int32, currency_amount float64, currency_type string, virtual_currency_amount float64) {
 	pay := &TalkingData{
 		MsgId:                 "Charge",
 		GameVersion:           game_version,

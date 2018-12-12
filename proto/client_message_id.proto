@@ -339,4 +339,6 @@ enum MSGID {
 	C2S_ACTIVITY_CHARGE_REQUEST             = 12502; // 充值 C2SActivityChargeRequest
 	S2C_ACTIVITY_CHARGE_RESPONSE            = 12503; // 充值返回 S2CActivityChargeResponse
 	S2C_ACTIVITY_DATA_NOTIFY				= 12504; // 充值数据通知 S2CActivityDataNotify
+	C2S_ACTIVITY_EXCHANGE_REQUEST			= 12505; // 活动兑换 C2SActivityExchangeRequest
+	S2C_ACTIVITY_EXCHANGE_RESPONSE			= 12506; // 活动兑换返回 S2CActivityExchangeResponse
 }

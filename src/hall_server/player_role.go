@@ -1384,6 +1384,8 @@ func (this *Player) role_displace(group_id, role_id int32) int32 {
 	this.db.RoleCommon.SetDisplacedNewRoleTableId(new_table_id)
 	this.db.RoleCommon.SetDisplaceGroupId(group_id)
 
+	this.cost_resources(card.ConvertItem)
+
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_DISPLACE_RESPONSE), &msg_client_message.S2CRoleDisplaceResponse{
 		GroupId:        group_id,
 		RoleId:         role_id,
@@ -1404,15 +1406,13 @@ func (this *Player) role_displace_confirm() int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_DISPLACE_CONFIRM_FAILED)
 	}
 
-	role_table_id, _ := this.db.Roles.GetTableId(displace_role_id)
+	/*role_table_id, _ := this.db.Roles.GetTableId(displace_role_id)
 	role_rank, _ := this.db.Roles.GetRank(displace_role_id)
 	card := card_table_mgr.GetRankCard(role_table_id, role_rank)
 	if card == nil {
 		log.Error("Cant get card with card id %v and rank %v", role_table_id, role_rank)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_TABLE_ID_NOT_FOUND)
-	}
-
-	this.cost_resources(card.ConvertItem)
+	}*/
 
 	this.db.Roles.SetTableId(displace_role_id, displaced_new_table_id)
 	this.db.RoleCommon.SetDisplaceRoleId(0)

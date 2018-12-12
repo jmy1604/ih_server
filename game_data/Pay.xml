@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item ID="1" ActivePay="0" BundleID="ih.gem7" GemRewardFirst="250" GemReward="250" MonthCardDay="30" MonthCardReward="75" ItemReward="21,250" />
-     <item ID="2" ActivePay="0" BundleID="ih.gem8" GemRewardFirst="750" GemReward="750" MonthCardDay="30" MonthCardReward="300" ItemReward="21,750" />
-     <item ID="3" ActivePay="0" BundleID="ih.gem1" GemRewardFirst="100" GemReward="50" MonthCardDay="0" MonthCardReward="0" ItemReward="21,50" />
-     <item ID="4" ActivePay="0" BundleID="ih.gem2" GemRewardFirst="500" GemReward="250" MonthCardDay="0" MonthCardReward="0" ItemReward="21,250" />
-     <item ID="5" ActivePay="0" BundleID="ih.gem3" GemRewardFirst="1100" GemReward="550" MonthCardDay="0" MonthCardReward="0" ItemReward="21,500" />
-     <item ID="6" ActivePay="0" BundleID="ih.gem4" GemRewardFirst="2400" GemReward="1200" MonthCardDay="0" MonthCardReward="0" ItemReward="21,1000" />
-     <item ID="7" ActivePay="0" BundleID="ih.gem5" GemRewardFirst="6500" GemReward="3250" MonthCardDay="0" MonthCardReward="0" ItemReward="21,2500" />
-     <item ID="8" ActivePay="0" BundleID="ih.gem6" GemRewardFirst="14000" GemReward="7000" MonthCardDay="0" MonthCardReward="0" ItemReward="21,5000" />
-     <item ID="201" ActivePay="1" BundleID="ih.gem9" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="1,500000,2,500000,21,500" />
-     <item ID="202" ActivePay="1" BundleID="ih.gem10" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="1,1000000,4,500,5,500,6,500,21,1000" />
-     <item ID="203" ActivePay="1" BundleID="ih.gem11" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="1,3000000,57020,50,16,20,21,2500" />
-     <item ID="204" ActivePay="1" BundleID="ih.gem12" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="1,6000000,57020,100,22,10,21,5000" />
-     <item ID="301" ActivePay="1" BundleID="ih.gem13" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="16,10,21,500" />
-     <item ID="302" ActivePay="1" BundleID="ih.gem14" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="16,20,21,1000" />
-     <item ID="303" ActivePay="1" BundleID="ih.gem15" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="53053,50,16,30,21,2500" />
-     <item ID="304" ActivePay="1" BundleID="ih.gem16" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="53053,100,22,10,21,5000" />
+     <item ID="1" ActivePay="0" BundleID="ih.gem7" GemRewardFirst="250" GemReward="250" MonthCardDay="30" MonthCardReward="75" ItemReward="21,250" RecordGold="4.99" />
+     <item ID="2" ActivePay="0" BundleID="ih.gem8" GemRewardFirst="750" GemReward="750" MonthCardDay="30" MonthCardReward="300" ItemReward="21,750" RecordGold="14.99" />
+     <item ID="3" ActivePay="0" BundleID="ih.gem1" GemRewardFirst="100" GemReward="50" MonthCardDay="0" MonthCardReward="0" ItemReward="21,50" RecordGold="0.99" />
+     <item ID="4" ActivePay="0" BundleID="ih.gem2" GemRewardFirst="500" GemReward="250" MonthCardDay="0" MonthCardReward="0" ItemReward="21,250" RecordGold="4.99" />
+     <item ID="5" ActivePay="0" BundleID="ih.gem3" GemRewardFirst="1100" GemReward="550" MonthCardDay="0" MonthCardReward="0" ItemReward="21,500" RecordGold="9.99" />
+     <item ID="6" ActivePay="0" BundleID="ih.gem4" GemRewardFirst="2400" GemReward="1200" MonthCardDay="0" MonthCardReward="0" ItemReward="21,1000" RecordGold="19.99" />
+     <item ID="7" ActivePay="0" BundleID="ih.gem5" GemRewardFirst="6500" GemReward="3250" MonthCardDay="0" MonthCardReward="0" ItemReward="21,2500" RecordGold="49.99" />
+     <item ID="8" ActivePay="0" BundleID="ih.gem6" GemRewardFirst="14000" GemReward="7000" MonthCardDay="0" MonthCardReward="0" ItemReward="21,5000" RecordGold="99.99" />
+     <item ID="201" ActivePay="1" BundleID="ih.gem9" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="1,500000,2,500000,21,500" RecordGold="9.99" />
+     <item ID="202" ActivePay="1" BundleID="ih.gem10" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="1,1000000,4,500,5,500,6,500,21,1000" RecordGold="19.99" />
+     <item ID="203" ActivePay="1" BundleID="ih.gem11" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="1,3000000,57020,50,16,20,21,2500" RecordGold="49.99" />
+     <item ID="204" ActivePay="1" BundleID="ih.gem12" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="1,6000000,57020,100,22,10,21,5000" RecordGold="99.99" />
+     <item ID="301" ActivePay="1" BundleID="ih.gem13" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="16,10,21,500" RecordGold="9.99" />
+     <item ID="302" ActivePay="1" BundleID="ih.gem14" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="16,20,21,1000" RecordGold="19.99" />
+     <item ID="303" ActivePay="1" BundleID="ih.gem15" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="53053,50,16,30,21,2500" RecordGold="49.99" />
+     <item ID="304" ActivePay="1" BundleID="ih.gem16" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="53053,100,22,10,21,5000" RecordGold="99.99" />
 </Config>

@@ -153,6 +153,10 @@ func (this *Player) activity_data() int32 {
 	datas := activity_mgr.GetData()
 	if ids != nil {
 		for _, id := range ids {
+			if activity_table_mgr.Get(id) == nil {
+				this.db.Activitys.Remove(id)
+				continue
+			}
 			var found bool
 			if ids != nil {
 				for _, d := range datas {
@@ -269,11 +273,10 @@ func (this *Player) activity_get(id, event_type int32) (int32, *table_config.Xml
 	return 1, a
 }
 
-// 充值
-func (this *Player) activity_charge(id, sub_id, channel int32, purchase_data, extra_data []byte, client_index int32) int32 {
-	res, a := this.activity_get(id, ACTIVITY_EVENT_CHARGE)
+func (this *Player) activity_sub_get(id, sub_id, event_type int32) (int32, *table_config.XmlSubActivityItem) {
+	res, a := this.activity_get(id, event_type)
 	if res < 0 {
-		return res
+		return -1, nil
 	}
 
 	var d *table_config.XmlSubActivityItem
@@ -281,26 +284,40 @@ func (this *Player) activity_charge(id, sub_id, channel int32, purchase_data, ex
 		if sub_id == a.SubActiveList[i] {
 			sd := sub_activity_table_mgr.Get(sub_id)
 			if sd == nil {
-				return -1
+				return -1, nil
 			}
 			d = sd
 			break
 		}
 	}
 
-	if d == nil || d.EventCount <= 0 {
+	if d == nil {
+		return -1, nil
+	}
+
+	return 1, d
+}
+
+// 充值
+func (this *Player) activity_charge(id, sub_id, channel int32, purchase_data, extra_data []byte, client_index int32) int32 {
+	res, sa := this.activity_sub_get(id, sub_id, ACTIVITY_EVENT_CHARGE)
+	if res < 0 {
+		return res
+	}
+
+	if sa == nil || sa.EventCount <= 0 {
 		log.Error("Activity %v no sub activity %v", id, sub_id)
 		return -1
 	}
 
 	purchased_num, o := this.db.SubActivitys.GetPurchasedNum(sub_id)
-	if purchased_num >= d.EventCount {
+	if purchased_num >= sa.EventCount {
 		log.Error("Player[%v] use activity %v sub %v purchased num out", this.Id, id, sub_id)
 		return -1
 	}
 
 	var is_first bool
-	res, is_first = this._charge_with_bundle_id(true, channel, d.BundleID, purchase_data, extra_data, client_index)
+	res, is_first = this._charge_with_bundle_id(true, channel, sa.BundleID, purchase_data, extra_data, client_index)
 
 	if res < 0 {
 		return res
@@ -583,6 +600,45 @@ func (this *Player) activity_update(event_type, param1, param2, param3, param4 i
 	}
 }
 
+// 活动兑换
+func (this *Player) activity_exchange(id, sub_id int32) int32 {
+	res, sa := this.activity_sub_get(id, sub_id, ACTIVITY_EVENT_EXCHAGE_ITEM)
+	if res < 0 {
+		return res
+	}
+
+	if sa == nil || sa.EventCount <= 0 {
+		log.Error("Activity %v no sub activity %v", id, sub_id)
+		return -1
+	}
+
+	purchased_num, o := this.db.SubActivitys.GetPurchasedNum(sub_id)
+	if purchased_num >= sa.EventCount {
+		log.Error("Player[%v] use activity %v sub %v purchased num out", this.Id, id, sub_id)
+		return -1
+	}
+
+	if !o {
+		purchased_num = 1
+		this.db.SubActivitys.Add(&dbPlayerSubActivityData{
+			SubId:        id,
+			PurchasedNum: purchased_num,
+		})
+	} else {
+		purchased_num = this.db.SubActivitys.IncbyPurchasedNum(sub_id, 1)
+	}
+
+	this.activity_check_and_add_sub(id, sub_id)
+
+	response := &msg_client_message.S2CActivityExchangeResponse{
+		Id:    id,
+		SubId: sub_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_EXCHANGE_RESPONSE), response)
+
+	return 1
+}
+
 func C2SActivityDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SActivityDataRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -601,4 +657,14 @@ func C2SActivityChargeHandler(w http.ResponseWriter, r *http.Request, p *Player,
 		return -1
 	}
 	return p.activity_charge(req.GetId(), req.GetSubId(), req.GetChannel(), req.GetPurchaseData(), req.GetExtraData(), req.GetClientIndex())
+}
+
+func C2SActivityExchangeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SActivityExchangeRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.activity_exchange(req.GetId(), req.GetSubId())
 }

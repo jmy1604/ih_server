@@ -20,8 +20,9 @@ type XmlPayItem struct {
 	GemReward       int32  `xml:"GemReward,attr"`
 	ItemRewardStr   string `xml:"ItemReward,attr"`
 	ItemReward      []int32
-	MonthCardDay    int32 `xml:"MonthCardDay,attr"`
-	MonthCardReward int32 `xml:"MonthCardReward,attr"`
+	MonthCardDay    int32   `xml:"MonthCardDay,attr"`
+	MonthCardReward int32   `xml:"MonthCardReward,attr"`
+	RecordGold      float64 `xml:"RecordGold,attr"`
 	PayType         int32
 }
 
