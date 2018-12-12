@@ -212,7 +212,7 @@ func (this *Player) add_diamond(add int32) int32 {
 	}
 
 	if add < 0 {
-		this.activity_update(ACTIVITY_EVENT_DIAMOND_COST, -add, 0, 0, 0)
+		this.activity_update(ACTIVITY_EVENT_DIAMOND_COST, -add, 0, 0, 0, "")
 	}
 
 	if add != 0 {

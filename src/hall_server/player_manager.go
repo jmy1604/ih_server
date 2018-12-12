@@ -433,8 +433,7 @@ func (this *PlayerManager) RegMsgHandler() {
 
 	// 活动
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ACTIVITY_DATA_REQUEST), C2SActivityDataHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ACTIVITY_CHARGE_REQUEST), C2SActivityChargeHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ACTIVITY_EXCHANGE_REQUEST), C2SActivityExchangeHandler)
+	//msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ACTIVITY_EXCHANGE_REQUEST), C2SActivityExchangeHandler)
 }
 
 func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data []byte) (int32, *Player) {
@@ -512,7 +511,6 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 	p.send_teams()
 	p.send_guide_data()
 	p.send_explore_data()
-	p.charge_data()
 	p.notify_enter_complete()
 
 	log.Info("PlayerEnterGameHandler account[%s] token[%s]", req.GetAcc(), req.GetToken())

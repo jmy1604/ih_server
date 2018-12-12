@@ -220,7 +220,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 	}
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_DRAW_NUM, false, a, 1)
 	if a == 2 {
-		this.activity_update(ACTIVITY_EVENT_DRAW_SCORE, draw.NeedBlank, 0, 0, 0)
+		this.activity_update(ACTIVITY_EVENT_DRAW_SCORE, draw.NeedBlank, 0, 0, 0, "")
 	}
 
 	log.Debug("Player[%v] drawed card[%v] with draw type[%v], is free[%v]", this.Id, role_ids, draw_type, is_free)

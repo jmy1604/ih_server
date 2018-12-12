@@ -470,8 +470,8 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 	// 福利检测 2
 	id = int(msg_client_message.RED_POINT_WELFARE)
 	if modules == nil || (len(modules) > id && modules[id] > 0) {
-		// 签到
-		if this.db.Sign.has_reward() {
+		// 首充
+		if this.db.PayCommon.GetFirstPayState() == 0 {
 			states[id] |= 1
 		}
 		// 七天乐
@@ -562,6 +562,14 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 	if modules == nil || (len(modules) > id && modules[id] > 0) {
 		res, _ := this.guild_can_sign_in()
 		if res > 0 {
+			states[id] |= 1
+		}
+	}
+	// 签到 11
+	id = int(msg_client_message.RED_POINT_SIGN)
+	if modules == nil || (len(modules) > id && modules[id] > 0) {
+		// 签到
+		if this.db.Sign.has_reward() {
 			states[id] |= 1
 		}
 	}

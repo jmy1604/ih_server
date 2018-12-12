@@ -299,56 +299,47 @@ func (this *Player) activity_sub_get(id, sub_id, event_type int32) (int32, *tabl
 }
 
 // 充值
-func (this *Player) activity_charge(id, sub_id, channel int32, purchase_data, extra_data []byte, client_index int32) int32 {
-	res, sa := this.activity_sub_get(id, sub_id, ACTIVITY_EVENT_CHARGE)
-	if res < 0 {
-		return res
+func (this *Player) activity_update_charge(a *table_config.XmlActivityItem, bundle_id string) {
+	if a.SubActiveList == nil {
+		return
 	}
 
-	if sa == nil || sa.EventCount <= 0 {
-		log.Error("Activity %v no sub activity %v", id, sub_id)
-		return -1
-	}
+	for _, sa_id := range a.SubActiveList {
+		sa := sub_activity_table_mgr.Get(sa_id)
+		if sa == nil {
+			continue
+		}
 
-	purchased_num, o := this.db.SubActivitys.GetPurchasedNum(sub_id)
-	if purchased_num >= sa.EventCount {
-		log.Error("Player[%v] use activity %v sub %v purchased num out", this.Id, id, sub_id)
-		return -1
-	}
+		if sa.BundleID != bundle_id {
+			continue
+		}
 
-	var is_first bool
-	res, is_first = this._charge_with_bundle_id(true, channel, sa.BundleID, purchase_data, extra_data, client_index)
+		num, _ := this.db.SubActivitys.GetPurchasedNum(sa_id)
+		if num >= sa.EventCount {
+			continue
+		}
+		if !this.db.SubActivitys.HasIndex(sa_id) {
+			this.db.SubActivitys.Add(&dbPlayerSubActivityData{
+				SubId:        sa_id,
+				PurchasedNum: 1,
+			})
+			num = 1
+		} else {
+			num = this.db.SubActivitys.IncbyPurchasedNum(sa_id, 1)
+		}
 
-	if res < 0 {
-		return res
-	}
+		this.add_resources(sa.Reward)
 
-	if !o {
-		purchased_num = 1
-		this.db.SubActivitys.Add(&dbPlayerSubActivityData{
-			SubId:        id,
-			PurchasedNum: purchased_num,
+		this.activity_check_and_add_sub(a.Id, sa_id)
+
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
+			Id:    a.Id,
+			SubId: sa_id,
+			Value: num,
 		})
-	} else {
-		purchased_num = this.db.SubActivitys.IncbyPurchasedNum(sub_id, 1)
+
+		log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, a.Id, sa_id, num, sa.EventCount)
 	}
-
-	this.activity_check_and_add_sub(id, sub_id)
-
-	response := &msg_client_message.S2CActivityChargeResponse{
-		Id:           id,
-		SubId:        sub_id,
-		Channel:      channel,
-		IsFirst:      is_first,
-		ClientIndex:  client_index,
-		PurchasedNum: purchased_num,
-	}
-
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_CHARGE_RESPONSE), response)
-
-	log.Trace("Player[%v] charged activity %v", this.Id, response)
-
-	return 1
 }
 
 // 英雄活动更新
@@ -573,9 +564,9 @@ func (this *Player) activity_update_arena_score(a *table_config.XmlActivityItem,
 }
 
 // 活动更新
-func (this *Player) activity_update(event_type, param1, param2, param3, param4 int32) {
+func (this *Player) activity_update(event_type, param1, param2, param3, param4 int32, param_str string) {
 	var as []*table_config.XmlActivityItem
-	if event_type == ACTIVITY_EVENT_GET_HERO || event_type == ACTIVITY_EVENT_DIAMOND_COST || event_type == ACTIVITY_EVENT_EXPLORE || event_type == ACTIVITY_EVENT_DRAW_SCORE || event_type == ACTIVITY_EVENT_ARENA_SCORE { // 获得英雄
+	if event_type == ACTIVITY_EVENT_CHARGE || event_type == ACTIVITY_EVENT_GET_HERO || event_type == ACTIVITY_EVENT_DIAMOND_COST || event_type == ACTIVITY_EVENT_EXPLORE || event_type == ACTIVITY_EVENT_DRAW_SCORE || event_type == ACTIVITY_EVENT_ARENA_SCORE { // 获得英雄
 		as = activity_mgr.GetActivitysByEvent(event_type)
 	} else {
 		return
@@ -586,7 +577,9 @@ func (this *Player) activity_update(event_type, param1, param2, param3, param4 i
 	}
 
 	for _, a := range as {
-		if event_type == ACTIVITY_EVENT_GET_HERO {
+		if event_type == ACTIVITY_EVENT_CHARGE {
+			this.activity_update_charge(a, param_str)
+		} else if event_type == ACTIVITY_EVENT_GET_HERO {
 			this.activity_update_get_hero(a, param1, param2, param3, param4)
 		} else if event_type == ACTIVITY_EVENT_DIAMOND_COST {
 			this.activity_update_cost_diamond(a, param1)
@@ -647,16 +640,6 @@ func C2SActivityDataHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 		return -1
 	}
 	return p.activity_data()
-}
-
-func C2SActivityChargeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
-	var req msg_client_message.C2SActivityChargeRequest
-	err := proto.Unmarshal(msg_data, &req)
-	if err != nil {
-		log.Error("Unmarshal msg failed err(%s)!", err.Error())
-		return -1
-	}
-	return p.activity_charge(req.GetId(), req.GetSubId(), req.GetChannel(), req.GetPurchaseData(), req.GetExtraData(), req.GetClientIndex())
 }
 
 func C2SActivityExchangeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

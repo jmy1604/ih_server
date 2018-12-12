@@ -671,15 +671,11 @@ func _post_talking_data(account, pay_type, game_server, game_version, partner, o
 	log.Trace("Account %v posted talking data payment order id %v", account, order_id)
 }
 
-func (this *Player) _charge_with_bundle_id(is_activity bool, channel int32, bundle_id string, purchase_data []byte, extra_data []byte, index int32) (int32, bool) {
+func (this *Player) _charge_with_bundle_id(channel int32, bundle_id string, purchase_data []byte, extra_data []byte, index int32) (int32, bool) {
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
 	if pay_item == nil {
 		log.Error("pay %v table data not found", bundle_id)
 		return int32(msg_client_message.E_ERR_CHARGE_TABLE_DATA_NOT_FOUND), false
-	}
-
-	if (is_activity && pay_item.ActivePay == 0) || (!is_activity && pay_item.ActivePay != 0) {
-		return -1, false
 	}
 
 	var has bool
@@ -738,11 +734,15 @@ func (this *Player) _charge_with_bundle_id(is_activity bool, channel int32, bund
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_FIRST_REWARD_NOTIFY), notify)
 	}
 
+	if pay_item.ActivePay > 0 {
+		this.activity_update(ACTIVITY_EVENT_CHARGE, 0, 0, 0, 0, bundle_id)
+	}
+
 	return 1, !has
 }
 
 func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purchase_data []byte, extra_data []byte, index int32) int32 {
-	res, is_first := this._charge_with_bundle_id(false, channel, bundle_id, purchase_data, extra_data, index)
+	res, is_first := this._charge_with_bundle_id(channel, bundle_id, purchase_data, extra_data, index)
 	if res < 0 {
 		return res
 	}
