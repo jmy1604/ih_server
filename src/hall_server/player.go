@@ -401,6 +401,9 @@ func (this *Player) send_enter_game(acc string, id int32) {
 	res.Acc = acc
 	res.PlayerId = id
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_RESPONSE), res)
+	if id <= 0 {
+		log.Error("Player[%v] enter game id is invalid %v", acc, id)
+	}
 }
 
 func (this *Player) send_teams() {
