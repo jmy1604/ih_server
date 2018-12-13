@@ -61,7 +61,7 @@ func (this *ActivityManager) Run() {
 			if d.StartTime <= int32(now_time.Unix()) && d.EndTime >= int32(now_time.Unix()) {
 				this.locker.RLock()
 				if this.data_map[d.Id] != nil {
-					this.locker.RLock()
+					this.locker.RUnlock()
 					continue
 				}
 				this.locker.RUnlock()
