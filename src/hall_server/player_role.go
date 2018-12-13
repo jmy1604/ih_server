@@ -1347,6 +1347,17 @@ func (this *Player) role_displace(group_id, role_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_DISPLACE_TABLE_DATA_INVALID)
 	}
 
+	is_lock, _ := this.db.Roles.GetIsLock(role_id)
+	if is_lock > 0 {
+		log.Error("Player[%v] role[%v] is locked, cant decompose", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
+	}
+
+	if this.role_is_using(role_id) {
+		log.Error("Player[%v] role[%v] is busy, cant decompose", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
+	}
+
 	if !this.check_resources(card.ConvertItem) {
 		log.Error("Player[%v] not enough resource, cant displace role %v with group id %v", this.Id, role_id, group_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
@@ -1404,6 +1415,17 @@ func (this *Player) role_displace_confirm() int32 {
 	if displace_role_id == 0 || displaced_new_table_id == 0 || group_id == 0 {
 		log.Error("Player[%v] no displaced role", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_DISPLACE_CONFIRM_FAILED)
+	}
+
+	is_lock, _ := this.db.Roles.GetIsLock(displace_role_id)
+	if is_lock > 0 {
+		log.Error("Player[%v] role[%v] is locked, cant decompose", this.Id, displace_role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
+	}
+
+	if this.role_is_using(displace_role_id) {
+		log.Error("Player[%v] role[%v] is busy, cant decompose", this.Id, displace_role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
 	}
 
 	/*role_table_id, _ := this.db.Roles.GetTableId(displace_role_id)
