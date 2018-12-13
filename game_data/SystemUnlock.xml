@@ -4,5 +4,6 @@
      <item ServerID="ArenaEnterLevel" Level="14" />
      <item ServerID="TowerEnterLevel" Level="18" />
      <item ServerID="GuildEnterLevel" Level="22" />
+     <item ServerID="LifeTreeEnterLevel" Level="24" />
      <item ServerID="FriendBossEnterLevel" Level="34" />
 </Config>
