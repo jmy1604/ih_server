@@ -67,17 +67,25 @@ func (this *ActivityTableMgr) Load(table_file string) bool {
 
 	var t time.Time
 	var tmp_item *XmlActivityItem
+
+	var loc *time.Location
+	loc, err = time.LoadLocation("Local")
+	if err != nil {
+		log.Error("!!!!!!! Load Location Local error[%v]", err.Error())
+		return false
+	}
+
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
 
-		t, err = time.Parse("2006-01-02 15:04:05", tmp_item.StartTimeStr)
+		t, err = time.ParseInLocation("2006-01-02 15:04:05", tmp_item.StartTimeStr, loc)
 		if err != nil {
 			log.Error("ActivityTableMgr parse column[StartTime] with line %v error %v", idx, err.Error())
 			return false
 		}
 		tmp_item.StartTime = int32(t.Unix())
 
-		t, err = time.Parse("2006-01-02 15:04:05", tmp_item.EndTimeStr)
+		t, err = time.ParseInLocation("2006-01-02 15:04:05", tmp_item.EndTimeStr, loc)
 		if err != nil {
 			log.Error("ActivityTableMgr parse column[EndTime] with line %v error %v", idx, err.Error())
 			return false
