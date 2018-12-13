@@ -1326,12 +1326,6 @@ func (this *Player) get_defense_team_power() (power int32) {
 }
 
 func (this *Player) role_displace(group_id, role_id int32) int32 {
-	need_level := system_unlock_table_mgr.GetUnlockLevel("LifeTreeEnterLevel")
-	if need_level > this.db.Info.GetLvl() {
-		log.Error("Player[%v] level not enough level %v enter LifeTree", this.Id, need_level)
-		return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
-	}
-
 	group := hero_convert_table_mgr.GetGroup(group_id)
 	if group == nil {
 		log.Error("Role Displace Group %v not found", group_id)

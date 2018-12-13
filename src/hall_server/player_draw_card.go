@@ -105,6 +105,14 @@ func (this *Player) has_free_draw(draw_type int32, now_time int32) (bool, *table
 }
 
 func (this *Player) draw_card(draw_type int32) int32 {
+	if draw_type > 100 {
+		need_level := system_unlock_table_mgr.GetUnlockLevel("LifeTreeEnterLevel")
+		if need_level > this.db.Info.GetLvl() {
+			log.Error("Player[%v] level not enough level %v enter LifeTree", this.Id, need_level)
+			return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
+		}
+	}
+
 	now_time := time.Now()
 	is_free, draw := this.has_free_draw(draw_type, int32(now_time.Unix()))
 	if draw == nil {
