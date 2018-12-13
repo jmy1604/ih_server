@@ -157,6 +157,10 @@ func (this *Player) activity_data() int32 {
 				this.db.Activitys.Remove(id)
 				continue
 			}
+			if !activity_mgr.IsDoing(id) {
+				this.db.Activitys.Remove(id)
+				continue
+			}
 			var found bool
 			if ids != nil {
 				for _, d := range datas {
