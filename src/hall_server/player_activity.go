@@ -298,48 +298,59 @@ func (this *Player) activity_sub_get(id, sub_id, event_type int32) (int32, *tabl
 	return 1, d
 }
 
+func (this *Player) activity_get_one_charge(bundle_id string) (int32, *table_config.XmlSubActivityItem) {
+	as := activity_mgr.GetActivitysByEvent(ACTIVITY_EVENT_CHARGE)
+	if as == nil {
+		return -1, nil
+	}
+
+	for _, a := range as {
+		if a.SubActiveList == nil || len(a.SubActiveList) == 0 {
+			continue
+		}
+		for _, sa_id := range a.SubActiveList {
+			sa := sub_activity_table_mgr.Get(sa_id)
+			if sa == nil || sa.EventCount <= 0 {
+				continue
+			}
+			if sa.BundleID != bundle_id {
+				continue
+			}
+
+			n, _ := this.db.SubActivitys.GetPurchasedNum(sa_id)
+			if n < sa.EventCount {
+				return a.Id, sa
+			}
+		}
+	}
+
+	return -1, nil
+}
+
 // 充值
-func (this *Player) activity_update_charge(a *table_config.XmlActivityItem, bundle_id string) {
-	if a.SubActiveList == nil {
-		return
-	}
-
-	for _, sa_id := range a.SubActiveList {
-		sa := sub_activity_table_mgr.Get(sa_id)
-		if sa == nil {
-			continue
-		}
-
-		if sa.BundleID != bundle_id {
-			continue
-		}
-
-		num, _ := this.db.SubActivitys.GetPurchasedNum(sa_id)
-		if num >= sa.EventCount {
-			continue
-		}
-		if !this.db.SubActivitys.HasIndex(sa_id) {
-			this.db.SubActivitys.Add(&dbPlayerSubActivityData{
-				SubId:        sa_id,
-				PurchasedNum: 1,
-			})
-			num = 1
-		} else {
-			num = this.db.SubActivitys.IncbyPurchasedNum(sa_id, 1)
-		}
-
-		this.add_resources(sa.Reward)
-
-		this.activity_check_and_add_sub(a.Id, sa_id)
-
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
-			Id:    a.Id,
-			SubId: sa_id,
-			Value: num,
+func (this *Player) activity_update_one_charge(id int32, sa *table_config.XmlSubActivityItem) {
+	num, _ := this.db.SubActivitys.GetPurchasedNum(sa.Id)
+	if !this.db.SubActivitys.HasIndex(sa.Id) {
+		this.db.SubActivitys.Add(&dbPlayerSubActivityData{
+			SubId:        sa.Id,
+			PurchasedNum: 1,
 		})
-
-		log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, a.Id, sa_id, num, sa.EventCount)
+		num = 1
+	} else {
+		num = this.db.SubActivitys.IncbyPurchasedNum(sa.Id, 1)
 	}
+
+	this.add_resources(sa.Reward)
+
+	this.activity_check_and_add_sub(id, sa.Id)
+
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
+		Id:    id,
+		SubId: sa.Id,
+		Value: num,
+	})
+
+	log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, id, sa.Id, num, sa.EventCount)
 }
 
 // 英雄活动更新
@@ -566,7 +577,7 @@ func (this *Player) activity_update_arena_score(a *table_config.XmlActivityItem,
 // 活动更新
 func (this *Player) activity_update(event_type, param1, param2, param3, param4 int32, param_str string) {
 	var as []*table_config.XmlActivityItem
-	if event_type == ACTIVITY_EVENT_CHARGE || event_type == ACTIVITY_EVENT_GET_HERO || event_type == ACTIVITY_EVENT_DIAMOND_COST || event_type == ACTIVITY_EVENT_EXPLORE || event_type == ACTIVITY_EVENT_DRAW_SCORE || event_type == ACTIVITY_EVENT_ARENA_SCORE { // 获得英雄
+	if event_type == ACTIVITY_EVENT_GET_HERO || event_type == ACTIVITY_EVENT_DIAMOND_COST || event_type == ACTIVITY_EVENT_EXPLORE || event_type == ACTIVITY_EVENT_DRAW_SCORE || event_type == ACTIVITY_EVENT_ARENA_SCORE { // 获得英雄
 		as = activity_mgr.GetActivitysByEvent(event_type)
 	} else {
 		return
@@ -577,9 +588,7 @@ func (this *Player) activity_update(event_type, param1, param2, param3, param4 i
 	}
 
 	for _, a := range as {
-		if event_type == ACTIVITY_EVENT_CHARGE {
-			this.activity_update_charge(a, param_str)
-		} else if event_type == ACTIVITY_EVENT_GET_HERO {
+		if event_type == ACTIVITY_EVENT_GET_HERO {
 			this.activity_update_get_hero(a, param1, param2, param3, param4)
 		} else if event_type == ACTIVITY_EVENT_DIAMOND_COST {
 			this.activity_update_cost_diamond(a, param1)

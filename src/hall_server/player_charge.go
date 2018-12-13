@@ -678,6 +678,16 @@ func (this *Player) _charge_with_bundle_id(channel int32, bundle_id string, purc
 		return int32(msg_client_message.E_ERR_CHARGE_TABLE_DATA_NOT_FOUND), false
 	}
 
+	var aid int32
+	var sa *table_config.XmlSubActivityItem
+	if pay_item.ActivePay > 0 {
+		aid, sa = this.activity_get_one_charge(bundle_id)
+		if aid <= 0 || sa == nil {
+			log.Error("Player[%v] no activity charge %v with channel %v", this.Id, bundle_id, channel)
+			return int32(msg_client_message.E_ERR_CHARGE_NO_ACTIVITY_ON_THIS_TIME), false
+		}
+	}
+
 	var has bool
 	has = this.db.Pays.HasIndex(bundle_id)
 	if has {
@@ -700,7 +710,12 @@ func (this *Player) _charge_with_bundle_id(channel int32, bundle_id string, purc
 		if err_code < 0 {
 			return err_code, false
 		}
-	} else if channel != 0 {
+	} else if channel == 0 {
+		if config.DisableTestCommand {
+			log.Error("Player[%v] cant use test command to charge", this.Id)
+			return -1, false
+		}
+	} else {
 		log.Error("Player[%v] charge channel[%v] invalid", this.Id, channel)
 		return int32(msg_client_message.E_ERR_CHARGE_CHANNEL_INVALID), false
 	}
@@ -727,15 +742,15 @@ func (this *Player) _charge_with_bundle_id(channel int32, bundle_id string, purc
 	now_time := time.Now()
 	this.db.Pays.SetLastPayedTime(bundle_id, int32(now_time.Unix()))
 
+	if aid > 0 && sa != nil {
+		this.activity_update_one_charge(aid, sa)
+	}
+
 	if this.db.PayCommon.GetFirstPayState() == 0 {
 		this.db.PayCommon.SetFirstPayState(1)
 		// 首充通知
 		notify := &msg_client_message.S2CChargeFirstRewardNotify{}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_FIRST_REWARD_NOTIFY), notify)
-	}
-
-	if pay_item.ActivePay > 0 {
-		this.activity_update(ACTIVITY_EVENT_CHARGE, 0, 0, 0, 0, bundle_id)
 	}
 
 	return 1, !has
