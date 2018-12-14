@@ -1,3 +1,4 @@
+call set_go_path.bat
 go install ih_server/src/test_client
 if errorlevel 1 goto exit
 

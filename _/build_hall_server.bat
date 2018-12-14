@@ -1,3 +1,4 @@
+call set_go_path.bat
 call build_framework.bat
 if errorlevel 1 goto exit
 

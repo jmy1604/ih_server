@@ -1,3 +1,4 @@
+call set_go_path.bat
 call build_table_config.bat
 
 go install ih_server/src/rpc_common
