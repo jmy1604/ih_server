@@ -10,6 +10,8 @@ md db_hall
 cd ../../third_party/protobuf
 
 move protoc.exe ../../proto
+call set_go_path.bat
+
 move protoc-gen-go.exe ../../proto
 
 cd ../../proto

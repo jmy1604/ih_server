@@ -1,3 +1,5 @@
+call set_go_path.bat
+
 cd../proto
 
 md gen_go
