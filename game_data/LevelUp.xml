@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item Level="1" PlayerLevelUpExp="120" CardLevelUpRes="1,50,2,50" CardDecomposeRes="" />
-     <item Level="2" PlayerLevelUpExp="140" CardLevelUpRes="1,64,2,64" CardDecomposeRes="1,50,2,50" />
-     <item Level="3" PlayerLevelUpExp="180" CardLevelUpRes="1,79,2,79" CardDecomposeRes="1,114,2,114" />
-     <item Level="4" PlayerLevelUpExp="230" CardLevelUpRes="1,97,2,97" CardDecomposeRes="1,193,2,193" />
+     <item Level="1" PlayerLevelUpExp="50" CardLevelUpRes="1,50,2,50" CardDecomposeRes="" />
+     <item Level="2" PlayerLevelUpExp="70" CardLevelUpRes="1,64,2,64" CardDecomposeRes="1,50,2,50" />
+     <item Level="3" PlayerLevelUpExp="100" CardLevelUpRes="1,79,2,79" CardDecomposeRes="1,114,2,114" />
+     <item Level="4" PlayerLevelUpExp="180" CardLevelUpRes="1,97,2,97" CardDecomposeRes="1,193,2,193" />
      <item Level="5" PlayerLevelUpExp="280" CardLevelUpRes="1,116,2,116" CardDecomposeRes="1,290,2,290" />
      <item Level="6" PlayerLevelUpExp="340" CardLevelUpRes="1,138,2,138" CardDecomposeRes="1,406,2,406" />
      <item Level="7" PlayerLevelUpExp="420" CardLevelUpRes="1,162,2,162" CardDecomposeRes="1,544,2,544" />
