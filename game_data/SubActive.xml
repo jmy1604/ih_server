@@ -17,11 +17,15 @@
      <item SubActiveID="4003" BundleID="" Param1="3000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,4" />
      <item SubActiveID="4004" BundleID="" Param1="4000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,5" />
      <item SubActiveID="4005" BundleID="" Param1="5000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,8" />
-     <item SubActiveID="5001" BundleID="" Param1="5" Param2="5" Param3="0" Param4="1" EventCount="1" Reward="22,1" />
+     <item SubActiveID="5001" BundleID="" Param1="5" Param2="5" Param3="0" Param4="1" EventCount="1" Reward="22,2" />
      <item SubActiveID="5002" BundleID="" Param1="5" Param2="5" Param3="0" Param4="2" EventCount="1" Reward="22,2" />
-     <item SubActiveID="5003" BundleID="" Param1="5" Param2="5" Param3="4" Param4="0" EventCount="1" Reward="22,4" />
-     <item SubActiveID="5004" BundleID="" Param1="5" Param2="5" Param3="5" Param4="0" EventCount="1" Reward="22,5" />
-     <item SubActiveID="6001" BundleID="" Param1="1000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,8" />
+     <item SubActiveID="5003" BundleID="" Param1="5" Param2="5" Param3="4" Param4="0" EventCount="1" Reward="22,2" />
+     <item SubActiveID="5004" BundleID="" Param1="5" Param2="5" Param3="5" Param4="0" EventCount="1" Reward="22,2" />
+     <item SubActiveID="5101" BundleID="" Param1="2" Param2="5" Param3="4" Param4="0" EventCount="1" Reward="22,2" />
+     <item SubActiveID="5102" BundleID="" Param1="3" Param2="5" Param3="4" Param4="0" EventCount="1" Reward="22,2" />
+     <item SubActiveID="5103" BundleID="" Param1="4" Param2="5" Param3="4" Param4="0" EventCount="1" Reward="22,2" />
+     <item SubActiveID="5104" BundleID="" Param1="5" Param2="5" Param3="4" Param4="0" EventCount="1" Reward="22,2" />
+     <item SubActiveID="6001" BundleID="" Param1="1000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,1" />
      <item SubActiveID="6002" BundleID="" Param1="2000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,2" />
      <item SubActiveID="6003" BundleID="" Param1="3000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,4" />
      <item SubActiveID="6004" BundleID="" Param1="4000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,5" />
