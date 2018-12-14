@@ -404,7 +404,7 @@ func (this *Player) activity_update_get_hero(a *table_config.XmlActivityItem, he
 			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, a.RewardMailId, "", "", sa.Reward, sa.Param2)
 		}
 
-		log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, a.Id, sa_id, num, sa.Param2)
+		log.Trace("Player[%v] get hero[star:%v camp:%v type:%v] activity[%v,%v] update progress %v/%v", this.Id, hero_star, hero_camp, hero_type, a.Id, sa_id, num, sa.Param2)
 	}
 }
 

@@ -189,9 +189,15 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if tmp_msg.GetMsgCode() <= 0 {
+		_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), 0)
+		log.Error("!!!!!! Invalid Msg Id %v from Player Id %v", tmp_msg.GetMsgCode(), tmp_msg.GetPlayerId())
+		return
+	}
+
 	handlerinfo := msg_handler_mgr.msgid2handler[tmp_msg.GetMsgCode()]
 	if nil == handlerinfo {
-		_send_error(w, -1, 0)
+		_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), 0)
 		log.Error("client_msg_handler msg_handler_mgr[%d] nil ", tmp_msg.GetMsgCode())
 		return
 	}
@@ -199,10 +205,15 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	var p *Player
 	if handlerinfo.if_player_msg {
 		pid := tmp_msg.GetPlayerId()
+		if pid <= 0 {
+			_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_INVALID), 0)
+			log.Error("!!!!!! Invalid Player Id %v Send MsgId %v ", tmp_msg.GetPlayerId(), tmp_msg.GetMsgCode())
+			return
+		}
 
 		p = player_mgr.GetPlayerById(pid)
 		if nil == p {
-			_send_error(w, -1, 0)
+			_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_NOT_FOUND), 0)
 			log.Error("client_msg_handler failed to GetPlayerById [%d]", tmp_msg.GetPlayerId())
 			return
 		}

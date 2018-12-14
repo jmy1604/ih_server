@@ -23,6 +23,10 @@ enum E_ERR {
 	PLAYER_NO_SUCH_HEAD						= -15; // 没有该头像
 	PLAYER_LEVEL_NOT_ENOUGH					= -16; // 等级不够
 	PLAYER_MUEST_RECONN_WITH_DISCONN_STATE  = -17; // 断开状态下必须先重连
+	PLAYER_MSG_ID_INVALID					= -18; // 消息号非法
+	PLAYER_MSG_ID_NOT_FOUND				 	= -19; // 消息号不存在
+	PLAYER_ID_INVALID						= -20; // 玩家ID非法
+	PLAYER_ID_NOT_FOUND						= -21; // 玩家ID不存在
 	
 	// 账号
 	ACCOUNT_ALREADY_REGISTERED				= -100; // 账号已注册
