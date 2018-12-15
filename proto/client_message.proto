@@ -441,7 +441,8 @@ message C2S_MSG_DATA {
 }
 
 message S2C_ONE_MSG {
-	int32 ErrorCode 						= 1; // 错误码
+	int32 MsgCode							= 1; // 消息ID
+	int32 ErrorCode 						= 2; // 错误码
 	bytes Data 								= 3; // 数据
 }
 

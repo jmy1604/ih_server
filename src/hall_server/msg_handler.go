@@ -156,8 +156,9 @@ func _send_error(w http.ResponseWriter, ret_code int32) {
 	}
 }
 
-func _push_client_msg_res(err_code int32, data []byte, msg_res *msg_client_message.S2C_MSG_DATA) {
+func _push_client_msg_res(err_code int32, msg_id int32, data []byte, msg_res *msg_client_message.S2C_MSG_DATA) {
 	msg_res.MsgList = append(msg_res.MsgList, &msg_client_message.S2C_ONE_MSG{
+		MsgCode:   msg_id,
 		ErrorCode: err_code,
 		Data:      data,
 	})
@@ -166,7 +167,7 @@ func _push_client_msg_res(err_code int32, data []byte, msg_res *msg_client_messa
 func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, msg_id int32, msg_data []byte, handlerinfo *MsgHandlerInfo, msg_res *msg_client_message.S2C_MSG_DATA) {
 	if msg_id <= 0 {
 		//_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), 0)
-		_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), nil, msg_res)
+		_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), 0, nil, msg_res)
 		log.Error("!!!!!! Invalid Msg Id %v from Player Id %v", msg_id, p.Id)
 		return
 	}
@@ -201,7 +202,7 @@ func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, 
 		atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
 	}
 
-	_push_client_msg_res(ret_code, data, msg_res)
+	_push_client_msg_res(ret_code, msg_id, data, msg_res)
 }
 
 func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg *msg_client_message.C2S_MSG_DATA, msg_res *msg_client_message.S2C_MSG_DATA) {
@@ -215,7 +216,7 @@ func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg
 		handlerinfo := msg_handler_mgr.msgid2handler[msg_id]
 		if nil == handlerinfo {
 			//_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), 0)
-			_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), nil, msg_res)
+			_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), 0, nil, msg_res)
 			log.Error("client_msg_handler msg_handler_mgr[%d] nil ", msg_id)
 			continue
 		}
@@ -233,7 +234,7 @@ func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg
 			} else {
 				data = nil
 			}
-			_push_client_msg_res(ret_code, data, msg_res)
+			_push_client_msg_res(ret_code, msg_id, data, msg_res)
 		} else {
 			_process_one_client_msg(w, r, p, msg_id, msg_data, handlerinfo, msg_res)
 		}
