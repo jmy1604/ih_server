@@ -65,13 +65,11 @@ func (this *MsgHandlerMgr) Init() bool {
 }
 
 func (this *MsgHandlerMgr) SetMsgHandler(msg_code uint16, msg_handler CLIENT_MSG_HANDLER) {
-	//log.Info("set msg [%d] handler !", msg_code)
-	this.msgid2handler[int32(msg_code)] = &MsgHandlerInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ msg_handler: msg_handler, if_player_msg: false}
+	this.msgid2handler[int32(msg_code)] = &MsgHandlerInfo{msg_handler: msg_handler, if_player_msg: false}
 }
 
 func (this *MsgHandlerMgr) SetPlayerMsgHandler(msg_code uint16, msg_handler CLIENT_PLAYER_MSG_HANDLER) {
-	//log.Info("set msg [%d] handler !", msg_code)
-	this.msgid2handler[int32(msg_code)] = &MsgHandlerInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ player_msg_handler: msg_handler, if_player_msg: true}
+	this.msgid2handler[int32(msg_code)] = &MsgHandlerInfo{player_msg_handler: msg_handler, if_player_msg: true}
 }
 
 func (this *MsgHandlerMgr) StartHttp() bool {
@@ -142,13 +140,9 @@ func (this *MsgHandlerMgr) reg_http_mux() {
 	msg_handler_http_mux["/client_msg"] = client_msg_handler
 }
 
-func _send_error(w http.ResponseWriter, ret_code, msg_num int32) {
-	res2cli := &msg_client_message.S2C_MSG_DATA{}
-	res2cli.ErrorCode = ret_code
-	if msg_num > 0 {
-		res2cli.CurrMsgNum = msg_num
-	}
-
+func _send_error(w http.ResponseWriter, ret_code int32) {
+	m := &msg_client_message.S2C_ONE_MSG{ErrorCode: ret_code}
+	res2cli := &msg_client_message.S2C_MSG_DATA{MsgList: []*msg_client_message.S2C_ONE_MSG{m}}
 	final_data, err := proto.Marshal(res2cli)
 	if nil != err {
 		log.Error("client_msg_handler marshal 1 client msg failed err(%s)", err.Error())
@@ -162,6 +156,90 @@ func _send_error(w http.ResponseWriter, ret_code, msg_num int32) {
 	}
 }
 
+func _push_client_msg_res(err_code int32, data []byte, msg_res *msg_client_message.S2C_MSG_DATA) {
+	msg_res.MsgList = append(msg_res.MsgList, &msg_client_message.S2C_ONE_MSG{
+		ErrorCode: err_code,
+		Data:      data,
+	})
+}
+
+func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, msg_id int32, msg_data []byte, handlerinfo *MsgHandlerInfo, msg_res *msg_client_message.S2C_MSG_DATA) {
+	if msg_id <= 0 {
+		//_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), 0)
+		_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), nil, msg_res)
+		log.Error("!!!!!! Invalid Msg Id %v from Player Id %v", msg_id, p.Id)
+		return
+	}
+
+	defer func() {
+		if err := recover(); err != nil {
+			atomic.StoreInt32(&p.is_lock, 0)
+			log.Stack(err)
+		}
+	}()
+
+	var ret_code int32
+	var data []byte
+	if !atomic.CompareAndSwapInt32(&p.is_lock, 0, 1) {
+		log.Debug("Player[%v] send msg[%v] cant process, because prev msg is processing", p.Id, msg_id)
+		ret_code = int32(msg_client_message.E_ERR_PLAYER_SEND_TOO_FREQUENTLY)
+	} else {
+		p.b_base_prop_chg = false
+		p.OnInit()
+		if atomic.LoadInt32(&p.is_login) > 0 || msg_id == int32(msg_client_message_id.MSGID_C2S_RECONNECT_REQUEST) {
+			ret_code = handlerinfo.player_msg_handler(w, r, p, msg_data)
+		} else {
+			ret_code = int32(msg_client_message.E_ERR_PLAYER_MUEST_RECONN_WITH_DISCONN_STATE)
+		}
+		data = p.PopCurMsgData()
+
+		if USE_CONN_TIMER_WHEEL == 0 {
+			conn_timer_mgr.Insert(p.Id)
+		} else {
+			conn_timer_wheel.Insert(p.Id)
+		}
+		atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
+	}
+
+	_push_client_msg_res(ret_code, data, msg_res)
+}
+
+func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg *msg_client_message.C2S_MSG_DATA, msg_res *msg_client_message.S2C_MSG_DATA) {
+	msg_list := msg.GetMsgList()
+	if msg_list == nil {
+		return
+	}
+
+	for _, m := range msg_list {
+		msg_id := m.GetMsgCode()
+		handlerinfo := msg_handler_mgr.msgid2handler[msg_id]
+		if nil == handlerinfo {
+			//_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), 0)
+			_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), nil, msg_res)
+			log.Error("client_msg_handler msg_handler_mgr[%d] nil ", msg_id)
+			continue
+		}
+		msg_data := m.GetData()
+		if p == nil {
+			if handlerinfo.if_player_msg {
+				log.Error("!!!!!! Process msg %v need player id", msg_id)
+				continue
+			}
+			var ret_code int32
+			var data []byte
+			ret_code, p = handlerinfo.msg_handler(w, r, msg_data)
+			if p != nil {
+				data = p.PopCurMsgData()
+			} else {
+				data = nil
+			}
+			_push_client_msg_res(ret_code, data, msg_res)
+		} else {
+			_process_one_client_msg(w, r, p, msg_id, msg_data, handlerinfo, msg_res)
+		}
+	}
+}
+
 func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -172,149 +250,64 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	var ret_code int32
 	data, err := ioutil.ReadAll(r.Body)
 	if nil != err {
-		_send_error(w, -1, 0)
+		_send_error(w, -1)
 		log.Error("client_msg_handler ReadAll err[%s]", err.Error())
 		return
 	}
-	//log.Debug("客户端发送过来的二进制流  %v", data)
 
 	tmp_msg := &msg_client_message.C2S_MSG_DATA{}
 	err = proto.Unmarshal(data, tmp_msg)
 	if nil != err {
-		_send_error(w, -1, 0)
+		_send_error(w, -1)
 		log.Error("client_msg_handler proto Unmarshal err[%s]", err.Error())
 		return
 	}
 
-	if tmp_msg.GetMsgCode() <= 0 {
-		_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), 0)
-		log.Error("!!!!!! Invalid Msg Id %v from Player Id %v", tmp_msg.GetMsgCode(), tmp_msg.GetPlayerId())
+	pid := tmp_msg.GetPlayerId()
+	if pid < 0 {
+		_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_INVALID))
+		log.Error("!!!!!! Invalid Player Id %v Send Msg", tmp_msg.GetPlayerId())
 		return
 	}
 
-	handlerinfo := msg_handler_mgr.msgid2handler[tmp_msg.GetMsgCode()]
-	if nil == handlerinfo {
-		_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), 0)
-		log.Error("client_msg_handler msg_handler_mgr[%d] nil ", tmp_msg.GetMsgCode())
-		return
-	}
-
-	var p *Player
-	if handlerinfo.if_player_msg {
-		pid := tmp_msg.GetPlayerId()
-		if pid <= 0 {
-			_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_INVALID), 0)
-			log.Error("!!!!!! Invalid Player Id %v Send MsgId %v ", tmp_msg.GetPlayerId(), tmp_msg.GetMsgCode())
-			return
-		}
-
-		p = player_mgr.GetPlayerById(pid)
+	var res2cli msg_client_message.S2C_MSG_DATA
+	if pid > 0 {
+		p := player_mgr.GetPlayerById(pid)
 		if nil == p {
-			_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_NOT_FOUND), 0)
+			_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_NOT_FOUND))
 			log.Error("client_msg_handler failed to GetPlayerById [%d]", tmp_msg.GetPlayerId())
 			return
 		}
 
 		tokeninfo := login_token_mgr.GetTokenByUid(p.UniqueId)
 		if nil != tokeninfo && tokeninfo.token == tmp_msg.GetToken() {
-			func() {
-				defer func() {
-					if err := recover(); err != nil {
-						atomic.StoreInt32(&p.is_lock, 0)
-						log.Stack(err)
-					}
-				}()
-				if !atomic.CompareAndSwapInt32(&p.is_lock, 0, 1) {
-					log.Debug("Player[%v] send msg[%v] cant process, because prev msg is processing", p.Id, tmp_msg.GetMsgCode())
-					ret_code = int32(msg_client_message.E_ERR_PLAYER_SEND_TOO_FREQUENTLY)
-				} else {
-					p.b_base_prop_chg = false
-					p.OnInit()
-					if atomic.LoadInt32(&p.is_login) > 0 || tmp_msg.GetMsgCode() == int32(msg_client_message_id.MSGID_C2S_RECONNECT_REQUEST) {
-						ret_code = handlerinfo.player_msg_handler(w, r, p, tmp_msg.GetData())
-					} else {
-						ret_code = int32(msg_client_message.E_ERR_PLAYER_MUEST_RECONN_WITH_DISCONN_STATE)
-					}
-					data = p.PopCurMsgData()
-					if USE_CONN_TIMER_WHEEL == 0 {
-						conn_timer_mgr.Insert(p.Id)
-					} else {
-						conn_timer_wheel.Insert(p.Id)
-					}
-					atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
-				}
-			}()
+			_process_client_msgs(w, r, p, tmp_msg, &res2cli)
 		} else {
-			ret_code = int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN)
+			ret_code := int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN)
+			_send_error(w, ret_code)
 			if tokeninfo == nil {
 				log.Warn("Account[%v] no token info", p.Account)
 			} else {
 				log.Warn("Account[%v] token[%v] invalid, need[%v]", p.Account, tmp_msg.GetToken(), tokeninfo.token)
 			}
 		}
-
 	} else {
-		ret_code, p = handlerinfo.msg_handler(w, r /*req*/, tmp_msg.GetData())
-		if p != nil {
-			data = p.PopCurMsgData()
-		}
+		_process_client_msgs(w, r, nil, tmp_msg, &res2cli)
 	}
 
-	var old_msg_num, msg_num int32
-	if p != nil {
-		row := dbc.Players.GetRow(p.Id)
-		if row != nil {
-			old_msg_num = row.GetCurrReplyMsgNum()
-			msg_num = old_msg_num
-			if msg_num < 10000 {
-				msg_num += 1
-			} else {
-				msg_num = 1
-			}
-			row.SetCurrReplyMsgNum(msg_num)
-		}
+	final_data, err := proto.Marshal(&res2cli)
+	if nil != err {
+		_send_error(w, -1)
+		log.Error("client_msg_handler marshal 2 client msg failed err(%s)", err.Error())
+		return
 	}
 
-	if ret_code <= 0 {
-		_send_error(w, ret_code, 0)
-		log.Error("client_msg_handler exec msg_handler ret error_code %d", ret_code)
-		//log.Info("write http resp data error %v", final_data)
-	} else {
-		if nil == p {
-			_send_error(w, -1, 0)
-			log.Error("client_msg_handler after handle p nil")
-			return
-		}
-
-		res2cli := &msg_client_message.S2C_MSG_DATA{}
-
-		if nil == data || len(data) < 4 {
-			//log.Error("client_msg_handler PopCurMsgDataError nil or len[%d] error", len(data))
-			res2cli.ErrorCode = ret_code
-		} else {
-			//log.Trace("client_msg_handler pop data %v", data)
-			res2cli.Data = data
-		}
-
-		if msg_num > 0 {
-			res2cli.CurrMsgNum = msg_num
-		}
-
-		final_data, err := proto.Marshal(res2cli)
-		if nil != err {
-			_send_error(w, -1, 0)
-			log.Error("client_msg_handler marshal 2 client msg failed err(%s)", err.Error())
-			return
-		}
-
-		iret, err := w.Write(final_data)
-		if nil != err {
-			_send_error(w, -1, 0)
-			log.Error("client_msg_handler write data 2 failed err[%s] ret %d", err.Error(), iret)
-			return
-		}
+	iret, err := w.Write(final_data)
+	if nil != err {
+		_send_error(w, -1)
+		log.Error("client_msg_handler write data 2 failed err[%s] ret %d", err.Error(), iret)
+		return
 	}
 }

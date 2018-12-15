@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	_ "ih_server/third_party/code.google.com.protobuf/proto"
 )
 
 const (

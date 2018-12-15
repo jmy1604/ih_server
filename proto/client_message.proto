@@ -429,18 +429,24 @@ message S2CSetLoginPasswordResponse {
 
 ///////////////////////////////////start///////////////////////////////////////
 
-message C2S_MSG_DATA {
-	int32 PlayerId 							= 1; // 玩家ID		
-	string Token 							= 2; // 令牌
+message C2S_ONE_MSG {
 	int32 MsgCode 							= 3; // 消息ID
 	bytes Data 								= 4; // 消息数据
 }
 
-message S2C_MSG_DATA {
+message C2S_MSG_DATA {
+	int32 PlayerId 							= 1; // 玩家ID		
+	string Token 							= 2; // 令牌
+	repeated C2S_ONE_MSG MsgList			= 3; // 消息队列
+}
+
+message S2C_ONE_MSG {
 	int32 ErrorCode 						= 1; // 错误码
-	string ErrorMsg 						= 2; // 错误字符串
 	bytes Data 								= 3; // 数据
-	int32 CurrMsgNum						= 4; // 当前的消息序号
+}
+
+message S2C_MSG_DATA {
+	repeated S2C_ONE_MSG MsgList            = 1; // 返回的消息数据队列
 }
 
 //////////////////////////////////////////////////////////////////////////////

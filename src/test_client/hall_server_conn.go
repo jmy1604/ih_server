@@ -58,8 +58,11 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 	C2S_MSG := &msg_client_message.C2S_MSG_DATA{}
 	C2S_MSG.PlayerId = this.playerid
 	C2S_MSG.Token = this.token
-	C2S_MSG.MsgCode = int32(msg_id)
-	C2S_MSG.Data = data
+	one_msg := &msg_client_message.C2S_ONE_MSG{
+		MsgCode: int32(msg_id),
+		Data:    data,
+	}
+	C2S_MSG.MsgList = []*msg_client_message.C2S_ONE_MSG{one_msg}
 
 	data, err = proto.Marshal(C2S_MSG)
 	if nil != err {
@@ -102,39 +105,44 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 		return
 	}
 
-	if S2C_MSG.GetErrorCode() < 0 {
-		log.Error("服务器返回错误码[%d]", S2C_MSG.GetErrorCode())
+	if S2C_MSG.MsgList == nil {
+		log.Warn("Server return empty msg list !!!")
 		return
 	}
 
-	var msg_code uint16
-	var cur_len, sub_len int32
-	total_data_len := int32(len(S2C_MSG.Data))
-	for cur_len < total_data_len {
-		msg_code = uint16(S2C_MSG.Data[cur_len])<<8 + uint16(S2C_MSG.Data[cur_len+1])
-		sub_len = int32(S2C_MSG.Data[cur_len+2])<<8 + int32(S2C_MSG.Data[cur_len+3])
-		sub_data := S2C_MSG.Data[cur_len+4 : cur_len+4+sub_len]
-		cur_len = cur_len + 4 + sub_len
-
-		handler_info := msg_handler_mgr.msgid2handler[int32(msg_code)]
-		if nil == handler_info {
-			//log.Warn("HallConnection failed to get msg_handler_info[%d] !", msg_code)
-			continue
-		}
-
-		//new_msg := reflect.New(handler_info.typ).Interface().(proto.Message)
-		new_msg := hall_conn_msgid2msg(msg_code)
-		if new_msg == nil {
-			return
-		}
-		log.Info("玩家[%d:%s]收到服务器返回%v:[%s]", this.playerid, this.acc, msg_code, new_msg.String())
-		err = proto.Unmarshal(sub_data, new_msg)
-		if nil != err {
-			log.Error("HallConnection failed unmarshal msg data !", msg_code)
+	for _, m := range S2C_MSG.MsgList {
+		if m.GetErrorCode() < 0 {
+			log.Error("服务器返回错误码[%d]", m.GetErrorCode())
 			return
 		}
 
-		handler_info(this, new_msg)
+		var msg_code uint16
+		var cur_len, sub_len int32
+		total_data_len := int32(len(m.Data))
+		for cur_len < total_data_len {
+			msg_code = uint16(m.Data[cur_len])<<8 + uint16(m.Data[cur_len+1])
+			sub_len = int32(m.Data[cur_len+2])<<8 + int32(m.Data[cur_len+3])
+			sub_data := m.Data[cur_len+4 : cur_len+4+sub_len]
+			cur_len = cur_len + 4 + sub_len
+
+			handler_info := msg_handler_mgr.msgid2handler[int32(msg_code)]
+			if nil == handler_info {
+				continue
+			}
+
+			new_msg := hall_conn_msgid2msg(msg_code)
+			if new_msg == nil {
+				return
+			}
+			log.Info("玩家[%d:%s]收到服务器返回%v:[%s]", this.playerid, this.acc, msg_code, new_msg.String())
+			err = proto.Unmarshal(sub_data, new_msg)
+			if nil != err {
+				log.Error("HallConnection failed unmarshal msg data !", msg_code)
+				return
+			}
+
+			handler_info(this, new_msg)
+		}
 	}
 
 	return
