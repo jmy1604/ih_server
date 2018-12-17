@@ -4665,15 +4665,15 @@
      <item DropGroupID="310004" DropItemID="15" Weight="3000" Min="5" Max="5" />
      <item DropGroupID="310004" DropItemID="57010" Weight="3000" Min="5" Max="10" />
      <item DropGroupID="310005" DropItemID="3" Weight="10000" Min="33" Max="64" />
-     <item DropGroupID="310005" DropItemID="16" Weight="3000" Min="1" Max="1" />
+     <item DropGroupID="310005" DropItemID="16" Weight="500" Min="1" Max="1" />
      <item DropGroupID="310005" DropItemID="57010" Weight="3000" Min="11" Max="20" />
      <item DropGroupID="310005" DropItemID="57020" Weight="3000" Min="1" Max="2" />
      <item DropGroupID="310006" DropItemID="3" Weight="10000" Min="65" Max="128" />
-     <item DropGroupID="310006" DropItemID="16" Weight="3000" Min="1" Max="1" />
+     <item DropGroupID="310006" DropItemID="16" Weight="1200" Min="1" Max="1" />
      <item DropGroupID="310006" DropItemID="57010" Weight="3000" Min="21" Max="40" />
      <item DropGroupID="310006" DropItemID="57020" Weight="3000" Min="3" Max="4" />
      <item DropGroupID="310007" DropItemID="3" Weight="10000" Min="129" Max="256" />
-     <item DropGroupID="310007" DropItemID="16" Weight="3000" Min="2" Max="2" />
+     <item DropGroupID="310007" DropItemID="16" Weight="1200" Min="2" Max="2" />
      <item DropGroupID="310007" DropItemID="57010" Weight="3000" Min="41" Max="80" />
      <item DropGroupID="310007" DropItemID="57020" Weight="3000" Min="5" Max="8" />
 </Config>

@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item TotalIndex="1" Reward="15,10" />
+     <item TotalIndex="1" Reward="3,150" />
      <item TotalIndex="2" Reward="16,3" />
      <item TotalIndex="3" Reward="16,2" />
-     <item TotalIndex="4" Reward="15,10" />
+     <item TotalIndex="4" Reward="16,2" />
      <item TotalIndex="5" Reward="16,3" />
      <item TotalIndex="6" Reward="16,2" />
      <item TotalIndex="7" Reward="53055,50" />
