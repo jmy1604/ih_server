@@ -306,11 +306,11 @@ func login_func(account, password, channel string) {
 		return
 	}
 
-	select_server_func(account, msg.GetToken(), msg.GetServers()[0].GetId())
+	select_server_func(account, msg.GetToken() /*msg.GetServers()[0].GetId()*/, msg.GetGameIP())
 }
 
-func select_server_func(account string, token string, server_id int32) {
-	url_str := fmt.Sprintf(config.SelectServerUrl, config.LoginServerIP, account, token, server_id)
+func select_server_func(account string, token string /*server_id int32*/, game_ip string) {
+	/*url_str := fmt.Sprintf(config.SelectServerUrl, config.LoginServerIP, account, token, server_id)
 	log.Debug("select server Url str %s", url_str)
 
 	var resp *http.Response
@@ -357,11 +357,11 @@ func select_server_func(account string, token string, server_id int32) {
 	if err != nil {
 		log.Error("unmarshal error[%v]", err.Error())
 		return
-	}
+	}*/
 
-	strs := strings.Split(msg.GetIP(), ":")
+	strs := strings.Split( /*msg.GetIP()*/ game_ip, ":")
 	if len(strs) == 0 {
-		log.Error("cant get game server port from ip %v", msg.GetIP())
+		log.Error("cant get game server port from ip %v" /*msg.GetIP()*/, game_ip)
 		return
 	}
 
@@ -371,11 +371,11 @@ func select_server_func(account string, token string, server_id int32) {
 	} else {
 		ip = fmt.Sprintf("http://%v:%v", strings.Split(config.LoginServerIP, ":")[0], strs[len(strs)-1])
 	}
-	cur_hall_conn := new_hall_connect(ip, account, msg.GetToken(), config.UseHttps)
+	cur_hall_conn := new_hall_connect(ip, account, token, config.UseHttps)
 	hall_conn_mgr.AddHallConn(cur_hall_conn)
 	req2s := &msg_client_message.C2SEnterGameRequest{}
 	req2s.Acc = account
-	req2s.Token = msg.GetToken()
+	req2s.Token = token
 	cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), req2s)
 }
 

@@ -74,6 +74,8 @@ func (this *LoginServer) Start(use_https bool) bool {
 		return false
 	}*/
 
+	go server_list.Run()
+
 	if use_https {
 		go this.StartHttps(server_config.GetConfPathFile("server.crt"), server_config.GetConfPathFile("server.key"))
 	} else {
@@ -605,11 +607,6 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 		}
 	}
 
-	// 验证
-	now_time := time.Now()
-	token := fmt.Sprintf("%v_%v", now_time.Unix()+now_time.UnixNano(), account)
-	account_login(account, token)
-
 	if acc_row != nil {
 		if acc_row.GetUniqueId() == "" {
 			uid := _generate_account_uuid(account)
@@ -618,6 +615,7 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 			}
 		}
 
+		now_time := time.Now()
 		last_time := acc_row.GetLastGetAccountPlayerListTime()
 		if int32(now_time.Unix())-last_time >= 5*60 {
 			share_data.LoadAccountPlayerList(server.redis_conn, account)
@@ -625,9 +623,33 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 		}
 	}
 
+	// --------------------------------------------------------------------------------------------
+	// 选择默认服
+	select_server_id := acc_row.GetLastSelectServerId()
+	if select_server_id <= 0 {
+		server := server_list.RandomOne()
+		if server == nil {
+			err_code = int32(msg_client_message.E_ERR_INTERNAL)
+			log.Error("Server List random null !!!")
+			return
+		}
+		select_server_id = server.Id
+		acc_row.SetLastSelectServerId(select_server_id)
+	}
+
+	var hall_ip, token string
+	err_code, hall_ip, token = _select_server(acc_row.GetUniqueId(), account, select_server_id)
+	if err_code < 0 {
+		return
+	}
+	// --------------------------------------------------------------------------------------------
+
+	account_login(account, token)
+
 	response := &msg_client_message.S2CLoginResponse{
-		Acc:   account,
-		Token: token,
+		Acc:    account,
+		Token:  token,
+		GameIP: hall_ip,
 	}
 
 	if server_list.Servers == nil {
@@ -645,9 +667,7 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 	}
 
 	response.InfoList = share_data.GetAccountPlayerList(account)
-	if acc_row != nil {
-		response.LastServerId = acc_row.GetLastSelectServerId()
-	}
+	response.LastServerId = select_server_id
 
 	resp_data, err = proto.Marshal(response)
 	if err != nil {
@@ -657,6 +677,35 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 	}
 
 	log.Debug("Account[%v] logined", account)
+
+	return
+}
+
+func _select_server(unique_id, account string, server_id int32) (err_code int32, hall_ip, access_token string) {
+	sinfo := server_list.GetById(server_id)
+	if sinfo == nil {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
+		log.Error("select_server_handler player[%v] select server[%v] not found")
+		return
+	}
+
+	hall_agent := hall_agent_manager.GetAgentByID(server_id)
+	if nil == hall_agent {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
+		log.Error("login_http_handler get hall_agent failed")
+		return
+	}
+
+	access_token = share_data.GenerateAccessToken(unique_id)
+	hall_agent.Send(uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN), &msg_server_message.L2HSyncAccountToken{
+		UniqueId: unique_id,
+		Account:  account,
+		Token:    access_token,
+	})
+
+	hall_ip = sinfo.IP
+
+	err_code = 1
 
 	return
 }
@@ -689,33 +738,17 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	sinfo := server_list.GetById(server_id)
-	if sinfo == nil {
-		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
-		log.Error("select_server_handler player[%v] select server[%v] not found")
+	err_code, hall_ip, access_token := _select_server(row.GetUniqueId(), account, server_id)
+	if err_code < 0 {
 		return
 	}
 
-	hall_agent := hall_agent_manager.GetAgentByID(server_id)
-	if nil == hall_agent {
-		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
-		log.Error("login_http_handler get hall_agent failed")
-		return
-	}
-
-	access_token := share_data.GenerateAccessToken(row.GetUniqueId())
-	hall_agent.Send(uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN), &msg_server_message.L2HSyncAccountToken{
-		UniqueId: row.GetUniqueId(),
-		Account:  account,
-		Token:    access_token,
-	})
-
-	var hall_ip string
 	if server.use_https {
-		hall_ip = "https://" + sinfo.IP
+		hall_ip = "https://" + hall_ip
 	} else {
-		hall_ip = "http://" + sinfo.IP
+		hall_ip = "http://" + hall_ip
 	}
+
 	response := &msg_client_message.S2CSelectServerResponse{
 		Acc:   account,
 		Token: access_token,
