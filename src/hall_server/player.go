@@ -881,7 +881,7 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		}
 	}
 
-	Output_S2CBattleResult(this, response)
+	//Output_S2CBattleResult(this, response)
 	return 1
 }
 
