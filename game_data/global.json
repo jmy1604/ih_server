@@ -98,6 +98,15 @@
 		"SendMsgCooldown": 180
 	},
 	
+	"SystemChatData": {
+		"MaxMsgNum": 200,
+		"PullMaxMsgNum": 50,
+		"PullMsgCooldown": 3,
+		"MsgMaxBytes": 50,
+		"MsgExistTime": 100,
+		"SendMsgCooldown": 180
+	},
+	
 	"AnouncementMaxNum": 1000,
 	"AnouncementSendCooldown": 15,
 	"AnouncementSendMaxNum": 10,
