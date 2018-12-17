@@ -44,6 +44,7 @@ func (this *ServerList) _read_config(data []byte) bool {
 		return false
 	}
 
+	var total_weight int32
 	if this.Servers != nil {
 		for i := 0; i < len(this.Servers); i++ {
 			s := this.Servers[i]
@@ -53,15 +54,16 @@ func (this *ServerList) _read_config(data []byte) bool {
 			} else if s.Weight == 0 {
 				log.Trace("Server Id %v Weight %v", s.Id, s.Weight)
 			}
-			this.TotalWeight += s.Weight
+			total_weight += s.Weight
 		}
 	}
 
-	if this.TotalWeight <= 0 {
-		log.Error("Server List Total Weight is invalid %v", this.TotalWeight)
+	if total_weight <= 0 {
+		log.Error("Server List Total Weight is invalid %v", total_weight)
 		return false
 	}
 
+	this.TotalWeight = total_weight
 	this.Data = string(data)
 	this.MD5Str = _get_md5(data)
 
