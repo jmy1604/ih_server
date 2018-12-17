@@ -132,6 +132,7 @@ type Player struct {
 	world_chat_data        PlayerChatData                        // 世界聊天缓存数据
 	guild_chat_data        PlayerChatData                        // 公会聊天缓存
 	recruit_chat_data      PlayerChatData                        // 招募聊天缓存
+	system_chat_data       PlayerChatData                        // 系统公告缓存
 	anouncement_data       PlayerAnouncementData                 // 公告缓存数据
 	inited                 bool                                  // 是否已初始化
 	is_login               int32                                 // 是否在线
@@ -528,6 +529,10 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 		// 招募频道
 		if this.has_new_chat_msg(CHAT_CHANNEL_RECRUIT) {
 			states[id] |= 4
+		}
+		// 系统公告频道
+		if this.has_new_chat_msg(CHAT_CHANNEL_SYSTEM) {
+			states[id] |= 8
 		}
 	}
 	// 邮件 7

@@ -511,6 +511,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 	p.send_teams()
 	p.send_guide_data()
 	p.send_explore_data()
+	p.get_sign_data()
 	p.notify_enter_complete()
 
 	log.Info("PlayerEnterGameHandler account[%s] token[%s]", req.GetAcc(), req.GetToken())

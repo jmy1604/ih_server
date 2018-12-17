@@ -107,6 +107,7 @@ type GlobalConfig struct {
 	WorldChatData   ChatConfig // 世界频道
 	GuildChatData   ChatConfig // 公会频道
 	RecruitChatData ChatConfig // 招募频道
+	SystemChatData  ChatConfig // 系统公告频道
 
 	AnouncementMaxNum       int32 // 公告最大数量
 	AnouncementSendCooldown int32 // 公告发送间隔冷却时间(分钟)

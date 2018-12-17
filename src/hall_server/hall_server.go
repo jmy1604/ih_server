@@ -65,6 +65,8 @@ func (this *HallServer) Init() (ok bool) {
 	world_chat_mgr.Init(CHAT_CHANNEL_WORLD)
 	// 招募频道
 	recruit_chat_mgr.Init(CHAT_CHANNEL_RECRUIT)
+	// 系统公告频道
+	system_chat_mgr.Init(CHAT_CHANNEL_SYSTEM)
 	// 公告
 	anouncement_mgr.Init()
 	// 录像

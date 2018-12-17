@@ -928,7 +928,7 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 		}
 
 		// 人数限制
-		if levelup_data.MemberNum <= guild.Members.NumAll() {
+		if levelup_data.MemberNum < guild.Members.NumAll()+int32(len(player_ids)) {
 			log.Error("Guild %v members num is max, player %v cant agree the players %v join", guild.GetId(), this.Id, player_ids)
 			return int32(msg_client_message.E_ERR_PLAYER_GUILD_MEMBER_NUM_LIMITED)
 		}

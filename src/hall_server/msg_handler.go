@@ -156,8 +156,9 @@ func _send_error(w http.ResponseWriter, ret_code int32) {
 	}
 }
 
-func _push_client_msg_res(err_code int32, data []byte, msg_res *msg_client_message.S2C_MSG_DATA) {
+func _push_client_msg_res(err_code int32, msg_id int32, data []byte, msg_res *msg_client_message.S2C_MSG_DATA) {
 	msg_res.MsgList = append(msg_res.MsgList, &msg_client_message.S2C_ONE_MSG{
+		MsgCode:   msg_id,
 		ErrorCode: err_code,
 		Data:      data,
 	})
@@ -165,8 +166,7 @@ func _push_client_msg_res(err_code int32, data []byte, msg_res *msg_client_messa
 
 func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, msg_id int32, msg_data []byte, handlerinfo *MsgHandlerInfo, msg_res *msg_client_message.S2C_MSG_DATA) {
 	if msg_id <= 0 {
-		//_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), 0)
-		_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), nil, msg_res)
+		_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), 0, nil, msg_res)
 		log.Error("!!!!!! Invalid Msg Id %v from Player Id %v", msg_id, p.Id)
 		return
 	}
@@ -201,21 +201,15 @@ func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, 
 		atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
 	}
 
-	_push_client_msg_res(ret_code, data, msg_res)
+	_push_client_msg_res(ret_code, msg_id, data, msg_res)
 }
 
-func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg *msg_client_message.C2S_MSG_DATA, msg_res *msg_client_message.S2C_MSG_DATA) {
-	msg_list := msg.GetMsgList()
-	if msg_list == nil {
-		return
-	}
-
+func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg_list []*msg_client_message.C2S_ONE_MSG, msg_res *msg_client_message.S2C_MSG_DATA) {
 	for _, m := range msg_list {
 		msg_id := m.GetMsgCode()
 		handlerinfo := msg_handler_mgr.msgid2handler[msg_id]
 		if nil == handlerinfo {
-			//_send_error(w, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), 0)
-			_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), nil, msg_res)
+			_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND), 0, nil, msg_res)
 			log.Error("client_msg_handler msg_handler_mgr[%d] nil ", msg_id)
 			continue
 		}
@@ -233,7 +227,7 @@ func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg
 			} else {
 				data = nil
 			}
-			_push_client_msg_res(ret_code, data, msg_res)
+			_push_client_msg_res(ret_code, msg_id, data, msg_res)
 		} else {
 			_process_one_client_msg(w, r, p, msg_id, msg_data, handlerinfo, msg_res)
 		}
@@ -273,28 +267,32 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var res2cli msg_client_message.S2C_MSG_DATA
-	if pid > 0 {
-		p := player_mgr.GetPlayerById(pid)
-		if nil == p {
-			_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_NOT_FOUND))
-			log.Error("client_msg_handler failed to GetPlayerById [%d]", tmp_msg.GetPlayerId())
-			return
-		}
 
-		tokeninfo := login_token_mgr.GetTokenByUid(p.UniqueId)
-		if nil != tokeninfo && tokeninfo.token == tmp_msg.GetToken() {
-			_process_client_msgs(w, r, p, tmp_msg, &res2cli)
-		} else {
-			ret_code := int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN)
-			_send_error(w, ret_code)
-			if tokeninfo == nil {
-				log.Warn("Account[%v] no token info", p.Account)
-			} else {
-				log.Warn("Account[%v] token[%v] invalid, need[%v]", p.Account, tmp_msg.GetToken(), tokeninfo.token)
+	msg_list := tmp_msg.GetMsgList()
+	if msg_list != nil {
+		if pid > 0 {
+			p := player_mgr.GetPlayerById(pid)
+			if nil == p {
+				_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_NOT_FOUND))
+				log.Error("client_msg_handler failed to GetPlayerById [%d]", tmp_msg.GetPlayerId())
+				return
 			}
+
+			tokeninfo := login_token_mgr.GetTokenByUid(p.UniqueId)
+			if tokeninfo != nil && tokeninfo.token == tmp_msg.GetToken() {
+				_process_client_msgs(w, r, p, msg_list, &res2cli)
+			} else {
+				_send_error(w, int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN))
+				if tokeninfo == nil {
+					log.Warn("Account[%v] no token info", p.Account)
+				} else {
+					log.Warn("Account[%v] token[%v] invalid, need[%v]", p.Account, tmp_msg.GetToken(), tokeninfo.token)
+				}
+				return
+			}
+		} else {
+			_process_client_msgs(w, r, nil, msg_list, &res2cli)
 		}
-	} else {
-		_process_client_msgs(w, r, nil, tmp_msg, &res2cli)
 	}
 
 	final_data, err := proto.Marshal(&res2cli)
