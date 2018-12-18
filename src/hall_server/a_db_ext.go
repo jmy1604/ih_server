@@ -24,6 +24,10 @@ func (this *DBC) on_preload() (err error) {
 
 		friend_recommend_mgr.CheckAndAddPlayer(p.Id)
 
+		if p.db.GetLevel() == 0 {
+			p.db.SetLevel(p.db.Info.GetLvl())
+		}
+
 		//login_token_mgr.AddToAcc2Token(p.Account, p.Token, p.Id)
 		//login_token_mgr.AddToId2Acc(p.Id, p.Account)
 	}
