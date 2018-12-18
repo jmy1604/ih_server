@@ -918,17 +918,6 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_FUSION_FAILED)
 	}
 
-	new_role_id := int32(0)
-	if fusion.FusionType == 1 {
-		new_role_id = main_role_id
-		this.db.Roles.SetTableId(main_role_id, item.Id)
-		this.roles_id_change_info.id_update(main_role_id)
-		// 排行榜更新
-		this.UpdateRolePowerRank(main_role_id)
-	} else {
-		new_role_id = this.new_role(item.Id, 1, 1)
-	}
-
 	// 返还升级升阶的资源
 	var get_items map[int32]int32
 	for i := 0; i < len(cost_role_ids); i++ {
@@ -944,6 +933,17 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 			}
 			this.delete_role(cost_role_ids[i][j])
 		}
+	}
+
+	new_role_id := int32(0)
+	if fusion.FusionType == 1 {
+		new_role_id = main_role_id
+		this.db.Roles.SetTableId(main_role_id, item.Id)
+		this.roles_id_change_info.id_update(main_role_id)
+		// 排行榜更新
+		this.UpdateRolePowerRank(main_role_id)
+	} else {
+		new_role_id = this.new_role(item.Id, 1, 1)
 	}
 
 	for i := 0; i < len(fusion.ResCondition)/2; i++ {
