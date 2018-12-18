@@ -2,14 +2,17 @@ package main
 
 import (
 	"bytes"
+	"compress/zlib"
 	"crypto/tls"
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
+	"io"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/snappy"
 )
 
 const (
@@ -46,6 +49,11 @@ func new_hall_connect(hall_ip, acc, token string, use_https bool) *HallConnectio
 	log.Info("new hall connection to ip %v", hall_ip)
 
 	return ret_conn
+}
+
+type ResponseData struct {
+	CompressType int32
+	Data         []byte
 }
 
 func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
@@ -94,12 +102,42 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 	}
 
 	//log.Info("接收到的二进制流 长度[%v] 数据[%v]", len(data), data)
-	if len(data) < 0 {
+	if len(data) < 1 {
+		log.Error("data length %v invalid", len(data))
 		return
 	}
 
+	var d []byte
+	compress_type := int32(data[len(data)-1])
+	if len(data) == 1 {
+		d = []byte{}
+	} else {
+		if compress_type != 0 {
+			if compress_type == 1 {
+				in := bytes.NewBuffer(data[:len(data)-1])
+				r, e := zlib.NewReader(in)
+				if e != nil {
+					log.Error("Zlib New Reader err %v", e.Error())
+					return
+				}
+				var out bytes.Buffer
+				io.Copy(&out, r)
+				d = out.Bytes()
+			} else if compress_type == 2 {
+				d, err = snappy.Decode(nil, data[:len(data)-1])
+				if err != nil {
+					log.Error("Snappy decode %v err %v", data[:len(data)-1], err.Error())
+					return
+				}
+			} else {
+				log.Error("Compress type %v not supported", compress_type)
+				return
+			}
+		}
+	}
+
 	S2C_MSG := &msg_client_message.S2C_MSG_DATA{}
-	err = proto.Unmarshal(data, S2C_MSG)
+	err = proto.Unmarshal(d, S2C_MSG)
 	if nil != err {
 		log.Error("HallConnection unmarshal resp data err(%s) !", err.Error())
 		return

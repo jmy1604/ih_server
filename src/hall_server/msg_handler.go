@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"compress/zlib"
 	"crypto/tls"
+	"encoding/json"
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
@@ -15,6 +18,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/snappy"
 )
 
 var msg_handler_http_mux map[string]func(http.ResponseWriter, *http.Request)
@@ -149,7 +153,18 @@ func _send_error(w http.ResponseWriter, ret_code int32) {
 		return
 	}
 
-	iret, err := w.Write(final_data)
+	var rd ResponseData = ResponseData{
+		Data: final_data,
+	}
+
+	var jd []byte
+	jd, err = json.Marshal(&rd)
+	if err != nil {
+		log.Error("client_msg_handler json marshal err %v", err.Error())
+		return
+	}
+
+	iret, err := w.Write(jd)
 	if nil != err {
 		log.Error("client_msg_handler write data 1 failed err[%s] ret %d", err.Error(), iret)
 		return
@@ -234,6 +249,19 @@ func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg
 	}
 }
 
+type ResponseData struct {
+	CompressType int32 // 压缩类型  0 无压缩  1 zlib  2 snappy
+	Data         []byte
+}
+
+const (
+	COMPRESS_TYPE_NONE   = iota
+	COMPRESS_TYPE_ZLIB   = 1
+	COMPRESS_TYPE_SNAPPY = 2
+)
+
+var g_compress_type int32 = COMPRESS_TYPE_SNAPPY
+
 func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -302,7 +330,34 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	iret, err := w.Write(final_data)
+	var ct int32
+	if len(final_data) > 100 {
+		if g_compress_type == COMPRESS_TYPE_ZLIB {
+			var in bytes.Buffer
+			wr, err := zlib.NewWriterLevel(&in, zlib.BestSpeed)
+			if err != nil {
+				log.Error("New zlib writer with level %v err %v", zlib.DefaultCompression, err.Error())
+				return
+			}
+			wr.Write(final_data)
+			wr.Close()
+			data = in.Bytes()
+		} else if g_compress_type == COMPRESS_TYPE_SNAPPY {
+			data = snappy.Encode(nil, final_data)
+			if data == nil {
+				log.Error("Snappy encode %v nil", final_data)
+				return
+			}
+		}
+		ct = g_compress_type
+		log.Trace("Compressed Data len %v from len %v", len(data), len(final_data))
+	} else {
+		data = final_data
+	}
+
+	data = append(data, byte(ct))
+
+	iret, err := w.Write(data)
 	if nil != err {
 		_send_error(w, -1)
 		log.Error("client_msg_handler write data 2 failed err[%s] ret %d", err.Error(), iret)

@@ -116,11 +116,12 @@ const (
 )
 
 type RedisPayInfo struct {
-	OrderId  string
-	BundleId string
-	Account  string
-	PlayerId int32
-	PayTime  int32
+	OrderId    string
+	BundleId   string
+	Account    string
+	PlayerId   int32
+	PayTime    int32
+	PayTimeStr string
 }
 
 func google_pay_save(order_id, bundle_id, account string, player_id int32) {
@@ -129,7 +130,9 @@ func google_pay_save(order_id, bundle_id, account string, player_id int32) {
 	pay.BundleId = bundle_id
 	pay.Account = account
 	pay.PlayerId = player_id
-	pay.PayTime = int32(time.Now().Unix())
+	now_time := time.Now()
+	pay.PayTime = int32(now_time.Unix())
+	pay.PayTimeStr = now_time.String()
 
 	// serialize to redis
 	bytes, err := json.Marshal(&pay)
@@ -164,7 +167,9 @@ func apple_pay_save(order_id, bundle_id, account string, player_id int32) {
 	pay.BundleId = bundle_id
 	pay.Account = account
 	pay.PlayerId = player_id
-	pay.PayTime = int32(time.Now().Unix())
+	now_time := time.Now()
+	pay.PayTime = int32(now_time.Unix())
+	pay.PayTimeStr = now_time.String()
 	bytes, err := json.Marshal(&pay)
 	if err != nil {
 		log.Error("##### Serialize RedisPayInfo[%v] error[%v]", pay, err.Error())
