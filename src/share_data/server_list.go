@@ -1,4 +1,4 @@
-package main
+package share_data
 
 import (
 	"crypto/md5"
@@ -20,6 +20,7 @@ type HallServerInfo struct {
 }
 
 type ServerList struct {
+	CommonIP    string
 	Servers     []*HallServerInfo
 	Data        string
 	TotalWeight int32
@@ -168,5 +169,3 @@ func (this *ServerList) Run() {
 		time.Sleep(time.Minute)
 	}
 }
-
-var server_list ServerList

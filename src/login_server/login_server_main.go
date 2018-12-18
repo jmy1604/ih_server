@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"ih_server/libs/log"
 	"ih_server/src/server_config"
+	"ih_server/src/share_data"
 )
 
 var config server_config.LoginServerConfig
 var shutingdown bool
 var dbc DBC
+var server_list share_data.ServerList
 
 func main() {
 	defer func() {
