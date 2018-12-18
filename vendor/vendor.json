@@ -9,6 +9,12 @@
 			"revisionTime": "2018-10-05T18:17:28Z"
 		},
 		{
+			"checksumSHA1": "iDAyJMnswBRktzVlZSg7qdI5+A8=",
+			"path": "github.com/golang/snappy",
+			"revision": "2e65f85255dbc3072edf28d6b5b8efc472979f5a",
+			"revisionTime": "2018-05-18T05:39:59Z"
+		},
+		{
 			"checksumSHA1": "w3QCCIYHgZzIXQ+xTl7oLfFrXHs=",
 			"path": "github.com/gomodule/redigo/internal",
 			"revision": "2cd21d9966bf7ff9ae091419744f0b3fb0fecace",

@@ -331,7 +331,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var ct int32
-	if len(final_data) > 100 {
+	if len(final_data) > 400 {
 		if g_compress_type == COMPRESS_TYPE_ZLIB {
 			var in bytes.Buffer
 			wr, err := zlib.NewWriterLevel(&in, zlib.BestSpeed)

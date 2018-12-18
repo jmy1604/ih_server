@@ -112,9 +112,10 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 	if len(data) == 1 {
 		d = []byte{}
 	} else {
+		d = data[:len(data)-1]
 		if compress_type != 0 {
 			if compress_type == 1 {
-				in := bytes.NewBuffer(data[:len(data)-1])
+				in := bytes.NewBuffer(d)
 				r, e := zlib.NewReader(in)
 				if e != nil {
 					log.Error("Zlib New Reader err %v", e.Error())
@@ -124,9 +125,9 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 				io.Copy(&out, r)
 				d = out.Bytes()
 			} else if compress_type == 2 {
-				d, err = snappy.Decode(nil, data[:len(data)-1])
+				d, err = snappy.Decode(nil, d)
 				if err != nil {
-					log.Error("Snappy decode %v err %v", data[:len(data)-1], err.Error())
+					log.Error("Snappy decode %v err %v", d, err.Error())
 					return
 				}
 			} else {
