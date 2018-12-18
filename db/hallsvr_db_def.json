@@ -138,6 +138,18 @@
 					]
 				},
 				{
+					"DBColumnName":"Level",
+					"InUse":true,
+					"ColumnName":"Level",
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
 					"DBColumnName":"Item",
 					"InUse":true,
 					"ColumnName":"Item",

@@ -87,14 +87,14 @@ func (this *ServerList) ReadConfig(filepath string) bool {
 }
 
 func (this *ServerList) RereadConfig() bool {
+	this.Locker.Lock()
+	defer this.Locker.Unlock()
+
 	data, err := ioutil.ReadFile(this.ConfigPath)
 	if err != nil {
 		fmt.Printf("重新读取配置文件失败 %v", err)
 		return false
 	}
-
-	this.Locker.Lock()
-	defer this.Locker.Unlock()
 
 	md5_str := _get_md5(data)
 	if md5_str == this.MD5Str {

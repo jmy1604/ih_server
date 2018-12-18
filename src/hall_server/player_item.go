@@ -258,6 +258,7 @@ func (this *Player) add_exp(add int32) (level, exp int32) {
 
 	if level != this.db.Info.GetLvl() {
 		this.db.Info.SetLvl(level)
+		this.db.SetLevel(level)
 		this.b_base_prop_chg = true
 		// 更新任务
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_REACH_LEVEL, true, level, 1)
