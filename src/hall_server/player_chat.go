@@ -70,7 +70,7 @@ func (this *Player) get_chat_data(channel int32) (chat_data *PlayerChatData) {
 }
 
 func (this *Player) chat(channel int32, content []byte) int32 {
-	if channel == CHAT_CHANNEL_SYSTEM {
+	if config.DisableTestCommand && channel == CHAT_CHANNEL_SYSTEM {
 		log.Error("Player[%v] cant chat in system channel", this.Id)
 		return -1
 	}
