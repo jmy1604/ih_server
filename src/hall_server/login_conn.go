@@ -217,5 +217,7 @@ func L2HBindNewAccountHandler(conn *server_conn.ServerConn, msg proto.Message) {
 	p.Account = req.GetNewAccount() // 新账号
 	row.SetAccount(req.GetNewAccount())
 
+	login_token_mgr.BindNewAccount(req.GetUniqueId(), req.GetAccount(), req.GetNewAccount())
+
 	log.Debug("Account %v bind new account %v", req.GetAccount(), req.GetNewAccount())
 }

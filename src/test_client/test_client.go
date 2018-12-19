@@ -375,7 +375,7 @@ func select_server_func(account string, token string /*server_id int32*/, game_i
 	hall_conn_mgr.AddHallConn(cur_hall_conn)
 	req2s := &msg_client_message.C2SEnterGameRequest{}
 	req2s.Acc = account
-	req2s.Token = token
+	//req2s.Token = token
 	cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), req2s)
 }
 

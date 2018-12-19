@@ -64,7 +64,7 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 	}
 
 	C2S_MSG := &msg_client_message.C2S_MSG_DATA{}
-	C2S_MSG.PlayerId = this.playerid
+	//C2S_MSG.PlayerId = this.playerid
 	C2S_MSG.Token = this.token
 	one_msg := &msg_client_message.C2S_ONE_MSG{
 		MsgCode: int32(msg_id),

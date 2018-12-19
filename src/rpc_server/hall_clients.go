@@ -12,16 +12,21 @@ type HallRpcClient struct {
 	rpc_client *rpc.Client
 }
 
+func get_server_id_by_player_id(player_id int32) int32 {
+	return (player_id >> 20) & 0x1000
+}
+
 // 通过玩家ID对应大厅的rpc客户端
-func get_hall_rpc_client_by_player_id(player_id int32) *rpc.Client {
-	hc := hall_group_mgr.GetHallCfgByPlayerId(player_id)
-	if hc == nil {
-		log.Error("通过玩家ID[%v]获取大厅配置失败", player_id)
+func GetRpcClientByPlayerId(player_id int32) *rpc.Client {
+	server_id := get_server_id_by_player_id(player_id)
+	server_info := server_list.GetById(server_id)
+	if server_info == nil {
+		log.Error("get server info by server_id[%v] from player_id[%v] failed", server_id, player_id)
 		return nil
 	}
-	r := server.hall_rpc_clients[hc.ServerId]
+	r := server.hall_rpc_clients[server_id]
 	if r == nil {
-		log.Error("通过ServerID[%v]获取rpc客户端失败", hc.ServerId)
+		log.Error("通过ServerID[%v]获取rpc客户端失败", server_id)
 		return nil
 	}
 	return r.rpc_client

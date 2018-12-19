@@ -75,7 +75,7 @@ type Player struct {
 	UniqueId string
 	Id       int32
 	Account  string
-	Token    string
+	//Token    string
 
 	ol_array_idx  int32
 	all_array_idx int32
@@ -162,7 +162,7 @@ func new_player(id int32, uid, account, token string, db *dbPlayerRow) *Player {
 	ret_p.UniqueId = uid
 	ret_p.Id = id
 	ret_p.Account = account
-	ret_p.Token = token
+	//ret_p.Token = token
 	ret_p.db = db
 	ret_p.ol_array_idx = -1
 	ret_p.all_array_idx = -1

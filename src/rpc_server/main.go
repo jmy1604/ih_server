@@ -1,17 +1,15 @@
 package main
 
 import (
-	_ "encoding/json"
-	_ "flag"
 	"fmt"
 	"ih_server/libs/log"
 	"ih_server/src/server_config"
-	_ "io/ioutil"
-	_ "os"
+	"ih_server/src/share_data"
 	"time"
 )
 
 var rpc_config server_config.RpcServerConfig
+var server_list share_data.ServerList
 
 func main() {
 	defer func() {
@@ -26,6 +24,10 @@ func main() {
 
 	if !server_config.ServerConfigLoad("rpc_server.json", &rpc_config) {
 		fmt.Printf("载入RPC Server配置失败")
+		return
+	}
+
+	if !server_list.ReadConfig(server_config.GetConfPathFile("server_list.json")) {
 		return
 	}
 

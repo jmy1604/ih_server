@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"compress/zlib"
 	"crypto/tls"
-	"encoding/json"
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
+	"ih_server/src/share_data"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -153,18 +153,10 @@ func _send_error(w http.ResponseWriter, ret_code int32) {
 		return
 	}
 
-	var rd ResponseData = ResponseData{
-		Data: final_data,
-	}
+	data := final_data
+	data = append(data, byte(0))
 
-	var jd []byte
-	jd, err = json.Marshal(&rd)
-	if err != nil {
-		log.Error("client_msg_handler json marshal err %v", err.Error())
-		return
-	}
-
-	iret, err := w.Write(jd)
+	iret, err := w.Write(data)
 	if nil != err {
 		log.Error("client_msg_handler write data 1 failed err[%s] ret %d", err.Error(), iret)
 		return
@@ -219,7 +211,7 @@ func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, 
 	_push_client_msg_res(ret_code, msg_id, data, msg_res)
 }
 
-func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg_list []*msg_client_message.C2S_ONE_MSG, msg_res *msg_client_message.S2C_MSG_DATA) {
+func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg_list []*msg_client_message.C2S_ONE_MSG, msg_res *msg_client_message.S2C_MSG_DATA) (err int32) {
 	for _, m := range msg_list {
 		msg_id := m.GetMsgCode()
 		handlerinfo := msg_handler_mgr.msgid2handler[msg_id]
@@ -228,12 +220,9 @@ func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg
 			log.Error("client_msg_handler msg_handler_mgr[%d] nil ", msg_id)
 			continue
 		}
+
 		msg_data := m.GetData()
-		if p == nil {
-			if handlerinfo.if_player_msg {
-				log.Error("!!!!!! Process msg %v need player id", msg_id)
-				continue
-			}
+		if !handlerinfo.if_player_msg {
 			var ret_code int32
 			var data []byte
 			ret_code, p = handlerinfo.msg_handler(w, r, msg_data)
@@ -244,9 +233,16 @@ func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg
 			}
 			_push_client_msg_res(ret_code, msg_id, data, msg_res)
 		} else {
+			if p == nil {
+				err = int32(msg_client_message.E_ERR_PLAYER_NOT_FOUND_BY_TOKEN)
+				log.Error("!!!!!! Process msg %v not found player", msg_id)
+				break
+			}
 			_process_one_client_msg(w, r, p, msg_id, msg_data, handlerinfo, msg_res)
 		}
 	}
+
+	return
 }
 
 type ResponseData struct {
@@ -287,10 +283,23 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pid := tmp_msg.GetPlayerId()
-	if pid < 0 {
-		_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_INVALID))
-		log.Error("!!!!!! Invalid Player Id %v Send Msg", tmp_msg.GetPlayerId())
+	token := tmp_msg.GetToken()
+	var access_token share_data.AccessTokenInfo
+	if !access_token.ParseString(token) {
+		_send_error(w, int32(msg_client_message.E_ERR_PLAYER_TOKEN_ERROR))
+		log.Error("client_msg_handler parse token %v failed", token)
+		return
+	}
+
+	token_info := login_token_mgr.GetTokenByUid(access_token.UniqueId)
+	if token_info == nil || token_info.token != token {
+		if token_info == nil {
+			_send_error(w, int32(msg_client_message.E_ERR_PLAYER_TOKEN_NOT_FOUND))
+			log.Warn("UniqueId[%v] no token info", access_token.UniqueId)
+		} else {
+			_send_error(w, int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN))
+			log.Warn("UniqueId[%v] token[%v] invalid, need[%v]", access_token.UniqueId, tmp_msg.GetToken(), token_info.token)
+		}
 		return
 	}
 
@@ -298,28 +307,11 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 
 	msg_list := tmp_msg.GetMsgList()
 	if msg_list != nil {
-		if pid > 0 {
-			p := player_mgr.GetPlayerById(pid)
-			if nil == p {
-				_send_error(w, int32(msg_client_message.E_ERR_PLAYER_ID_NOT_FOUND))
-				log.Error("client_msg_handler failed to GetPlayerById [%d]", tmp_msg.GetPlayerId())
-				return
-			}
-
-			tokeninfo := login_token_mgr.GetTokenByUid(p.UniqueId)
-			if tokeninfo != nil && tokeninfo.token == tmp_msg.GetToken() {
-				_process_client_msgs(w, r, p, msg_list, &res2cli)
-			} else {
-				_send_error(w, int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN))
-				if tokeninfo == nil {
-					log.Warn("Account[%v] no token info", p.Account)
-				} else {
-					log.Warn("Account[%v] token[%v] invalid, need[%v]", p.Account, tmp_msg.GetToken(), tokeninfo.token)
-				}
-				return
-			}
-		} else {
-			_process_client_msgs(w, r, nil, msg_list, &res2cli)
+		p := player_mgr.GetPlayerByUid(access_token.UniqueId)
+		e := _process_client_msgs(w, r, p, msg_list, &res2cli)
+		if e < 0 {
+			_send_error(w, e)
+			return
 		}
 	}
 
@@ -350,7 +342,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		ct = g_compress_type
-		log.Trace("Compressed Data len %v from len %v", len(data), len(final_data))
+		log.Debug("Compressed Data len %v from len %v", len(data), len(final_data))
 	} else {
 		data = final_data
 	}

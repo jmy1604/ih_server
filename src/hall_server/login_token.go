@@ -30,6 +30,7 @@ type LoginTokenInfo struct {
 
 type LoginTokenMgr struct {
 	uid2token        map[string]*LoginTokenInfo
+	acc2uid          map[string]string
 	uid2token_locker *sync.RWMutex
 }
 
@@ -37,6 +38,7 @@ var login_token_mgr LoginTokenMgr
 
 func (this *LoginTokenMgr) Init() bool {
 	this.uid2token = make(map[string]*LoginTokenInfo)
+	this.acc2uid = make(map[string]string)
 	this.uid2token_locker = &sync.RWMutex{}
 	return true
 }
@@ -93,6 +95,7 @@ func (this *LoginTokenMgr) AddToUid2Token(uid, acc, token string, playerid int32
 
 	now_time := time.Now()
 	this.uid2token[uid] = &LoginTokenInfo{account: acc, token: token, create_time: int32(now_time.Unix()), playerid: playerid, login_server: login_server}
+	this.acc2uid[acc] = uid
 
 	_save_redis_login_token(uid, token, now_time, playerid)
 }
@@ -109,6 +112,9 @@ func (this *LoginTokenMgr) BindNewAccount(uid, acc, new_acc string) bool {
 
 	token_info.account = new_acc
 
+	delete(this.acc2uid, acc)
+	this.acc2uid[new_acc] = uid
+
 	return true
 }
 
@@ -121,7 +127,9 @@ func (this *LoginTokenMgr) RemoveFromUid2Token(uid string) {
 	this.uid2token_locker.Lock()
 	defer this.uid2token_locker.Unlock()
 
-	if nil != this.uid2token[uid] {
+	d := this.uid2token[uid]
+	if nil != d {
+		delete(this.acc2uid, d.account)
 		delete(this.uid2token, uid)
 	}
 
@@ -164,4 +172,11 @@ func (this *LoginTokenMgr) SetToken(uid, token string, player_id int32) bool {
 	_save_redis_login_token(uid, token, time.Now(), player_id)
 
 	return true
+}
+
+func (this *LoginTokenMgr) GetUidByAccount(acc string) string {
+	this.uid2token_locker.RLock()
+	defer this.uid2token_locker.RUnlock()
+
+	return this.acc2uid[acc]
 }

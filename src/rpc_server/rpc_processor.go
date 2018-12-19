@@ -22,7 +22,7 @@ func (this *H2H_CallProc) Do(args *rpc_common.H2R_Transfer, reply *rpc_common.H2
 			log.Stack(err)
 		}
 	}()
-	rpc_client := get_hall_rpc_client_by_player_id(args.ReceivePlayerId)
+	rpc_client := GetRpcClientByPlayerId(args.ReceivePlayerId)
 	if rpc_client == nil {
 		err_str := fmt.Sprintf("!!!!!! Not found rpc client by player id %v", args.ReceivePlayerId)
 		return errors.New(err_str)
@@ -113,7 +113,7 @@ type H2R_FriendProc struct {
 }
 
 func (this *H2R_FriendProc) search_player(nick string, id int32, result *rpc_common.H2R_SearchFriendResult) error {
-	rpc_client := get_hall_rpc_client_by_player_id(id)
+	rpc_client := GetRpcClientByPlayerId(id)
 	if rpc_client == nil {
 		err_str := fmt.Sprintf("无法获取玩家[%v,%v]相应的大厅", nick, id)
 		return errors.New(err_str)
@@ -227,7 +227,7 @@ func (this *H2R_FriendProc) AddFriendById(args *rpc_common.H2R_AddFriendById, re
 		}
 	}()
 
-	rpc_client := get_hall_rpc_client_by_player_id(args.AddPlayerId)
+	rpc_client := GetRpcClientByPlayerId(args.AddPlayerId)
 	if rpc_client == nil {
 		return errors.New("获取rpc客户端失败")
 	}
@@ -263,7 +263,7 @@ func (this *H2R_FriendProc) AddFriendByName(args *rpc_common.H2R_AddFriendByName
 		return errors.New(err_str)
 	}
 
-	rpc_client := get_hall_rpc_client_by_player_id(add_ids[0])
+	rpc_client := GetRpcClientByPlayerId(add_ids[0])
 	if rpc_client == nil {
 		err_str := fmt.Sprintf("通过玩家ID[%v]获取rpc客户端失败", add_ids[0])
 		return errors.New(err_str)
@@ -285,7 +285,7 @@ func (this *H2R_FriendProc) AgreeAddFriend(args *rpc_common.H2R_AgreeAddFriend, 
 		}
 	}()
 
-	rpc_client := get_hall_rpc_client_by_player_id(args.AgreePlayerId)
+	rpc_client := GetRpcClientByPlayerId(args.AgreePlayerId)
 	if rpc_client == nil {
 		err_str := fmt.Sprintf("通过玩家ID[%v]获取rpc客户端失败", args.AgreePlayerId)
 		return errors.New(err_str)
@@ -321,7 +321,7 @@ func (this *H2R_FriendProc) RemoveFriend(args *rpc_common.H2R_RemoveFriend, resu
 		}
 	}()
 
-	rpc_client := get_hall_rpc_client_by_player_id(args.RemovePlayerId)
+	rpc_client := GetRpcClientByPlayerId(args.RemovePlayerId)
 	if rpc_client == nil {
 		err_str := fmt.Sprintf("RPC FriendProc @@@ get rpc client by player_id[%v] failed", args.RemovePlayerId)
 		return errors.New(err_str)
@@ -350,7 +350,7 @@ func (this *H2H_FriendProc) AddFriend(args *rpc_common.H2H_AddFriend, result *rp
 		}
 	}()
 
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
+	rpc_client := GetRpcClientByPlayerId(args.ToPlayerId)
 	if rpc_client == nil {
 		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
 		return errors.New(err_str)
@@ -372,7 +372,7 @@ func (this *H2H_FriendProc) GiveFriendPoints(args *rpc_common.H2H_GiveFriendPoin
 		}
 	}()
 
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
+	rpc_client := GetRpcClientByPlayerId(args.ToPlayerId)
 	if rpc_client == nil {
 		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
 		return errors.New(err_str)
@@ -394,7 +394,7 @@ func (this *H2H_FriendProc) RefreshGivePoints(args *rpc_common.H2H_RefreshGiveFr
 		}
 	}()
 
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
+	rpc_client := GetRpcClientByPlayerId(args.ToPlayerId)
 	if rpc_client == nil {
 		err_str := fmt.Sprintf("RPC FriendProc @@@ get rpc client by player_id[%v] failed", args.ToPlayerId)
 		return errors.New(err_str)
@@ -429,7 +429,7 @@ func (this *H2R_StageProc) GetFriendsStageInfo(args *rpc_common.H2R_FriendsStage
 
 	result.StageInfos = make([]*rpc_common.H2R_PlayerStageInfo, len(args.FriendIds))
 	for i, id := range args.FriendIds {
-		rp := get_hall_rpc_client_by_player_id(id)
+		rp := GetRpcClientByPlayerId(id)
 		if rp == nil {
 			log.Warn("玩家id[%v]没有对应的大厅rpc客户端", id)
 			continue
@@ -479,7 +479,7 @@ func (this *H2H_PlayerProc) UpdateBaseInfo(args *rpc_common.H2H_BaseInfo, result
 		}
 	}
 
-	local_rpc_client := get_hall_rpc_client_by_player_id(args.FromPlayerId)
+	local_rpc_client := GetRpcClientByPlayerId(args.FromPlayerId)
 	for _, r := range server.hall_rpc_clients {
 		if r.rpc_client != nil && local_rpc_client != r.rpc_client {
 			err := r.rpc_client.Call("H2H_PlayerProc.UpdateBaseInfo", args, result)
@@ -503,7 +503,7 @@ func (this *H2H_PlayerProc) Zan(args *rpc_common.H2H_ZanPlayer, result *rpc_comm
 		}
 	}()
 
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
+	rpc_client := GetRpcClientByPlayerId(args.ToPlayerId)
 	if rpc_client == nil {
 		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
 		return errors.New(err_str)
@@ -977,7 +977,7 @@ func (this *H2H_GlobalProc) WorldChat(args *rpc_common.H2H_WorldChat, result *rp
 		}
 	}()
 
-	from_client := get_hall_rpc_client_by_player_id(args.FromPlayerId)
+	from_client := GetRpcClientByPlayerId(args.FromPlayerId)
 	for _, r := range server.hall_rpc_clients {
 		if r.rpc_client != nil && r.rpc_client != from_client {
 			err := r.rpc_client.Call("H2H_GlobalProc.WorldChat", args, result)
@@ -998,7 +998,7 @@ func (this *H2H_GlobalProc) Anouncement(args *rpc_common.H2H_Anouncement, result
 		}
 	}()
 
-	from_client := get_hall_rpc_client_by_player_id(args.FromPlayerId)
+	from_client := GetRpcClientByPlayerId(args.FromPlayerId)
 	for _, r := range server.hall_rpc_clients {
 		if r.rpc_client != nil && r.rpc_client != from_client {
 			err := r.rpc_client.Call("H2H_GlobalProc.Anouncement", args, result)
@@ -1026,38 +1026,6 @@ func (this *RpcServer) init_proc_service() bool {
 	if !this.rpc_service.Register(&H2R_ListenRPCProc{}) {
 		return false
 	}
-
-	// 昵称调用注册
-	if !this.rpc_service.Register(&H2R_NickIdProc{}) {
-		return false
-	}
-
-	// 关卡调用注册
-	if !this.rpc_service.Register(&H2R_StageProc{}) {
-		return false
-	}
-
-	// 好友调用注册
-	if !this.rpc_service.Register(&H2R_FriendProc{}) {
-		return false
-	}
-
-	// 好友调用注册
-	if !this.rpc_service.Register(&H2H_FriendProc{}) {
-		return false
-	}
-
-	// 玩家调用注册
-	if !this.rpc_service.Register(&H2H_PlayerProc{}) {
-		return false
-	}
-
-	// 排行榜调用注册
-	/*ranking_list_proc = &H2R_RankingListProc{}
-	ranking_list_proc.Init()
-	if !this.rpc_service.Register(ranking_list_proc) {
-		return false
-	}*/
 
 	// 世界聊天调用注册
 	if !this.rpc_service.Register(&H2H_GlobalProc{}) {

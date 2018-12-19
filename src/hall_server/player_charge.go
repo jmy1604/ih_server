@@ -447,7 +447,7 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		_post_talking_data(this.Account, "google pay", config.ServerName, config.InnerVersion, "google", data.OrderId, "android", "charge", "success", this.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 
-	log.Info("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", this.Id, bundle_id, purchase_data, signature)
+	log.Trace("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", this.Id, bundle_id, purchase_data, signature)
 
 	return 1
 }
@@ -581,9 +581,9 @@ type TalkingDataStatus struct {
 }
 
 type TalkingDataResponse struct {
-	Code       int32  `json:"code"`
-	Msg        string `json:"msg"`
-	DataStatus []*TalkingDataStatus
+	Code       int32                `json:"code"`
+	Msg        string               `json:"msg"`
+	DataStatus []*TalkingDataStatus `json:"dataStatus"`
 }
 
 func _gzip_encode(data []byte) ([]byte, error) {

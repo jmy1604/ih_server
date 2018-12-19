@@ -25,8 +25,8 @@ enum E_ERR {
 	PLAYER_MUEST_RECONN_WITH_DISCONN_STATE  = -17; // 断开状态下必须先重连
 	PLAYER_MSG_ID_INVALID					= -18; // 消息号非法
 	PLAYER_MSG_ID_NOT_FOUND				 	= -19; // 消息号不存在
-	PLAYER_ID_INVALID						= -20; // 玩家ID非法
-	PLAYER_ID_NOT_FOUND						= -21; // 玩家ID不存在
+	PLAYER_NOT_FOUND_BY_TOKEN				= -20; // 玩家对象不存在
+	PLAYER_TOKEN_NOT_FOUND					= -21; // 玩家令牌找不到
 	
 	// 账号
 	ACCOUNT_ALREADY_REGISTERED				= -100; // 账号已注册
@@ -436,7 +436,7 @@ message C2S_ONE_MSG {
 }
 
 message C2S_MSG_DATA {
-	int32 PlayerId 							= 1; // 玩家ID		
+	//int32 PlayerId 						= 1; // 玩家ID		
 	string Token 							= 2; // 令牌
 	repeated C2S_ONE_MSG MsgList			= 3; // 消息队列
 }
@@ -456,7 +456,6 @@ message S2C_MSG_DATA {
 // 进入游戏服务器
 message C2SEnterGameRequest {
 	string Acc								= 1;
-	string Token							= 2;
 }
 // 返回
 message S2CEnterGameResponse {
