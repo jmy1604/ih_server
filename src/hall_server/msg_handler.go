@@ -199,12 +199,6 @@ func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, 
 			ret_code = int32(msg_client_message.E_ERR_PLAYER_MUEST_RECONN_WITH_DISCONN_STATE)
 		}
 		data = p.PopCurMsgData()
-
-		if USE_CONN_TIMER_WHEEL == 0 {
-			conn_timer_mgr.Insert(p.Id)
-		} else {
-			conn_timer_wheel.Insert(p.Id)
-		}
 		atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
 	}
 
@@ -239,6 +233,14 @@ func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg
 				break
 			}
 			_process_one_client_msg(w, r, p, msg_id, msg_data, handlerinfo, msg_res)
+		}
+	}
+
+	if p != nil {
+		if USE_CONN_TIMER_WHEEL == 0 {
+			conn_timer_mgr.Insert(p.Id)
+		} else {
+			conn_timer_wheel.Insert(p.Id)
 		}
 	}
 
