@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item MainActiveID="200001" ActiveType="2" EventID="301" StartTime="2018-12-14 01:00:00" EndTime="2018-12-16 00:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
-     <item MainActiveID="200002" ActiveType="2" EventID="301" StartTime="2018-12-16 01:00:00" EndTime="2018-12-17 00:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
-     <item MainActiveID="200003" ActiveType="2" EventID="301" StartTime="2018-12-17 01:00:00" EndTime="2018-12-18 00:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
-     <item MainActiveID="200004" ActiveType="2" EventID="301" StartTime="2018-12-18 01:00:00" EndTime="2018-12-19 00:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
-     <item MainActiveID="300001" ActiveType="3" EventID="301" StartTime="2018-12-14 00:00:00" EndTime="2018-12-30 00:00:00" SubActiveList="3001,3002,3003,3004" RewardMailID="" />
-     <item MainActiveID="800001" ActiveType="8" EventID="307" StartTime="2018-12-14 00:00:00" EndTime="2018-12-30 00:00:00" SubActiveList="8001,8002,8003,8004,8005" RewardMailID="1114" />
+     <item MainActiveID="200001" ActiveType="2" EventID="301" StartTime="2018-12-14 17:00:00" EndTime="2018-12-21 13:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
+     <item MainActiveID="200002" ActiveType="2" EventID="301" StartTime="2018-12-21 17:00:00" EndTime="2018-12-28 13:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
+     <item MainActiveID="300001" ActiveType="3" EventID="301" StartTime="2018-12-24 17:00:00" EndTime="2018-12-31 13:00:00" SubActiveList="3001,3002,3003,3004" RewardMailID="" />
+     <item MainActiveID="800001" ActiveType="8" EventID="307" StartTime="2018-12-20 17:00:00" EndTime="2018-12-27 13:00:00" SubActiveList="8001,8002,8003,8004,8005" RewardMailID="1114" />
 </Config>
