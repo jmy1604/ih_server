@@ -321,14 +321,21 @@ func (this *Player) activity_get_one_charge(bundle_id string) (int32, *table_con
 				return a.Id, sa
 			}
 
-			for i := 0; i < int(sub_num); i++ {
-				if i >= len(sub_ids) || i >= len(sub_values) {
-					break
-				}
-				if sub_ids[i] == sa_id {
-					if sa.EventCount > sub_values[i] {
-						return a.Id, sa
+			var v int32
+			if sub_ids != nil && sub_values != nil {
+				for i := 0; i < int(sub_num); i++ {
+					if i >= len(sub_ids) || i >= len(sub_values) {
+						break
 					}
+					if sub_ids[i] == sa_id {
+						if sa.EventCount > sub_values[i] {
+							v = sub_values[i]
+							break
+						}
+					}
+				}
+				if v < sa.EventCount {
+					return a.Id, sa
 				}
 			}
 		}
