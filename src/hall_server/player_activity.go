@@ -212,7 +212,7 @@ func (this *Player) activity_data() int32 {
 	return 1
 }
 
-func (this *Player) activity_check_and_add_sub(id, sub_id int32) (sub_value, sub_num int32) {
+func (this *Player) activity_check_and_add_sub(id, sub_id, value int32) (sub_value, sub_num int32) {
 	if !this.db.ActivityDatas.HasIndex(id) {
 		this.db.ActivityDatas.Add(&dbPlayerActivityDataData{
 			Id: id,
@@ -226,7 +226,7 @@ func (this *Player) activity_check_and_add_sub(id, sub_id int32) (sub_value, sub
 	var found bool
 	for i := 0; i < len(sub_ids); i++ {
 		if sub_id == sub_ids[i] {
-			sub_values[i] += 1
+			sub_values[i] += value
 			sub_value = sub_values[i]
 			found = true
 			break
@@ -235,8 +235,8 @@ func (this *Player) activity_check_and_add_sub(id, sub_id int32) (sub_value, sub
 
 	if !found {
 		sub_ids = append(sub_ids, sub_id)
-		sub_values = append(sub_values, 1)
-		sub_value = 1
+		sub_values = append(sub_values, value)
+		sub_value = value
 	}
 
 	this.db.ActivityDatas.SetSubIds(id, sub_ids)
@@ -341,7 +341,7 @@ func (this *Player) activity_get_one_charge(bundle_id string) (int32, *table_con
 func (this *Player) activity_update_one_charge(id int32, sa *table_config.XmlSubActivityItem) {
 	this.add_resources(sa.Reward)
 
-	value, _ := this.activity_check_and_add_sub(id, sa.Id)
+	value, _ := this.activity_check_and_add_sub(id, sa.Id, 1)
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
 		Id:    id,
@@ -364,7 +364,7 @@ func (this *Player) activity_update(a *table_config.XmlActivityItem, param1, par
 			continue
 		}
 
-		var param_value int32
+		var param_value, sa_param int32
 		if a.EventId == ACTIVITY_EVENT_GET_HERO {
 			if sa.Param1 != param1 {
 				continue
@@ -376,13 +376,16 @@ func (this *Player) activity_update(a *table_config.XmlActivityItem, param1, par
 				continue
 			}
 			param_value = param2
+			sa_param = sa.Param2
 		} else if a.EventId == ACTIVITY_EVENT_DIAMOND_COST || a.EventId == ACTIVITY_EVENT_DRAW_SCORE || a.EventId == ACTIVITY_EVENT_ARENA_SCORE {
 			param_value = param1
+			sa_param = sa.Param1
 		} else if a.EventId == ACTIVITY_EVENT_EXPLORE {
 			if sa.Param1 != param1 {
 				continue
 			}
 			param_value = param2
+			sa_param = sa.Param2
 		} else {
 			continue
 		}
@@ -401,12 +404,12 @@ func (this *Player) activity_update(a *table_config.XmlActivityItem, param1, par
 					break
 				}
 			}
-			if v >= param_value {
+			if v >= sa_param {
 				continue
 			}
 		}
 
-		sub_value, _ := this.activity_check_and_add_sub(a.Id, sa_id)
+		sub_value, _ := this.activity_check_and_add_sub(a.Id, sa_id, param_value)
 
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
 			Id:    a.Id,
@@ -414,20 +417,20 @@ func (this *Player) activity_update(a *table_config.XmlActivityItem, param1, par
 			Value: sub_value,
 		})
 
-		if sub_value >= param_value && a.RewardMailId > 0 {
-			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, a.RewardMailId, "", "", sa.Reward, param_value)
+		if sub_value >= sa_param && a.RewardMailId > 0 {
+			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, a.RewardMailId, "", "", sa.Reward, sa_param)
 		}
 
 		if a.EventId == ACTIVITY_EVENT_GET_HERO {
-			log.Trace("Player[%v] get hero[star:%v camp:%v type:%v] for activity[%v,%v] update progress %v/%v", this.Id, param1, param3, param4, a.Id, sa_id, sub_value, param_value)
+			log.Trace("Player[%v] get hero[star:%v camp:%v type:%v] for activity[%v,%v] update progress %v/%v", this.Id, param1, param3, param4, a.Id, sa_id, sub_value, sa_param)
 		} else if a.EventId == ACTIVITY_EVENT_DIAMOND_COST {
-			log.Trace("Player[%v] cost diamond %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, param_value)
+			log.Trace("Player[%v] cost diamond %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, sa_param)
 		} else if a.EventId == ACTIVITY_EVENT_DRAW_SCORE {
-			log.Trace("Player[%v] get draw score %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, param_value)
+			log.Trace("Player[%v] get draw score %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, sa_param)
 		} else if a.EventId == ACTIVITY_EVENT_ARENA_SCORE {
-			log.Trace("Player[%v] get arena score %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, param_value)
+			log.Trace("Player[%v] get arena score %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, sa_param)
 		} else if a.EventId == ACTIVITY_EVENT_EXPLORE {
-			log.Trace("Player[%v] explore star %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, param_value)
+			log.Trace("Player[%v] explore star %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, sa_param)
 		}
 	}
 }
@@ -456,7 +459,7 @@ func (this *Player) activity_exchange(id, sub_id int32) int32 {
 		return -1
 	}
 
-	this.activity_check_and_add_sub(id, sub_id)
+	//this.activity_check_and_add_sub(id, sub_id)
 
 	response := &msg_client_message.S2CActivityExchangeResponse{
 		Id:    id,
