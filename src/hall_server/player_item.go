@@ -212,7 +212,7 @@ func (this *Player) add_diamond(add int32) int32 {
 	}
 
 	if add < 0 {
-		this.activity_update(ACTIVITY_EVENT_DIAMOND_COST, -add, 0, 0, 0, "")
+		this.activitys_update(ACTIVITY_EVENT_DIAMOND_COST, -add, 0, 0, 0)
 	}
 
 	if add != 0 {
@@ -666,7 +666,7 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 		}
 	} else {
 		if this.get_resource(item_id) < item_num {
-			log.Error("Player[%v] upgrade item[%v] failed, item[%] not enough", this.Id, item_id, item_id)
+			log.Error("Player[%v] upgrade item[%v] failed, item[%v] not enough", this.Id, item_id, item_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_NOT_FOUND)
 		}
 	}

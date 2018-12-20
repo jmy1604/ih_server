@@ -774,7 +774,7 @@ func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purch
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_RESPONSE), response)
 
-	log.Debug("Player[%v] charged bundle %v", this.Id, response)
+	log.Trace("Player[%v] charged bundle %v with channel %v", this.Id, response, channel)
 
 	return 1
 }

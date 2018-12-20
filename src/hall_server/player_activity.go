@@ -82,7 +82,7 @@ func (this *ActivityManager) Run() {
 				this.locker.Lock()
 				if this.data_map[d.Id] != nil {
 					delete(this.data_map, d.Id)
-					row := dbc.ActivityToDeletes.AddRow(d.Id)
+					row := dbc.ActivitysToDeletes.AddRow(d.Id)
 					if row != nil {
 						row.SetStartTime(d.StartTime)
 						row.SetEndTime(d.StartTime)
@@ -149,16 +149,16 @@ func (this *ActivityManager) IsDoing(id int32) bool {
 }
 
 func (this *Player) activity_data() int32 {
-	ids := this.db.Activitys.GetAllIndex()
+	ids := this.db.ActivityDatas.GetAllIndex()
 	datas := activity_mgr.GetData()
 	if ids != nil {
 		for _, id := range ids {
 			if activity_table_mgr.Get(id) == nil {
-				this.db.Activitys.Remove(id)
+				this.db.ActivityDatas.Remove(id)
 				continue
 			}
 			if !activity_mgr.IsDoing(id) {
-				this.db.Activitys.Remove(id)
+				this.db.ActivityDatas.Remove(id)
 				continue
 			}
 			var found bool
@@ -179,33 +179,27 @@ func (this *Player) activity_data() int32 {
 	if datas != nil {
 		for _, d := range datas {
 			id := int32(d.GetId())
-			sub_ids, o := this.db.Activitys.GetSubIds(id)
-			if dbc.ActivityToDeletes.GetRow(id) != nil {
-				if this.db.Activitys.HasIndex(id) {
-					this.db.Activitys.Remove(id)
-					if !o {
-						continue
-					}
-					for _, sid := range sub_ids {
-						this.db.SubActivitys.Remove(sid)
-					}
+			if dbc.ActivitysToDeletes.GetRow(id) != nil {
+				if this.db.ActivityDatas.HasIndex(id) {
+					this.db.ActivityDatas.Remove(id)
 					continue
 				}
 			}
-			if sub_ids != nil {
-				for _, sid := range sub_ids {
-					if this.db.SubActivitys.HasIndex(sid) {
-						var sub_data msg_client_message.SubActivityData
-						sub_data.SubId = sid
-						sub_data.PurchasedNum, _ = this.db.SubActivitys.GetPurchasedNum(sid)
-						sub_data.RechargeCumulative, _ = this.db.SubActivitys.GetRechargeCumulative(sid)
-						sub_data.HeroNum, _ = this.db.SubActivitys.GetHeroNum(sid)
-						sub_data.CostDiamond, _ = this.db.SubActivitys.GetCostDiamond(sid)
-						sub_data.ExploreNum, _ = this.db.SubActivitys.GetExploreNum(sid)
-						sub_data.DrawNum, _ = this.db.SubActivitys.GetDrawNum(sid)
-						sub_data.ArenaScore, _ = this.db.SubActivitys.GetArenaScore(sid)
-						d.SubDatas = append(d.SubDatas, &sub_data)
+
+			sub_num, _ := this.db.ActivityDatas.GetSubNum(id)
+			sub_ids, _ := this.db.ActivityDatas.GetSubIds(id)
+			sub_values, _ := this.db.ActivityDatas.GetSubValues(id)
+			if sub_num > 0 && sub_ids != nil && sub_values != nil {
+				for i := 0; i < int(sub_num); i++ {
+					if i >= len(sub_ids) || i >= len(sub_values) {
+						break
 					}
+
+					sid := sub_ids[i]
+					d.SubDatas = append(d.SubDatas, &msg_client_message.SubActivityData{
+						SubId: sid,
+						Value: sub_values[i],
+					})
 				}
 			}
 		}
@@ -218,17 +212,22 @@ func (this *Player) activity_data() int32 {
 	return 1
 }
 
-func (this *Player) activity_check_and_add_sub(id, sub_id int32) bool {
-	sub_ids, o := this.db.Activitys.GetSubIds(id)
-	if !o {
-		this.db.Activitys.Add(&dbPlayerActivityData{
+func (this *Player) activity_check_and_add_sub(id, sub_id int32) (sub_value, sub_num int32) {
+	if !this.db.ActivityDatas.HasIndex(id) {
+		this.db.ActivityDatas.Add(&dbPlayerActivityDataData{
 			Id: id,
 		})
 	}
 
+	sub_ids, _ := this.db.ActivityDatas.GetSubIds(id)
+	sub_values, _ := this.db.ActivityDatas.GetSubValues(id)
+	sub_num, _ = this.db.ActivityDatas.GetSubNum(id)
+
 	var found bool
 	for i := 0; i < len(sub_ids); i++ {
 		if sub_id == sub_ids[i] {
+			sub_values[i] += 1
+			sub_value = sub_values[i]
 			found = true
 			break
 		}
@@ -236,26 +235,18 @@ func (this *Player) activity_check_and_add_sub(id, sub_id int32) bool {
 
 	if !found {
 		sub_ids = append(sub_ids, sub_id)
-		this.db.Activitys.SetSubIds(id, sub_ids)
+		sub_values = append(sub_values, 1)
+		sub_value = 1
 	}
 
-	return found
+	this.db.ActivityDatas.SetSubIds(id, sub_ids)
+	this.db.ActivityDatas.SetSubValues(id, sub_values)
+	sub_num = this.db.ActivityDatas.IncbySubNum(id, 1)
+
+	return
 }
 
-func (this *Player) activity_has_sub(id, sub_id int32) bool {
-	sub_ids, o := this.db.Activitys.GetSubIds(id)
-	if !o {
-		return false
-	}
-	for i := 0; i < len(sub_ids); i++ {
-		if sub_id == sub_ids[i] {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *Player) activity_get(id, event_type int32) (int32, *table_config.XmlActivityItem) {
+func activity_get(id, event_type int32) (int32, *table_config.XmlActivityItem) {
 	if !activity_mgr.IsDoing(id) {
 		return -1, nil
 	}
@@ -270,15 +261,15 @@ func (this *Player) activity_get(id, event_type int32) (int32, *table_config.Xml
 	}
 
 	if event_type > 0 && a.EventId != event_type {
-		log.Error("Player[%v] activity %v event[%v] no match", this.Id, id, a.EventId)
+		log.Error("activity %v event[%v] no match", id, a.EventId)
 		return -1, nil
 	}
 
 	return 1, a
 }
 
-func (this *Player) activity_sub_get(id, sub_id, event_type int32) (int32, *table_config.XmlSubActivityItem) {
-	res, a := this.activity_get(id, event_type)
+func activity_sub_get(id, sub_id, event_type int32) (int32, *table_config.XmlSubActivityItem) {
+	res, a := activity_get(id, event_type)
 	if res < 0 {
 		return -1, nil
 	}
@@ -312,6 +303,11 @@ func (this *Player) activity_get_one_charge(bundle_id string) (int32, *table_con
 		if a.SubActiveList == nil || len(a.SubActiveList) == 0 {
 			continue
 		}
+
+		sub_num, o := this.db.ActivityDatas.GetSubNum(a.Id)
+		sub_ids, _ := this.db.ActivityDatas.GetSubIds(a.Id)
+		sub_values, _ := this.db.ActivityDatas.GetSubValues(a.Id)
+
 		for _, sa_id := range a.SubActiveList {
 			sa := sub_activity_table_mgr.Get(sa_id)
 			if sa == nil || sa.EventCount <= 0 {
@@ -321,9 +317,19 @@ func (this *Player) activity_get_one_charge(bundle_id string) (int32, *table_con
 				continue
 			}
 
-			n, _ := this.db.SubActivitys.GetPurchasedNum(sa_id)
-			if n < sa.EventCount {
+			if !o {
 				return a.Id, sa
+			}
+
+			for i := 0; i < int(sub_num); i++ {
+				if i >= len(sub_ids) || i >= len(sub_values) {
+					break
+				}
+				if sub_ids[i] == sa_id {
+					if sa.EventCount > sub_values[i] {
+						return a.Id, sa
+					}
+				}
 			}
 		}
 	}
@@ -333,83 +339,21 @@ func (this *Player) activity_get_one_charge(bundle_id string) (int32, *table_con
 
 // 充值
 func (this *Player) activity_update_one_charge(id int32, sa *table_config.XmlSubActivityItem) {
-	num, _ := this.db.SubActivitys.GetPurchasedNum(sa.Id)
-	if !this.db.SubActivitys.HasIndex(sa.Id) {
-		this.db.SubActivitys.Add(&dbPlayerSubActivityData{
-			SubId:        sa.Id,
-			PurchasedNum: 1,
-		})
-		num = 1
-	} else {
-		num = this.db.SubActivitys.IncbyPurchasedNum(sa.Id, 1)
-	}
-
 	this.add_resources(sa.Reward)
 
-	this.activity_check_and_add_sub(id, sa.Id)
+	value, _ := this.activity_check_and_add_sub(id, sa.Id)
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
 		Id:    id,
 		SubId: sa.Id,
-		Value: num,
+		Value: value,
 	})
 
-	log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, id, sa.Id, num, sa.EventCount)
+	log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, id, sa.Id, value, sa.EventCount)
 }
 
-// 英雄活动更新
-func (this *Player) activity_update_get_hero(a *table_config.XmlActivityItem, hero_star, hero_num, hero_camp, hero_type int32) {
-	if a.SubActiveList == nil {
-		return
-	}
-
-	for _, sa_id := range a.SubActiveList {
-		sa := sub_activity_table_mgr.Get(sa_id)
-		if sa == nil {
-			continue
-		}
-		if sa.Param1 != hero_star {
-			continue
-		}
-		if sa.Param3 > 0 && sa.Param3 != hero_camp {
-			continue
-		}
-		if sa.Param4 > 0 && sa.Param4 != hero_type {
-			continue
-		}
-
-		num, _ := this.db.SubActivitys.GetHeroNum(sa_id)
-		if num >= sa.Param2 {
-			continue
-		}
-		if !this.db.SubActivitys.HasIndex(sa_id) {
-			this.db.SubActivitys.Add(&dbPlayerSubActivityData{
-				SubId:   sa_id,
-				HeroNum: hero_num,
-			})
-			num = hero_num
-		} else {
-			num = this.db.SubActivitys.IncbyHeroNum(sa_id, hero_num)
-		}
-
-		this.activity_check_and_add_sub(a.Id, sa_id)
-
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
-			Id:    a.Id,
-			SubId: sa_id,
-			Value: num,
-		})
-
-		if num >= sa.Param2 && a.RewardMailId > 0 {
-			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, a.RewardMailId, "", "", sa.Reward, sa.Param2)
-		}
-
-		log.Trace("Player[%v] get hero[star:%v camp:%v type:%v] activity[%v,%v] update progress %v/%v", this.Id, hero_star, hero_camp, hero_type, a.Id, sa_id, num, sa.Param2)
-	}
-}
-
-// 消耗钻石活动更新
-func (this *Player) activity_update_cost_diamond(a *table_config.XmlActivityItem, diamond int32) {
+// 活动更新
+func (this *Player) activity_update(a *table_config.XmlActivityItem, param1, param2, param3, param4 int32) {
 	if a.SubActiveList == nil {
 		return
 	}
@@ -420,166 +364,76 @@ func (this *Player) activity_update_cost_diamond(a *table_config.XmlActivityItem
 			continue
 		}
 
-		cost_diamond, _ := this.db.SubActivitys.GetCostDiamond(sa_id)
-		if cost_diamond >= sa.Param1 {
+		var param_value int32
+		if a.EventId == ACTIVITY_EVENT_GET_HERO {
+			if sa.Param1 != param1 {
+				continue
+			}
+			if sa.Param3 > 0 && sa.Param3 != param3 {
+				continue
+			}
+			if sa.Param4 > 0 && sa.Param4 != param4 {
+				continue
+			}
+			param_value = param2
+		} else if a.EventId == ACTIVITY_EVENT_DIAMOND_COST || a.EventId == ACTIVITY_EVENT_DRAW_SCORE || a.EventId == ACTIVITY_EVENT_ARENA_SCORE {
+			param_value = param1
+		} else if a.EventId == ACTIVITY_EVENT_EXPLORE {
+			if sa.Param1 != param1 {
+				continue
+			}
+			param_value = param2
+		} else {
 			continue
 		}
-		if !this.db.SubActivitys.HasIndex(sa_id) {
-			this.db.SubActivitys.Add(&dbPlayerSubActivityData{
-				SubId:       sa_id,
-				CostDiamond: diamond,
-			})
-			cost_diamond = diamond
-		} else {
-			cost_diamond = this.db.SubActivitys.IncbyCostDiamond(sa_id, diamond)
+
+		var v int32
+		sub_num, _ := this.db.ActivityDatas.GetSubNum(a.Id)
+		sub_ids, _ := this.db.ActivityDatas.GetSubIds(a.Id)
+		sub_values, _ := this.db.ActivityDatas.GetSubValues(a.Id)
+		if sub_ids != nil && sub_values != nil {
+			for i := 0; i < int(sub_num); i++ {
+				if i >= len(sub_ids) || i >= len(sub_values) {
+					break
+				}
+				if sub_ids[i] == sa_id {
+					v = sub_values[i]
+					break
+				}
+			}
+			if v >= param_value {
+				continue
+			}
 		}
 
-		this.activity_check_and_add_sub(a.Id, sa_id)
+		sub_value, _ := this.activity_check_and_add_sub(a.Id, sa_id)
 
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
 			Id:    a.Id,
 			SubId: sa_id,
-			Value: cost_diamond,
+			Value: sub_value,
 		})
 
-		if cost_diamond >= sa.Param1 && a.RewardMailId > 0 {
-			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, a.RewardMailId, "", "", sa.Reward, sa.Param1)
+		if sub_value >= param_value && a.RewardMailId > 0 {
+			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, a.RewardMailId, "", "", sa.Reward, param_value)
 		}
 
-		log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, a.Id, sa_id, cost_diamond, sa.Param1)
-	}
-}
-
-// 探索任务活动更新
-func (this *Player) activity_update_explore(a *table_config.XmlActivityItem, explore_star, explore_num int32) {
-	if a.SubActiveList == nil {
-		return
-	}
-
-	for _, sa_id := range a.SubActiveList {
-		sa := sub_activity_table_mgr.Get(sa_id)
-		if sa == nil {
-			continue
+		if a.EventId == ACTIVITY_EVENT_GET_HERO {
+			log.Trace("Player[%v] get hero[star:%v camp:%v type:%v] for activity[%v,%v] update progress %v/%v", this.Id, param1, param3, param4, a.Id, sa_id, sub_value, param_value)
+		} else if a.EventId == ACTIVITY_EVENT_DIAMOND_COST {
+			log.Trace("Player[%v] cost diamond %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, param_value)
+		} else if a.EventId == ACTIVITY_EVENT_DRAW_SCORE {
+			log.Trace("Player[%v] get draw score %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, param_value)
+		} else if a.EventId == ACTIVITY_EVENT_ARENA_SCORE {
+			log.Trace("Player[%v] get arena score %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, param_value)
+		} else if a.EventId == ACTIVITY_EVENT_EXPLORE {
+			log.Trace("Player[%v] explore star %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, param_value)
 		}
-
-		if sa.Param1 != explore_star {
-			continue
-		}
-
-		num, _ := this.db.SubActivitys.GetExploreNum(sa_id)
-		if num >= sa.Param2 {
-			continue
-		}
-		if !this.db.SubActivitys.HasIndex(sa_id) {
-			this.db.SubActivitys.Add(&dbPlayerSubActivityData{
-				SubId:      sa_id,
-				ExploreNum: explore_num,
-			})
-			num = explore_num
-		} else {
-			num = this.db.SubActivitys.IncbyExploreNum(sa_id, explore_num)
-		}
-
-		this.activity_check_and_add_sub(a.Id, sa_id)
-
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
-			Id:    a.Id,
-			SubId: sa_id,
-			Value: num,
-		})
-
-		if num >= sa.Param2 && a.RewardMailId > 0 {
-			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, a.RewardMailId, "", "", sa.Reward, sa.Param2)
-		}
-
-		log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, a.Id, sa_id, num, sa.Param2)
-	}
-}
-
-// 抽卡积分活动更新
-func (this *Player) activity_update_draw_score(a *table_config.XmlActivityItem, draw_num int32) {
-	if a.SubActiveList == nil {
-		return
-	}
-
-	for _, sa_id := range a.SubActiveList {
-		sa := sub_activity_table_mgr.Get(sa_id)
-		if sa == nil {
-			continue
-		}
-		num, _ := this.db.SubActivitys.GetDrawNum(sa_id)
-		if num >= sa.Param1 {
-			continue
-		}
-		if !this.db.SubActivitys.HasIndex(sa_id) {
-			this.db.SubActivitys.Add(&dbPlayerSubActivityData{
-				SubId:   sa_id,
-				DrawNum: draw_num,
-			})
-			num = draw_num
-		} else {
-			num = this.db.SubActivitys.IncbyDrawNum(sa_id, draw_num)
-		}
-
-		this.activity_check_and_add_sub(a.Id, sa_id)
-
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
-			Id:    a.Id,
-			SubId: sa_id,
-			Value: num,
-		})
-
-		if num >= sa.Param1 && a.RewardMailId > 0 {
-			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, a.RewardMailId, "", "", sa.Reward, sa.Param1)
-		}
-
-		log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, a.Id, sa_id, num, sa.Param1)
-	}
-}
-
-// 竞技场积分更新
-func (this *Player) activity_update_arena_score(a *table_config.XmlActivityItem, add_score int32) {
-	if a.SubActiveList == nil {
-		return
-	}
-
-	for _, sa_id := range a.SubActiveList {
-		sa := sub_activity_table_mgr.Get(sa_id)
-		if sa == nil {
-			continue
-		}
-
-		score, _ := this.db.SubActivitys.GetArenaScore(sa_id)
-		if score >= sa.Param1 {
-			continue
-		}
-		if !this.db.SubActivitys.HasIndex(sa_id) {
-			this.db.SubActivitys.Add(&dbPlayerSubActivityData{
-				SubId:      sa_id,
-				ArenaScore: add_score,
-			})
-			score = add_score
-		} else {
-			score = this.db.SubActivitys.IncbyArenaScore(sa_id, add_score)
-		}
-
-		this.activity_check_and_add_sub(a.Id, sa_id)
-
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVITY_DATA_NOTIFY), &msg_client_message.S2CActivityDataNotify{
-			Id:    a.Id,
-			SubId: sa_id,
-			Value: score,
-		})
-		if score >= sa.Param1 && a.RewardMailId > 0 {
-			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, a.RewardMailId, "", "", sa.Reward, sa.Param1)
-		}
-
-		log.Trace("Player[%v] activity[%v,%v] update progress %v/%v", this.Id, a.Id, sa_id, score, sa.Param1)
 	}
 }
 
 // 活动更新
-func (this *Player) activity_update(event_type, param1, param2, param3, param4 int32, param_str string) {
+func (this *Player) activitys_update(event_type, param1, param2, param3, param4 int32) {
 	var as []*table_config.XmlActivityItem
 	if event_type == ACTIVITY_EVENT_GET_HERO || event_type == ACTIVITY_EVENT_DIAMOND_COST || event_type == ACTIVITY_EVENT_EXPLORE || event_type == ACTIVITY_EVENT_DRAW_SCORE || event_type == ACTIVITY_EVENT_ARENA_SCORE { // 获得英雄
 		as = activity_mgr.GetActivitysByEvent(event_type)
@@ -592,46 +446,14 @@ func (this *Player) activity_update(event_type, param1, param2, param3, param4 i
 	}
 
 	for _, a := range as {
-		if event_type == ACTIVITY_EVENT_GET_HERO {
-			this.activity_update_get_hero(a, param1, param2, param3, param4)
-		} else if event_type == ACTIVITY_EVENT_DIAMOND_COST {
-			this.activity_update_cost_diamond(a, param1)
-		} else if event_type == ACTIVITY_EVENT_EXPLORE {
-			this.activity_update_explore(a, param1, param2)
-		} else if event_type == ACTIVITY_EVENT_DRAW_SCORE {
-			this.activity_update_draw_score(a, param1)
-		} else if event_type == ACTIVITY_EVENT_ARENA_SCORE {
-			this.activity_update_arena_score(a, param1)
-		}
+		this.activity_update(a, param1, param2, param3, param4)
 	}
 }
 
 // 活动兑换
 func (this *Player) activity_exchange(id, sub_id int32) int32 {
-	res, sa := this.activity_sub_get(id, sub_id, ACTIVITY_EVENT_EXCHAGE_ITEM)
-	if res < 0 {
-		return res
-	}
-
-	if sa == nil || sa.EventCount <= 0 {
-		log.Error("Activity %v no sub activity %v", id, sub_id)
+	if id <= 0 || sub_id <= 0 {
 		return -1
-	}
-
-	purchased_num, o := this.db.SubActivitys.GetPurchasedNum(sub_id)
-	if purchased_num >= sa.EventCount {
-		log.Error("Player[%v] use activity %v sub %v purchased num out", this.Id, id, sub_id)
-		return -1
-	}
-
-	if !o {
-		purchased_num = 1
-		this.db.SubActivitys.Add(&dbPlayerSubActivityData{
-			SubId:        id,
-			PurchasedNum: purchased_num,
-		})
-	} else {
-		purchased_num = this.db.SubActivitys.IncbyPurchasedNum(sub_id, 1)
 	}
 
 	this.activity_check_and_add_sub(id, sub_id)

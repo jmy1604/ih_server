@@ -835,8 +835,8 @@
 					]
 				},
 				{
-					"ColumnName":"Activity",
-					"DBColumnName":"Activity",
+					"ColumnName":"ActivityData",
+					"DBColumnName":"ActivityData",
 					"InUse":true,
 					"Simple":false,
 					"SimpleType":"",
@@ -846,27 +846,8 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"SubIds","Repeated":true},
-						
-					]
-				},
-				{
-					"ColumnName":"SubActivity",
-					"DBColumnName":"SubActivity",
-					"InUse":true,
-					"Simple":false,
-					"SimpleType":"",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"SubId"},
-						{"Type":"int32","Index":2,"Name":"PurchasedNum","Incby":true},
-						{"Type":"int32","Index":3,"Name":"RechargeCumulative"},
-						{"Type":"int32","Index":4,"Name":"HeroNum","Incby":true},
-						{"Type":"int32","Index":5,"Name":"CostDiamond","Incby":true},
-						{"Type":"int32","Index":6,"Name":"ExploreNum","Incby":true},
-						{"Type":"int32","Index":7,"Name":"DrawNum","Incby":true},
-						{"Type":"int32","Index":8,"Name":"ArenaScore","Incby":true}
+						{"Type":"int32","Index":3,"Name":"SubValues","Repeated":true},
+						{"Type":"int32","Index":4,"Name":"SubNum","Incby":true}
 					]
 				}
 			]
@@ -1338,8 +1319,8 @@
 			]
 		},
 		{
-			"TableName":"ActivityToDelete",
-			"DBTableName":"ActivityToDelete",
+			"TableName":"ActivitysToDelete",
+			"DBTableName":"ActivitysToDelete",
 			"SingleRow":false,
 			"AutoPrimaryKey":false,
 			"PrimaryKeyName":"Id",

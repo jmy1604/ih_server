@@ -129,7 +129,7 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 	this.UpdateRolePowerRank(role.Id)
 
 	// 活动更新
-	this.activity_update(ACTIVITY_EVENT_GET_HERO, card.Rarity, 1, card.Camp, card.Type, "")
+	this.activitys_update(ACTIVITY_EVENT_GET_HERO, card.Rarity, 1, card.Camp, card.Type)
 
 	return role.Id
 }

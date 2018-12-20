@@ -457,28 +457,15 @@ message PlayerGuideData{
 	optional bytes Data=1;
 }
 
-message PlayerActivity{
+message PlayerActivityData{
 	optional int32 Id=1;
 	repeated int32 SubIds=2;
+	repeated int32 SubValues=3;
+	optional int32 SubNum=4;
 }
 
-message PlayerActivityList{
-	repeated PlayerActivity List=1;
-}
-
-message PlayerSubActivity{
-	optional int32 SubId=1;
-	optional int32 PurchasedNum=2;
-	optional int32 RechargeCumulative=3;
-	optional int32 HeroNum=4;
-	optional int32 CostDiamond=5;
-	optional int32 ExploreNum=6;
-	optional int32 DrawNum=7;
-	optional int32 ArenaScore=8;
-}
-
-message PlayerSubActivityList{
-	repeated PlayerSubActivity List=1;
+message PlayerActivityDataList{
+	repeated PlayerActivityData List=1;
 }
 
 message BattleSaveData{

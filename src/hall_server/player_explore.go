@@ -1015,7 +1015,7 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_GET_REWARD_RESPONSE), response)
 
 	if !is_story {
-		this.activity_update(ACTIVITY_EVENT_EXPLORE, task.TaskStar, 1, 0, 0, "")
+		this.activitys_update(ACTIVITY_EVENT_EXPLORE, task.TaskStar, 1, 0, 0)
 	}
 
 	log.Debug("Player[%v] explore task %v get reward, reward stage %v", this.Id, id, reward_stage_id)

@@ -2252,13 +2252,7 @@ message S2CGuideDataResponse {
 // 子活动数据
 message SubActivityData {
 	int32 SubId								= 1; // 子ID
-	int32 PurchasedNum						= 2; // 已购买次数
-	int32 RechargeCumulative				= 3; // 累加充值
-	int32 HeroNum							= 4; // 英雄数量
-	int32 CostDiamond						= 5; // 消耗钻石数
-	int32 ExploreNum						= 6; // 探索任务数
-	int32 DrawNum							= 7; // 抽卡次数
-	int32 ArenaScore 						= 8; // 竞技场积分
+	int32 Value								= 2; // 值
 }
 
 
@@ -2275,25 +2269,6 @@ message C2SActivityDataRequest {
 
 message S2CActivityDataResponse {
 	repeated ActivityData Data				= 1; // 数据
-}
-
-// 充值活动请求
-message C2SActivityChargeRequest {
-	int32 Id								= 1; // ID
-	int32 SubId								= 2; // 子ID
-	int32 Channel                          	= 3; // 渠道  1 google   2 apple
-	bytes PurchaseData						= 4; // 需要验证的支付数据
-	bytes ExtraData							= 5; // 额外数据
-	int32 ClientIndex						= 6; // 客户端索引，用于标记充值记录
-}
-
-message S2CActivityChargeResponse {
-	int32 Id								= 1; // ID
-	int32 SubId								= 2; // 子ID
-	int32 Channel                          	= 3; // 渠道
-	bool IsFirst							= 4; // 是否首次
-	int32 ClientIndex						= 5; // 客户端索引，用于标记充值记录
-	int32 PurchasedNum						= 6; // 已购买次数
 }
 
 // 活动数据通知

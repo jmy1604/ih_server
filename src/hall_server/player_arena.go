@@ -270,13 +270,13 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_REACH_SCORE, false, 0, add_score)
 	}
 
-	this.activity_update(ACTIVITY_EVENT_ARENA_SCORE, func() int32 {
+	this.activitys_update(ACTIVITY_EVENT_ARENA_SCORE, func() int32 {
 		if is_win {
 			return 2
 		} else {
 			return 1
 		}
-	}(), 0, 0, 0, "")
+	}(), 0, 0, 0)
 
 	return
 }

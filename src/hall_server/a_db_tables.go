@@ -1952,13 +1952,16 @@ func (this* dbPlayerGuideDataData)clone_to(d *dbPlayerGuideDataData){
 	}
 	return
 }
-type dbPlayerActivityData struct{
+type dbPlayerActivityDataData struct{
 	Id int32
 	SubIds []int32
+	SubValues []int32
+	SubNum int32
 }
-func (this* dbPlayerActivityData)from_pb(pb *db.PlayerActivity){
+func (this* dbPlayerActivityDataData)from_pb(pb *db.PlayerActivityData){
 	if pb == nil {
 		this.SubIds = make([]int32,0)
+		this.SubValues = make([]int32,0)
 		return
 	}
 	this.Id = pb.GetId()
@@ -1966,70 +1969,38 @@ func (this* dbPlayerActivityData)from_pb(pb *db.PlayerActivity){
 	for i, v := range pb.GetSubIds() {
 		this.SubIds[i] = v
 	}
+	this.SubValues = make([]int32,len(pb.GetSubValues()))
+	for i, v := range pb.GetSubValues() {
+		this.SubValues[i] = v
+	}
+	this.SubNum = pb.GetSubNum()
 	return
 }
-func (this* dbPlayerActivityData)to_pb()(pb *db.PlayerActivity){
-	pb = &db.PlayerActivity{}
+func (this* dbPlayerActivityDataData)to_pb()(pb *db.PlayerActivityData){
+	pb = &db.PlayerActivityData{}
 	pb.Id = proto.Int32(this.Id)
 	pb.SubIds = make([]int32, len(this.SubIds))
 	for i, v := range this.SubIds {
 		pb.SubIds[i]=v
 	}
+	pb.SubValues = make([]int32, len(this.SubValues))
+	for i, v := range this.SubValues {
+		pb.SubValues[i]=v
+	}
+	pb.SubNum = proto.Int32(this.SubNum)
 	return
 }
-func (this* dbPlayerActivityData)clone_to(d *dbPlayerActivityData){
+func (this* dbPlayerActivityDataData)clone_to(d *dbPlayerActivityDataData){
 	d.Id = this.Id
 	d.SubIds = make([]int32, len(this.SubIds))
 	for _ii, _vv := range this.SubIds {
 		d.SubIds[_ii]=_vv
 	}
-	return
-}
-type dbPlayerSubActivityData struct{
-	SubId int32
-	PurchasedNum int32
-	RechargeCumulative int32
-	HeroNum int32
-	CostDiamond int32
-	ExploreNum int32
-	DrawNum int32
-	ArenaScore int32
-}
-func (this* dbPlayerSubActivityData)from_pb(pb *db.PlayerSubActivity){
-	if pb == nil {
-		return
+	d.SubValues = make([]int32, len(this.SubValues))
+	for _ii, _vv := range this.SubValues {
+		d.SubValues[_ii]=_vv
 	}
-	this.SubId = pb.GetSubId()
-	this.PurchasedNum = pb.GetPurchasedNum()
-	this.RechargeCumulative = pb.GetRechargeCumulative()
-	this.HeroNum = pb.GetHeroNum()
-	this.CostDiamond = pb.GetCostDiamond()
-	this.ExploreNum = pb.GetExploreNum()
-	this.DrawNum = pb.GetDrawNum()
-	this.ArenaScore = pb.GetArenaScore()
-	return
-}
-func (this* dbPlayerSubActivityData)to_pb()(pb *db.PlayerSubActivity){
-	pb = &db.PlayerSubActivity{}
-	pb.SubId = proto.Int32(this.SubId)
-	pb.PurchasedNum = proto.Int32(this.PurchasedNum)
-	pb.RechargeCumulative = proto.Int32(this.RechargeCumulative)
-	pb.HeroNum = proto.Int32(this.HeroNum)
-	pb.CostDiamond = proto.Int32(this.CostDiamond)
-	pb.ExploreNum = proto.Int32(this.ExploreNum)
-	pb.DrawNum = proto.Int32(this.DrawNum)
-	pb.ArenaScore = proto.Int32(this.ArenaScore)
-	return
-}
-func (this* dbPlayerSubActivityData)clone_to(d *dbPlayerSubActivityData){
-	d.SubId = this.SubId
-	d.PurchasedNum = this.PurchasedNum
-	d.RechargeCumulative = this.RechargeCumulative
-	d.HeroNum = this.HeroNum
-	d.CostDiamond = this.CostDiamond
-	d.ExploreNum = this.ExploreNum
-	d.DrawNum = this.DrawNum
-	d.ArenaScore = this.ArenaScore
+	d.SubNum = this.SubNum
 	return
 }
 type dbBattleSaveDataData struct{
@@ -10430,33 +10401,33 @@ func (this *dbPlayerGuideDataColumn)SetData(v []byte){
 	this.m_changed = true
 	return
 }
-type dbPlayerActivityColumn struct{
+type dbPlayerActivityDataColumn struct{
 	m_row *dbPlayerRow
-	m_data map[int32]*dbPlayerActivityData
+	m_data map[int32]*dbPlayerActivityDataData
 	m_changed bool
 }
-func (this *dbPlayerActivityColumn)load(data []byte)(err error){
+func (this *dbPlayerActivityDataColumn)load(data []byte)(err error){
 	if data == nil || len(data) == 0 {
 		this.m_changed = false
 		return nil
 	}
-	pb := &db.PlayerActivityList{}
+	pb := &db.PlayerActivityDataList{}
 	err = proto.Unmarshal(data, pb)
 	if err != nil {
 		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
 		return
 	}
 	for _, v := range pb.List {
-		d := &dbPlayerActivityData{}
+		d := &dbPlayerActivityDataData{}
 		d.from_pb(v)
 		this.m_data[int32(d.Id)] = d
 	}
 	this.m_changed = false
 	return
 }
-func (this *dbPlayerActivityColumn)save( )(data []byte,err error){
-	pb := &db.PlayerActivityList{}
-	pb.List=make([]*db.PlayerActivity,len(this.m_data))
+func (this *dbPlayerActivityDataColumn)save( )(data []byte,err error){
+	pb := &db.PlayerActivityDataList{}
+	pb.List=make([]*db.PlayerActivityData,len(this.m_data))
 	i:=0
 	for _, v := range this.m_data {
 		pb.List[i] = v.to_pb()
@@ -10470,14 +10441,14 @@ func (this *dbPlayerActivityColumn)save( )(data []byte,err error){
 	this.m_changed = false
 	return
 }
-func (this *dbPlayerActivityColumn)HasIndex(id int32)(has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityColumn.HasIndex")
+func (this *dbPlayerActivityDataColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityDataColumn.HasIndex")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	_, has = this.m_data[id]
 	return
 }
-func (this *dbPlayerActivityColumn)GetAllIndex()(list []int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityColumn.GetAllIndex")
+func (this *dbPlayerActivityDataColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityDataColumn.GetAllIndex")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	list = make([]int32, len(this.m_data))
 	i := 0
@@ -10487,10 +10458,10 @@ func (this *dbPlayerActivityColumn)GetAllIndex()(list []int32){
 	}
 	return
 }
-func (this *dbPlayerActivityColumn)GetAll()(list []dbPlayerActivityData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityColumn.GetAll")
+func (this *dbPlayerActivityDataColumn)GetAll()(list []dbPlayerActivityDataData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityDataColumn.GetAll")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]dbPlayerActivityData, len(this.m_data))
+	list = make([]dbPlayerActivityDataData, len(this.m_data))
 	i := 0
 	for _, v := range this.m_data {
 		v.clone_to(&list[i])
@@ -10498,19 +10469,19 @@ func (this *dbPlayerActivityColumn)GetAll()(list []dbPlayerActivityData){
 	}
 	return
 }
-func (this *dbPlayerActivityColumn)Get(id int32)(v *dbPlayerActivityData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityColumn.Get")
+func (this *dbPlayerActivityDataColumn)Get(id int32)(v *dbPlayerActivityDataData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityDataColumn.Get")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		return nil
 	}
-	v=&dbPlayerActivityData{}
+	v=&dbPlayerActivityDataData{}
 	d.clone_to(v)
 	return
 }
-func (this *dbPlayerActivityColumn)Set(v dbPlayerActivityData)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerActivityColumn.Set")
+func (this *dbPlayerActivityDataColumn)Set(v dbPlayerActivityDataData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActivityDataColumn.Set")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[int32(v.Id)]
 	if d==nil{
@@ -10521,22 +10492,22 @@ func (this *dbPlayerActivityColumn)Set(v dbPlayerActivityData)(has bool){
 	this.m_changed = true
 	return true
 }
-func (this *dbPlayerActivityColumn)Add(v *dbPlayerActivityData)(ok bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerActivityColumn.Add")
+func (this *dbPlayerActivityDataColumn)Add(v *dbPlayerActivityDataData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActivityDataColumn.Add")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	_, has := this.m_data[int32(v.Id)]
 	if has {
 		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Id)
 		return false
 	}
-	d:=&dbPlayerActivityData{}
+	d:=&dbPlayerActivityDataData{}
 	v.clone_to(d)
 	this.m_data[int32(v.Id)]=d
 	this.m_changed = true
 	return true
 }
-func (this *dbPlayerActivityColumn)Remove(id int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerActivityColumn.Remove")
+func (this *dbPlayerActivityDataColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActivityDataColumn.Remove")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	_, has := this.m_data[id]
 	if has {
@@ -10545,20 +10516,20 @@ func (this *dbPlayerActivityColumn)Remove(id int32){
 	this.m_changed = true
 	return
 }
-func (this *dbPlayerActivityColumn)Clear(){
-	this.m_row.m_lock.UnSafeLock("dbPlayerActivityColumn.Clear")
+func (this *dbPlayerActivityDataColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActivityDataColumn.Clear")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=make(map[int32]*dbPlayerActivityData)
+	this.m_data=make(map[int32]*dbPlayerActivityDataData)
 	this.m_changed = true
 	return
 }
-func (this *dbPlayerActivityColumn)NumAll()(n int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityColumn.NumAll")
+func (this *dbPlayerActivityDataColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityDataColumn.NumAll")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	return int32(len(this.m_data))
 }
-func (this *dbPlayerActivityColumn)GetSubIds(id int32)(v []int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityColumn.GetSubIds")
+func (this *dbPlayerActivityDataColumn)GetSubIds(id int32)(v []int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityDataColumn.GetSubIds")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -10570,8 +10541,8 @@ func (this *dbPlayerActivityColumn)GetSubIds(id int32)(v []int32 ,has bool){
 	}
 	return v,true
 }
-func (this *dbPlayerActivityColumn)SetSubIds(id int32,v []int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerActivityColumn.SetSubIds")
+func (this *dbPlayerActivityDataColumn)SetSubIds(id int32,v []int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActivityDataColumn.SetSubIds")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -10585,358 +10556,67 @@ func (this *dbPlayerActivityColumn)SetSubIds(id int32,v []int32)(has bool){
 	this.m_changed = true
 	return true
 }
-type dbPlayerSubActivityColumn struct{
-	m_row *dbPlayerRow
-	m_data map[int32]*dbPlayerSubActivityData
-	m_changed bool
-}
-func (this *dbPlayerSubActivityColumn)load(data []byte)(err error){
-	if data == nil || len(data) == 0 {
-		this.m_changed = false
-		return nil
-	}
-	pb := &db.PlayerSubActivityList{}
-	err = proto.Unmarshal(data, pb)
-	if err != nil {
-		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	for _, v := range pb.List {
-		d := &dbPlayerSubActivityData{}
-		d.from_pb(v)
-		this.m_data[int32(d.SubId)] = d
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerSubActivityColumn)save( )(data []byte,err error){
-	pb := &db.PlayerSubActivityList{}
-	pb.List=make([]*db.PlayerSubActivity,len(this.m_data))
-	i:=0
-	for _, v := range this.m_data {
-		pb.List[i] = v.to_pb()
-		i++
-	}
-	data, err = proto.Marshal(pb)
-	if err != nil {
-		log.Error("Marshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerSubActivityColumn)HasIndex(id int32)(has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.HasIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	_, has = this.m_data[id]
-	return
-}
-func (this *dbPlayerSubActivityColumn)GetAllIndex()(list []int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.GetAllIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]int32, len(this.m_data))
-	i := 0
-	for k, _ := range this.m_data {
-		list[i] = k
-		i++
-	}
-	return
-}
-func (this *dbPlayerSubActivityColumn)GetAll()(list []dbPlayerSubActivityData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.GetAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]dbPlayerSubActivityData, len(this.m_data))
-	i := 0
-	for _, v := range this.m_data {
-		v.clone_to(&list[i])
-		i++
-	}
-	return
-}
-func (this *dbPlayerSubActivityColumn)Get(id int32)(v *dbPlayerSubActivityData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.Get")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return nil
-	}
-	v=&dbPlayerSubActivityData{}
-	d.clone_to(v)
-	return
-}
-func (this *dbPlayerSubActivityColumn)Set(v dbPlayerSubActivityData)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.Set")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.SubId)]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.SubId)
-		return false
-	}
-	v.clone_to(d)
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSubActivityColumn)Add(v *dbPlayerSubActivityData)(ok bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.Add")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.SubId)]
-	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.SubId)
-		return false
-	}
-	d:=&dbPlayerSubActivityData{}
-	v.clone_to(d)
-	this.m_data[int32(v.SubId)]=d
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSubActivityColumn)Remove(id int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.Remove")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[id]
-	if has {
-		delete(this.m_data,id)
-	}
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerSubActivityColumn)Clear(){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.Clear")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=make(map[int32]*dbPlayerSubActivityData)
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerSubActivityColumn)NumAll()(n int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.NumAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	return int32(len(this.m_data))
-}
-func (this *dbPlayerSubActivityColumn)GetPurchasedNum(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.GetPurchasedNum")
+func (this *dbPlayerActivityDataColumn)GetSubValues(id int32)(v []int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityDataColumn.GetSubValues")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		return
 	}
-	v = d.PurchasedNum
+	v = make([]int32, len(d.SubValues))
+	for _ii, _vv := range d.SubValues {
+		v[_ii]=_vv
+	}
 	return v,true
 }
-func (this *dbPlayerSubActivityColumn)SetPurchasedNum(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.SetPurchasedNum")
+func (this *dbPlayerActivityDataColumn)SetSubValues(id int32,v []int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActivityDataColumn.SetSubValues")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
 		return
 	}
-	d.PurchasedNum = v
+	d.SubValues = make([]int32, len(v))
+	for _ii, _vv := range v {
+		d.SubValues[_ii]=_vv
+	}
 	this.m_changed = true
 	return true
 }
-func (this *dbPlayerSubActivityColumn)IncbyPurchasedNum(id int32,v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.IncbyPurchasedNum")
+func (this *dbPlayerActivityDataColumn)GetSubNum(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActivityDataColumn.GetSubNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.SubNum
+	return v,true
+}
+func (this *dbPlayerActivityDataColumn)SetSubNum(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActivityDataColumn.SetSubNum")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
-		d = &dbPlayerSubActivityData{}
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.SubNum = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerActivityDataColumn)IncbySubNum(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActivityDataColumn.IncbySubNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerActivityDataData{}
 		this.m_data[id] = d
 	}
-	d.PurchasedNum +=  v
+	d.SubNum +=  v
 	this.m_changed = true
-	return d.PurchasedNum
-}
-func (this *dbPlayerSubActivityColumn)GetRechargeCumulative(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.GetRechargeCumulative")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.RechargeCumulative
-	return v,true
-}
-func (this *dbPlayerSubActivityColumn)SetRechargeCumulative(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.SetRechargeCumulative")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.RechargeCumulative = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSubActivityColumn)GetHeroNum(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.GetHeroNum")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.HeroNum
-	return v,true
-}
-func (this *dbPlayerSubActivityColumn)SetHeroNum(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.SetHeroNum")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.HeroNum = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSubActivityColumn)IncbyHeroNum(id int32,v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.IncbyHeroNum")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		d = &dbPlayerSubActivityData{}
-		this.m_data[id] = d
-	}
-	d.HeroNum +=  v
-	this.m_changed = true
-	return d.HeroNum
-}
-func (this *dbPlayerSubActivityColumn)GetCostDiamond(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.GetCostDiamond")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.CostDiamond
-	return v,true
-}
-func (this *dbPlayerSubActivityColumn)SetCostDiamond(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.SetCostDiamond")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.CostDiamond = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSubActivityColumn)IncbyCostDiamond(id int32,v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.IncbyCostDiamond")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		d = &dbPlayerSubActivityData{}
-		this.m_data[id] = d
-	}
-	d.CostDiamond +=  v
-	this.m_changed = true
-	return d.CostDiamond
-}
-func (this *dbPlayerSubActivityColumn)GetExploreNum(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.GetExploreNum")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.ExploreNum
-	return v,true
-}
-func (this *dbPlayerSubActivityColumn)SetExploreNum(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.SetExploreNum")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.ExploreNum = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSubActivityColumn)IncbyExploreNum(id int32,v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.IncbyExploreNum")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		d = &dbPlayerSubActivityData{}
-		this.m_data[id] = d
-	}
-	d.ExploreNum +=  v
-	this.m_changed = true
-	return d.ExploreNum
-}
-func (this *dbPlayerSubActivityColumn)GetDrawNum(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.GetDrawNum")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.DrawNum
-	return v,true
-}
-func (this *dbPlayerSubActivityColumn)SetDrawNum(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.SetDrawNum")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.DrawNum = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSubActivityColumn)IncbyDrawNum(id int32,v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.IncbyDrawNum")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		d = &dbPlayerSubActivityData{}
-		this.m_data[id] = d
-	}
-	d.DrawNum +=  v
-	this.m_changed = true
-	return d.DrawNum
-}
-func (this *dbPlayerSubActivityColumn)GetArenaScore(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSubActivityColumn.GetArenaScore")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.ArenaScore
-	return v,true
-}
-func (this *dbPlayerSubActivityColumn)SetArenaScore(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.SetArenaScore")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.ArenaScore = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSubActivityColumn)IncbyArenaScore(id int32,v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSubActivityColumn.IncbyArenaScore")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		d = &dbPlayerSubActivityData{}
-		this.m_data[id] = d
-	}
-	d.ArenaScore +=  v
-	this.m_changed = true
-	return d.ArenaScore
+	return d.SubNum
 }
 type dbPlayerRow struct {
 	m_table *dbPlayerTable
@@ -11012,8 +10692,7 @@ type dbPlayerRow struct {
 	PayCommon dbPlayerPayCommonColumn
 	Pays dbPlayerPayColumn
 	GuideData dbPlayerGuideDataColumn
-	Activitys dbPlayerActivityColumn
-	SubActivitys dbPlayerSubActivityColumn
+	ActivityDatas dbPlayerActivityDataColumn
 }
 func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this := &dbPlayerRow{}
@@ -11130,10 +10809,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.Pays.m_data=make(map[string]*dbPlayerPayData)
 	this.GuideData.m_row=this
 	this.GuideData.m_data=&dbPlayerGuideDataData{}
-	this.Activitys.m_row=this
-	this.Activitys.m_data=make(map[int32]*dbPlayerActivityData)
-	this.SubActivitys.m_row=this
-	this.SubActivitys.m_data=make(map[int32]*dbPlayerSubActivityData)
+	this.ActivityDatas.m_row=this
+	this.ActivityDatas.m_data=make(map[int32]*dbPlayerActivityDataData)
 	return this
 }
 func (this *dbPlayerRow) GetPlayerId() (r int32) {
@@ -11143,7 +10820,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(61)
+		db_args:=new_db_args(60)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_UniqueId)
 		db_args.Push(this.m_Account)
@@ -11463,24 +11140,18 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dGuideData)
-		dActivitys,db_err:=this.Activitys.save()
+		dActivityDatas,db_err:=this.ActivityDatas.save()
 		if db_err!=nil{
-			log.Error("insert save Activity failed")
+			log.Error("insert save ActivityData failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dActivitys)
-		dSubActivitys,db_err:=this.SubActivitys.save()
-		if db_err!=nil{
-			log.Error("insert save SubActivity failed")
-			return db_err,false,0,"",nil
-		}
-		db_args.Push(dSubActivitys)
+		db_args.Push(dActivityDatas)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.Activitys.m_changed||this.SubActivitys.m_changed{
+		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(61)
+			db_args:=new_db_args(60)
 			if this.m_UniqueId_changed{
 				update_string+="UniqueId=?,"
 				db_args.Push(this.m_UniqueId)
@@ -11973,23 +11644,14 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dGuideData)
 			}
-			if this.Activitys.m_changed{
-				update_string+="Activitys=?,"
-				dActivitys,err:=this.Activitys.save()
+			if this.ActivityDatas.m_changed{
+				update_string+="ActivityDatas=?,"
+				dActivityDatas,err:=this.ActivityDatas.save()
 				if err!=nil{
-					log.Error("insert save Activity failed")
+					log.Error("insert save ActivityData failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dActivitys)
-			}
-			if this.SubActivitys.m_changed{
-				update_string+="SubActivitys=?,"
-				dSubActivitys,err:=this.SubActivitys.save()
-				if err!=nil{
-					log.Error("insert save SubActivity failed")
-					return err,false,0,"",nil
-				}
-				db_args.Push(dSubActivitys)
+				db_args.Push(dActivityDatas)
 			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE PlayerId=?"
@@ -12057,8 +11719,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.PayCommon.m_changed = false
 	this.Pays.m_changed = false
 	this.GuideData.m_changed = false
-	this.Activitys.m_changed = false
-	this.SubActivitys.m_changed = false
+	this.ActivityDatas.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -12622,26 +12283,18 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasActivity := columns["Activitys"]
-	if !hasActivity {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Activitys LONGBLOB")
+	_, hasActivityData := columns["ActivityDatas"]
+	if !hasActivityData {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ActivityDatas LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN Activitys failed")
-			return
-		}
-	}
-	_, hasSubActivity := columns["SubActivitys"]
-	if !hasSubActivity {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN SubActivitys LONGBLOB")
-		if err != nil {
-			log.Error("ADD COLUMN SubActivitys failed")
+			log.Error("ADD COLUMN ActivityDatas failed")
 			return
 		}
 	}
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,Activitys,SubActivitys FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -12649,7 +12302,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,Activitys,SubActivitys) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -12752,11 +12405,10 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dPayCommon []byte
 	var dPays []byte
 	var dGuideData []byte
-	var dActivitys []byte
-	var dSubActivitys []byte
+	var dActivityDatas []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivitys,&dSubActivitys)
+		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -13031,14 +12683,9 @@ func (this *dbPlayerTable) Preload() (err error) {
 			log.Error("GuideData %v", PlayerId)
 			return
 		}
-		err = row.Activitys.load(dActivitys)
+		err = row.ActivityDatas.load(dActivityDatas)
 		if err != nil {
-			log.Error("Activitys %v", PlayerId)
-			return
-		}
-		err = row.SubActivitys.load(dSubActivitys)
-		if err != nil {
-			log.Error("SubActivitys %v", PlayerId)
+			log.Error("ActivityDatas %v", PlayerId)
 			return
 		}
 		row.m_UniqueId_changed=false
@@ -17140,32 +16787,32 @@ func (this *dbGuildStageTable) GetRow(Id int64) (row *dbGuildStageRow) {
 	}
 	return row
 }
-func (this *dbActivityToDeleteRow)GetStartTime( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbActivityToDeleteRow.GetdbActivityToDeleteStartTimeColumn")
+func (this *dbActivitysToDeleteRow)GetStartTime( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbActivitysToDeleteRow.GetdbActivitysToDeleteStartTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
 	return int32(this.m_StartTime)
 }
-func (this *dbActivityToDeleteRow)SetStartTime(v int32){
-	this.m_lock.UnSafeLock("dbActivityToDeleteRow.SetdbActivityToDeleteStartTimeColumn")
+func (this *dbActivitysToDeleteRow)SetStartTime(v int32){
+	this.m_lock.UnSafeLock("dbActivitysToDeleteRow.SetdbActivitysToDeleteStartTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
 	this.m_StartTime=int32(v)
 	this.m_StartTime_changed=true
 	return
 }
-func (this *dbActivityToDeleteRow)GetEndTime( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbActivityToDeleteRow.GetdbActivityToDeleteEndTimeColumn")
+func (this *dbActivitysToDeleteRow)GetEndTime( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbActivitysToDeleteRow.GetdbActivitysToDeleteEndTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
 	return int32(this.m_EndTime)
 }
-func (this *dbActivityToDeleteRow)SetEndTime(v int32){
-	this.m_lock.UnSafeLock("dbActivityToDeleteRow.SetdbActivityToDeleteEndTimeColumn")
+func (this *dbActivitysToDeleteRow)SetEndTime(v int32){
+	this.m_lock.UnSafeLock("dbActivitysToDeleteRow.SetdbActivitysToDeleteEndTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
 	this.m_EndTime=int32(v)
 	this.m_EndTime_changed=true
 	return
 }
-type dbActivityToDeleteRow struct {
-	m_table *dbActivityToDeleteTable
+type dbActivitysToDeleteRow struct {
+	m_table *dbActivitysToDeleteTable
 	m_lock       *RWMutex
 	m_loaded  bool
 	m_new     bool
@@ -17179,8 +16826,8 @@ type dbActivityToDeleteRow struct {
 	m_EndTime_changed bool
 	m_EndTime int32
 }
-func new_dbActivityToDeleteRow(table *dbActivityToDeleteTable, Id int32) (r *dbActivityToDeleteRow) {
-	this := &dbActivityToDeleteRow{}
+func new_dbActivitysToDeleteRow(table *dbActivitysToDeleteTable, Id int32) (r *dbActivitysToDeleteRow) {
+	this := &dbActivitysToDeleteRow{}
 	this.m_table = table
 	this.m_Id = Id
 	this.m_lock = NewRWMutex()
@@ -17188,11 +16835,11 @@ func new_dbActivityToDeleteRow(table *dbActivityToDeleteTable, Id int32) (r *dbA
 	this.m_EndTime_changed=true
 	return this
 }
-func (this *dbActivityToDeleteRow) GetId() (r int32) {
+func (this *dbActivitysToDeleteRow) GetId() (r int32) {
 	return this.m_Id
 }
-func (this *dbActivityToDeleteRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
-	this.m_lock.UnSafeLock("dbActivityToDeleteRow.save_data")
+func (this *dbActivitysToDeleteRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbActivitysToDeleteRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
 		db_args:=new_db_args(3)
@@ -17203,7 +16850,7 @@ func (this *dbActivityToDeleteRow) save_data(release bool) (err error, released 
 		state = 1
 	} else {
 		if this.m_StartTime_changed||this.m_EndTime_changed{
-			update_string = "UPDATE ActivityToDeletes SET "
+			update_string = "UPDATE ActivitysToDeletes SET "
 			db_args:=new_db_args(3)
 			if this.m_StartTime_changed{
 				update_string+="StartTime=?,"
@@ -17230,7 +16877,7 @@ func (this *dbActivityToDeleteRow) save_data(release bool) (err error, released 
 	}
 	return nil,released,state,update_string,args
 }
-func (this *dbActivityToDeleteRow) Save(release bool) (err error, d bool, released bool) {
+func (this *dbActivitysToDeleteRow) Save(release bool) (err error, d bool, released bool) {
 	err,released, state, update_string, args := this.save_data(release)
 	if err != nil {
 		log.Error("save data failed")
@@ -17241,44 +16888,44 @@ func (this *dbActivityToDeleteRow) Save(release bool) (err error, d bool, releas
 	} else if state == 1 {
 		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
 		if err != nil {
-			log.Error("INSERT ActivityToDeletes exec failed %v ", this.m_Id)
+			log.Error("INSERT ActivitysToDeletes exec failed %v ", this.m_Id)
 			return err, false, released
 		}
 		d = true
 	} else if state == 2 {
 		_, err = this.m_table.m_dbc.Exec(update_string, args...)
 		if err != nil {
-			log.Error("UPDATE ActivityToDeletes exec failed %v", this.m_Id)
+			log.Error("UPDATE ActivitysToDeletes exec failed %v", this.m_Id)
 			return err, false, released
 		}
 		d = true
 	}
 	return nil, d, released
 }
-func (this *dbActivityToDeleteRow) Touch(releasable bool) {
+func (this *dbActivitysToDeleteRow) Touch(releasable bool) {
 	this.m_touch = int32(time.Now().Unix())
 	this.m_releasable = releasable
 }
-type dbActivityToDeleteRowSort struct {
-	rows []*dbActivityToDeleteRow
+type dbActivitysToDeleteRowSort struct {
+	rows []*dbActivitysToDeleteRow
 }
-func (this *dbActivityToDeleteRowSort) Len() (length int) {
+func (this *dbActivitysToDeleteRowSort) Len() (length int) {
 	return len(this.rows)
 }
-func (this *dbActivityToDeleteRowSort) Less(i int, j int) (less bool) {
+func (this *dbActivitysToDeleteRowSort) Less(i int, j int) (less bool) {
 	return this.rows[i].m_touch < this.rows[j].m_touch
 }
-func (this *dbActivityToDeleteRowSort) Swap(i int, j int) {
+func (this *dbActivitysToDeleteRowSort) Swap(i int, j int) {
 	temp := this.rows[i]
 	this.rows[i] = this.rows[j]
 	this.rows[j] = temp
 }
-type dbActivityToDeleteTable struct{
+type dbActivitysToDeleteTable struct{
 	m_dbc *DBC
 	m_lock *RWMutex
-	m_rows map[int32]*dbActivityToDeleteRow
-	m_new_rows map[int32]*dbActivityToDeleteRow
-	m_removed_rows map[int32]*dbActivityToDeleteRow
+	m_rows map[int32]*dbActivitysToDeleteRow
+	m_new_rows map[int32]*dbActivitysToDeleteRow
+	m_removed_rows map[int32]*dbActivitysToDeleteRow
 	m_gc_n int32
 	m_gcing int32
 	m_pool_size int32
@@ -17287,22 +16934,22 @@ type dbActivityToDeleteTable struct{
 	m_save_insert_stmt *sql.Stmt
 	m_delete_stmt *sql.Stmt
 }
-func new_dbActivityToDeleteTable(dbc *DBC) (this *dbActivityToDeleteTable) {
-	this = &dbActivityToDeleteTable{}
+func new_dbActivitysToDeleteTable(dbc *DBC) (this *dbActivitysToDeleteTable) {
+	this = &dbActivitysToDeleteTable{}
 	this.m_dbc = dbc
 	this.m_lock = NewRWMutex()
-	this.m_rows = make(map[int32]*dbActivityToDeleteRow)
-	this.m_new_rows = make(map[int32]*dbActivityToDeleteRow)
-	this.m_removed_rows = make(map[int32]*dbActivityToDeleteRow)
+	this.m_rows = make(map[int32]*dbActivitysToDeleteRow)
+	this.m_new_rows = make(map[int32]*dbActivitysToDeleteRow)
+	this.m_removed_rows = make(map[int32]*dbActivitysToDeleteRow)
 	return this
 }
-func (this *dbActivityToDeleteTable) check_create_table() (err error) {
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS ActivityToDeletes(Id int(11),PRIMARY KEY (Id))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+func (this *dbActivitysToDeleteTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS ActivitysToDeletes(Id int(11),PRIMARY KEY (Id))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
 	if err != nil {
-		log.Error("CREATE TABLE IF NOT EXISTS ActivityToDeletes failed")
+		log.Error("CREATE TABLE IF NOT EXISTS ActivitysToDeletes failed")
 		return
 	}
-	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='ActivityToDeletes'", this.m_dbc.m_db_name)
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='ActivitysToDeletes'", this.m_dbc.m_db_name)
 	if err != nil {
 		log.Error("SELECT information_schema failed")
 		return
@@ -17324,7 +16971,7 @@ func (this *dbActivityToDeleteTable) check_create_table() (err error) {
 	}
 	_, hasStartTime := columns["StartTime"]
 	if !hasStartTime {
-		_, err = this.m_dbc.Exec("ALTER TABLE ActivityToDeletes ADD COLUMN StartTime int(11) DEFAULT 0")
+		_, err = this.m_dbc.Exec("ALTER TABLE ActivitysToDeletes ADD COLUMN StartTime int(11) DEFAULT 0")
 		if err != nil {
 			log.Error("ADD COLUMN StartTime failed")
 			return
@@ -17332,7 +16979,7 @@ func (this *dbActivityToDeleteTable) check_create_table() (err error) {
 	}
 	_, hasEndTime := columns["EndTime"]
 	if !hasEndTime {
-		_, err = this.m_dbc.Exec("ALTER TABLE ActivityToDeletes ADD COLUMN EndTime int(11) DEFAULT 0")
+		_, err = this.m_dbc.Exec("ALTER TABLE ActivitysToDeletes ADD COLUMN EndTime int(11) DEFAULT 0")
 		if err != nil {
 			log.Error("ADD COLUMN EndTime failed")
 			return
@@ -17340,31 +16987,31 @@ func (this *dbActivityToDeleteTable) check_create_table() (err error) {
 	}
 	return
 }
-func (this *dbActivityToDeleteTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,StartTime,EndTime FROM ActivityToDeletes")
+func (this *dbActivitysToDeleteTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,StartTime,EndTime FROM ActivitysToDeletes")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
 	}
 	return
 }
-func (this *dbActivityToDeleteTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO ActivityToDeletes (Id,StartTime,EndTime) VALUES (?,?,?)")
+func (this *dbActivitysToDeleteTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO ActivitysToDeletes (Id,StartTime,EndTime) VALUES (?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
 	}
 	return
 }
-func (this *dbActivityToDeleteTable) prepare_delete_stmt() (err error) {
-	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM ActivityToDeletes WHERE Id=?")
+func (this *dbActivitysToDeleteTable) prepare_delete_stmt() (err error) {
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM ActivitysToDeletes WHERE Id=?")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
 	}
 	return
 }
-func (this *dbActivityToDeleteTable) Init() (err error) {
+func (this *dbActivitysToDeleteTable) Init() (err error) {
 	err=this.check_create_table()
 	if err!=nil{
 		log.Error("check_create_table failed")
@@ -17387,7 +17034,7 @@ func (this *dbActivityToDeleteTable) Init() (err error) {
 	}
 	return
 }
-func (this *dbActivityToDeleteTable) Preload() (err error) {
+func (this *dbActivitysToDeleteTable) Preload() (err error) {
 	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
 	if err != nil {
 		log.Error("SELECT")
@@ -17406,7 +17053,7 @@ func (this *dbActivityToDeleteTable) Preload() (err error) {
 		if Id>this.m_preload_max_id{
 			this.m_preload_max_id =Id
 		}
-		row := new_dbActivityToDeleteRow(this,Id)
+		row := new_dbActivitysToDeleteRow(this,Id)
 		row.m_StartTime=dStartTime
 		row.m_EndTime=dEndTime
 		row.m_StartTime_changed=false
@@ -17416,22 +17063,22 @@ func (this *dbActivityToDeleteTable) Preload() (err error) {
 	}
 	return
 }
-func (this *dbActivityToDeleteTable) GetPreloadedMaxId() (max_id int32) {
+func (this *dbActivitysToDeleteTable) GetPreloadedMaxId() (max_id int32) {
 	return this.m_preload_max_id
 }
-func (this *dbActivityToDeleteTable) fetch_rows(rows map[int32]*dbActivityToDeleteRow) (r map[int32]*dbActivityToDeleteRow) {
-	this.m_lock.UnSafeLock("dbActivityToDeleteTable.fetch_rows")
+func (this *dbActivitysToDeleteTable) fetch_rows(rows map[int32]*dbActivitysToDeleteRow) (r map[int32]*dbActivitysToDeleteRow) {
+	this.m_lock.UnSafeLock("dbActivitysToDeleteTable.fetch_rows")
 	defer this.m_lock.UnSafeUnlock()
-	r = make(map[int32]*dbActivityToDeleteRow)
+	r = make(map[int32]*dbActivitysToDeleteRow)
 	for i, v := range rows {
 		r[i] = v
 	}
 	return r
 }
-func (this *dbActivityToDeleteTable) fetch_new_rows() (new_rows map[int32]*dbActivityToDeleteRow) {
-	this.m_lock.UnSafeLock("dbActivityToDeleteTable.fetch_new_rows")
+func (this *dbActivitysToDeleteTable) fetch_new_rows() (new_rows map[int32]*dbActivitysToDeleteRow) {
+	this.m_lock.UnSafeLock("dbActivitysToDeleteTable.fetch_new_rows")
 	defer this.m_lock.UnSafeUnlock()
-	new_rows = make(map[int32]*dbActivityToDeleteRow)
+	new_rows = make(map[int32]*dbActivitysToDeleteRow)
 	for i, v := range this.m_new_rows {
 		_, has := this.m_rows[i]
 		if has {
@@ -17446,7 +17093,7 @@ func (this *dbActivityToDeleteTable) fetch_new_rows() (new_rows map[int32]*dbAct
 	}
 	return
 }
-func (this *dbActivityToDeleteTable) save_rows(rows map[int32]*dbActivityToDeleteRow, quick bool) {
+func (this *dbActivitysToDeleteTable) save_rows(rows map[int32]*dbActivitysToDeleteRow, quick bool) {
 	for _, v := range rows {
 		if this.m_dbc.m_quit && !quick {
 			return
@@ -17463,7 +17110,7 @@ func (this *dbActivityToDeleteTable) save_rows(rows map[int32]*dbActivityToDelet
 		}
 	}
 }
-func (this *dbActivityToDeleteTable) Save(quick bool) (err error){
+func (this *dbActivitysToDeleteTable) Save(quick bool) (err error){
 	removed_rows := this.fetch_rows(this.m_removed_rows)
 	for _, v := range removed_rows {
 		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetId())
@@ -17475,17 +17122,17 @@ func (this *dbActivityToDeleteTable) Save(quick bool) (err error){
 			time.Sleep(time.Millisecond * 5)
 		}
 	}
-	this.m_removed_rows = make(map[int32]*dbActivityToDeleteRow)
+	this.m_removed_rows = make(map[int32]*dbActivitysToDeleteRow)
 	rows := this.fetch_rows(this.m_rows)
 	this.save_rows(rows, quick)
 	new_rows := this.fetch_new_rows()
 	this.save_rows(new_rows, quick)
 	return
 }
-func (this *dbActivityToDeleteTable) AddRow(Id int32) (row *dbActivityToDeleteRow) {
-	this.m_lock.UnSafeLock("dbActivityToDeleteTable.AddRow")
+func (this *dbActivitysToDeleteTable) AddRow(Id int32) (row *dbActivitysToDeleteRow) {
+	this.m_lock.UnSafeLock("dbActivitysToDeleteTable.AddRow")
 	defer this.m_lock.UnSafeUnlock()
-	row = new_dbActivityToDeleteRow(this,Id)
+	row = new_dbActivitysToDeleteRow(this,Id)
 	row.m_new = true
 	row.m_loaded = true
 	row.m_valid = true
@@ -17498,8 +17145,8 @@ func (this *dbActivityToDeleteTable) AddRow(Id int32) (row *dbActivityToDeleteRo
 	atomic.AddInt32(&this.m_gc_n,1)
 	return row
 }
-func (this *dbActivityToDeleteTable) RemoveRow(Id int32) {
-	this.m_lock.UnSafeLock("dbActivityToDeleteTable.RemoveRow")
+func (this *dbActivitysToDeleteTable) RemoveRow(Id int32) {
+	this.m_lock.UnSafeLock("dbActivitysToDeleteTable.RemoveRow")
 	defer this.m_lock.UnSafeUnlock()
 	row := this.m_rows[Id]
 	if row != nil {
@@ -17534,8 +17181,8 @@ func (this *dbActivityToDeleteTable) RemoveRow(Id int32) {
 		}
 	}
 }
-func (this *dbActivityToDeleteTable) GetRow(Id int32) (row *dbActivityToDeleteRow) {
-	this.m_lock.UnSafeRLock("dbActivityToDeleteTable.GetRow")
+func (this *dbActivitysToDeleteTable) GetRow(Id int32) (row *dbActivitysToDeleteRow) {
+	this.m_lock.UnSafeRLock("dbActivitysToDeleteTable.GetRow")
 	defer this.m_lock.UnSafeRUnlock()
 	row = this.m_rows[Id]
 	if row == nil {
@@ -20511,7 +20158,7 @@ type DBC struct {
 	ArenaSeason *dbArenaSeasonTable
 	Guilds *dbGuildTable
 	GuildStages *dbGuildStageTable
-	ActivityToDeletes *dbActivityToDeleteTable
+	ActivitysToDeletes *dbActivitysToDeleteTable
 	GooglePayRecords *dbGooglePayRecordTable
 	ApplePayRecords *dbApplePayRecordTable
 	FaceBPayRecords *dbFaceBPayRecordTable
@@ -20568,10 +20215,10 @@ func (this *DBC)init_tables()(err error){
 		log.Error("init GuildStages table failed")
 		return
 	}
-	this.ActivityToDeletes = new_dbActivityToDeleteTable(this)
-	err = this.ActivityToDeletes.Init()
+	this.ActivitysToDeletes = new_dbActivitysToDeleteTable(this)
+	err = this.ActivitysToDeletes.Init()
 	if err != nil {
-		log.Error("init ActivityToDeletes table failed")
+		log.Error("init ActivitysToDeletes table failed")
 		return
 	}
 	this.GooglePayRecords = new_dbGooglePayRecordTable(this)
@@ -20669,12 +20316,12 @@ func (this *DBC)Preload()(err error){
 	}else{
 		log.Info("preload GuildStages table succeed !")
 	}
-	err = this.ActivityToDeletes.Preload()
+	err = this.ActivitysToDeletes.Preload()
 	if err != nil {
-		log.Error("preload ActivityToDeletes table failed")
+		log.Error("preload ActivitysToDeletes table failed")
 		return
 	}else{
-		log.Info("preload ActivityToDeletes table succeed !")
+		log.Info("preload ActivitysToDeletes table succeed !")
 	}
 	err = this.GooglePayRecords.Preload()
 	if err != nil {
@@ -20771,9 +20418,9 @@ func (this *DBC)Save(quick bool)(err error){
 		log.Error("save GuildStages table failed")
 		return
 	}
-	err = this.ActivityToDeletes.Save(quick)
+	err = this.ActivitysToDeletes.Save(quick)
 	if err != nil {
-		log.Error("save ActivityToDeletes table failed")
+		log.Error("save ActivitysToDeletes table failed")
 		return
 	}
 	err = this.GooglePayRecords.Save(quick)
