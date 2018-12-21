@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
 	"math/rand"
-	"net/http"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -1449,7 +1448,7 @@ func (this *Player) role_displace_confirm() int32 {
 	return 1
 }
 
-func C2SRoleAttrsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleAttrsHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleAttrsRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -1459,7 +1458,7 @@ func C2SRoleAttrsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	return p.send_role_attrs(req.GetRoleId())
 }
 
-func C2SRoleLockHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleLockHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleLockRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -1469,7 +1468,7 @@ func C2SRoleLockHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return p.lock_role(req.GetRoleId(), req.GetIsLock())
 }
 
-func C2SRoleLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleLevelUpHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleLevelUpRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -1479,7 +1478,7 @@ func C2SRoleLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.levelup_role(req.GetRoleId(), req.GetUpNum())
 }
 
-func C2SRoleRankUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleRankUpHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleRankUpRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -1489,7 +1488,7 @@ func C2SRoleRankUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 	return p.rankup_role(req.GetRoleId())
 }
 
-func C2SRoleDecomposeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleDecomposeHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleDecomposeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -1499,7 +1498,7 @@ func C2SRoleDecomposeHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 	return p.decompose_role(req.GetRoleIds())
 }
 
-func C2SRoleFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleFusionHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleFusionRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1509,7 +1508,7 @@ func C2SRoleFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 	return p.fusion_role(req.GetFusionId(), req.GetMainCardId(), [][]int32{req.GetCost1CardIds(), req.GetCost2CardIds(), req.GetCost3CardIds()})
 }
 
-func C2SRoleHandbookHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleHandbookHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleHandbookRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1520,7 +1519,7 @@ func C2SRoleHandbookHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.get_role_handbook()
 }
 
-func C2SRoleLeftSlotOpenHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleLeftSlotOpenHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleLeftSlotOpenRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1530,7 +1529,7 @@ func C2SRoleLeftSlotOpenHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return p.role_open_left_slot(req.GetRoleId())
 }
 
-func C2SRoleOneKeyEquipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleOneKeyEquipHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleOneKeyEquipRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1540,7 +1539,7 @@ func C2SRoleOneKeyEquipHandler(w http.ResponseWriter, r *http.Request, p *Player
 	return p.role_one_key_equip(req.GetRoleId(), req.GetEquips())
 }
 
-func C2SRoleOneKeyUnequipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleOneKeyUnequipHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleOnekeyUnequipRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1550,7 +1549,7 @@ func C2SRoleOneKeyUnequipHandler(w http.ResponseWriter, r *http.Request, p *Play
 	return p.role_one_key_unequip(req.GetRoleId())
 }
 
-func C2SRoleLeftSlotUpgradeSaveHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleLeftSlotUpgradeSaveHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleLeftSlotResultSaveRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1560,7 +1559,7 @@ func C2SRoleLeftSlotUpgradeSaveHandler(w http.ResponseWriter, r *http.Request, p
 	return p.role_left_slot_upgrade_save()
 }
 
-func C2SRoleLeftSlotResultCancelHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleLeftSlotResultCancelHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleLeftSlotResultCancelRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1570,7 +1569,7 @@ func C2SRoleLeftSlotResultCancelHandler(w http.ResponseWriter, r *http.Request, 
 	return p.role_left_slot_result_cancel()
 }
 
-func C2SRoleDisplaceHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleDisplaceHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleDisplaceRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1580,7 +1579,7 @@ func C2SRoleDisplaceHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.role_displace(req.GetGroupId(), req.GetRoleId())
 }
 
-func C2SRoleDisplaceConfirmHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRoleDisplaceConfirmHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleDisplaceConfirmRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

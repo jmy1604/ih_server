@@ -5,7 +5,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -167,7 +166,7 @@ func (this *Player) touch_gold(t int32) int32 {
 	return 1
 }
 
-func C2SGoldHandDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGoldHandDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGoldHandDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -177,7 +176,7 @@ func C2SGoldHandDataHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.send_gold_hand()
 }
 
-func C2STouchGoldHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2STouchGoldHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STouchGoldRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {

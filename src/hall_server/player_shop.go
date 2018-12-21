@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -333,7 +332,7 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 	}
 
 	// 手动刷新
-	if !is_free /*shop_tdata.FreeRefreshTime <= 0 && cost_res != nil*/ {
+	if !is_free {
 		for i := 0; i < len(cost_res)/2; i++ {
 			if this.get_resource(cost_res[2*i]) < cost_res[2*i+1] {
 				log.Error("Player[%v] refresh shop[%v] failed, not enough resource%v", this.Id, shop_id, cost_res)
@@ -344,7 +343,7 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 
 	this._refresh_shop(shop_tdata)
 
-	if !is_free /*shop_tdata.FreeRefreshTime <= 0 && cost_res != nil*/ {
+	if !is_free {
 		for i := 0; i < len(cost_res)/2; i++ {
 			this.add_resource(cost_res[2*i], -cost_res[2*i+1])
 		}
@@ -365,7 +364,7 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 	return 1
 }
 
-func C2SShopDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SShopDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SShopDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -375,7 +374,7 @@ func C2SShopDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return p.send_shop(req.GetShopId())
 }
 
-func C2SShopBuyItemHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SShopBuyItemHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SShopBuyItemRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -385,7 +384,7 @@ func C2SShopBuyItemHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.shop_buy_item(req.GetShopId(), req.GetItemId(), req.GetBuyNum())
 }
 
-func C2SShopRefreshHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SShopRefreshHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SShopRefreshRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

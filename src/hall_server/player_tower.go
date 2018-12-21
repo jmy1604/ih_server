@@ -5,7 +5,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
-	"net/http"
 	"sync"
 	"time"
 
@@ -370,7 +369,7 @@ func (this *TowerRankingList) GetMsgs() (ranking_list []*msg_client_message.Towe
 	return
 }
 
-func C2STowerRecordsInfoHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2STowerRecordsInfoHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STowerRecordsInfoRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -381,7 +380,7 @@ func C2STowerRecordsInfoHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return p.get_tower_records_info(req.GetTowerId())
 }
 
-func C2STowerRecordDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2STowerRecordDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STowerRecordDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -392,7 +391,7 @@ func C2STowerRecordDataHandler(w http.ResponseWriter, r *http.Request, p *Player
 	return p.get_tower_record_data(req.GetTowerFightId())
 }
 
-func C2STowerDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2STowerDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STowerDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -403,7 +402,7 @@ func C2STowerDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	return p.send_tower_data(true)
 }
 
-func C2STowerRankingListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2STowerRankingListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STowerRankingListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

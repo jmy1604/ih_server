@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"math/rand"
-	"net/http"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -1681,7 +1680,7 @@ func (this *Player) guild_donate(player_id int32) int32 {
 	return 1
 }
 
-func C2SGuildDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1691,7 +1690,7 @@ func C2SGuildDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	return p.send_guild_data()
 }
 
-func C2SGuildRecommendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildRecommendHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildRecommendRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1701,7 +1700,7 @@ func C2SGuildRecommendHandler(w http.ResponseWriter, r *http.Request, p *Player,
 	return p.guild_recommend()
 }
 
-func C2SGuildSearchHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildSearchHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildSearchRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1711,7 +1710,7 @@ func C2SGuildSearchHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.guild_search(req.GetKey())
 }
 
-func C2SGuildCreateHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildCreateHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildCreateRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1722,7 +1721,7 @@ func C2SGuildCreateHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.guild_create(req.GetGuildName(), string(req.GetAnouncement()), req.GetGuildLogo())
 }
 
-func C2SGuildDismissHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildDismissHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildDismissRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1733,7 +1732,7 @@ func C2SGuildDismissHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.guild_dismiss()
 }
 
-func C2SGuildCancelDismissHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildCancelDismissHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildCancelDismissRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1743,7 +1742,7 @@ func C2SGuildCancelDismissHandler(w http.ResponseWriter, r *http.Request, p *Pla
 	return p.guild_cancel_dismiss()
 }
 
-func C2SGuildInfoModifyHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildInfoModifyHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildInfoModifyRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1754,7 +1753,7 @@ func C2SGuildInfoModifyHandler(w http.ResponseWriter, r *http.Request, p *Player
 	return p.guild_info_modify(req.GetNewGuildName(), req.GetNewGuildLogo())
 }
 
-func C2SGuildSetAnouncementHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildSetAnouncementHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildAnouncementRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1764,7 +1763,7 @@ func C2SGuildSetAnouncementHandler(w http.ResponseWriter, r *http.Request, p *Pl
 	return p.guild_anouncement(req.GetContent())
 }
 
-func C2SGuildMembersHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildMembersHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildMembersRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1775,7 +1774,7 @@ func C2SGuildMembersHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.guild_members_list()
 }
 
-func C2SGuildAskJoinHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildAskJoinHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildAskJoinRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1786,7 +1785,7 @@ func C2SGuildAskJoinHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.guild_ask_join(req.GetGuildId())
 }
 
-func C2SGuildAgreeJoinHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildAgreeJoinHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildAgreeJoinRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1796,7 +1795,7 @@ func C2SGuildAgreeJoinHandler(w http.ResponseWriter, r *http.Request, p *Player,
 	return p.guild_agree_join(req.GetPlayerIds(), req.GetIsRefuse())
 }
 
-func C2SGuildAskListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildAskListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildAskListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1806,7 +1805,7 @@ func C2SGuildAskListHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.guild_ask_list()
 }
 
-func C2SGuildQuitHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildQuitHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildQuitRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1816,7 +1815,7 @@ func C2SGuildQuitHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	return p.guild_quit()
 }
 
-func C2SGuildLogsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildLogsHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildLogsRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1826,7 +1825,7 @@ func C2SGuildLogsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	return p.guild_logs()
 }
 
-func C2SGuildSignInHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildSignInHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildSignInRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1836,7 +1835,7 @@ func C2SGuildSignInHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.guild_sign_in()
 }
 
-func C2SGuildSetOfficerHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildSetOfficerHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildSetOfficerRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1846,7 +1845,7 @@ func C2SGuildSetOfficerHandler(w http.ResponseWriter, r *http.Request, p *Player
 	return p.guild_set_officer(req.GetPlayerIds(), req.GetSetType())
 }
 
-func C2SGuildKickMemberHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildKickMemberHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildKickMemberRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1856,7 +1855,7 @@ func C2SGuildKickMemberHandler(w http.ResponseWriter, r *http.Request, p *Player
 	return p.guild_kick_member(req.GetPlayerIds())
 }
 
-func C2SGuildChangePresidentHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildChangePresidentHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildChangePresidentRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1866,7 +1865,7 @@ func C2SGuildChangePresidentHandler(w http.ResponseWriter, r *http.Request, p *P
 	return p.guild_change_president(req.GetNewPresidentId())
 }
 
-func C2SGuildRecruitHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildRecruitHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildRecruitRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1876,7 +1875,7 @@ func C2SGuildRecruitHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.guild_recruit(req.GetContent())
 }
 
-func C2SGuildDonateListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildDonateListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildDonateListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1886,7 +1885,7 @@ func C2SGuildDonateListHandler(w http.ResponseWriter, r *http.Request, p *Player
 	return p.guild_donate_list()
 }
 
-func C2SGuildAskDonateHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildAskDonateHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildAskDonateRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1896,7 +1895,7 @@ func C2SGuildAskDonateHandler(w http.ResponseWriter, r *http.Request, p *Player,
 	return p.guild_ask_donate(req.GetItemId())
 }
 
-func C2SGuildDonateHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildDonateHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildDonateRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

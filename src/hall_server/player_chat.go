@@ -5,7 +5,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -181,7 +180,7 @@ func (this *Player) has_new_chat_msg(channel int32) bool {
 	return chat_mgr.has_new_msg(this)
 }
 
-func C2SChatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SChatHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SChatRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -192,7 +191,7 @@ func C2SChatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data 
 	return p.chat(req.GetChannel(), req.GetContent())
 }
 
-func C2SChatPullMsgHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SChatPullMsgHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SChatMsgPullRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

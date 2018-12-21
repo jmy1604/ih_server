@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	_ "ih_server/src/table_config"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -138,7 +137,7 @@ func (this *Player) sign_award(id int32) int32 {
 	return 1
 }
 
-func C2SSignDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SSignDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SSignDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -148,7 +147,7 @@ func C2SSignDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return p.get_sign_data()
 }
 
-func C2SSignAwardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SSignAwardHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SSignAwardRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

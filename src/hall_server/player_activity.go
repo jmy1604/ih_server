@@ -3,7 +3,6 @@ package main
 import (
 	"ih_server/libs/log"
 	"ih_server/src/table_config"
-	"net/http"
 	"sync"
 	"time"
 
@@ -39,6 +38,10 @@ const (
 	ACTIVITY_EVENT_ARENA_SCORE   = 308 // 竞技场积分
 )
 
+const (
+	ACTIVITY_CHARGE_EXTEND_MINUTES = 5
+)
+
 type ActivityManager struct {
 	data_map map[int32]*table_config.XmlActivityItem
 	locker   sync.RWMutex
@@ -58,7 +61,13 @@ func (this *ActivityManager) Run() {
 	for {
 		now_time := time.Now()
 		for _, d := range activity_table_mgr.Array {
-			if d.StartTime <= int32(now_time.Unix()) && d.EndTime >= int32(now_time.Unix()) {
+			start_time := d.StartTime
+			end_time := d.EndTime
+			// 充值活动延长5分钟
+			if d.EventId == ACTIVITY_EVENT_CHARGE {
+				end_time += ACTIVITY_CHARGE_EXTEND_MINUTES * 60
+			}
+			if start_time <= int32(now_time.Unix()) && end_time >= int32(now_time.Unix()) {
 				this.locker.RLock()
 				if this.data_map[d.Id] != nil {
 					this.locker.RUnlock()
@@ -71,7 +80,11 @@ func (this *ActivityManager) Run() {
 					this.data_map[d.Id] = d
 				}
 				this.locker.Unlock()
-			} else if d.EndTime < int32(now_time.Unix()) {
+
+				if dbc.ActivitysToDeletes.GetRow(d.Id) != nil {
+					dbc.ActivitysToDeletes.RemoveRow(d.Id)
+				}
+			} else if end_time < int32(now_time.Unix()) {
 				this.locker.RLock()
 				if this.data_map[d.Id] == nil {
 					this.locker.RUnlock()
@@ -82,13 +95,16 @@ func (this *ActivityManager) Run() {
 				this.locker.Lock()
 				if this.data_map[d.Id] != nil {
 					delete(this.data_map, d.Id)
-					row := dbc.ActivitysToDeletes.AddRow(d.Id)
-					if row != nil {
-						row.SetStartTime(d.StartTime)
-						row.SetEndTime(d.StartTime)
-					}
 				}
 				this.locker.Unlock()
+
+				if dbc.ActivitysToDeletes.GetRow(d.Id) == nil {
+					row := dbc.ActivitysToDeletes.AddRow(d.Id)
+					if row != nil {
+						row.SetStartTime(start_time)
+						row.SetEndTime(end_time)
+					}
+				}
 			}
 		}
 		time.Sleep(time.Second)
@@ -120,7 +136,12 @@ func (this *ActivityManager) GetActivitysByEvent(event_type int32) (items []*tab
 		if v.EventId != event_type {
 			continue
 		}
-		if GetRemainSeconds(v.StartTime, v.EndTime-v.StartTime) > 0 {
+		start_time := v.StartTime
+		end_time := v.EndTime
+		if event_type == ACTIVITY_EVENT_CHARGE {
+			end_time += ACTIVITY_CHARGE_EXTEND_MINUTES * 60
+		}
+		if GetRemainSeconds(start_time, end_time-start_time) > 0 {
 			items = append(items, v)
 		}
 	}
@@ -180,7 +201,7 @@ func (this *Player) activity_data() int32 {
 		for _, d := range datas {
 			id := int32(d.GetId())
 			if dbc.ActivitysToDeletes.GetRow(id) != nil {
-				if this.db.ActivityDatas.HasIndex(id) {
+				if !activity_mgr.IsDoing(id) && this.db.ActivityDatas.HasIndex(id) {
 					this.db.ActivityDatas.Remove(id)
 					continue
 				}
@@ -244,53 +265,6 @@ func (this *Player) activity_check_and_add_sub(id, sub_id, value int32) (sub_val
 	sub_num = this.db.ActivityDatas.IncbySubNum(id, 1)
 
 	return
-}
-
-func activity_get(id, event_type int32) (int32, *table_config.XmlActivityItem) {
-	if !activity_mgr.IsDoing(id) {
-		return -1, nil
-	}
-
-	a := activity_table_mgr.Get(id)
-	if a == nil {
-		return -1, nil
-	}
-
-	if a.SubActiveList == nil {
-		return -1, nil
-	}
-
-	if event_type > 0 && a.EventId != event_type {
-		log.Error("activity %v event[%v] no match", id, a.EventId)
-		return -1, nil
-	}
-
-	return 1, a
-}
-
-func activity_sub_get(id, sub_id, event_type int32) (int32, *table_config.XmlSubActivityItem) {
-	res, a := activity_get(id, event_type)
-	if res < 0 {
-		return -1, nil
-	}
-
-	var d *table_config.XmlSubActivityItem
-	for i := 0; i < len(a.SubActiveList); i++ {
-		if sub_id == a.SubActiveList[i] {
-			sd := sub_activity_table_mgr.Get(sub_id)
-			if sd == nil {
-				return -1, nil
-			}
-			d = sd
-			break
-		}
-	}
-
-	if d == nil {
-		return -1, nil
-	}
-
-	return 1, d
 }
 
 func (this *Player) activity_get_one_charge(bundle_id string) (int32, *table_config.XmlSubActivityItem) {
@@ -477,7 +451,7 @@ func (this *Player) activity_exchange(id, sub_id int32) int32 {
 	return 1
 }
 
-func C2SActivityDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SActivityDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SActivityDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -487,7 +461,7 @@ func C2SActivityDataHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.activity_data()
 }
 
-func C2SActivityExchangeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SActivityExchangeHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SActivityExchangeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

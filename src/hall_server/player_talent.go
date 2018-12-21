@@ -4,7 +4,6 @@ import (
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
-	"net/http"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -202,7 +201,7 @@ func (this *Player) calc_first_hand(team *BattleTeam) {
 	}
 }
 
-func C2STalentListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2STalentListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STalentListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -212,7 +211,7 @@ func C2STalentListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 	return p.send_talent_list()
 }
 
-func C2STalentUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2STalentUpHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STalentUpRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -222,7 +221,7 @@ func C2STalentUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return p.up_talent(req.GetTalentId())
 }
 
-func C2STalentResetHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2STalentResetHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STalentResetRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

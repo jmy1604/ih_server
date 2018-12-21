@@ -44,12 +44,11 @@ func (this *MsgHttpHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 //=======================================================
 
-type CLIENT_MSG_HANDLER func(http.ResponseWriter, *http.Request /*proto.Message*/, []byte) (int32, *Player)
+type CLIENT_MSG_HANDLER func([]byte) (int32, *Player)
 
-type CLIENT_PLAYER_MSG_HANDLER func(http.ResponseWriter, *http.Request, *Player /*proto.Message*/, []byte) int32
+type CLIENT_PLAYER_MSG_HANDLER func(*Player, []byte) int32
 
 type MsgHandlerInfo struct {
-	//typ                reflect.Type
 	msg_handler        CLIENT_MSG_HANDLER
 	player_msg_handler CLIENT_PLAYER_MSG_HANDLER
 	if_player_msg      bool
@@ -171,7 +170,7 @@ func _push_client_msg_res(err_code int32, msg_id int32, data []byte, msg_res *ms
 	})
 }
 
-func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, msg_id int32, msg_data []byte, handlerinfo *MsgHandlerInfo, msg_res *msg_client_message.S2C_MSG_DATA) {
+func _process_one_client_msg(p *Player, msg_id int32, msg_data []byte, handlerinfo *MsgHandlerInfo, msg_res *msg_client_message.S2C_MSG_DATA) {
 	if msg_id <= 0 {
 		_push_client_msg_res(int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID), 0, nil, msg_res)
 		log.Error("!!!!!! Invalid Msg Id %v from Player Id %v", msg_id, p.Id)
@@ -194,7 +193,7 @@ func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, 
 		p.b_base_prop_chg = false
 		p.OnInit()
 		if atomic.LoadInt32(&p.is_login) > 0 || msg_id == int32(msg_client_message_id.MSGID_C2S_RECONNECT_REQUEST) {
-			ret_code = handlerinfo.player_msg_handler(w, r, p, msg_data)
+			ret_code = handlerinfo.player_msg_handler(p, msg_data)
 		} else {
 			ret_code = int32(msg_client_message.E_ERR_PLAYER_MUEST_RECONN_WITH_DISCONN_STATE)
 		}
@@ -205,7 +204,7 @@ func _process_one_client_msg(w http.ResponseWriter, r *http.Request, p *Player, 
 	_push_client_msg_res(ret_code, msg_id, data, msg_res)
 }
 
-func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg_list []*msg_client_message.C2S_ONE_MSG, msg_res *msg_client_message.S2C_MSG_DATA) (err int32) {
+func _process_client_msgs(r *http.Request, p *Player, msg_list []*msg_client_message.C2S_ONE_MSG, msg_res *msg_client_message.S2C_MSG_DATA) (err int32) {
 	for _, m := range msg_list {
 		msg_id := m.GetMsgCode()
 		handlerinfo := msg_handler_mgr.msgid2handler[msg_id]
@@ -219,9 +218,13 @@ func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg
 		if !handlerinfo.if_player_msg {
 			var ret_code int32
 			var data []byte
-			ret_code, p = handlerinfo.msg_handler(w, r, msg_data)
+			ret_code, p = handlerinfo.msg_handler(msg_data)
 			if p != nil {
 				data = p.PopCurMsgData()
+				ip_port := strings.Split(r.RemoteAddr, ":")
+				if len(ip_port) >= 2 {
+					p.pos = position_table.GetPosByIP(ip_port[0])
+				}
 			} else {
 				data = nil
 			}
@@ -232,7 +235,7 @@ func _process_client_msgs(w http.ResponseWriter, r *http.Request, p *Player, msg
 				log.Error("!!!!!! Process msg %v not found player", msg_id)
 				break
 			}
-			_process_one_client_msg(w, r, p, msg_id, msg_data, handlerinfo, msg_res)
+			_process_one_client_msg(p, msg_id, msg_data, handlerinfo, msg_res)
 		}
 	}
 
@@ -310,7 +313,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	msg_list := tmp_msg.GetMsgList()
 	if msg_list != nil {
 		p := player_mgr.GetPlayerByUid(access_token.UniqueId)
-		e := _process_client_msgs(w, r, p, msg_list, &res2cli)
+		e := _process_client_msgs(r, p, msg_list, &res2cli)
 		if e < 0 {
 			_send_error(w, e)
 			return

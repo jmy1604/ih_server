@@ -7,7 +7,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"io"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -360,7 +359,7 @@ func (this *Player) GetBattleRecord(record_id int32) int32 {
 	return 1
 }
 
-func C2SBattleRecordListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SBattleRecordListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SBattleRecordListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -370,7 +369,7 @@ func C2SBattleRecordListHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return p.GetBattleRecordList()
 }
 
-func C2SBattleRecordHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SBattleRecordHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SBattleRecordRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -380,7 +379,7 @@ func C2SBattleRecordHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.GetBattleRecord(req.GetId())
 }
 
-func C2SBattleRecordDeleteHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SBattleRecordDeleteHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SBattleRecordRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

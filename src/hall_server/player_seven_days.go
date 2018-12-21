@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	_ "ih_server/src/table_config"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -130,7 +129,7 @@ func (this *Player) seven_days_award() int32 {
 	return 1
 }
 
-func C2SSevenDaysDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SSevenDaysDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SSevenDaysDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -140,7 +139,7 @@ func C2SSevenDaysDataHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 	return p.seven_days_data()
 }
 
-func C2SSevenDaysAwardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SSevenDaysAwardHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SSevenDaysAwardRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

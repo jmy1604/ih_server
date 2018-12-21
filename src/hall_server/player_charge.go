@@ -27,6 +27,10 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
+const (
+	MONTH_CARD_DAYS_NUM = 30
+)
+
 type ChargeMonthCardManager struct {
 	players_map     map[int32]*Player
 	player_ids_chan chan int32
@@ -220,13 +224,13 @@ func (this *Player) charge_month_card_award(month_cards []*table_config.XmlPayIt
 			continue
 		}
 		send_num, _ := this.db.Pays.GetSendMailNum(m.BundleId)
-		if send_num >= 30 {
+		if send_num >= MONTH_CARD_DAYS_NUM {
 			continue
 		}
 		num := utils.GetDaysNumToLastSaveTime(last_award_time, global_config.MonthCardSendRewardTime, now_time)
 		for i := int32(0); i < num; i++ {
 			send_num = this._charge_month_card_award(m, now_time)
-			if send_num >= 30 {
+			if send_num >= MONTH_CARD_DAYS_NUM {
 				break
 			}
 		}
@@ -247,7 +251,7 @@ func (this *Player) charge_has_month_card() bool {
 	for i := 0; i < len(arr); i++ {
 		bundle_id := arr[i].BundleId
 		send_num, o := this.db.Pays.GetSendMailNum(bundle_id)
-		if o && send_num < 30 {
+		if o && send_num < MONTH_CARD_DAYS_NUM {
 			return true
 		}
 	}
@@ -269,7 +273,7 @@ func (this *Player) charge_data() int32 {
 			send_mail_num, _ := this.db.Pays.GetSendMailNum(idx)
 			datas = append(datas, &msg_client_message.MonthCardData{
 				BundleId:    idx,
-				EndTime:     payed_time + 30*24*3600,
+				EndTime:     payed_time + MONTH_CARD_DAYS_NUM*24*3600,
 				SendMailNum: send_mail_num,
 			})
 		}
@@ -698,7 +702,7 @@ func (this *Player) _charge_with_bundle_id(channel int32, bundle_id string, purc
 	if has {
 		if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
 			mail_num, o := this.db.Pays.GetSendMailNum(bundle_id)
-			if o && mail_num < 30 {
+			if o && mail_num < MONTH_CARD_DAYS_NUM {
 				log.Error("Player[%v] payed month card %v is using, not outdate", this.Id, bundle_id)
 				return int32(msg_client_message.E_ERR_CHARGE_MONTH_CARD_ALREADY_PAYED), false
 			}
@@ -819,7 +823,7 @@ func (this *Player) charge_first_award() int32 {
 	return 1
 }
 
-func C2SChargeDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SChargeDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SChargeDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -829,7 +833,7 @@ func C2SChargeDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 	return p.charge_data()
 }
 
-func C2SChargeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SChargeHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SChargeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -839,7 +843,7 @@ func C2SChargeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_dat
 	return p.charge_with_bundle_id(req.GetChannel(), req.GetBundleId(), req.GetPurchareData(), req.GetExtraData(), req.GetClientIndex())
 }
 
-func C2SChargeFirstAwardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SChargeFirstAwardHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SChargeFirstAwardRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

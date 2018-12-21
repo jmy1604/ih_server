@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
 	"math/rand"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -1101,7 +1100,7 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 
 const PLAYER_SWEEP_MAX_NUM int32 = 10
 
-func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFightHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SBattleResultRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -1126,7 +1125,7 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 	return p.fight(req.GetAttackMembers(), req.GetBattleType(), req.GetBattleParam(), req.GetAssistFriendId(), req.GetAssistRoleId(), req.GetAssistPos())
 }
 
-func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SSetTeamHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SSetTeamRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1151,7 +1150,7 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_da
 	return res
 }
 
-func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SSetHangupCampaignHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SBattleSetHangupCampaignRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1174,7 +1173,7 @@ func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Play
 	return 1
 }
 
-func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SCampaignHangupIncomeHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SCampaignHangupIncomeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1187,7 +1186,7 @@ func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *P
 	return 1
 }
 
-func C2SCampaignDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SCampaignDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SCampaignDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

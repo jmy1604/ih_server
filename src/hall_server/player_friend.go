@@ -7,7 +7,6 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
 	"math/rand"
-	"net/http"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -620,13 +619,15 @@ func (this *Player) get_friend_points(friend_ids []int32) int32 {
 	return 1
 }
 
-func (this *Player) friend_search_boss_check(now_time int32) (int32, *table_config.XmlFriendBossItem) {
+func (this *Player) friend_search_boss_check(now_time int32, output bool) (int32, *table_config.XmlFriendBossItem) {
 	if this.db.FriendCommon.GetFriendBossTableId() > 0 {
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NO_NEED_TO_REFRESH), nil
 	}
 	last_refresh_time := this.db.FriendCommon.GetLastBossRefreshTime()
 	if last_refresh_time > 0 && now_time-last_refresh_time < global_config.FriendSearchBossRefreshMinutes*60 {
-		log.Error("Player[%v] friend boss search is cool down", this.Id)
+		if output {
+			log.Error("Player[%v] friend boss search is cool down", this.Id)
+		}
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_REFRESH_IS_COOLDOWN), nil
 	}
 
@@ -647,7 +648,7 @@ func (this *Player) friend_search_boss() int32 {
 	}
 
 	now_time := int32(time.Now().Unix())
-	res, friend_boss_tdata := this.friend_search_boss_check(now_time)
+	res, friend_boss_tdata := this.friend_search_boss_check(now_time, true)
 	if res < 0 {
 		return res
 	}
@@ -1153,7 +1154,7 @@ func (this *Player) friend_set_assist_role(role_id int32) int32 {
 
 // ------------------------------------------------------
 
-func C2SFriendsRecommendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendsRecommendHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendRecommendRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1163,7 +1164,7 @@ func C2SFriendsRecommendHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return p.send_recommend_friends()
 }
 
-func C2SFriendListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1174,7 +1175,7 @@ func C2SFriendListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 	return p.send_friend_list()
 }
 
-func C2SFriendAskListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendAskListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendAskPlayerListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1184,7 +1185,7 @@ func C2SFriendAskListHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 	return p.send_friend_ask_list()
 }
 
-func C2SFriendAskHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendAskHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendAskRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1194,7 +1195,7 @@ func C2SFriendAskHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	return p.friend_ask(req.GetPlayerIds())
 }
 
-func C2SFriendAgreeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendAgreeHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendAgreeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1204,7 +1205,7 @@ func C2SFriendAgreeHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.agree_friend_ask(req.GetPlayerIds())
 }
 
-func C2SFriendRefuseHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendRefuseHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendRefuseRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1214,7 +1215,7 @@ func C2SFriendRefuseHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.refuse_friend_ask(req.GetPlayerIds())
 }
 
-func C2SFriendRemoveHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendRemoveHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendRemoveRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1224,7 +1225,7 @@ func C2SFriendRemoveHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.remove_friend(req.GetPlayerIds())
 }
 
-func C2SFriendGivePointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendGivePointsHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendGivePointsRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1234,7 +1235,7 @@ func C2SFriendGivePointsHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return p.give_friends_points(req.GetFriendIds())
 }
 
-func C2SFriendGetPointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendGetPointsHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendGetPointsRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1244,7 +1245,7 @@ func C2SFriendGetPointsHandler(w http.ResponseWriter, r *http.Request, p *Player
 	return p.get_friend_points(req.GetFriendIds())
 }
 
-func C2SFriendSearchBossHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendSearchBossHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendSearchBossRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1254,7 +1255,7 @@ func C2SFriendSearchBossHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return p.friend_search_boss()
 }
 
-func C2SFriendGetBossListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendGetBossListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendsBossListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1264,7 +1265,7 @@ func C2SFriendGetBossListHandler(w http.ResponseWriter, r *http.Request, p *Play
 	return p.get_friends_boss_list()
 }
 
-func C2SFriendBossAttackListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendBossAttackListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendBossAttackListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1274,7 +1275,7 @@ func C2SFriendBossAttackListHandler(w http.ResponseWriter, r *http.Request, p *P
 	return p.friend_boss_get_attack_list(req.GetFriendId())
 }
 
-func C2SFriendDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1284,7 +1285,7 @@ func C2SFriendDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 	return p.friend_data(true)
 }
 
-func C2SFriendSetAssistRoleHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendSetAssistRoleHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendSetAssistRoleRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1294,7 +1295,7 @@ func C2SFriendSetAssistRoleHandler(w http.ResponseWriter, r *http.Request, p *Pl
 	return p.friend_set_assist_role(req.GetRoleId())
 }
 
-func C2SFriendGiveAndGetPointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendGiveAndGetPointsHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendGiveAndGetPointsRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1309,7 +1310,7 @@ func C2SFriendGiveAndGetPointsHandler(w http.ResponseWriter, r *http.Request, p 
 	return p.get_friend_points(req.GetFriendIds())
 }
 
-func C2SFriendGetAssistPointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SFriendGetAssistPointsHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SFriendGetAssistPointsRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

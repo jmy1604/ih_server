@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"math/rand"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -2343,7 +2342,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"activity_data":          activity_data_cmd,
 }
 
-func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {
 	var req msg_client_message.C2S_TEST_COMMAND
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

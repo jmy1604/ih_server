@@ -4,7 +4,6 @@ import (
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -533,7 +532,7 @@ func (this *Player) DeleteMails(mail_ids []int32) int32 {
 	return 1
 }
 
-func C2SMailSendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SMailSendHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SMailSendRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -550,7 +549,7 @@ func C2SMailSendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return mail_id
 }
 
-func C2SMailListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SMailListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SMailListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -560,7 +559,7 @@ func C2SMailListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return p.GetMailList()
 }
 
-func C2SMailDetailHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SMailDetailHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SMailDetailRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -570,7 +569,7 @@ func C2SMailDetailHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 	return p.GetMailDetail(req.GetIds())
 }
 
-func C2SMailGetAttachedItemsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SMailGetAttachedItemsHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SMailGetAttachedItemsRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -580,7 +579,7 @@ func C2SMailGetAttachedItemsHandler(w http.ResponseWriter, r *http.Request, p *P
 	return p.GetMailAttachedItems(req.GetMailIds())
 }
 
-func C2SMailDeleteHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SMailDeleteHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SMailDeleteRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

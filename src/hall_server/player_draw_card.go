@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
 	"math/rand"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -272,7 +271,7 @@ func (this *Player) send_draw_data() int32 {
 	return 1
 }
 
-func C2SDrawCardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SDrawCardHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SDrawCardRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -282,7 +281,7 @@ func C2SDrawCardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return p.draw_card(req.GetDrawType())
 }
 
-func C2SDrawDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SDrawDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SDrawDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

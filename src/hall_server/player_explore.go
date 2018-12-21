@@ -7,7 +7,6 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
 	"math/rand"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -1128,7 +1127,7 @@ func (this *Player) explore_cancel(id int32, is_story bool) int32 {
 	return 1
 }
 
-func C2SExploreDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SExploreDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SExploreDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1139,7 +1138,7 @@ func C2SExploreDataHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.send_explore_data()
 }
 
-func C2SExploreSelRoleHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SExploreSelRoleHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SExploreSelRoleRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1150,7 +1149,7 @@ func C2SExploreSelRoleHandler(w http.ResponseWriter, r *http.Request, p *Player,
 	return p.explore_sel_role(req.GetId(), req.GetIsStory(), req.GetRoleIds())
 }
 
-func C2SExploreStartHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SExploreStartHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SExploreStartRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1161,7 +1160,7 @@ func C2SExploreStartHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.explore_task_start(req.GetIds(), req.GetIsStory())
 }
 
-func C2SExploreSpeedupHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SExploreSpeedupHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SExploreStartRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1172,7 +1171,7 @@ func C2SExploreSpeedupHandler(w http.ResponseWriter, r *http.Request, p *Player,
 	return p.explore_speedup(req.GetIds(), req.GetIsStory())
 }
 
-func C2SExploreTasksRefreshHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SExploreTasksRefreshHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SExploreRefreshRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1183,7 +1182,7 @@ func C2SExploreTasksRefreshHandler(w http.ResponseWriter, r *http.Request, p *Pl
 	return p.explore_tasks_refresh()
 }
 
-func C2SExploreTaskLockHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SExploreTaskLockHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SExploreLockRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1194,7 +1193,7 @@ func C2SExploreTaskLockHandler(w http.ResponseWriter, r *http.Request, p *Player
 	return p.explore_task_lock(req.GetIds(), req.GetIsLock())
 }
 
-func C2SExploreGetRewardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SExploreGetRewardHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SExploreGetRewardRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -1205,7 +1204,7 @@ func C2SExploreGetRewardHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return p.explore_get_reward(req.GetId(), req.GetIsStory())
 }
 
-func C2SExploreCancelHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SExploreCancelHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SExploreCancelRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

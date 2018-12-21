@@ -7,7 +7,6 @@ import (
 	"ih_server/src/share_data"
 	"ih_server/src/table_config"
 	"math"
-	"net/http"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -910,7 +909,7 @@ func (this *Player) items_one_key_upgrade(item_ids []int32) int32 {
 	return 1
 }
 
-func C2SItemFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SItemFusionHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SItemFusionRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -920,7 +919,7 @@ func C2SItemFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 	return p.fusion_item(req.GetPieceId(), req.GetFusionNum())
 }
 
-func C2SItemSellHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SItemSellHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SItemSellRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -930,7 +929,7 @@ func C2SItemSellHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return p.sell_item(req.GetItemId(), req.GetItemNum(), true)
 }
 
-func C2SItemEquipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SItemEquipHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SItemEquipRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -940,7 +939,7 @@ func C2SItemEquipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	return p.equip(req.GetRoleId(), req.GetItemId())
 }
 
-func C2SItemUnequipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SItemUnequipHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SItemUnequipRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -950,7 +949,7 @@ func C2SItemUnequipHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.unequip(req.GetRoleId(), req.GetEquipSlot())
 }
 
-func C2SItemUpgradeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SItemUpgradeHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SItemUpgradeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -960,7 +959,7 @@ func C2SItemUpgradeHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.item_upgrade(req.GetRoleId(), req.GetItemId(), req.GetItemNum(), req.GetUpgradeType())
 }
 
-func C2SItemOneKeyUpgradeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SItemOneKeyUpgradeHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SItemOneKeyUpgradeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {

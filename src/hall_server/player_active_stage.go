@@ -7,7 +7,6 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
 	_ "math/rand"
-	"net/http"
 	_ "sync"
 	"time"
 
@@ -318,7 +317,7 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 	return 1
 }
 
-func C2SActiveStageDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SActiveStageDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SActiveStageDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -328,7 +327,7 @@ func C2SActiveStageDataHandler(w http.ResponseWriter, r *http.Request, p *Player
 	return p.send_active_stage_data(req.GetStageType())
 }
 
-func C2SActiveStageBuyChallengeNumHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SActiveStageBuyChallengeNumHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SActiveStageBuyChallengeNumRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -338,7 +337,7 @@ func C2SActiveStageBuyChallengeNumHandler(w http.ResponseWriter, r *http.Request
 	return p.active_stage_challenge_num_purchase(req.GetStageType(), req.GetNum())
 }
 
-func C2SActiveStageGetAssistRoleListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SActiveStageGetAssistRoleListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SActiveStageAssistRoleListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

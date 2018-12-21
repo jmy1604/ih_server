@@ -6,8 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
-	_ "math/rand"
-	"net/http"
 	"sync/atomic"
 	"time"
 
@@ -566,7 +564,7 @@ func (this *Player) arena_match() int32 {
 	return 1
 }
 
-func C2SArenaDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SArenaDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SArenaDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -576,7 +574,7 @@ func C2SArenaDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	return p.send_arena_data()
 }
 
-func C2SArenaPlayerDefenseTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SArenaPlayerDefenseTeamHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SArenaPlayerDefenseTeamRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -586,7 +584,7 @@ func C2SArenaPlayerDefenseTeamHandler(w http.ResponseWriter, r *http.Request, p 
 	return p.arena_player_defense_team(req.GetPlayerId())
 }
 
-func C2SArenaMatchPlayerHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SArenaMatchPlayerHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SArenaMatchPlayerRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {

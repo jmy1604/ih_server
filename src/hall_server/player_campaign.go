@@ -10,8 +10,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"net/http"
-
 	"github.com/golang/protobuf/proto"
 )
 
@@ -826,7 +824,7 @@ func (this *Player) campaign_accel_num_refresh() int32 {
 	return 1
 }
 
-func C2SCampaignAccelGetIncomeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SCampaignAccelGetIncomeHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SCampaignAccelerateIncomeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -836,7 +834,7 @@ func C2SCampaignAccelGetIncomeHandler(w http.ResponseWriter, r *http.Request, p 
 	return p.campaign_accel_get_income()
 }
 
-func C2SCampaignAccelNumRefreshHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SCampaignAccelNumRefreshHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SCampaignAccelerateRefreshRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {

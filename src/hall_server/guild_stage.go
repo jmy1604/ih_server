@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	_ "math/rand"
-	"net/http"
 	_ "sync"
 	"time"
 
@@ -597,7 +596,7 @@ func (this *Player) guild_stage_reset() int32 {
 	return 1
 }
 
-func C2SGuildStageDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildStageDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildStageDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -607,7 +606,7 @@ func C2SGuildStageDataHandler(w http.ResponseWriter, r *http.Request, p *Player,
 	return p.send_guild_stage_data(true)
 }
 
-func C2SGuildStageRankListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildStageRankListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildStageRankListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -617,7 +616,7 @@ func C2SGuildStageRankListHandler(w http.ResponseWriter, r *http.Request, p *Pla
 	return p.guild_stage_rank_list(req.GetBossId())
 }
 
-func C2SGuildStagePlayerRespawnHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildStagePlayerRespawnHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildStagePlayerRespawnRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -627,7 +626,7 @@ func C2SGuildStagePlayerRespawnHandler(w http.ResponseWriter, r *http.Request, p
 	return p.guild_stage_player_respawn()
 }
 
-func C2SGuildStageResetHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuildStageResetHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildStageResetRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

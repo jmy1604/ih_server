@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -391,7 +390,7 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 
 // ============================================================================
 
-func C2STaskDataHanlder(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2STaskDataHanlder(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STaskDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -402,7 +401,7 @@ func C2STaskDataHanlder(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return p.send_task(req.GetTaskType())
 }
 
-func C2SGetTaskRewardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGetTaskRewardHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STaskRewardRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

@@ -5,8 +5,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/share_data"
-	"net/http"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -314,7 +312,7 @@ func (this *PlayerManager) RegMsgHandler() {
 	//msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ACTIVITY_EXCHANGE_REQUEST), C2SActivityExchangeHandler)
 }
 
-func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data []byte) (int32, *Player) {
+func C2SEnterGameRequestHandler(msg_data []byte) (int32, *Player) {
 	var p *Player
 	var req msg_client_message.C2SEnterGameRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -322,23 +320,6 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1, p
 	}
-
-	/*var access_token share_data.AccessTokenInfo
-	if !access_token.ParseString(req.GetToken()) {
-		log.Error("PlayerEnterGameHandler token string[%v] parse failed", req.GetToken())
-		return -1, p
-	}
-
-	token_info := login_token_mgr.GetTokenByUid(access_token.UniqueId)
-	if nil == token_info {
-		log.Error("PlayerEnterGameHandler unique_id[%v] no token info!", access_token.UniqueId)
-		return -1, p
-	}
-
-	if req.Acc != token_info.account {
-		log.Error("PlayerEnterGameHandler account[%v] check failed", req.GetAcc())
-		return int32(msg_client_message.E_ERR_PLAYER_TOKEN_ERROR), p
-	}*/
 
 	uid := login_token_mgr.GetUidByAccount(req.GetAcc())
 	if uid == "" {
@@ -367,19 +348,11 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 		log.Info("player_db_to_msg new player(%d) !", player_id)
 	} else {
 		p.Account = req.GetAcc()
-		//p.Token = token_info.token
 		pdb := dbc.Players.GetRow(p.Id)
 		if pdb != nil {
 			pdb.SetCurrReplyMsgNum(0)
 		}
 	}
-
-	ip_port := strings.Split(r.RemoteAddr, ":")
-	if len(ip_port) >= 2 {
-		p.pos = position_table.GetPosByIP(ip_port[0])
-	}
-
-	//p.bhandling = true
 
 	p.send_enter_game(req.Acc, p.Id)
 	p.OnLogin()
@@ -403,7 +376,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 	return 1, p
 }
 
-func C2SLeaveGameRequestHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SLeaveGameRequestHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SLeaveGameRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -414,7 +387,7 @@ func C2SLeaveGameRequestHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return 1
 }
 
-func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SHeartbeatHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SHeartbeat
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -440,7 +413,7 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	return 1
 }
 
-func C2SDataSyncHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SDataSyncHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SDataSyncRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -506,7 +479,7 @@ func C2SDataSyncHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	return 1
 }
 
-func C2SPlayerChangeNameHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SPlayerChangeNameHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SPlayerChangeNameRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -539,7 +512,7 @@ func C2SPlayerChangeNameHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return 1
 }
 
-func C2SPlayerChangeHeadHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SPlayerChangeHeadHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SPlayerChangeHeadRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -549,7 +522,7 @@ func C2SPlayerChangeHeadHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return p.change_head(req.GetNewHead())
 }
 
-func C2SRedPointStatesHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRedPointStatesHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRedPointStatesRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -577,7 +550,7 @@ func (this *Player) send_account_player_list() int32 {
 	return 1
 }
 
-func C2SAccountPlayerListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SAccountPlayerListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SAccountPlayerListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -595,7 +568,7 @@ func (this *Player) send_guide_data() int32 {
 	return 1
 }
 
-func C2SGuideDataSaveHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SGuideDataSaveHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuideDataSaveRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -627,7 +600,7 @@ func (p *Player) reconnect() int32 {
 	return 1
 }
 
-func C2SReconnectHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SReconnectHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SReconnectRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

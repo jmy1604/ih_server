@@ -5,7 +5,6 @@ import (
 	"ih_server/libs/utils"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
-	"net/http"
 	"sync"
 
 	"github.com/golang/protobuf/proto"
@@ -369,7 +368,7 @@ func (this *Player) get_rank_list_items(rank_type, start_rank, num int32) int32 
 	return 1
 }
 
-func C2SRankListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func C2SRankListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRankListRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
