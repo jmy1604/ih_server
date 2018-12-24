@@ -734,6 +734,7 @@ func (this *Player) _charge_with_bundle_id(channel int32, bundle_id string, purc
 		this.add_diamond(pay_item.GemReward) // 充值获得钻石
 		if pay_item.PayType == table_config.PAY_TYPE_MONTH_CARD {
 			this.db.Pays.SetSendMailNum(bundle_id, 0)
+			this.db.Pays.SetLastAwardTime(bundle_id, 0)
 		}
 	} else {
 		this.db.Pays.Add(&dbPlayerPayData{
