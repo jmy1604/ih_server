@@ -68,7 +68,7 @@ func (this *Player) get_chat_data(channel int32) (chat_data *PlayerChatData) {
 	return
 }
 
-func (this *Player) chat(channel int32, content []byte) int32 {
+func (this *Player) chat(channel int32, content []byte, evalue int32) int32 {
 	if config.DisableTestCommand && channel == CHAT_CHANNEL_SYSTEM {
 		log.Error("Player[%v] cant chat in system channel", this.Id)
 		return -1
@@ -103,6 +103,8 @@ func (this *Player) chat(channel int32, content []byte) int32 {
 			name = guild.GetName()
 		}
 		extra_value = this.db.Guild.GetId()
+	} else if channel == CHAT_CHANNEL_SYSTEM {
+		extra_value = evalue
 	} else {
 		lvl = this.db.Info.GetLvl()
 		name = this.db.GetName()
@@ -188,7 +190,7 @@ func C2SChatHandler(p *Player, msg_data []byte) int32 {
 		return -1
 	}
 
-	return p.chat(req.GetChannel(), req.GetContent())
+	return p.chat(req.GetChannel(), req.GetContent(), 0)
 }
 
 func C2SChatPullMsgHandler(p *Player, msg_data []byte) int32 {
@@ -198,5 +200,10 @@ func C2SChatPullMsgHandler(p *Player, msg_data []byte) int32 {
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
+
+	if req.GetChannel() == CHAT_CHANNEL_WORLD {
+		p.pull_chat(CHAT_CHANNEL_SYSTEM)
+	}
+
 	return p.pull_chat(req.GetChannel())
 }

@@ -1953,14 +1953,21 @@ func chat_cmd(p *Player, args []string) int32 {
 
 	var content []byte
 	var channel int
+	var eval int
 	var err error
 	content = []byte(args[0])
 	channel, err = strconv.Atoi(args[1])
 	if err != nil {
 		return -1
 	}
+	if len(args) > 2 {
+		eval, err = strconv.Atoi(args[2])
+		if err != nil {
+			return -1
+		}
+	}
 
-	return p.chat(int32(channel), content)
+	return p.chat(int32(channel), content, int32(eval))
 }
 
 func pull_chat_cmd(p *Player, args []string) int32 {

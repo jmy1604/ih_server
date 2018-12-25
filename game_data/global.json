@@ -104,7 +104,7 @@
 		"PullMsgCooldown": 3,
 		"MsgMaxBytes": 50,
 		"MsgExistTime": 100,
-		"SendMsgCooldown": 180
+		"SendMsgCooldown": 3
 	},
 	
 	"AnouncementMaxNum": 1000,

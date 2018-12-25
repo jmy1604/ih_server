@@ -1431,7 +1431,7 @@ func (this *Player) guild_recruit(content []byte) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_RECRUIT_IS_COOLDOWN)
 	}
 
-	res := this.chat(CHAT_CHANNEL_RECRUIT, content)
+	res := this.chat(CHAT_CHANNEL_RECRUIT, content, 0)
 	if res < 0 {
 		return res
 	}
