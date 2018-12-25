@@ -1,7 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
+     <item MainActiveID="100001" ActiveType="2" EventID="301" StartTime="2018-12-1 17:00:00" EndTime="2019-1-1 13:00:00" SubActiveList="1001,1002,1003,1004" RewardMailID="0" />
      <item MainActiveID="200001" ActiveType="2" EventID="301" StartTime="2018-12-14 17:00:00" EndTime="2018-12-21 13:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
      <item MainActiveID="200002" ActiveType="2" EventID="301" StartTime="2018-12-21 17:00:00" EndTime="2018-12-28 13:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
-     <item MainActiveID="300001" ActiveType="3" EventID="301" StartTime="2018-12-24 17:00:00" EndTime="2018-12-31 13:00:00" SubActiveList="3001,3002,3003,3004" RewardMailID="" />
-     <item MainActiveID="800001" ActiveType="8" EventID="307" StartTime="2018-12-20 17:00:00" EndTime="2018-12-27 13:00:00" SubActiveList="8001,8002,8003,8004,8005" RewardMailID="1114" />
+     <item MainActiveID="200003" ActiveType="2" EventID="301" StartTime="2018-12-28 17:00:00" EndTime="2019-1-4 13:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
+     <item MainActiveID="200004" ActiveType="2" EventID="301" StartTime="2019-1-4 17:00:00" EndTime="2019-1-11 13:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
+     <item MainActiveID="300001" ActiveType="3" EventID="301" StartTime="2018-12-25 15:00:00" EndTime="2018-12-25 16:00:00" SubActiveList="3001,3002,3003,3004" RewardMailID="" />
+     <item MainActiveID="300002" ActiveType="3" EventID="301" StartTime="2018-12-25 16:00:00" EndTime="2018-12-25 21:00:00" SubActiveList="3005,3006,3007,3008" RewardMailID="" />
+     <item MainActiveID="500001" ActiveType="5" EventID="304" StartTime="2018-12-25 16:00:00" EndTime="2018-12-25 17:00:00" SubActiveList="5001,5002,5003,5004" RewardMailID="1111" />
+     <item MainActiveID="800001" ActiveType="8" EventID="307" StartTime="2018-12-25 15:00:00" EndTime="2018-12-25 16:00:00" SubActiveList="8001,8002,8003,8004,8005" RewardMailID="1114" />
+     <item MainActiveID="900001" ActiveType="9" EventID="308" StartTime="2018-12-25 17:00:00" EndTime="2018-12-25 18:00:00" SubActiveList="9001,9002,9003,9004,9005" RewardMailID="1115" />
 </Config>

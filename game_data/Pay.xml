@@ -8,6 +8,10 @@
      <item ID="6" ActivePay="0" BundleID="ih.gem4" GemRewardFirst="2400" GemReward="1200" MonthCardDay="0" MonthCardReward="0" ItemReward="21,1000" RecordGold="19.99" />
      <item ID="7" ActivePay="0" BundleID="ih.gem5" GemRewardFirst="6500" GemReward="3250" MonthCardDay="0" MonthCardReward="0" ItemReward="21,2500" RecordGold="49.99" />
      <item ID="8" ActivePay="0" BundleID="ih.gem6" GemRewardFirst="14000" GemReward="7000" MonthCardDay="0" MonthCardReward="0" ItemReward="21,5000" RecordGold="99.99" />
+     <item ID="101" ActivePay="1" BundleID="ih.gem17" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="" RecordGold="9.99" />
+     <item ID="102" ActivePay="1" BundleID="ih.gem18" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="" RecordGold="19.99" />
+     <item ID="103" ActivePay="1" BundleID="ih.gem19" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="" RecordGold="49.99" />
+     <item ID="104" ActivePay="1" BundleID="ih.gem20" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="" RecordGold="99.99" />
      <item ID="201" ActivePay="1" BundleID="ih.gem9" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="" RecordGold="9.99" />
      <item ID="202" ActivePay="1" BundleID="ih.gem10" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="" RecordGold="19.99" />
      <item ID="203" ActivePay="1" BundleID="ih.gem11" GemRewardFirst="0" GemReward="0" MonthCardDay="0" MonthCardReward="0" ItemReward="" RecordGold="49.99" />
