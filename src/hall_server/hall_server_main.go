@@ -133,5 +133,5 @@ func main() {
 
 	after_center_match_conn()
 
-	hall_server.Start(true)
+	hall_server.Start(config.UseHttps)
 }

@@ -70,6 +70,7 @@ type LoginServerConfig struct {
 	VerifyAccount      bool   // 验证账号
 	FacebookAppID      string
 	FacebookAppSecret  string
+	UseHttps           bool
 
 	MYSQL_IP      string
 	MYSQL_ACCOUNT string
@@ -112,6 +113,7 @@ type GameServerConfig struct {
 	DBCST_MAX            int
 	MYSQL_COPY_PATH      string
 	DisableTestCommand   bool
+	UseHttps             bool
 }
 
 func (this *GameServerConfig) GetType() int32 {

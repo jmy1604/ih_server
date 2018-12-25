@@ -84,5 +84,5 @@ func main() {
 		return
 	}
 
-	server.Start(true)
+	server.Start(config.UseHttps)
 }

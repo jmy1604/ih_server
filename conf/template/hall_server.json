@@ -24,5 +24,7 @@
 	"DBPM_MIN":0,
 	"DBPM_MAX":10000,
 	
-	"DisableTestCommand": false
+	"DisableTestCommand": false,
+	
+	"UseHttps": false
 }

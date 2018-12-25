@@ -138,7 +138,12 @@ func get_res(url string) []byte {
 }
 
 func register_func(account, password string, is_guest int32) {
-	url_str := fmt.Sprintf(config.RegisterUrl, config.LoginServerIP, account, password, is_guest)
+	var url_str string
+	if config.UseHttps {
+		url_str = fmt.Sprintf("https://"+config.RegisterUrl, config.LoginServerIP, account, password, is_guest)
+	} else {
+		url_str = fmt.Sprintf("http://"+config.RegisterUrl, config.LoginServerIP, account, password, is_guest)
+	}
 	log.Debug("Register Url %s,  account %s,  password %s,  is_guest %s", url_str, account, password, is_guest)
 
 	var resp *http.Response
@@ -194,7 +199,12 @@ func register_func(account, password string, is_guest int32) {
 }
 
 func bind_new_account_func(account, password, new_account, new_password string) {
-	url_str := fmt.Sprintf(config.BindNewAccountUrl, config.LoginServerIP, account, password, new_account, new_password)
+	var url_str string
+	if config.UseHttps {
+		url_str = fmt.Sprintf("https://"+config.BindNewAccountUrl, config.LoginServerIP, account, password, new_account, new_password)
+	} else {
+		url_str = fmt.Sprintf("http://"+config.BindNewAccountUrl, config.LoginServerIP, account, password, new_account, new_password)
+	}
 	log.Debug("Bind New Account Url %s,  account %s,  password %s,  new_account %s,  new_password %s", url_str, account, password, new_account, new_password)
 
 	var resp *http.Response
@@ -250,7 +260,12 @@ func bind_new_account_func(account, password, new_account, new_password string) 
 }
 
 func login_func(account, password, channel string) {
-	url_str := fmt.Sprintf(config.LoginUrl, config.LoginServerIP, account, password, channel)
+	var url_str string
+	if config.UseHttps {
+		url_str = fmt.Sprintf("https://"+config.LoginUrl, config.LoginServerIP, account, password, channel)
+	} else {
+		url_str = fmt.Sprintf("http://"+config.LoginUrl, config.LoginServerIP, account, password, channel)
+	}
 	log.Debug("login Url str %s", url_str)
 
 	var resp *http.Response
@@ -380,7 +395,12 @@ func select_server_func(account string, token string /*server_id int32*/, game_i
 }
 
 func set_password_func(account, password, new_password string) {
-	url_str := fmt.Sprintf(config.SetPasswordUrl, config.LoginServerIP, account, password, new_password)
+	var url_str string
+	if config.UseHttps {
+		url_str = fmt.Sprintf("https://"+config.SetPasswordUrl, config.LoginServerIP, account, password, new_password)
+	} else {
+		url_str = fmt.Sprintf("http://"+config.SetPasswordUrl, config.LoginServerIP, account, password, new_password)
+	}
 	log.Debug("set password Url str %s", url_str)
 
 	var resp *http.Response
