@@ -29,7 +29,7 @@
      <item ConvertGroupID="125" HeroID="2051" Weight="12500" />
      <item ConvertGroupID="125" HeroID="2054" Weight="12500" />
      <item ConvertGroupID="125" HeroID="3053" Weight="12500" />
-     <item ConvertGroupID="125" HeroID="3056" Weight="6250" />
+     <item ConvertGroupID="125" HeroID="3056" Weight="3750" />
      <item ConvertGroupID="125" HeroID="4052" Weight="12500" />
      <item ConvertGroupID="125" HeroID="4055" Weight="9375" />
      <item ConvertGroupID="125" HeroID="5051" Weight="12500" />
@@ -48,6 +48,7 @@
      <item ConvertGroupID="135" HeroID="2055" Weight="7500" />
      <item ConvertGroupID="135" HeroID="3051" Weight="7500" />
      <item ConvertGroupID="135" HeroID="3054" Weight="7500" />
+     <item ConvertGroupID="135" HeroID="3057" Weight="7500" />
      <item ConvertGroupID="135" HeroID="4053" Weight="7500" />
      <item ConvertGroupID="135" HeroID="4056" Weight="3750" />
      <item ConvertGroupID="135" HeroID="5052" Weight="7500" />
@@ -80,7 +81,8 @@
      <item ConvertGroupID="235" HeroID="3053" Weight="12500" />
      <item ConvertGroupID="235" HeroID="3054" Weight="7500" />
      <item ConvertGroupID="235" HeroID="3055" Weight="10000" />
-     <item ConvertGroupID="235" HeroID="3056" Weight="6250" />
+     <item ConvertGroupID="235" HeroID="3056" Weight="3750" />
+     <item ConvertGroupID="235" HeroID="3057" Weight="7500" />
      <item ConvertGroupID="244" HeroID="4031" Weight="10000" />
      <item ConvertGroupID="244" HeroID="4032" Weight="12500" />
      <item ConvertGroupID="244" HeroID="4033" Weight="7500" />
