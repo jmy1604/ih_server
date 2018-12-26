@@ -37,6 +37,8 @@ func main() {
 		return
 	}
 
+	go gm_service.StartHttp()
+
 	fmt.Println("启动服务...")
 
 	server.Start()

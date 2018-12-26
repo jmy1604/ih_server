@@ -15,6 +15,7 @@ const (
 	SERVER_TYPE_GAME        = 3
 	SERVER_TYPE_RPC         = 4
 	SERVER_TYPE_TEST_CLIENT = 100
+	SERVER_TYPE_TEST_GM     = 200
 )
 
 const (
@@ -126,11 +127,11 @@ func (this *GameServerConfig) GetLogConfigFile() string {
 
 // RPC服务器配置
 type RpcServerConfig struct {
-	LogConfigFile             string
-	ListenIP                  string
-	MaxConnections            int
-	GameServerGroupConfigFile string
-	RedisServerIP             string
+	LogConfigFile  string
+	ListenIP       string
+	MaxConnections int
+	RedisServerIP  string
+	GmIP           string
 }
 
 func (this *RpcServerConfig) GetType() int32 {
@@ -161,6 +162,20 @@ func (this *TestClientConfig) GetType() int32 {
 }
 
 func (this *TestClientConfig) GetLogConfigFile() string {
+	return this.LogConfigFile
+}
+
+// GM测试配置
+type GmTestConfig struct {
+	GmServerIP    string
+	LogConfigFile string
+}
+
+func (this *GmTestConfig) GetType() int32 {
+	return int32(SERVER_TYPE_TEST_GM)
+}
+
+func (this *GmTestConfig) GetLogConfigFile() string {
 	return this.LogConfigFile
 }
 

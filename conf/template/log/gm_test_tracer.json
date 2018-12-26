@@ -1,0 +1,27 @@
+{
+	"filters":
+	[
+		{
+			"enable":"true",
+			"tag":"stdout",
+			"type":"console",
+			"level":"DEBUG",
+			"property":null
+		},
+		{
+			"enable":"true",
+			"tag":"file",
+			"type":"file",
+			"level":"DEBUG",
+			"property":
+			[
+				{ "name":"logdir", "value":"logs/gm_test" },
+				{ "name":"filename", "value":"gm_test_log" },
+				{ "name":"filesuffix", "value":"txt" },
+				{ "name":"format", "value":"<%T><%L><%S>%M" },
+				{ "name":"rotate", "value":"true" },
+				{ "name":"maxsize", "value":"100M" }
+			]
+		}		
+	]
+}

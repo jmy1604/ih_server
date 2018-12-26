@@ -342,18 +342,20 @@ message S2CRegisterResponse {
 
 // 游客绑定新账号
 message C2SGuestBindNewAccountRequest {
-	string Account							= 1; // 旧帐号
-	string Password							= 2; // 旧密码
-	string NewAccount						= 3; // 新账号
-	string NewPassword						= 4; // 新密码
-	string NewChannel						= 5; // 渠道
+	int32 ServerId							= 1; // 服务器ID
+	string Account							= 2; // 旧帐号
+	string Password							= 3; // 旧密码
+	string NewAccount						= 4; // 新账号
+	string NewPassword						= 5; // 新密码
+	string NewChannel						= 6; // 渠道
 }
 
 message S2CGuestBindNewAccountResponse {
-	string Account							= 1; // 旧帐号
-	string NewAccount						= 2; // 新账号
-	string NewPassword						= 3; // 新密码
-	string NewChannel						= 4; // 渠道
+	int32 ServerId							= 1; // 服务器ID
+	string Account							= 2; // 旧帐号
+	string NewAccount						= 3; // 新账号
+	string NewPassword						= 4; // 新密码
+	string NewChannel						= 5; // 渠道
 }
 
 // 登陆
@@ -431,14 +433,13 @@ message S2CSetLoginPasswordResponse {
 ///////////////////////////////////start///////////////////////////////////////
 
 message C2S_ONE_MSG {
-	int32 MsgCode 							= 3; // 消息ID
-	bytes Data 								= 4; // 消息数据
+	int32 MsgCode 							= 1; // 消息ID
+	bytes Data 								= 2; // 消息数据
 }
 
 message C2S_MSG_DATA {
-	//int32 PlayerId 						= 1; // 玩家ID		
-	string Token 							= 2; // 令牌
-	repeated C2S_ONE_MSG MsgList			= 3; // 消息队列
+	string Token 							= 1; // 令牌
+	repeated C2S_ONE_MSG MsgList			= 2; // 消息队列
 }
 
 message S2C_ONE_MSG {

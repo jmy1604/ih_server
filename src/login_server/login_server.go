@@ -16,12 +16,12 @@ import (
 	"net"
 	"net/http"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	// "github.com/dgrijalva/jwt-go"
 	"github.com/golang/protobuf/proto"
 	"github.com/satori/go.uuid"
 )
@@ -259,11 +259,12 @@ var login_http_mux map[string]func(http.ResponseWriter, *http.Request)
 
 func (this *LoginServer) reg_http_mux() {
 	login_http_mux = make(map[string]func(http.ResponseWriter, *http.Request))
-	login_http_mux["/register"] = register_http_handler
-	login_http_mux["/bind_new_account"] = bind_new_account_http_handler
-	login_http_mux["/login"] = login_http_handler
-	login_http_mux["/select_server"] = select_server_http_handler
-	login_http_mux["/set_password"] = set_password_http_handler
+	//login_http_mux["/register"] = register_http_handler
+	//login_http_mux["/bind_new_account"] = bind_new_account_http_handler
+	//login_http_mux["/login"] = login_http_handler
+	//login_http_mux["/select_server"] = select_server_http_handler
+	//login_http_mux["/set_password"] = set_password_http_handler
+	login_http_mux["/client"] = client_http_handler
 }
 
 func (this *LoginHttpHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -1099,4 +1100,134 @@ func set_password_http_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
+}
+
+func _send_error(w http.ResponseWriter, msg_id, ret_code int32) {
+	m := &msg_client_message.S2C_ONE_MSG{ErrorCode: ret_code}
+	res2cli := &msg_client_message.S2C_MSG_DATA{MsgList: []*msg_client_message.S2C_ONE_MSG{m}}
+	final_data, err := proto.Marshal(res2cli)
+	if nil != err {
+		log.Error("client_msg_handler marshal 1 client msg failed err(%s)", err.Error())
+		return
+	}
+
+	data := final_data
+	data = append(data, byte(0))
+
+	iret, err := w.Write(data)
+	if nil != err {
+		log.Error("client_msg_handler write data 1 failed err[%s] ret %d", err.Error(), iret)
+		return
+	}
+}
+
+func client_http_handler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+			debug.PrintStack()
+		}
+	}()
+
+	defer r.Body.Close()
+
+	data, err := ioutil.ReadAll(r.Body)
+	if nil != err {
+		_send_error(w, 0, -1)
+		log.Error("client_http_handler ReadAll err[%s]", err.Error())
+		return
+	}
+
+	var msg msg_client_message.C2S_ONE_MSG
+	err = proto.Unmarshal(data, &msg)
+	if nil != err {
+		_send_error(w, 0, -1)
+		log.Error("client_http_handler proto Unmarshal err[%s]", err.Error())
+		return
+	}
+
+	var err_code, msg_id int32
+	if msg.MsgCode == int32(msg_client_message_id.MSGID_C2S_LOGIN_REQUEST) {
+		var login_msg msg_client_message.C2SLoginRequest
+		err = proto.Unmarshal(msg.GetData(), &login_msg)
+		if err != nil {
+			_send_error(w, 0, -1)
+			log.Error("Msg C2SLoginRequest unmarshal err %v", err.Error())
+			return
+		}
+		if login_msg.GetAcc() == "" {
+			_send_error(w, 0, -1)
+			log.Error("Acc is empty")
+			return
+		}
+		msg_id = int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE)
+		err_code, data = login_handler(login_msg.GetAcc(), login_msg.GetPassword(), login_msg.GetChannel())
+	} else if msg.MsgCode == int32(msg_client_message_id.MSGID_C2S_SELECT_SERVER_REQUEST) {
+		var select_msg msg_client_message.C2SSelectServerRequest
+		err = proto.Unmarshal(msg.GetData(), &select_msg)
+		if err != nil {
+			_send_error(w, 0, -1)
+			log.Error("Msg C2SSelectServerRequest unmarshal err %v", err.Error())
+			return
+		}
+		msg_id = int32(msg_client_message_id.MSGID_S2C_SELECT_SERVER_RESPONSE)
+		err_code, data = select_server_handler(select_msg.GetAcc(), select_msg.GetToken(), select_msg.GetServerId())
+	} else if msg.MsgCode == int32(msg_client_message_id.MSGID_C2S_REGISTER_REQUEST) {
+		var register_msg msg_client_message.C2SRegisterRequest
+		err = proto.Unmarshal(msg.GetData(), &register_msg)
+		if err != nil {
+			_send_error(w, 0, -1)
+			log.Error("Msg C2SRegisterRequest unmarshal err %v", err.Error())
+			return
+		}
+		msg_id = int32(msg_client_message_id.MSGID_S2C_REGISTER_RESPONSE)
+		err_code, data = register_handler(register_msg.GetAccount(), register_msg.GetPassword(), register_msg.GetIsGuest())
+	} else if msg.MsgCode == int32(msg_client_message_id.MSGID_C2S_SET_LOGIN_PASSWORD_REQUEST) {
+		var pass_msg msg_client_message.C2SSetLoginPasswordRequest
+		err = proto.Unmarshal(msg.GetData(), &pass_msg)
+		if err != nil {
+			_send_error(w, 0, -1)
+			log.Error("Msg C2SSetLoginPasswordRequest unmarshal err %v", err.Error())
+			return
+		}
+		msg_id = int32(msg_client_message_id.MSGID_S2C_SET_LOGIN_PASSWORD_RESPONSE)
+		err_code, data = set_password_handler(pass_msg.GetAccount(), pass_msg.GetPassword(), pass_msg.GetNewPassword())
+	} else if msg.MsgCode == int32(msg_client_message_id.MSGID_C2S_GUEST_BIND_NEW_ACCOUNT_REQUEST) {
+		var bind_msg msg_client_message.C2SGuestBindNewAccountRequest
+		err = proto.Unmarshal(msg.GetData(), &bind_msg)
+		if err != nil {
+			_send_error(w, 0, -1)
+			log.Error("Msg C2SGuestBindNewAccountRequest unmarshal err %v", err.Error())
+			return
+		}
+		msg_id = int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE)
+		err_code, data = bind_new_account_handler(bind_msg.GetServerId(), bind_msg.GetAccount(), bind_msg.GetPassword(), bind_msg.GetNewAccount(), bind_msg.GetNewPassword(), bind_msg.GetNewChannel())
+	} else {
+		if msg.MsgCode > 0 {
+			_send_error(w, msg.MsgCode, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND))
+			log.Error("Unsupported msg %v", msg.MsgCode)
+		} else {
+			_send_error(w, msg.MsgCode, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_INVALID))
+			log.Error("Invalid msg %v", msg.MsgCode)
+		}
+		return
+	}
+
+	var resp_msg msg_client_message.S2C_ONE_MSG
+	resp_msg.MsgCode = msg_id
+	resp_msg.ErrorCode = err_code
+	resp_msg.Data = data
+	data, err = proto.Marshal(&resp_msg)
+	if nil != err {
+		_send_error(w, 0, -1)
+		log.Error("client_msg_handler marshal 2 client msg failed err(%s)", err.Error())
+		return
+	}
+
+	iret, err := w.Write(data)
+	if nil != err {
+		_send_error(w, 0, -1)
+		log.Error("client_msg_handler write data 2 failed err[%s] ret %d", err.Error(), iret)
+		return
+	}
 }

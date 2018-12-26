@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"ih_server/libs/log"
 	"ih_server/libs/timer"
@@ -76,12 +76,6 @@ func (this *TestClient) Run() {
 			}
 		}
 	}
-
-	/*var t timer.TickTime
-	for {
-		this.OnTick(t)
-		time.Sleep(time.Millisecond * 1)
-	}*/
 }
 
 func (this *TestClient) Shutdown() {
@@ -116,29 +110,60 @@ func (this *TestClient) Shutdown() {
 	log.Trace("关闭游戏主循环耗时 %v 秒", time.Now().Sub(begin).Seconds())
 }
 
-const (
-	CMD_TYPE_LOGIN = 1 // 登录命令
-)
-
-type JsonRequestData struct {
-	MsgId   int32  // 消息ID
-	MsgData []byte // 消息体
-}
-
-type JsonResponseData struct {
-	Code    int32  // 错误码
-	MsgId   int32  // 消息ID
-	MsgData []byte // 消息体
-}
-
 var cur_hall_conn *HallConnection
 
 func get_res(url string) []byte {
 	return nil
 }
 
+func _send_func(msg_id int32, msg_data []byte) *msg_client_message.S2C_ONE_MSG {
+	var send_msg = msg_client_message.C2S_ONE_MSG{
+		MsgCode: msg_id,
+		Data:    msg_data,
+	}
+
+	data, err := proto.Marshal(&send_msg)
+	if nil != err {
+		log.Error("C2S_ONE_MSG Marshal err(%s)", err.Error())
+		return nil
+	}
+
+	var resp *http.Response
+	if config.UseHttps {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := &http.Client{Transport: tr}
+		resp, err = client.Post("https://"+config.LoginServerIP+"/client", "application/x-www-form-urlencoded", bytes.NewReader(data))
+	} else {
+		resp, err = http.Post("http://"+config.LoginServerIP+"/client", "application/x-www-form-urlencoded", bytes.NewReader(data))
+	}
+
+	if nil != err {
+		log.Error("Post[%s] C2S_ONE_MSG error[%s]", config.LoginServerIP+"/client_msg", err.Error())
+		return nil
+	}
+
+	defer resp.Body.Close()
+
+	data, err = ioutil.ReadAll(resp.Body)
+	if nil != err {
+		log.Error("Read post resp body err [%s]", err.Error())
+		return nil
+	}
+
+	var resp_msg msg_client_message.S2C_ONE_MSG
+	err = proto.Unmarshal(data, &resp_msg)
+	if err != nil {
+		log.Error("S2C_ONE_MSG unmarshal err %v", err.Error())
+		return nil
+	}
+
+	return &resp_msg
+}
+
 func register_func(account, password string, is_guest int32) {
-	var url_str string
+	/*var url_str string
 	if config.UseHttps {
 		url_str = fmt.Sprintf("https://"+config.RegisterUrl, config.LoginServerIP, account, password, is_guest)
 	} else {
@@ -183,23 +208,47 @@ func register_func(account, password string, is_guest int32) {
 		return
 	}
 
-	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_REGISTER_RESPONSE) {
+	*/
+
+	var register_msg = msg_client_message.C2SRegisterRequest{
+		Account:  account,
+		Password: password,
+		IsGuest: func() bool {
+			if is_guest > 0 {
+				return true
+			} else {
+				return false
+			}
+		}(),
+	}
+	data, err := proto.Marshal(&register_msg)
+	if err != nil {
+		log.Error("C2SRegisterRequest marshal err %v", err.Error())
+		return
+	}
+
+	resp_msg := _send_func(int32(msg_client_message_id.MSGID_C2S_REGISTER_REQUEST), data)
+	if resp_msg.GetErrorCode() < 0 {
+		return
+	}
+
+	if resp_msg.GetMsgCode() != int32(msg_client_message_id.MSGID_S2C_REGISTER_RESPONSE) {
 		log.Warn("returned msg_id[%v] is not correct")
 		return
 	}
 
 	var msg msg_client_message.S2CRegisterResponse
-	err = proto.Unmarshal(res.MsgData, &msg)
+	err = proto.Unmarshal(resp_msg.GetData(), &msg)
 	if err != nil {
 		log.Error("unmarshal error[%v]", err.Error())
 		return
 	}
 
-	log.Debug("Account[%v] registered, password is %v", account, password)
+	log.Debug("Account[%v] registered, password is %v", msg.GetAccount(), msg.GetPassword())
 }
 
-func bind_new_account_func(account, password, new_account, new_password string) {
-	var url_str string
+func bind_new_account_func(account, password, new_account, new_password, new_channel string) {
+	/*var url_str string
 	if config.UseHttps {
 		url_str = fmt.Sprintf("https://"+config.BindNewAccountUrl, config.LoginServerIP, account, password, new_account, new_password)
 	} else {
@@ -247,20 +296,50 @@ func bind_new_account_func(account, password, new_account, new_password string) 
 	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE) {
 		log.Warn("returned msg_id[%v] is not correct")
 		return
+	}*/
+
+	h := hall_conn_mgr.GetHallConnByAcc(account)
+	if h == nil {
+		log.Error("Account %v cant get hall client", account)
+		return
+	}
+
+	var bind_msg = msg_client_message.C2SGuestBindNewAccountRequest{
+		ServerId:    h.server_id,
+		Account:     account,
+		Password:    password,
+		NewAccount:  new_account,
+		NewPassword: new_password,
+		NewChannel:  new_channel,
+	}
+	data, err := proto.Marshal(&bind_msg)
+	if err != nil {
+		log.Error("C2SGuestBindNewAccountRequest marshal err %v", err.Error())
+		return
+	}
+
+	resp_msg := _send_func(int32(msg_client_message_id.MSGID_C2S_GUEST_BIND_NEW_ACCOUNT_REQUEST), data)
+	if resp_msg.GetErrorCode() < 0 {
+		return
+	}
+
+	if resp_msg.GetMsgCode() != int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE) {
+		log.Warn("returned msg_id[%v] is not correct")
+		return
 	}
 
 	var msg msg_client_message.S2CGuestBindNewAccountResponse
-	err = proto.Unmarshal(res.MsgData, &msg)
+	err = proto.Unmarshal(resp_msg.GetData(), &msg)
 	if err != nil {
 		log.Error("unmarshal error[%v]", err.Error())
 		return
 	}
 
-	log.Debug("Account[%v] bind new account %v, password is %v", msg.Account, msg.NewAccount, msg.NewPassword)
+	log.Debug("Account[%v] bind new account %v, password is %v", msg.GetAccount(), msg.GetNewAccount(), msg.GetNewPassword())
 }
 
 func login_func(account, password, channel string) {
-	var url_str string
+	/*var url_str string
 	if config.UseHttps {
 		url_str = fmt.Sprintf("https://"+config.LoginUrl, config.LoginServerIP, account, password, channel)
 	} else {
@@ -307,10 +386,31 @@ func login_func(account, password, channel string) {
 	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE) {
 		log.Warn("returned msg_id[%v] is not correct")
 		return
+	}*/
+
+	var login_msg = msg_client_message.C2SLoginRequest{
+		Acc:      account,
+		Password: password,
+		Channel:  channel,
+	}
+	data, err := proto.Marshal(&login_msg)
+	if err != nil {
+		log.Error("C2SLoginRequest marshal err %v", err.Error())
+		return
+	}
+
+	resp_msg := _send_func(int32(msg_client_message_id.MSGID_C2S_LOGIN_REQUEST), data)
+	if resp_msg.GetErrorCode() < 0 {
+		return
+	}
+
+	if resp_msg.GetMsgCode() != int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE) {
+		log.Warn("returned msg_id[%v] is not correct")
+		return
 	}
 
 	var msg msg_client_message.S2CLoginResponse
-	err = proto.Unmarshal(res.MsgData, &msg)
+	err = proto.Unmarshal(resp_msg.GetData(), &msg)
 	if err != nil {
 		log.Error("unmarshal error[%v]", err.Error())
 		return
@@ -321,10 +421,10 @@ func login_func(account, password, channel string) {
 		return
 	}
 
-	select_server_func(account, msg.GetToken() /*msg.GetServers()[0].GetId()*/, msg.GetGameIP())
+	select_server_func(account, msg.GetToken(), msg.GetGameIP(), msg.GetLastServerId())
 }
 
-func select_server_func(account string, token string /*server_id int32*/, game_ip string) {
+func select_server_func(account, token, game_ip string, server_id int32) {
 	/*url_str := fmt.Sprintf(config.SelectServerUrl, config.LoginServerIP, account, token, server_id)
 	log.Debug("select server Url str %s", url_str)
 
@@ -387,15 +487,15 @@ func select_server_func(account string, token string /*server_id int32*/, game_i
 		ip = fmt.Sprintf("http://%v:%v", strings.Split(config.LoginServerIP, ":")[0], strs[len(strs)-1])
 	}
 	cur_hall_conn := new_hall_connect(ip, account, token, config.UseHttps)
+	cur_hall_conn.server_id = server_id
 	hall_conn_mgr.AddHallConn(cur_hall_conn)
 	req2s := &msg_client_message.C2SEnterGameRequest{}
 	req2s.Acc = account
-	//req2s.Token = token
 	cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), req2s)
 }
 
 func set_password_func(account, password, new_password string) {
-	var url_str string
+	/*var url_str string
 	if config.UseHttps {
 		url_str = fmt.Sprintf("https://"+config.SetPasswordUrl, config.LoginServerIP, account, password, new_password)
 	} else {
@@ -435,15 +535,31 @@ func set_password_func(account, password, new_password string) {
 	if res.Code < 0 {
 		log.Warn("return error_code[%v]", res.Code)
 		return
+	}*/
+
+	var pass_msg = msg_client_message.C2SSetLoginPasswordRequest{
+		Account:     account,
+		Password:    password,
+		NewPassword: new_password,
+	}
+	data, err := proto.Marshal(&pass_msg)
+	if err != nil {
+		log.Error("C2SSetLoginPasswordRequest marshal err %v", err.Error())
+		return
 	}
 
-	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_SET_LOGIN_PASSWORD_RESPONSE) {
+	resp_msg := _send_func(int32(msg_client_message_id.MSGID_C2S_SET_LOGIN_PASSWORD_REQUEST), data)
+	if resp_msg.GetErrorCode() < 0 {
+		return
+	}
+
+	if resp_msg.GetMsgCode() != int32(msg_client_message_id.MSGID_S2C_SET_LOGIN_PASSWORD_RESPONSE) {
 		log.Warn("returned msg_id[%v] is not correct")
 		return
 	}
 
 	var msg msg_client_message.S2CSetLoginPasswordResponse
-	err = proto.Unmarshal(res.MsgData, &msg)
+	err = proto.Unmarshal(resp_msg.GetData(), &msg)
 	if err != nil {
 		log.Error("unmarshal error[%v]", err.Error())
 		return
@@ -500,7 +616,7 @@ func (this *TestClient) cmd_bind_new_account(use_https bool) {
 		if config.AccountNum > 1 {
 			acc = fmt.Sprintf("%v_%s", acc, i)
 		}
-		bind_new_account_func(account, password, new_account, new_password)
+		bind_new_account_func(account, password, new_account, new_password, "")
 		if config.AccountNum > 1 {
 			log.Debug("Account[%v] bind new account %v, total count %v", account, new_account, i+1)
 		}

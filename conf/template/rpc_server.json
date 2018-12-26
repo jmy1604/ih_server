@@ -2,5 +2,6 @@
 	"LogConfigFile" : "rpc_server_tracer.json",
 	"ListenIP" : "192.168.1.250:31000",
 	"MaxConnections" : 100,
-	"RedisServerIP" : "127.0.0.1:6379"
+	"RedisServerIP" : "127.0.0.1:6379",
+	"GmIP": "192.168.0.250:39000"
 }

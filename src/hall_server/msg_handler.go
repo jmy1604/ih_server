@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"compress/zlib"
+	_ "crypto/aes"
 	"crypto/tls"
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
@@ -11,7 +12,6 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
-	_ "reflect"
 	"runtime/debug"
 	"strings"
 	"sync/atomic"

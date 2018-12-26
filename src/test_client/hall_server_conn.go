@@ -35,6 +35,7 @@ type HallConnection struct {
 	blogin bool
 
 	last_send_time int64
+	server_id      int32
 }
 
 var hall_conn HallConnection
@@ -64,7 +65,6 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 	}
 
 	C2S_MSG := &msg_client_message.C2S_MSG_DATA{}
-	//C2S_MSG.PlayerId = this.playerid
 	C2S_MSG.Token = this.token
 	one_msg := &msg_client_message.C2S_ONE_MSG{
 		MsgCode: int32(msg_id),
@@ -173,7 +173,7 @@ func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 			if new_msg == nil {
 				return
 			}
-			log.Info("玩家[%d:%s]收到服务器返回%v:[%s]", this.playerid, this.acc, msg_code, new_msg.String())
+			log.Trace("玩家[%d:%s]收到服务器返回%v:[%s]", this.playerid, this.acc, msg_code, new_msg.String())
 			err = proto.Unmarshal(sub_data, new_msg)
 			if nil != err {
 				log.Error("HallConnection failed unmarshal msg data !", msg_code)
@@ -238,7 +238,7 @@ func S2CEnterGameHandler(hall_conn *HallConnection, m proto.Message) {
 
 	hall_conn.playerid = res.GetPlayerId()
 	hall_conn.blogin = true
-	log.Info("player[%v]收到进入游戏服务器返回 %v", res.GetAcc(), res)
+	log.Trace("player[%v]收到进入游戏服务器返回 %v", res.GetAcc(), res)
 
 	return
 }
