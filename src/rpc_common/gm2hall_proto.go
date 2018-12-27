@@ -8,7 +8,7 @@ const (
 )
 
 const (
-	GM_CMD_ANOUNCEMENT_STRING   = "anouncement"
+	GM_CMD_ANOUNCEMENT_STRING   = "anounce"
 	GM_CMD_ADD_ITEMS_STRING     = "add_items"
 	GM_CMD_SEND_SYS_MAIL_STRING = "send_sys_mail"
 )

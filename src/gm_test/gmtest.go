@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	//"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"ih_server/libs/log"
@@ -143,6 +144,8 @@ func (this *GmTest) OnTick(t timer.TickTime) {
 }
 
 func _send_func(msg_id int32, msg_data []byte, msg_str string) (int32, []byte) {
+	//md := base64.StdEncoding.EncodeToString(msg_data)
+
 	var gm_cmd = rpc_common.GmCmd{
 		Id:     msg_id,
 		Data:   msg_data,
@@ -154,6 +157,8 @@ func _send_func(msg_id int32, msg_data []byte, msg_str string) (int32, []byte) {
 		log.Error("Marshal GmCmd %v %v err %v", msg_id, msg_str, err.Error())
 		return -1, nil
 	}
+
+	//d := base64.StdEncoding.EncodeToString(data)
 
 	var resp *http.Response
 	url := "http://" + config.GmServerIP + "/gm"

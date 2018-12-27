@@ -1,6 +1,7 @@
 package main
 
 import (
+	//"encoding/base64"
 	"encoding/json"
 	"ih_server/libs/log"
 	"ih_server/src/rpc_common"
@@ -16,8 +17,15 @@ func gm_anouncement(id int32, data []byte) (int32, []byte) {
 		return -1, nil
 	}
 
+	var err error
+	/*data, err = base64.StdEncoding.DecodeString(string(data))
+	if err != nil {
+		log.Error("gm anouncement base64 decode err %v", err.Error())
+		return -1, nil
+	}*/
+
 	var args rpc_common.GmAnouncementCmd
-	err := json.Unmarshal(data, &args)
+	err = json.Unmarshal(data, &args)
 	if err != nil {
 		log.Error("gm cmd GmAnouncementCmd unmarshal failed")
 		return -1, nil
