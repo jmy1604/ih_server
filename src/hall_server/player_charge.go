@@ -120,7 +120,7 @@ const (
 )
 
 type RedisPayInfo struct {
-	OrderId    string
+	//OrderId    string
 	BundleId   string
 	Account    string
 	PlayerId   int32
@@ -130,7 +130,7 @@ type RedisPayInfo struct {
 
 func google_pay_save(order_id, bundle_id, account string, player_id int32) {
 	var pay RedisPayInfo
-	pay.OrderId = order_id
+	//pay.OrderId = order_id
 	pay.BundleId = bundle_id
 	pay.Account = account
 	pay.PlayerId = player_id
@@ -167,7 +167,7 @@ func check_google_order_exist(order_id string) bool {
 
 func apple_pay_save(order_id, bundle_id, account string, player_id int32) {
 	var pay RedisPayInfo
-	pay.OrderId = order_id
+	//pay.OrderId = order_id
 	pay.BundleId = bundle_id
 	pay.Account = account
 	pay.PlayerId = player_id
