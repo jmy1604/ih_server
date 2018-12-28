@@ -586,7 +586,6 @@ func C2SGuideDataSaveHandler(p *Player, msg_data []byte) int32 {
 
 func (p *Player) reconnect() int32 {
 	new_token := share_data.GenerateAccessToken(p.UniqueId)
-	//p.Token = new_token
 	login_token_mgr.SetToken(p.UniqueId, new_token, p.Id)
 	conn_timer_wheel.Remove(p.Id)
 	atomic.StoreInt32(&p.is_login, 1)
@@ -595,6 +594,8 @@ func (p *Player) reconnect() int32 {
 		NewToken: new_token,
 	}
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_RECONNECT_RESPONSE), response)
+
+	p.send_items()
 
 	log.Trace("Player[%v] reconnected, new token %v", p.Id, new_token)
 	return 1
