@@ -60,15 +60,15 @@ func (this *dbPlayerItemColumn) BuildMsg() (items []*msg_client_message.ItemInfo
 	return
 }
 
-func (this *Player) add_item(id int32, count int32) bool {
+func (this *Player) add_item(id int32, count int32) *table_config.XmlItemItem {
 	item := item_table_mgr.Get(id)
 	if item == nil {
 		log.Error("item %v not found in table", id)
-		return false
+		return nil
 	}
 
 	if count < 0 {
-		return false
+		return nil
 	}
 
 	if id == ITEM_RESOURCE_ID_HONOR {
@@ -120,11 +120,11 @@ func (this *Player) add_item(id int32, count int32) bool {
 	}
 
 	// 更新任务
-	if item.EquipType > 0 {
-		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_QUALITY_EQUIPS_NUM, false, item.Quality, count)
-	}
+	//if item.EquipType > 0 {
+	//	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_QUALITY_EQUIPS_NUM, false, item.Quality, count)
+	//}
 
-	return true
+	return item
 }
 
 func (this *Player) del_item(id int32, count int32) bool {
@@ -334,8 +334,14 @@ func (this *Player) add_resource(id, count int32) bool {
 		this.add_vip_exp(count)
 	} else {
 		if count > 0 {
-			if !this.add_item(id, count) {
+			item := this.add_item(id, count)
+			if item == nil {
 				res = false
+			} else {
+				// 更新任务
+				if item.EquipType > 0 {
+					this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_QUALITY_EQUIPS_NUM, false, item.Quality, count)
+				}
 			}
 		} else {
 			if !this.del_item(id, -count) {
@@ -854,7 +860,7 @@ func (this *Player) item_one_key_upgrade(item_id int32, cost_items map[int32]int
 
 		// 新生成装备
 		result_item_id = drop_data.DropItems[0].DropItemID
-		this.add_item(result_item_id, 1)
+		this.add_resource(result_item_id, 1)
 		result_items[result_item_id] += 1
 
 		// 消耗资源
