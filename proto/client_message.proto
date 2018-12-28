@@ -487,6 +487,7 @@ message S2CPlayerInfoResponse {
 	int32 GuildId							= 9; // 公会ID
 	string GuildName						= 10; // 公会名
 	int32 GuildLogo							= 11; // 公会logo
+	int32 GuildLevel						= 12; // 公会等级
 }
 
 // 改名

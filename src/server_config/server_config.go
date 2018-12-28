@@ -127,11 +127,12 @@ func (this *GameServerConfig) GetLogConfigFile() string {
 
 // RPC服务器配置
 type RpcServerConfig struct {
-	LogConfigFile  string
-	ListenIP       string
-	MaxConnections int
-	RedisServerIP  string
-	GmIP           string
+	LogConfigFile    string
+	ListenIP         string
+	MaxConnections   int
+	RedisServerIP    string
+	GmIP             string
+	GmServerUseHttps bool
 }
 
 func (this *RpcServerConfig) GetType() int32 {
