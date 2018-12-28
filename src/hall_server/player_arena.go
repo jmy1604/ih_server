@@ -418,7 +418,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 	}
 
 	var level, head, guild_id int32
-	var guild_name string
+	var guild_name, player_name string
 	var defense_team []int32
 	var robot *ArenaRobot
 	p := player_mgr.GetPlayerById(player_id)
@@ -430,6 +430,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 		}
 		level = robot.robot_data.RobotLevel
 		head = robot.robot_data.RobotHead
+		player_name = robot.robot_data.RobotName
 		guild_id = 0
 	} else {
 		defense_team = p.db.BattleTeam.GetDefenseMembers()
@@ -442,6 +443,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 				guild_name = guild.GetName()
 			}
 		}
+		player_name = p.db.GetName()
 	}
 
 	var power int32
@@ -487,6 +489,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 		Power:       power,
 		GuildId:     guild_id,
 		GuildName:   guild_name,
+		PlayerName:  player_name,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE), response)
 	log.Debug("Player[%v] get arena player[%v] defense team[%v]", this.Id, player_id, team)

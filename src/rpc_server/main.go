@@ -37,7 +37,7 @@ func main() {
 		return
 	}
 
-	go gm_service.StartHttp()
+	go gm_service.StartHttps(server_config.GetConfPathFile("server.crt"), server_config.GetConfPathFile("server.key"))
 
 	fmt.Println("启动服务...")
 

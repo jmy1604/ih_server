@@ -8,6 +8,7 @@ const (
 )
 
 const (
+	GM_CMD_TEST_STRING          = "test"
 	GM_CMD_ANOUNCEMENT_STRING   = "anounce"
 	GM_CMD_ADD_ITEMS_STRING     = "add_items"
 	GM_CMD_SEND_SYS_MAIL_STRING = "send_sys_mail"
@@ -25,6 +26,16 @@ type GmResponse struct {
 	Id   int32  `json:"Id"`
 	Err  int32  `json:"Err"`
 	Data []byte `json:"Data"`
+}
+
+// 测试命令
+type GmTestCmd struct {
+	NumValue    int32  `json:"NumValue"`
+	StringValue string `json:"StringValue"`
+	BytesValue  []byte `json:"BytesValue"`
+}
+
+type GmTestResponse struct {
 }
 
 // 公告
