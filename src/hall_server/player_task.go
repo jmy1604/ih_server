@@ -146,6 +146,12 @@ func (this *Player) ChkPlayerDailyTask() int32 {
 	return remain_seconds
 }
 
+func (this *Player) check_and_send_daily_task() {
+	if this.ChkPlayerDailyTask() <= 0 {
+		this.send_task(table_config.TASK_TYPE_DAILY)
+	}
+}
+
 func (this *Player) first_gen_achieve_tasks() {
 	if this.db.Tasks.NumAll() > 0 {
 		this.db.Tasks.Clear()
@@ -315,6 +321,8 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 			}
 		}
 	}
+
+	this.check_and_send_daily_task()
 }
 
 func (this *Player) check_notify_next_task(task *table_config.XmlTaskItem) {
@@ -384,6 +392,8 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 			p.check_notify_next_task(task_cfg)
 		}
 	}
+
+	p.check_and_send_daily_task()
 
 	return 1
 }
