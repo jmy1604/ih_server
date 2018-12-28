@@ -1291,6 +1291,7 @@ message S2CArenaPlayerDefenseTeamResponse {
 	int32 Power								= 5;
 	int32 GuildId							= 6;
 	string GuildName						= 7;
+	string PlayerName						= 8;
 }
 
 // 请求竞技场匹配
