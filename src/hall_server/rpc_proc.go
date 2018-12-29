@@ -341,26 +341,6 @@ func (this *R2H_RanklistProc) AnouncementFirstRank(args *rpc_common.R2H_Ranklist
 	return nil
 }
 
-// GM调用
-type G2H_Proc struct {
-}
-
-func (this *G2H_Proc) Anouncement(args *rpc_common.GmAnouncementCmd, result *rpc_common.GmAnouncementResponse) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	if !system_chat_mgr.push_chat_msg(args.Content, args.RemainSeconds, 0, 0, "", 0) {
-		err_str := fmt.Sprintf("@@@ G2H_Proc::Anouncement %v failed", args)
-		return errors.New(err_str)
-	}
-
-	log.Trace("@@@ G2H_Proc::Anouncement %v", args)
-	return nil
-}
-
 // 初始化rpc服务
 func (this *HallServer) init_rpc_service() bool {
 	if this.rpc_service != nil {

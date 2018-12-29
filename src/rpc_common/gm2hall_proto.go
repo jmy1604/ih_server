@@ -1,7 +1,7 @@
 package rpc_common
 
 const (
-	GM_CMD_NONE          = iota
+	GM_CMD_TEST          = iota
 	GM_CMD_ANOUNCEMENT   = 1
 	GM_CMD_ADD_ITEMS     = 2
 	GM_CMD_SEND_SYS_MAIL = 3
