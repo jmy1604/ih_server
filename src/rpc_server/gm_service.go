@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	//"encoding/base64"
 	"encoding/json"
 	"ih_server/libs/log"
 	"ih_server/src/rpc_common"
@@ -30,7 +29,7 @@ func (this *GmService) StartHttp() bool {
 
 	this.login_http_listener, err = net.Listen("tcp", rpc_config.GmIP)
 	if nil != err {
-		log.Error("Listen gm http srever error %v", err.Error())
+		log.Error("Listen gm http server error %v", err.Error())
 		return false
 	}
 
@@ -104,7 +103,6 @@ func gm_http_handler(w http.ResponseWriter, r *http.Request) {
 
 	data, err := ioutil.ReadAll(r.Body)
 	if nil != err {
-		//_send_error(w, -1)
 		log.Error("Gm read http data err[%s]", err.Error())
 		return
 	}
