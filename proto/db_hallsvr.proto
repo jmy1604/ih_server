@@ -468,6 +468,23 @@ message PlayerActivityDataList{
 	repeated PlayerActivityData List=1;
 }
 
+message PlayerExpeditionPlayers{
+	optional int64 SerialId=1;
+	repeated int32 PlayerIds=2;
+}
+
+message PlayerExpeditionRole{
+	optional int32 Pos=1;
+	optional int32 TableId=2;
+	optional int32 Rank=3;
+	optional int32 Level=4;
+	repeated int32 Equip=5;
+}
+
+message PlayerExpeditionRoleList{
+	repeated PlayerExpeditionRole List=1;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }

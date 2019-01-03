@@ -2003,6 +2003,84 @@ func (this* dbPlayerActivityDataData)clone_to(d *dbPlayerActivityDataData){
 	d.SubNum = this.SubNum
 	return
 }
+type dbPlayerExpeditionPlayersData struct{
+	SerialId int64
+	PlayerIds []int32
+}
+func (this* dbPlayerExpeditionPlayersData)from_pb(pb *db.PlayerExpeditionPlayers){
+	if pb == nil {
+		this.PlayerIds = make([]int32,0)
+		return
+	}
+	this.SerialId = pb.GetSerialId()
+	this.PlayerIds = make([]int32,len(pb.GetPlayerIds()))
+	for i, v := range pb.GetPlayerIds() {
+		this.PlayerIds[i] = v
+	}
+	return
+}
+func (this* dbPlayerExpeditionPlayersData)to_pb()(pb *db.PlayerExpeditionPlayers){
+	pb = &db.PlayerExpeditionPlayers{}
+	pb.SerialId = proto.Int64(this.SerialId)
+	pb.PlayerIds = make([]int32, len(this.PlayerIds))
+	for i, v := range this.PlayerIds {
+		pb.PlayerIds[i]=v
+	}
+	return
+}
+func (this* dbPlayerExpeditionPlayersData)clone_to(d *dbPlayerExpeditionPlayersData){
+	d.SerialId = this.SerialId
+	d.PlayerIds = make([]int32, len(this.PlayerIds))
+	for _ii, _vv := range this.PlayerIds {
+		d.PlayerIds[_ii]=_vv
+	}
+	return
+}
+type dbPlayerExpeditionRoleData struct{
+	Pos int32
+	TableId int32
+	Rank int32
+	Level int32
+	Equip []int32
+}
+func (this* dbPlayerExpeditionRoleData)from_pb(pb *db.PlayerExpeditionRole){
+	if pb == nil {
+		this.Equip = make([]int32,0)
+		return
+	}
+	this.Pos = pb.GetPos()
+	this.TableId = pb.GetTableId()
+	this.Rank = pb.GetRank()
+	this.Level = pb.GetLevel()
+	this.Equip = make([]int32,len(pb.GetEquip()))
+	for i, v := range pb.GetEquip() {
+		this.Equip[i] = v
+	}
+	return
+}
+func (this* dbPlayerExpeditionRoleData)to_pb()(pb *db.PlayerExpeditionRole){
+	pb = &db.PlayerExpeditionRole{}
+	pb.Pos = proto.Int32(this.Pos)
+	pb.TableId = proto.Int32(this.TableId)
+	pb.Rank = proto.Int32(this.Rank)
+	pb.Level = proto.Int32(this.Level)
+	pb.Equip = make([]int32, len(this.Equip))
+	for i, v := range this.Equip {
+		pb.Equip[i]=v
+	}
+	return
+}
+func (this* dbPlayerExpeditionRoleData)clone_to(d *dbPlayerExpeditionRoleData){
+	d.Pos = this.Pos
+	d.TableId = this.TableId
+	d.Rank = this.Rank
+	d.Level = this.Level
+	d.Equip = make([]int32, len(this.Equip))
+	for _ii, _vv := range this.Equip {
+		d.Equip[_ii]=_vv
+	}
+	return
+}
 type dbBattleSaveDataData struct{
 	Data []byte
 }
@@ -2254,28 +2332,28 @@ func (this* dbGuildStageDamageLogData)clone_to(d *dbGuildStageDamageLogData){
 	return
 }
 
-func (this *dbGlobalRow)GetCurrentPlayerId( )(r int32 ){
+func (this *dbGlobalRow)GetdbGlobalCurrentPlayerIdColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGlobalRow.GetdbGlobalCurrentPlayerIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_CurrentPlayerId)
+	return int32(this.m_dbGlobalCurrentPlayerIdColumn)
 }
-func (this *dbGlobalRow)SetCurrentPlayerId(v int32){
+func (this *dbGlobalRow)SetdbGlobalCurrentPlayerIdColumn(v int32){
 	this.m_lock.UnSafeLock("dbGlobalRow.SetdbGlobalCurrentPlayerIdColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_CurrentPlayerId=int32(v)
-	this.m_CurrentPlayerId_changed=true
+	this.m_dbGlobalCurrentPlayerIdColumn=int32(v)
+	this.m_dbGlobalCurrentPlayerIdColumn_changed=true
 	return
 }
-func (this *dbGlobalRow)GetCurrentGuildId( )(r int32 ){
+func (this *dbGlobalRow)GetdbGlobalCurrentGuildIdColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGlobalRow.GetdbGlobalCurrentGuildIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_CurrentGuildId)
+	return int32(this.m_dbGlobalCurrentGuildIdColumn)
 }
-func (this *dbGlobalRow)SetCurrentGuildId(v int32){
+func (this *dbGlobalRow)SetdbGlobalCurrentGuildIdColumn(v int32){
 	this.m_lock.UnSafeLock("dbGlobalRow.SetdbGlobalCurrentGuildIdColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_CurrentGuildId=int32(v)
-	this.m_CurrentGuildId_changed=true
+	this.m_dbGlobalCurrentGuildIdColumn=int32(v)
+	this.m_dbGlobalCurrentGuildIdColumn_changed=true
 	return
 }
 type dbGlobalRow struct {
@@ -2288,10 +2366,10 @@ type dbGlobalRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_Id        int32
-	m_CurrentPlayerId_changed bool
-	m_CurrentPlayerId int32
-	m_CurrentGuildId_changed bool
-	m_CurrentGuildId int32
+	m_dbGlobalCurrentPlayerIdColumn_changed bool
+	m_dbGlobalCurrentPlayerIdColumn int32
+	m_dbGlobalCurrentGuildIdColumn_changed bool
+	m_dbGlobalCurrentGuildIdColumn int32
 }
 func new_dbGlobalRow(table *dbGlobalTable, Id int32) (r *dbGlobalRow) {
 	this := &dbGlobalRow{}
@@ -2499,64 +2577,64 @@ func (this *dbGlobalTable) Save(quick bool) (err error) {
 func (this *dbGlobalTable) GetRow( ) (row *dbGlobalRow) {
 	return this.m_row
 }
-func (this *dbPlayerRow)GetUniqueId( )(r string ){
+func (this *dbPlayerRow)GetdbPlayerUniqueIdColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbPlayerRow.GetdbPlayerUniqueIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_UniqueId)
+	return string(this.m_dbPlayerUniqueIdColumn)
 }
-func (this *dbPlayerRow)SetUniqueId(v string){
+func (this *dbPlayerRow)SetdbPlayerUniqueIdColumn(v string){
 	this.m_lock.UnSafeLock("dbPlayerRow.SetdbPlayerUniqueIdColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_UniqueId=string(v)
-	this.m_UniqueId_changed=true
+	this.m_dbPlayerUniqueIdColumn=string(v)
+	this.m_dbPlayerUniqueIdColumn_changed=true
 	return
 }
-func (this *dbPlayerRow)GetAccount( )(r string ){
+func (this *dbPlayerRow)GetdbPlayerAccountColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbPlayerRow.GetdbPlayerAccountColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Account)
+	return string(this.m_dbPlayerAccountColumn)
 }
-func (this *dbPlayerRow)SetAccount(v string){
+func (this *dbPlayerRow)SetdbPlayerAccountColumn(v string){
 	this.m_lock.UnSafeLock("dbPlayerRow.SetdbPlayerAccountColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Account=string(v)
-	this.m_Account_changed=true
+	this.m_dbPlayerAccountColumn=string(v)
+	this.m_dbPlayerAccountColumn_changed=true
 	return
 }
-func (this *dbPlayerRow)GetName( )(r string ){
+func (this *dbPlayerRow)GetdbPlayerNameColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbPlayerRow.GetdbPlayerNameColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Name)
+	return string(this.m_dbPlayerNameColumn)
 }
-func (this *dbPlayerRow)SetName(v string){
+func (this *dbPlayerRow)SetdbPlayerNameColumn(v string){
 	this.m_lock.UnSafeLock("dbPlayerRow.SetdbPlayerNameColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Name=string(v)
-	this.m_Name_changed=true
+	this.m_dbPlayerNameColumn=string(v)
+	this.m_dbPlayerNameColumn_changed=true
 	return
 }
-func (this *dbPlayerRow)GetToken( )(r string ){
+func (this *dbPlayerRow)GetdbPlayerTokenColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbPlayerRow.GetdbPlayerTokenColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Token)
+	return string(this.m_dbPlayerTokenColumn)
 }
-func (this *dbPlayerRow)SetToken(v string){
+func (this *dbPlayerRow)SetdbPlayerTokenColumn(v string){
 	this.m_lock.UnSafeLock("dbPlayerRow.SetdbPlayerTokenColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Token=string(v)
-	this.m_Token_changed=true
+	this.m_dbPlayerTokenColumn=string(v)
+	this.m_dbPlayerTokenColumn_changed=true
 	return
 }
-func (this *dbPlayerRow)GetCurrReplyMsgNum( )(r int32 ){
+func (this *dbPlayerRow)GetdbPlayerCurrReplyMsgNumColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbPlayerRow.GetdbPlayerCurrReplyMsgNumColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_CurrReplyMsgNum)
+	return int32(this.m_dbPlayerCurrReplyMsgNumColumn)
 }
-func (this *dbPlayerRow)SetCurrReplyMsgNum(v int32){
+func (this *dbPlayerRow)SetdbPlayerCurrReplyMsgNumColumn(v int32){
 	this.m_lock.UnSafeLock("dbPlayerRow.SetdbPlayerCurrReplyMsgNumColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_CurrReplyMsgNum=int32(v)
-	this.m_CurrReplyMsgNum_changed=true
+	this.m_dbPlayerCurrReplyMsgNumColumn=int32(v)
+	this.m_dbPlayerCurrReplyMsgNumColumn_changed=true
 	return
 }
 type dbPlayerInfoColumn struct{
@@ -2811,16 +2889,16 @@ func (this *dbPlayerGlobalColumn)IncbyCurrentRoleId(v int32)(r int32){
 	this.m_changed = true
 	return this.m_data.CurrentRoleId
 }
-func (this *dbPlayerRow)GetLevel( )(r int32 ){
+func (this *dbPlayerRow)GetdbPlayerLevelColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbPlayerRow.GetdbPlayerLevelColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Level)
+	return int32(this.m_dbPlayerLevelColumn)
 }
-func (this *dbPlayerRow)SetLevel(v int32){
+func (this *dbPlayerRow)SetdbPlayerLevelColumn(v int32){
 	this.m_lock.UnSafeLock("dbPlayerRow.SetdbPlayerLevelColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Level=int32(v)
-	this.m_Level_changed=true
+	this.m_dbPlayerLevelColumn=int32(v)
+	this.m_dbPlayerLevelColumn_changed=true
 	return
 }
 type dbPlayerItemColumn struct{
@@ -10618,6 +10696,306 @@ func (this *dbPlayerActivityDataColumn)IncbySubNum(id int32,v int32)(r int32){
 	this.m_changed = true
 	return d.SubNum
 }
+type dbPlayerExpeditionPlayersColumn struct{
+	m_row *dbPlayerRow
+	m_data *dbPlayerExpeditionPlayersData
+	m_changed bool
+}
+func (this *dbPlayerExpeditionPlayersColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbPlayerExpeditionPlayersData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerExpeditionPlayers{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_data = &dbPlayerExpeditionPlayersData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerExpeditionPlayersColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerExpeditionPlayersColumn)Get( )(v *dbPlayerExpeditionPlayersData ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionPlayersColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbPlayerExpeditionPlayersData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbPlayerExpeditionPlayersColumn)Set(v dbPlayerExpeditionPlayersData ){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionPlayersColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbPlayerExpeditionPlayersData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbPlayerExpeditionPlayersColumn)GetSerialId( )(v int64 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionPlayersColumn.GetSerialId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.SerialId
+	return
+}
+func (this *dbPlayerExpeditionPlayersColumn)SetSerialId(v int64){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionPlayersColumn.SetSerialId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.SerialId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionPlayersColumn)GetPlayerIds( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionPlayersColumn.GetPlayerIds")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]int32, len(this.m_data.PlayerIds))
+	for _ii, _vv := range this.m_data.PlayerIds {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbPlayerExpeditionPlayersColumn)SetPlayerIds(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionPlayersColumn.SetPlayerIds")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.PlayerIds = make([]int32, len(v))
+	for _ii, _vv := range v {
+		this.m_data.PlayerIds[_ii]=_vv
+	}
+	this.m_changed = true
+	return
+}
+type dbPlayerExpeditionRoleColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerExpeditionRoleData
+	m_changed bool
+}
+func (this *dbPlayerExpeditionRoleColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerExpeditionRoleList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerExpeditionRoleData{}
+		d.from_pb(v)
+		this.m_data[int32(d.Pos)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerExpeditionRoleColumn)save( )(data []byte,err error){
+	pb := &db.PlayerExpeditionRoleList{}
+	pb.List=make([]*db.PlayerExpeditionRole,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerExpeditionRoleColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerExpeditionRoleColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerExpeditionRoleColumn)GetAll()(list []dbPlayerExpeditionRoleData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerExpeditionRoleData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerExpeditionRoleColumn)Get(id int32)(v *dbPlayerExpeditionRoleData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerExpeditionRoleData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerExpeditionRoleColumn)Set(v dbPlayerExpeditionRoleData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.Pos)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Pos)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionRoleColumn)Add(v *dbPlayerExpeditionRoleData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.Pos)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Pos)
+		return false
+	}
+	d:=&dbPlayerExpeditionRoleData{}
+	v.clone_to(d)
+	this.m_data[int32(v.Pos)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionRoleColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionRoleColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionRoleColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbPlayerExpeditionRoleColumn)GetTableId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetTableId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.TableId
+	return v,true
+}
+func (this *dbPlayerExpeditionRoleColumn)SetTableId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetTableId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.TableId = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionRoleColumn)GetRank(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetRank")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Rank
+	return v,true
+}
+func (this *dbPlayerExpeditionRoleColumn)SetRank(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetRank")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Rank = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionRoleColumn)GetLevel(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetLevel")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Level
+	return v,true
+}
+func (this *dbPlayerExpeditionRoleColumn)SetLevel(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetLevel")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Level = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionRoleColumn)GetEquip(id int32)(v []int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetEquip")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = make([]int32, len(d.Equip))
+	for _ii, _vv := range d.Equip {
+		v[_ii]=_vv
+	}
+	return v,true
+}
+func (this *dbPlayerExpeditionRoleColumn)SetEquip(id int32,v []int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetEquip")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Equip = make([]int32, len(v))
+	for _ii, _vv := range v {
+		d.Equip[_ii]=_vv
+	}
+	this.m_changed = true
+	return true
+}
 type dbPlayerRow struct {
 	m_table *dbPlayerTable
 	m_lock       *RWMutex
@@ -10628,71 +11006,82 @@ type dbPlayerRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_PlayerId        int32
-	m_UniqueId_changed bool
-	m_UniqueId string
-	m_Account_changed bool
-	m_Account string
-	m_Name_changed bool
-	m_Name string
-	m_Token_changed bool
-	m_Token string
-	m_CurrReplyMsgNum_changed bool
-	m_CurrReplyMsgNum int32
-	Info dbPlayerInfoColumn
-	Global dbPlayerGlobalColumn
-	m_Level_changed bool
-	m_Level int32
-	Items dbPlayerItemColumn
-	RoleCommon dbPlayerRoleCommonColumn
-	Roles dbPlayerRoleColumn
-	RoleHandbook dbPlayerRoleHandbookColumn
-	BattleTeam dbPlayerBattleTeamColumn
-	CampaignCommon dbPlayerCampaignCommonColumn
-	Campaigns dbPlayerCampaignColumn
-	CampaignStaticIncomes dbPlayerCampaignStaticIncomeColumn
-	CampaignRandomIncomes dbPlayerCampaignRandomIncomeColumn
-	MailCommon dbPlayerMailCommonColumn
-	Mails dbPlayerMailColumn
-	BattleSaves dbPlayerBattleSaveColumn
-	Talents dbPlayerTalentColumn
-	TowerCommon dbPlayerTowerCommonColumn
-	Towers dbPlayerTowerColumn
-	Draws dbPlayerDrawColumn
-	GoldHand dbPlayerGoldHandColumn
-	Shops dbPlayerShopColumn
-	ShopItems dbPlayerShopItemColumn
-	Arena dbPlayerArenaColumn
-	Equip dbPlayerEquipColumn
-	ActiveStageCommon dbPlayerActiveStageCommonColumn
-	ActiveStages dbPlayerActiveStageColumn
-	FriendCommon dbPlayerFriendCommonColumn
-	Friends dbPlayerFriendColumn
-	FriendRecommends dbPlayerFriendRecommendColumn
-	FriendAsks dbPlayerFriendAskColumn
-	FriendBosss dbPlayerFriendBossColumn
-	TaskCommon dbPlayerTaskCommonColumn
-	Tasks dbPlayerTaskColumn
-	FinishedTasks dbPlayerFinishedTaskColumn
-	DailyTaskAllDailys dbPlayerDailyTaskAllDailyColumn
-	ExploreCommon dbPlayerExploreCommonColumn
-	Explores dbPlayerExploreColumn
-	ExploreStorys dbPlayerExploreStoryColumn
-	FriendChatUnreadIds dbPlayerFriendChatUnreadIdColumn
-	FriendChatUnreadMessages dbPlayerFriendChatUnreadMessageColumn
-	HeadItems dbPlayerHeadItemColumn
-	SuitAwards dbPlayerSuitAwardColumn
-	Chats dbPlayerChatColumn
-	Anouncement dbPlayerAnouncementColumn
-	FirstDrawCards dbPlayerFirstDrawCardColumn
-	Guild dbPlayerGuildColumn
-	GuildStage dbPlayerGuildStageColumn
-	RoleMaxPower dbPlayerRoleMaxPowerColumn
-	Sign dbPlayerSignColumn
-	SevenDays dbPlayerSevenDaysColumn
-	PayCommon dbPlayerPayCommonColumn
-	Pays dbPlayerPayColumn
-	GuideData dbPlayerGuideDataColumn
-	ActivityDatas dbPlayerActivityDataColumn
+	m_dbPlayerUniqueIdColumn_changed bool
+	m_dbPlayerUniqueIdColumn string
+	m_dbPlayerAccountColumn_changed bool
+	m_dbPlayerAccountColumn string
+	m_dbPlayerNameColumn_changed bool
+	m_dbPlayerNameColumn string
+	m_dbPlayerTokenColumn_changed bool
+	m_dbPlayerTokenColumn string
+	m_dbPlayerCurrReplyMsgNumColumn_changed bool
+	m_dbPlayerCurrReplyMsgNumColumn int32
+	dbPlayerInfoColumn dbPlayerInfoColumn
+	dbPlayerGlobalColumn dbPlayerGlobalColumn
+	m_dbPlayerLevelColumn_changed bool
+	m_dbPlayerLevelColumn int32
+	dbPlayerItemColumns dbPlayerItemColumn
+	dbPlayerRoleCommonColumn dbPlayerRoleCommonColumn
+	dbPlayerRoleColumns dbPlayerRoleColumn
+	dbPlayerRoleHandbookColumn dbPlayerRoleHandbookColumn
+	dbPlayerBattleTeamColumn dbPlayerBattleTeamColumn
+	dbPlayerCampaignCommonColumn dbPlayerCampaignCommonColumn
+	dbPlayerCampaignColumns dbPlayerCampaignColumn
+	dbPlayerCampaignStaticIncomeColumns dbPlayerCampaignStaticIncomeColumn
+	dbPlayerCampaignRandomIncomeColumns dbPlayerCampaignRandomIncomeColumn
+	dbPlayerMailCommonColumn dbPlayerMailCommonColumn
+	dbPlayerMailColumns dbPlayerMailColumn
+	dbPlayerBattleSaveColumns dbPlayerBattleSaveColumn
+	dbPlayerTalentColumns dbPlayerTalentColumn
+	dbPlayerTowerCommonColumn dbPlayerTowerCommonColumn
+	dbPlayerTowerColumns dbPlayerTowerColumn
+	dbPlayerDrawColumns dbPlayerDrawColumn
+	dbPlayerGoldHandColumn dbPlayerGoldHandColumn
+	dbPlayerShopColumns dbPlayerShopColumn
+	dbPlayerShopItemColumns dbPlayerShopItemColumn
+	dbPlayerArenaColumn dbPlayerArenaColumn
+	dbPlayerEquipColumn dbPlayerEquipColumn
+	dbPlayerActiveStageCommonColumn dbPlayerActiveStageCommonColumn
+	dbPlayerActiveStageColumns dbPlayerActiveStageColumn
+	dbPlayerFriendCommonColumn dbPlayerFriendCommonColumn
+	dbPlayerFriendColumns dbPlayerFriendColumn
+	dbPlayerFriendRecommendColumns dbPlayerFriendRecommendColumn
+	dbPlayerFriendAskColumns dbPlayerFriendAskColumn
+	dbPlayerFriendBossColumns dbPlayerFriendBossColumn
+	dbPlayerTaskCommonColumn dbPlayerTaskCommonColumn
+	dbPlayerTaskColumns dbPlayerTaskColumn
+	dbPlayerFinishedTaskColumns dbPlayerFinishedTaskColumn
+	dbPlayerDailyTaskAllDailyColumns dbPlayerDailyTaskAllDailyColumn
+	dbPlayerExploreCommonColumn dbPlayerExploreCommonColumn
+	dbPlayerExploreColumns dbPlayerExploreColumn
+	dbPlayerExploreStoryColumns dbPlayerExploreStoryColumn
+	dbPlayerFriendChatUnreadIdColumns dbPlayerFriendChatUnreadIdColumn
+	dbPlayerFriendChatUnreadMessageColumns dbPlayerFriendChatUnreadMessageColumn
+	dbPlayerHeadItemColumns dbPlayerHeadItemColumn
+	dbPlayerSuitAwardColumns dbPlayerSuitAwardColumn
+	dbPlayerChatColumns dbPlayerChatColumn
+	dbPlayerAnouncementColumn dbPlayerAnouncementColumn
+	dbPlayerFirstDrawCardColumns dbPlayerFirstDrawCardColumn
+	dbPlayerGuildColumn dbPlayerGuildColumn
+	dbPlayerGuildStageColumn dbPlayerGuildStageColumn
+	dbPlayerRoleMaxPowerColumn dbPlayerRoleMaxPowerColumn
+	dbPlayerSignColumn dbPlayerSignColumn
+	dbPlayerSevenDaysColumn dbPlayerSevenDaysColumn
+	dbPlayerPayCommonColumn dbPlayerPayCommonColumn
+	dbPlayerPayColumns dbPlayerPayColumn
+	dbPlayerGuideDataColumn dbPlayerGuideDataColumn
+	dbPlayerActivityDataColumns dbPlayerActivityDataColumn
+	dbPlayerExpeditionPlayersColumn dbPlayerExpeditionPlayersColumn
+	dbPlayerExpeditionRoleColumn0s dbPlayerExpeditionRoleColumn
+	dbPlayerExpeditionRoleColumn1s dbPlayerExpeditionRoleColumn
+	dbPlayerExpeditionRoleColumn2s dbPlayerExpeditionRoleColumn
+	dbPlayerExpeditionRoleColumn3s dbPlayerExpeditionRoleColumn
+	dbPlayerExpeditionRoleColumn4s dbPlayerExpeditionRoleColumn
+	dbPlayerExpeditionRoleColumn5s dbPlayerExpeditionRoleColumn
+	dbPlayerExpeditionRoleColumn6s dbPlayerExpeditionRoleColumn
+	dbPlayerExpeditionRoleColumn7s dbPlayerExpeditionRoleColumn
+	dbPlayerExpeditionRoleColumn8s dbPlayerExpeditionRoleColumn
+	dbPlayerExpeditionRoleColumn9s dbPlayerExpeditionRoleColumn
 }
 func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this := &dbPlayerRow{}
@@ -10705,112 +11094,134 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.m_Token_changed=true
 	this.m_CurrReplyMsgNum_changed=true
 	this.m_Level_changed=true
-	this.Info.m_row=this
-	this.Info.m_data=&dbPlayerInfoData{}
-	this.Global.m_row=this
-	this.Global.m_data=&dbPlayerGlobalData{}
-	this.Items.m_row=this
-	this.Items.m_data=make(map[int32]*dbPlayerItemData)
-	this.RoleCommon.m_row=this
-	this.RoleCommon.m_data=&dbPlayerRoleCommonData{}
-	this.Roles.m_row=this
-	this.Roles.m_data=make(map[int32]*dbPlayerRoleData)
-	this.RoleHandbook.m_row=this
-	this.RoleHandbook.m_data=&dbPlayerRoleHandbookData{}
-	this.BattleTeam.m_row=this
-	this.BattleTeam.m_data=&dbPlayerBattleTeamData{}
-	this.CampaignCommon.m_row=this
-	this.CampaignCommon.m_data=&dbPlayerCampaignCommonData{}
-	this.Campaigns.m_row=this
-	this.Campaigns.m_data=make(map[int32]*dbPlayerCampaignData)
-	this.CampaignStaticIncomes.m_row=this
-	this.CampaignStaticIncomes.m_data=make(map[int32]*dbPlayerCampaignStaticIncomeData)
-	this.CampaignRandomIncomes.m_row=this
-	this.CampaignRandomIncomes.m_data=make(map[int32]*dbPlayerCampaignRandomIncomeData)
-	this.MailCommon.m_row=this
-	this.MailCommon.m_data=&dbPlayerMailCommonData{}
-	this.Mails.m_row=this
-	this.Mails.m_data=make(map[int32]*dbPlayerMailData)
-	this.BattleSaves.m_row=this
-	this.BattleSaves.m_data=make(map[int32]*dbPlayerBattleSaveData)
-	this.Talents.m_row=this
-	this.Talents.m_data=make(map[int32]*dbPlayerTalentData)
-	this.TowerCommon.m_row=this
-	this.TowerCommon.m_data=&dbPlayerTowerCommonData{}
-	this.Towers.m_row=this
-	this.Towers.m_data=make(map[int32]*dbPlayerTowerData)
-	this.Draws.m_row=this
-	this.Draws.m_data=make(map[int32]*dbPlayerDrawData)
-	this.GoldHand.m_row=this
-	this.GoldHand.m_data=&dbPlayerGoldHandData{}
-	this.Shops.m_row=this
-	this.Shops.m_data=make(map[int32]*dbPlayerShopData)
-	this.ShopItems.m_row=this
-	this.ShopItems.m_data=make(map[int32]*dbPlayerShopItemData)
-	this.Arena.m_row=this
-	this.Arena.m_data=&dbPlayerArenaData{}
-	this.Equip.m_row=this
-	this.Equip.m_data=&dbPlayerEquipData{}
-	this.ActiveStageCommon.m_row=this
-	this.ActiveStageCommon.m_data=&dbPlayerActiveStageCommonData{}
-	this.ActiveStages.m_row=this
-	this.ActiveStages.m_data=make(map[int32]*dbPlayerActiveStageData)
-	this.FriendCommon.m_row=this
-	this.FriendCommon.m_data=&dbPlayerFriendCommonData{}
-	this.Friends.m_row=this
-	this.Friends.m_data=make(map[int32]*dbPlayerFriendData)
-	this.FriendRecommends.m_row=this
-	this.FriendRecommends.m_data=make(map[int32]*dbPlayerFriendRecommendData)
-	this.FriendAsks.m_row=this
-	this.FriendAsks.m_data=make(map[int32]*dbPlayerFriendAskData)
-	this.FriendBosss.m_row=this
-	this.FriendBosss.m_data=make(map[int32]*dbPlayerFriendBossData)
-	this.TaskCommon.m_row=this
-	this.TaskCommon.m_data=&dbPlayerTaskCommonData{}
-	this.Tasks.m_row=this
-	this.Tasks.m_data=make(map[int32]*dbPlayerTaskData)
-	this.FinishedTasks.m_row=this
-	this.FinishedTasks.m_data=make(map[int32]*dbPlayerFinishedTaskData)
-	this.DailyTaskAllDailys.m_row=this
-	this.DailyTaskAllDailys.m_data=make(map[int32]*dbPlayerDailyTaskAllDailyData)
-	this.ExploreCommon.m_row=this
-	this.ExploreCommon.m_data=&dbPlayerExploreCommonData{}
-	this.Explores.m_row=this
-	this.Explores.m_data=make(map[int32]*dbPlayerExploreData)
-	this.ExploreStorys.m_row=this
-	this.ExploreStorys.m_data=make(map[int32]*dbPlayerExploreStoryData)
-	this.FriendChatUnreadIds.m_row=this
-	this.FriendChatUnreadIds.m_data=make(map[int32]*dbPlayerFriendChatUnreadIdData)
-	this.FriendChatUnreadMessages.m_row=this
-	this.FriendChatUnreadMessages.m_data=make(map[int64]*dbPlayerFriendChatUnreadMessageData)
-	this.HeadItems.m_row=this
-	this.HeadItems.m_data=make(map[int32]*dbPlayerHeadItemData)
-	this.SuitAwards.m_row=this
-	this.SuitAwards.m_data=make(map[int32]*dbPlayerSuitAwardData)
-	this.Chats.m_row=this
-	this.Chats.m_data=make(map[int32]*dbPlayerChatData)
-	this.Anouncement.m_row=this
-	this.Anouncement.m_data=&dbPlayerAnouncementData{}
-	this.FirstDrawCards.m_row=this
-	this.FirstDrawCards.m_data=make(map[int32]*dbPlayerFirstDrawCardData)
-	this.Guild.m_row=this
-	this.Guild.m_data=&dbPlayerGuildData{}
-	this.GuildStage.m_row=this
-	this.GuildStage.m_data=&dbPlayerGuildStageData{}
-	this.RoleMaxPower.m_row=this
-	this.RoleMaxPower.m_data=&dbPlayerRoleMaxPowerData{}
-	this.Sign.m_row=this
-	this.Sign.m_data=&dbPlayerSignData{}
-	this.SevenDays.m_row=this
-	this.SevenDays.m_data=&dbPlayerSevenDaysData{}
-	this.PayCommon.m_row=this
-	this.PayCommon.m_data=&dbPlayerPayCommonData{}
-	this.Pays.m_row=this
-	this.Pays.m_data=make(map[string]*dbPlayerPayData)
-	this.GuideData.m_row=this
-	this.GuideData.m_data=&dbPlayerGuideDataData{}
-	this.ActivityDatas.m_row=this
-	this.ActivityDatas.m_data=make(map[int32]*dbPlayerActivityDataData)
+	this.dbPlayerInfoColumn.m_row=this
+	this.dbPlayerInfoColumn.m_data=&dbPlayerInfoData{}
+	this.dbPlayerGlobalColumn.m_row=this
+	this.dbPlayerGlobalColumn.m_data=&dbPlayerGlobalData{}
+	this.dbPlayerItemColumns.m_row=this
+	this.dbPlayerItemColumns.m_data=make(map[int32]*dbPlayerItemData)
+	this.dbPlayerRoleCommonColumn.m_row=this
+	this.dbPlayerRoleCommonColumn.m_data=&dbPlayerRoleCommonData{}
+	this.dbPlayerRoleColumns.m_row=this
+	this.dbPlayerRoleColumns.m_data=make(map[int32]*dbPlayerRoleData)
+	this.dbPlayerRoleHandbookColumn.m_row=this
+	this.dbPlayerRoleHandbookColumn.m_data=&dbPlayerRoleHandbookData{}
+	this.dbPlayerBattleTeamColumn.m_row=this
+	this.dbPlayerBattleTeamColumn.m_data=&dbPlayerBattleTeamData{}
+	this.dbPlayerCampaignCommonColumn.m_row=this
+	this.dbPlayerCampaignCommonColumn.m_data=&dbPlayerCampaignCommonData{}
+	this.dbPlayerCampaignColumns.m_row=this
+	this.dbPlayerCampaignColumns.m_data=make(map[int32]*dbPlayerCampaignData)
+	this.dbPlayerCampaignStaticIncomeColumns.m_row=this
+	this.dbPlayerCampaignStaticIncomeColumns.m_data=make(map[int32]*dbPlayerCampaignStaticIncomeData)
+	this.dbPlayerCampaignRandomIncomeColumns.m_row=this
+	this.dbPlayerCampaignRandomIncomeColumns.m_data=make(map[int32]*dbPlayerCampaignRandomIncomeData)
+	this.dbPlayerMailCommonColumn.m_row=this
+	this.dbPlayerMailCommonColumn.m_data=&dbPlayerMailCommonData{}
+	this.dbPlayerMailColumns.m_row=this
+	this.dbPlayerMailColumns.m_data=make(map[int32]*dbPlayerMailData)
+	this.dbPlayerBattleSaveColumns.m_row=this
+	this.dbPlayerBattleSaveColumns.m_data=make(map[int32]*dbPlayerBattleSaveData)
+	this.dbPlayerTalentColumns.m_row=this
+	this.dbPlayerTalentColumns.m_data=make(map[int32]*dbPlayerTalentData)
+	this.dbPlayerTowerCommonColumn.m_row=this
+	this.dbPlayerTowerCommonColumn.m_data=&dbPlayerTowerCommonData{}
+	this.dbPlayerTowerColumns.m_row=this
+	this.dbPlayerTowerColumns.m_data=make(map[int32]*dbPlayerTowerData)
+	this.dbPlayerDrawColumns.m_row=this
+	this.dbPlayerDrawColumns.m_data=make(map[int32]*dbPlayerDrawData)
+	this.dbPlayerGoldHandColumn.m_row=this
+	this.dbPlayerGoldHandColumn.m_data=&dbPlayerGoldHandData{}
+	this.dbPlayerShopColumns.m_row=this
+	this.dbPlayerShopColumns.m_data=make(map[int32]*dbPlayerShopData)
+	this.dbPlayerShopItemColumns.m_row=this
+	this.dbPlayerShopItemColumns.m_data=make(map[int32]*dbPlayerShopItemData)
+	this.dbPlayerArenaColumn.m_row=this
+	this.dbPlayerArenaColumn.m_data=&dbPlayerArenaData{}
+	this.dbPlayerEquipColumn.m_row=this
+	this.dbPlayerEquipColumn.m_data=&dbPlayerEquipData{}
+	this.dbPlayerActiveStageCommonColumn.m_row=this
+	this.dbPlayerActiveStageCommonColumn.m_data=&dbPlayerActiveStageCommonData{}
+	this.dbPlayerActiveStageColumns.m_row=this
+	this.dbPlayerActiveStageColumns.m_data=make(map[int32]*dbPlayerActiveStageData)
+	this.dbPlayerFriendCommonColumn.m_row=this
+	this.dbPlayerFriendCommonColumn.m_data=&dbPlayerFriendCommonData{}
+	this.dbPlayerFriendColumns.m_row=this
+	this.dbPlayerFriendColumns.m_data=make(map[int32]*dbPlayerFriendData)
+	this.dbPlayerFriendRecommendColumns.m_row=this
+	this.dbPlayerFriendRecommendColumns.m_data=make(map[int32]*dbPlayerFriendRecommendData)
+	this.dbPlayerFriendAskColumns.m_row=this
+	this.dbPlayerFriendAskColumns.m_data=make(map[int32]*dbPlayerFriendAskData)
+	this.dbPlayerFriendBossColumns.m_row=this
+	this.dbPlayerFriendBossColumns.m_data=make(map[int32]*dbPlayerFriendBossData)
+	this.dbPlayerTaskCommonColumn.m_row=this
+	this.dbPlayerTaskCommonColumn.m_data=&dbPlayerTaskCommonData{}
+	this.dbPlayerTaskColumns.m_row=this
+	this.dbPlayerTaskColumns.m_data=make(map[int32]*dbPlayerTaskData)
+	this.dbPlayerFinishedTaskColumns.m_row=this
+	this.dbPlayerFinishedTaskColumns.m_data=make(map[int32]*dbPlayerFinishedTaskData)
+	this.dbPlayerDailyTaskAllDailyColumns.m_row=this
+	this.dbPlayerDailyTaskAllDailyColumns.m_data=make(map[int32]*dbPlayerDailyTaskAllDailyData)
+	this.dbPlayerExploreCommonColumn.m_row=this
+	this.dbPlayerExploreCommonColumn.m_data=&dbPlayerExploreCommonData{}
+	this.dbPlayerExploreColumns.m_row=this
+	this.dbPlayerExploreColumns.m_data=make(map[int32]*dbPlayerExploreData)
+	this.dbPlayerExploreStoryColumns.m_row=this
+	this.dbPlayerExploreStoryColumns.m_data=make(map[int32]*dbPlayerExploreStoryData)
+	this.dbPlayerFriendChatUnreadIdColumns.m_row=this
+	this.dbPlayerFriendChatUnreadIdColumns.m_data=make(map[int32]*dbPlayerFriendChatUnreadIdData)
+	this.dbPlayerFriendChatUnreadMessageColumns.m_row=this
+	this.dbPlayerFriendChatUnreadMessageColumns.m_data=make(map[int64]*dbPlayerFriendChatUnreadMessageData)
+	this.dbPlayerHeadItemColumns.m_row=this
+	this.dbPlayerHeadItemColumns.m_data=make(map[int32]*dbPlayerHeadItemData)
+	this.dbPlayerSuitAwardColumns.m_row=this
+	this.dbPlayerSuitAwardColumns.m_data=make(map[int32]*dbPlayerSuitAwardData)
+	this.dbPlayerChatColumns.m_row=this
+	this.dbPlayerChatColumns.m_data=make(map[int32]*dbPlayerChatData)
+	this.dbPlayerAnouncementColumn.m_row=this
+	this.dbPlayerAnouncementColumn.m_data=&dbPlayerAnouncementData{}
+	this.dbPlayerFirstDrawCardColumns.m_row=this
+	this.dbPlayerFirstDrawCardColumns.m_data=make(map[int32]*dbPlayerFirstDrawCardData)
+	this.dbPlayerGuildColumn.m_row=this
+	this.dbPlayerGuildColumn.m_data=&dbPlayerGuildData{}
+	this.dbPlayerGuildStageColumn.m_row=this
+	this.dbPlayerGuildStageColumn.m_data=&dbPlayerGuildStageData{}
+	this.dbPlayerRoleMaxPowerColumn.m_row=this
+	this.dbPlayerRoleMaxPowerColumn.m_data=&dbPlayerRoleMaxPowerData{}
+	this.dbPlayerSignColumn.m_row=this
+	this.dbPlayerSignColumn.m_data=&dbPlayerSignData{}
+	this.dbPlayerSevenDaysColumn.m_row=this
+	this.dbPlayerSevenDaysColumn.m_data=&dbPlayerSevenDaysData{}
+	this.dbPlayerPayCommonColumn.m_row=this
+	this.dbPlayerPayCommonColumn.m_data=&dbPlayerPayCommonData{}
+	this.dbPlayerPayColumns.m_row=this
+	this.dbPlayerPayColumns.m_data=make(map[string]*dbPlayerPayData)
+	this.dbPlayerGuideDataColumn.m_row=this
+	this.dbPlayerGuideDataColumn.m_data=&dbPlayerGuideDataData{}
+	this.dbPlayerActivityDataColumns.m_row=this
+	this.dbPlayerActivityDataColumns.m_data=make(map[int32]*dbPlayerActivityDataData)
+	this.dbPlayerExpeditionPlayersColumn.m_row=this
+	this.dbPlayerExpeditionPlayersColumn.m_data=&dbPlayerExpeditionPlayersData{}
+	this.dbPlayerExpeditionRoleColumn0s.m_row=this
+	this.dbPlayerExpeditionRoleColumn0s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.dbPlayerExpeditionRoleColumn1s.m_row=this
+	this.dbPlayerExpeditionRoleColumn1s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.dbPlayerExpeditionRoleColumn2s.m_row=this
+	this.dbPlayerExpeditionRoleColumn2s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.dbPlayerExpeditionRoleColumn3s.m_row=this
+	this.dbPlayerExpeditionRoleColumn3s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.dbPlayerExpeditionRoleColumn4s.m_row=this
+	this.dbPlayerExpeditionRoleColumn4s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.dbPlayerExpeditionRoleColumn5s.m_row=this
+	this.dbPlayerExpeditionRoleColumn5s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.dbPlayerExpeditionRoleColumn6s.m_row=this
+	this.dbPlayerExpeditionRoleColumn6s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.dbPlayerExpeditionRoleColumn7s.m_row=this
+	this.dbPlayerExpeditionRoleColumn7s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.dbPlayerExpeditionRoleColumn8s.m_row=this
+	this.dbPlayerExpeditionRoleColumn8s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.dbPlayerExpeditionRoleColumn9s.m_row=this
+	this.dbPlayerExpeditionRoleColumn9s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
 	return this
 }
 func (this *dbPlayerRow) GetPlayerId() (r int32) {
@@ -10820,7 +11231,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(60)
+		db_args:=new_db_args(62)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_UniqueId)
 		db_args.Push(this.m_Account)
@@ -11146,12 +11557,78 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dActivityDatas)
+		dExpeditionPlayers,db_err:=this.ExpeditionPlayers.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionPlayers failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionPlayers)
+		dExpeditionRole0s,db_err:=this.ExpeditionRole0s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole0 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole0s)
+		dExpeditionRole1s,db_err:=this.ExpeditionRole1s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole1 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole1s)
+		dExpeditionRole2s,db_err:=this.ExpeditionRole2s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole2 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole2s)
+		dExpeditionRole3s,db_err:=this.ExpeditionRole3s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole3 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole3s)
+		dExpeditionRole4s,db_err:=this.ExpeditionRole4s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole4 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole4s)
+		dExpeditionRole5s,db_err:=this.ExpeditionRole5s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole5 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole5s)
+		dExpeditionRole6s,db_err:=this.ExpeditionRole6s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole6 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole6s)
+		dExpeditionRole7s,db_err:=this.ExpeditionRole7s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole7 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole7s)
+		dExpeditionRole8s,db_err:=this.ExpeditionRole8s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole8 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole8s)
+		dExpeditionRole9s,db_err:=this.ExpeditionRole9s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionRole9 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionRole9s)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed{
+		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionPlayers.m_changed||this.ExpeditionRole0s.m_changedthis.ExpeditionRole1s.m_changedthis.ExpeditionRole2s.m_changedthis.ExpeditionRole3s.m_changedthis.ExpeditionRole4s.m_changedthis.ExpeditionRole5s.m_changedthis.ExpeditionRole6s.m_changedthis.ExpeditionRole7s.m_changedthis.ExpeditionRole8s.m_changedthis.ExpeditionRole9s.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(60)
+			db_args:=new_db_args(71)
 			if this.m_UniqueId_changed{
 				update_string+="UniqueId=?,"
 				db_args.Push(this.m_UniqueId)
@@ -11653,6 +12130,105 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dActivityDatas)
 			}
+			if this.ExpeditionPlayers.m_changed{
+				update_string+="ExpeditionPlayers=?,"
+				dExpeditionPlayers,err:=this.ExpeditionPlayers.save()
+				if err!=nil{
+					log.Error("update save ExpeditionPlayers failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionPlayers)
+			}
+			if this.ExpeditionRole0s.m_changed{
+				update_string+="ExpeditionRole0s=?,"
+				dExpeditionRole0s,err:=this.ExpeditionRole0s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole0 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole0s)
+			}
+			if this.ExpeditionRole1s.m_changed{
+				update_string+="ExpeditionRole1s=?,"
+				dExpeditionRole1s,err:=this.ExpeditionRole1s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole1 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole1s)
+			}
+			if this.ExpeditionRole2s.m_changed{
+				update_string+="ExpeditionRole2s=?,"
+				dExpeditionRole2s,err:=this.ExpeditionRole2s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole2 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole2s)
+			}
+			if this.ExpeditionRole3s.m_changed{
+				update_string+="ExpeditionRole3s=?,"
+				dExpeditionRole3s,err:=this.ExpeditionRole3s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole3 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole3s)
+			}
+			if this.ExpeditionRole4s.m_changed{
+				update_string+="ExpeditionRole4s=?,"
+				dExpeditionRole4s,err:=this.ExpeditionRole4s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole4 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole4s)
+			}
+			if this.ExpeditionRole5s.m_changed{
+				update_string+="ExpeditionRole5s=?,"
+				dExpeditionRole5s,err:=this.ExpeditionRole5s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole5 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole5s)
+			}
+			if this.ExpeditionRole6s.m_changed{
+				update_string+="ExpeditionRole6s=?,"
+				dExpeditionRole6s,err:=this.ExpeditionRole6s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole6 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole6s)
+			}
+			if this.ExpeditionRole7s.m_changed{
+				update_string+="ExpeditionRole7s=?,"
+				dExpeditionRole7s,err:=this.ExpeditionRole7s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole7 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole7s)
+			}
+			if this.ExpeditionRole8s.m_changed{
+				update_string+="ExpeditionRole8s=?,"
+				dExpeditionRole8s,err:=this.ExpeditionRole8s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole8 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole8s)
+			}
+			if this.ExpeditionRole9s.m_changed{
+				update_string+="ExpeditionRole9s=?,"
+				dExpeditionRole9s,err:=this.ExpeditionRole9s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionRole9 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionRole9s)
+			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE PlayerId=?"
 			db_args.Push(this.m_PlayerId)
@@ -11720,6 +12296,17 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.Pays.m_changed = false
 	this.GuideData.m_changed = false
 	this.ActivityDatas.m_changed = false
+	this.ExpeditionPlayers.m_changed = false
+	this.ExpeditionRole0s.m_changed = false
+	this.ExpeditionRole1s.m_changed = false
+	this.ExpeditionRole2s.m_changed = false
+	this.ExpeditionRole3s.m_changed = false
+	this.ExpeditionRole4s.m_changed = false
+	this.ExpeditionRole5s.m_changed = false
+	this.ExpeditionRole6s.m_changed = false
+	this.ExpeditionRole7s.m_changed = false
+	this.ExpeditionRole8s.m_changed = false
+	this.ExpeditionRole9s.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -12291,10 +12878,26 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasExpeditionPlayers := columns["ExpeditionPlayers"]
+	if !hasExpeditionPlayers {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionPlayers LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionPlayers failed")
+			return
+		}
+	}
+	_, hasExpeditionRole := columns["ExpeditionRoles"]
+	if !hasExpeditionRole {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRoles LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRoles failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionPlayers,ExpeditionRole0s,ExpeditionRole1s,ExpeditionRole2s,ExpeditionRole3s,ExpeditionRole4s,ExpeditionRole5s,ExpeditionRole6s,ExpeditionRole7s,ExpeditionRole8s,ExpeditionRole9s FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -12302,7 +12905,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionPlayers,ExpeditionRole0s,ExpeditionRole1s,ExpeditionRole2s,ExpeditionRole3s,ExpeditionRole4s,ExpeditionRole5s,ExpeditionRole6s,ExpeditionRole7s,ExpeditionRole8s,ExpeditionRole9s) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -12406,9 +13009,20 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dPays []byte
 	var dGuideData []byte
 	var dActivityDatas []byte
+	var dExpeditionPlayers []byte
+	var dExpeditionRole0s []byte
+	var dExpeditionRole1s []byte
+	var dExpeditionRole2s []byte
+	var dExpeditionRole3s []byte
+	var dExpeditionRole4s []byte
+	var dExpeditionRole5s []byte
+	var dExpeditionRole6s []byte
+	var dExpeditionRole7s []byte
+	var dExpeditionRole8s []byte
+	var dExpeditionRole9s []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas)
+		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionPlayers,&dExpeditionRole0s,&dExpeditionRole1s,&dExpeditionRole2s,&dExpeditionRole3s,&dExpeditionRole4s,&dExpeditionRole5s,&dExpeditionRole6s,&dExpeditionRole7s,&dExpeditionRole8s,&dExpeditionRole9s)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -12688,6 +13302,61 @@ func (this *dbPlayerTable) Preload() (err error) {
 			log.Error("ActivityDatas %v", PlayerId)
 			return
 		}
+		err = row.ExpeditionPlayers.load(dExpeditionPlayers)
+		if err != nil {
+			log.Error("ExpeditionPlayers %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole0s.load(dExpeditionRole0s)
+		if err != nil {
+			log.Error("ExpeditionRole0s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole1s.load(dExpeditionRole1s)
+		if err != nil {
+			log.Error("ExpeditionRole1s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole2s.load(dExpeditionRole2s)
+		if err != nil {
+			log.Error("ExpeditionRole2s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole3s.load(dExpeditionRole3s)
+		if err != nil {
+			log.Error("ExpeditionRole3s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole4s.load(dExpeditionRole4s)
+		if err != nil {
+			log.Error("ExpeditionRole4s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole5s.load(dExpeditionRole5s)
+		if err != nil {
+			log.Error("ExpeditionRole5s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole6s.load(dExpeditionRole6s)
+		if err != nil {
+			log.Error("ExpeditionRole6s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole7s.load(dExpeditionRole7s)
+		if err != nil {
+			log.Error("ExpeditionRole7s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole8s.load(dExpeditionRole8s)
+		if err != nil {
+			log.Error("ExpeditionRole8s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionRole9s.load(dExpeditionRole9s)
+		if err != nil {
+			log.Error("ExpeditionRole9s %v", PlayerId)
+			return
+		}
 		row.m_UniqueId_changed=false
 		row.m_Account_changed=false
 		row.m_Name_changed=false
@@ -12892,76 +13561,76 @@ func (this *dbBattleSaveDataColumn)SetData(v []byte){
 	this.m_changed = true
 	return
 }
-func (this *dbBattleSaveRow)GetSaveTime( )(r int32 ){
+func (this *dbBattleSaveRow)GetdbBattleSaveSaveTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveSaveTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_SaveTime)
+	return int32(this.m_dbBattleSaveSaveTimeColumn)
 }
-func (this *dbBattleSaveRow)SetSaveTime(v int32){
+func (this *dbBattleSaveRow)SetdbBattleSaveSaveTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveSaveTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_SaveTime=int32(v)
-	this.m_SaveTime_changed=true
+	this.m_dbBattleSaveSaveTimeColumn=int32(v)
+	this.m_dbBattleSaveSaveTimeColumn_changed=true
 	return
 }
-func (this *dbBattleSaveRow)GetAttacker( )(r int32 ){
+func (this *dbBattleSaveRow)GetdbBattleSaveAttackerColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveAttackerColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Attacker)
+	return int32(this.m_dbBattleSaveAttackerColumn)
 }
-func (this *dbBattleSaveRow)SetAttacker(v int32){
+func (this *dbBattleSaveRow)SetdbBattleSaveAttackerColumn(v int32){
 	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveAttackerColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Attacker=int32(v)
-	this.m_Attacker_changed=true
+	this.m_dbBattleSaveAttackerColumn=int32(v)
+	this.m_dbBattleSaveAttackerColumn_changed=true
 	return
 }
-func (this *dbBattleSaveRow)GetDefenser( )(r int32 ){
+func (this *dbBattleSaveRow)GetdbBattleSaveDefenserColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveDefenserColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Defenser)
+	return int32(this.m_dbBattleSaveDefenserColumn)
 }
-func (this *dbBattleSaveRow)SetDefenser(v int32){
+func (this *dbBattleSaveRow)SetdbBattleSaveDefenserColumn(v int32){
 	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveDefenserColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Defenser=int32(v)
-	this.m_Defenser_changed=true
+	this.m_dbBattleSaveDefenserColumn=int32(v)
+	this.m_dbBattleSaveDefenserColumn_changed=true
 	return
 }
-func (this *dbBattleSaveRow)GetDeleteState( )(r int32 ){
+func (this *dbBattleSaveRow)GetdbBattleSaveDeleteStateColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveDeleteStateColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_DeleteState)
+	return int32(this.m_dbBattleSaveDeleteStateColumn)
 }
-func (this *dbBattleSaveRow)SetDeleteState(v int32){
+func (this *dbBattleSaveRow)SetdbBattleSaveDeleteStateColumn(v int32){
 	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveDeleteStateColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_DeleteState=int32(v)
-	this.m_DeleteState_changed=true
+	this.m_dbBattleSaveDeleteStateColumn=int32(v)
+	this.m_dbBattleSaveDeleteStateColumn_changed=true
 	return
 }
-func (this *dbBattleSaveRow)GetIsWin( )(r int32 ){
+func (this *dbBattleSaveRow)GetdbBattleSaveIsWinColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveIsWinColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_IsWin)
+	return int32(this.m_dbBattleSaveIsWinColumn)
 }
-func (this *dbBattleSaveRow)SetIsWin(v int32){
+func (this *dbBattleSaveRow)SetdbBattleSaveIsWinColumn(v int32){
 	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveIsWinColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_IsWin=int32(v)
-	this.m_IsWin_changed=true
+	this.m_dbBattleSaveIsWinColumn=int32(v)
+	this.m_dbBattleSaveIsWinColumn_changed=true
 	return
 }
-func (this *dbBattleSaveRow)GetAddScore( )(r int32 ){
+func (this *dbBattleSaveRow)GetdbBattleSaveAddScoreColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveAddScoreColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_AddScore)
+	return int32(this.m_dbBattleSaveAddScoreColumn)
 }
-func (this *dbBattleSaveRow)SetAddScore(v int32){
+func (this *dbBattleSaveRow)SetdbBattleSaveAddScoreColumn(v int32){
 	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveAddScoreColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_AddScore=int32(v)
-	this.m_AddScore_changed=true
+	this.m_dbBattleSaveAddScoreColumn=int32(v)
+	this.m_dbBattleSaveAddScoreColumn_changed=true
 	return
 }
 type dbBattleSaveRow struct {
@@ -12974,19 +13643,19 @@ type dbBattleSaveRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_Id        int32
-	Data dbBattleSaveDataColumn
-	m_SaveTime_changed bool
-	m_SaveTime int32
-	m_Attacker_changed bool
-	m_Attacker int32
-	m_Defenser_changed bool
-	m_Defenser int32
-	m_DeleteState_changed bool
-	m_DeleteState int32
-	m_IsWin_changed bool
-	m_IsWin int32
-	m_AddScore_changed bool
-	m_AddScore int32
+	dbBattleSaveDataColumn dbBattleSaveDataColumn
+	m_dbBattleSaveSaveTimeColumn_changed bool
+	m_dbBattleSaveSaveTimeColumn int32
+	m_dbBattleSaveAttackerColumn_changed bool
+	m_dbBattleSaveAttackerColumn int32
+	m_dbBattleSaveDefenserColumn_changed bool
+	m_dbBattleSaveDefenserColumn int32
+	m_dbBattleSaveDeleteStateColumn_changed bool
+	m_dbBattleSaveDeleteStateColumn int32
+	m_dbBattleSaveIsWinColumn_changed bool
+	m_dbBattleSaveIsWinColumn int32
+	m_dbBattleSaveAddScoreColumn_changed bool
+	m_dbBattleSaveAddScoreColumn int32
 }
 func new_dbBattleSaveRow(table *dbBattleSaveTable, Id int32) (r *dbBattleSaveRow) {
 	this := &dbBattleSaveRow{}
@@ -12999,8 +13668,8 @@ func new_dbBattleSaveRow(table *dbBattleSaveTable, Id int32) (r *dbBattleSaveRow
 	this.m_DeleteState_changed=true
 	this.m_IsWin_changed=true
 	this.m_AddScore_changed=true
-	this.Data.m_row=this
-	this.Data.m_data=&dbBattleSaveDataData{}
+	this.dbBattleSaveDataColumn.m_row=this
+	this.dbBattleSaveDataColumn.m_data=&dbBattleSaveDataData{}
 	return this
 }
 func (this *dbBattleSaveRow) GetId() (r int32) {
@@ -13558,40 +14227,40 @@ func (this *dbTowerFightSaveDataColumn)SetData(v []byte){
 	this.m_changed = true
 	return
 }
-func (this *dbTowerFightSaveRow)GetSaveTime( )(r int32 ){
+func (this *dbTowerFightSaveRow)GetdbTowerFightSaveSaveTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbTowerFightSaveRow.GetdbTowerFightSaveSaveTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_SaveTime)
+	return int32(this.m_dbTowerFightSaveSaveTimeColumn)
 }
-func (this *dbTowerFightSaveRow)SetSaveTime(v int32){
+func (this *dbTowerFightSaveRow)SetdbTowerFightSaveSaveTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbTowerFightSaveRow.SetdbTowerFightSaveSaveTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_SaveTime=int32(v)
-	this.m_SaveTime_changed=true
+	this.m_dbTowerFightSaveSaveTimeColumn=int32(v)
+	this.m_dbTowerFightSaveSaveTimeColumn_changed=true
 	return
 }
-func (this *dbTowerFightSaveRow)GetAttacker( )(r int32 ){
+func (this *dbTowerFightSaveRow)GetdbTowerFightSaveAttackerColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbTowerFightSaveRow.GetdbTowerFightSaveAttackerColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Attacker)
+	return int32(this.m_dbTowerFightSaveAttackerColumn)
 }
-func (this *dbTowerFightSaveRow)SetAttacker(v int32){
+func (this *dbTowerFightSaveRow)SetdbTowerFightSaveAttackerColumn(v int32){
 	this.m_lock.UnSafeLock("dbTowerFightSaveRow.SetdbTowerFightSaveAttackerColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Attacker=int32(v)
-	this.m_Attacker_changed=true
+	this.m_dbTowerFightSaveAttackerColumn=int32(v)
+	this.m_dbTowerFightSaveAttackerColumn_changed=true
 	return
 }
-func (this *dbTowerFightSaveRow)GetTowerId( )(r int32 ){
+func (this *dbTowerFightSaveRow)GetdbTowerFightSaveTowerIdColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbTowerFightSaveRow.GetdbTowerFightSaveTowerIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_TowerId)
+	return int32(this.m_dbTowerFightSaveTowerIdColumn)
 }
-func (this *dbTowerFightSaveRow)SetTowerId(v int32){
+func (this *dbTowerFightSaveRow)SetdbTowerFightSaveTowerIdColumn(v int32){
 	this.m_lock.UnSafeLock("dbTowerFightSaveRow.SetdbTowerFightSaveTowerIdColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_TowerId=int32(v)
-	this.m_TowerId_changed=true
+	this.m_dbTowerFightSaveTowerIdColumn=int32(v)
+	this.m_dbTowerFightSaveTowerIdColumn_changed=true
 	return
 }
 type dbTowerFightSaveRow struct {
@@ -13604,13 +14273,13 @@ type dbTowerFightSaveRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_TowerFightId        int32
-	Data dbTowerFightSaveDataColumn
-	m_SaveTime_changed bool
-	m_SaveTime int32
-	m_Attacker_changed bool
-	m_Attacker int32
-	m_TowerId_changed bool
-	m_TowerId int32
+	dbTowerFightSaveDataColumn dbTowerFightSaveDataColumn
+	m_dbTowerFightSaveSaveTimeColumn_changed bool
+	m_dbTowerFightSaveSaveTimeColumn int32
+	m_dbTowerFightSaveAttackerColumn_changed bool
+	m_dbTowerFightSaveAttackerColumn int32
+	m_dbTowerFightSaveTowerIdColumn_changed bool
+	m_dbTowerFightSaveTowerIdColumn int32
 }
 func new_dbTowerFightSaveRow(table *dbTowerFightSaveTable, TowerFightId int32) (r *dbTowerFightSaveRow) {
 	this := &dbTowerFightSaveRow{}
@@ -13620,8 +14289,8 @@ func new_dbTowerFightSaveRow(table *dbTowerFightSaveTable, TowerFightId int32) (
 	this.m_SaveTime_changed=true
 	this.m_Attacker_changed=true
 	this.m_TowerId_changed=true
-	this.Data.m_row=this
-	this.Data.m_data=&dbTowerFightSaveDataData{}
+	this.dbTowerFightSaveDataColumn.m_row=this
+	this.dbTowerFightSaveDataColumn.m_data=&dbTowerFightSaveDataData{}
 	return this
 }
 func (this *dbTowerFightSaveRow) GetTowerFightId() (r int32) {
@@ -14102,15 +14771,15 @@ type dbTowerRankingListRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_Id        int32
-	Players dbTowerRankingListPlayersColumn
+	dbTowerRankingListPlayersColumn dbTowerRankingListPlayersColumn
 }
 func new_dbTowerRankingListRow(table *dbTowerRankingListTable, Id int32) (r *dbTowerRankingListRow) {
 	this := &dbTowerRankingListRow{}
 	this.m_table = table
 	this.m_Id = Id
 	this.m_lock = NewRWMutex()
-	this.Players.m_row=this
-	this.Players.m_data=&dbTowerRankingListPlayersData{}
+	this.dbTowerRankingListPlayersColumn.m_row=this
+	this.dbTowerRankingListPlayersColumn.m_data=&dbTowerRankingListPlayersData{}
 	return this
 }
 func (this *dbTowerRankingListRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
@@ -14389,15 +15058,15 @@ type dbArenaSeasonRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_Id        int32
-	Data dbArenaSeasonDataColumn
+	dbArenaSeasonDataColumn dbArenaSeasonDataColumn
 }
 func new_dbArenaSeasonRow(table *dbArenaSeasonTable, Id int32) (r *dbArenaSeasonRow) {
 	this := &dbArenaSeasonRow{}
 	this.m_table = table
 	this.m_Id = Id
 	this.m_lock = NewRWMutex()
-	this.Data.m_row=this
-	this.Data.m_data=&dbArenaSeasonDataData{}
+	this.dbArenaSeasonDataColumn.m_row=this
+	this.dbArenaSeasonDataColumn.m_data=&dbArenaSeasonDataData{}
 	return this
 }
 func (this *dbArenaSeasonRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
@@ -14593,124 +15262,124 @@ func (this *dbArenaSeasonTable) Save(quick bool) (err error) {
 func (this *dbArenaSeasonTable) GetRow( ) (row *dbArenaSeasonRow) {
 	return this.m_row
 }
-func (this *dbGuildRow)GetName( )(r string ){
+func (this *dbGuildRow)GetdbGuildNameColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildNameColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Name)
+	return string(this.m_dbGuildNameColumn)
 }
-func (this *dbGuildRow)SetName(v string){
+func (this *dbGuildRow)SetdbGuildNameColumn(v string){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildNameColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Name=string(v)
-	this.m_Name_changed=true
+	this.m_dbGuildNameColumn=string(v)
+	this.m_dbGuildNameColumn_changed=true
 	return
 }
-func (this *dbGuildRow)GetCreater( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildCreaterColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildCreaterColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Creater)
+	return int32(this.m_dbGuildCreaterColumn)
 }
-func (this *dbGuildRow)SetCreater(v int32){
+func (this *dbGuildRow)SetdbGuildCreaterColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildCreaterColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Creater=int32(v)
-	this.m_Creater_changed=true
+	this.m_dbGuildCreaterColumn=int32(v)
+	this.m_dbGuildCreaterColumn_changed=true
 	return
 }
-func (this *dbGuildRow)GetCreateTime( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildCreateTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildCreateTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_CreateTime)
+	return int32(this.m_dbGuildCreateTimeColumn)
 }
-func (this *dbGuildRow)SetCreateTime(v int32){
+func (this *dbGuildRow)SetdbGuildCreateTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildCreateTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_CreateTime=int32(v)
-	this.m_CreateTime_changed=true
+	this.m_dbGuildCreateTimeColumn=int32(v)
+	this.m_dbGuildCreateTimeColumn_changed=true
 	return
 }
-func (this *dbGuildRow)GetDismissTime( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildDismissTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildDismissTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_DismissTime)
+	return int32(this.m_dbGuildDismissTimeColumn)
 }
-func (this *dbGuildRow)SetDismissTime(v int32){
+func (this *dbGuildRow)SetdbGuildDismissTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildDismissTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_DismissTime=int32(v)
-	this.m_DismissTime_changed=true
+	this.m_dbGuildDismissTimeColumn=int32(v)
+	this.m_dbGuildDismissTimeColumn_changed=true
 	return
 }
-func (this *dbGuildRow)GetLogo( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildLogoColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildLogoColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Logo)
+	return int32(this.m_dbGuildLogoColumn)
 }
-func (this *dbGuildRow)SetLogo(v int32){
+func (this *dbGuildRow)SetdbGuildLogoColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildLogoColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Logo=int32(v)
-	this.m_Logo_changed=true
+	this.m_dbGuildLogoColumn=int32(v)
+	this.m_dbGuildLogoColumn_changed=true
 	return
 }
-func (this *dbGuildRow)GetLevel( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildLevelColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildLevelColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Level)
+	return int32(this.m_dbGuildLevelColumn)
 }
-func (this *dbGuildRow)SetLevel(v int32){
+func (this *dbGuildRow)SetdbGuildLevelColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildLevelColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Level=int32(v)
-	this.m_Level_changed=true
+	this.m_dbGuildLevelColumn=int32(v)
+	this.m_dbGuildLevelColumn_changed=true
 	return
 }
-func (this *dbGuildRow)GetExp( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildExpColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildExpColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Exp)
+	return int32(this.m_dbGuildExpColumn)
 }
-func (this *dbGuildRow)SetExp(v int32){
+func (this *dbGuildRow)SetdbGuildExpColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildExpColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Exp=int32(v)
-	this.m_Exp_changed=true
+	this.m_dbGuildExpColumn=int32(v)
+	this.m_dbGuildExpColumn_changed=true
 	return
 }
-func (this *dbGuildRow)GetExistType( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildExistTypeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildExistTypeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_ExistType)
+	return int32(this.m_dbGuildExistTypeColumn)
 }
-func (this *dbGuildRow)SetExistType(v int32){
+func (this *dbGuildRow)SetdbGuildExistTypeColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildExistTypeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_ExistType=int32(v)
-	this.m_ExistType_changed=true
+	this.m_dbGuildExistTypeColumn=int32(v)
+	this.m_dbGuildExistTypeColumn_changed=true
 	return
 }
-func (this *dbGuildRow)GetAnouncement( )(r string ){
+func (this *dbGuildRow)GetdbGuildAnouncementColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildAnouncementColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Anouncement)
+	return string(this.m_dbGuildAnouncementColumn)
 }
-func (this *dbGuildRow)SetAnouncement(v string){
+func (this *dbGuildRow)SetdbGuildAnouncementColumn(v string){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildAnouncementColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Anouncement=string(v)
-	this.m_Anouncement_changed=true
+	this.m_dbGuildAnouncementColumn=string(v)
+	this.m_dbGuildAnouncementColumn_changed=true
 	return
 }
-func (this *dbGuildRow)GetPresident( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildPresidentColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildPresidentColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_President)
+	return int32(this.m_dbGuildPresidentColumn)
 }
-func (this *dbGuildRow)SetPresident(v int32){
+func (this *dbGuildRow)SetdbGuildPresidentColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildPresidentColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_President=int32(v)
-	this.m_President_changed=true
+	this.m_dbGuildPresidentColumn=int32(v)
+	this.m_dbGuildPresidentColumn_changed=true
 	return
 }
 type dbGuildMemberColumn struct{
@@ -14967,16 +15636,16 @@ func (this *dbGuildAskListColumn)NumAll()(n int32){
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	return int32(len(this.m_data))
 }
-func (this *dbGuildRow)GetLastDonateRefreshTime( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildLastDonateRefreshTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildLastDonateRefreshTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_LastDonateRefreshTime)
+	return int32(this.m_dbGuildLastDonateRefreshTimeColumn)
 }
-func (this *dbGuildRow)SetLastDonateRefreshTime(v int32){
+func (this *dbGuildRow)SetdbGuildLastDonateRefreshTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildLastDonateRefreshTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_LastDonateRefreshTime=int32(v)
-	this.m_LastDonateRefreshTime_changed=true
+	this.m_dbGuildLastDonateRefreshTimeColumn=int32(v)
+	this.m_dbGuildLastDonateRefreshTimeColumn_changed=true
 	return
 }
 type dbGuildLogColumn struct{
@@ -15174,16 +15843,16 @@ func (this *dbGuildLogColumn)SetTime(id int32,v int32)(has bool){
 	this.m_changed = true
 	return true
 }
-func (this *dbGuildRow)GetLastRecruitTime( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildLastRecruitTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildLastRecruitTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_LastRecruitTime)
+	return int32(this.m_dbGuildLastRecruitTimeColumn)
 }
-func (this *dbGuildRow)SetLastRecruitTime(v int32){
+func (this *dbGuildRow)SetdbGuildLastRecruitTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildLastRecruitTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_LastRecruitTime=int32(v)
-	this.m_LastRecruitTime_changed=true
+	this.m_dbGuildLastRecruitTimeColumn=int32(v)
+	this.m_dbGuildLastRecruitTimeColumn_changed=true
 	return
 }
 type dbGuildAskDonateColumn struct{
@@ -15478,16 +16147,16 @@ func (this *dbGuildStageColumn)SetBossHP(v int32){
 	this.m_changed = true
 	return
 }
-func (this *dbGuildRow)GetLastStageResetTime( )(r int32 ){
+func (this *dbGuildRow)GetdbGuildLastStageResetTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildLastStageResetTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_LastStageResetTime)
+	return int32(this.m_dbGuildLastStageResetTimeColumn)
 }
-func (this *dbGuildRow)SetLastStageResetTime(v int32){
+func (this *dbGuildRow)SetdbGuildLastStageResetTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildLastStageResetTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_LastStageResetTime=int32(v)
-	this.m_LastStageResetTime_changed=true
+	this.m_dbGuildLastStageResetTimeColumn=int32(v)
+	this.m_dbGuildLastStageResetTimeColumn_changed=true
 	return
 }
 type dbGuildRow struct {
@@ -15500,37 +16169,37 @@ type dbGuildRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_Id        int32
-	m_Name_changed bool
-	m_Name string
-	m_Creater_changed bool
-	m_Creater int32
-	m_CreateTime_changed bool
-	m_CreateTime int32
-	m_DismissTime_changed bool
-	m_DismissTime int32
-	m_Logo_changed bool
-	m_Logo int32
-	m_Level_changed bool
-	m_Level int32
-	m_Exp_changed bool
-	m_Exp int32
-	m_ExistType_changed bool
-	m_ExistType int32
-	m_Anouncement_changed bool
-	m_Anouncement string
-	m_President_changed bool
-	m_President int32
-	Members dbGuildMemberColumn
-	AskLists dbGuildAskListColumn
-	m_LastDonateRefreshTime_changed bool
-	m_LastDonateRefreshTime int32
-	Logs dbGuildLogColumn
-	m_LastRecruitTime_changed bool
-	m_LastRecruitTime int32
-	AskDonates dbGuildAskDonateColumn
-	Stage dbGuildStageColumn
-	m_LastStageResetTime_changed bool
-	m_LastStageResetTime int32
+	m_dbGuildNameColumn_changed bool
+	m_dbGuildNameColumn string
+	m_dbGuildCreaterColumn_changed bool
+	m_dbGuildCreaterColumn int32
+	m_dbGuildCreateTimeColumn_changed bool
+	m_dbGuildCreateTimeColumn int32
+	m_dbGuildDismissTimeColumn_changed bool
+	m_dbGuildDismissTimeColumn int32
+	m_dbGuildLogoColumn_changed bool
+	m_dbGuildLogoColumn int32
+	m_dbGuildLevelColumn_changed bool
+	m_dbGuildLevelColumn int32
+	m_dbGuildExpColumn_changed bool
+	m_dbGuildExpColumn int32
+	m_dbGuildExistTypeColumn_changed bool
+	m_dbGuildExistTypeColumn int32
+	m_dbGuildAnouncementColumn_changed bool
+	m_dbGuildAnouncementColumn string
+	m_dbGuildPresidentColumn_changed bool
+	m_dbGuildPresidentColumn int32
+	dbGuildMemberColumns dbGuildMemberColumn
+	dbGuildAskListColumns dbGuildAskListColumn
+	m_dbGuildLastDonateRefreshTimeColumn_changed bool
+	m_dbGuildLastDonateRefreshTimeColumn int32
+	dbGuildLogColumns dbGuildLogColumn
+	m_dbGuildLastRecruitTimeColumn_changed bool
+	m_dbGuildLastRecruitTimeColumn int32
+	dbGuildAskDonateColumns dbGuildAskDonateColumn
+	dbGuildStageColumn dbGuildStageColumn
+	m_dbGuildLastStageResetTimeColumn_changed bool
+	m_dbGuildLastStageResetTimeColumn int32
 }
 func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
 	this := &dbGuildRow{}
@@ -15550,16 +16219,16 @@ func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
 	this.m_LastDonateRefreshTime_changed=true
 	this.m_LastRecruitTime_changed=true
 	this.m_LastStageResetTime_changed=true
-	this.Members.m_row=this
-	this.Members.m_data=make(map[int32]*dbGuildMemberData)
-	this.AskLists.m_row=this
-	this.AskLists.m_data=make(map[int32]*dbGuildAskListData)
-	this.Logs.m_row=this
-	this.Logs.m_data=make(map[int32]*dbGuildLogData)
-	this.AskDonates.m_row=this
-	this.AskDonates.m_data=make(map[int32]*dbGuildAskDonateData)
-	this.Stage.m_row=this
-	this.Stage.m_data=&dbGuildStageData{}
+	this.dbGuildMemberColumns.m_row=this
+	this.dbGuildMemberColumns.m_data=make(map[int32]*dbGuildMemberData)
+	this.dbGuildAskListColumns.m_row=this
+	this.dbGuildAskListColumns.m_data=make(map[int32]*dbGuildAskListData)
+	this.dbGuildLogColumns.m_row=this
+	this.dbGuildLogColumns.m_data=make(map[int32]*dbGuildLogData)
+	this.dbGuildAskDonateColumns.m_row=this
+	this.dbGuildAskDonateColumns.m_data=make(map[int32]*dbGuildAskDonateData)
+	this.dbGuildStageColumn.m_row=this
+	this.dbGuildStageColumn.m_data=&dbGuildStageData{}
 	return this
 }
 func (this *dbGuildRow) GetId() (r int32) {
@@ -16425,15 +17094,15 @@ type dbGuildStageRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_Id        int64
-	DamageLogs dbGuildStageDamageLogColumn
+	dbGuildStageDamageLogColumns dbGuildStageDamageLogColumn
 }
 func new_dbGuildStageRow(table *dbGuildStageTable, Id int64) (r *dbGuildStageRow) {
 	this := &dbGuildStageRow{}
 	this.m_table = table
 	this.m_Id = Id
 	this.m_lock = NewRWMutex()
-	this.DamageLogs.m_row=this
-	this.DamageLogs.m_data=make(map[int32]*dbGuildStageDamageLogData)
+	this.dbGuildStageDamageLogColumns.m_row=this
+	this.dbGuildStageDamageLogColumns.m_data=make(map[int32]*dbGuildStageDamageLogData)
 	return this
 }
 func (this *dbGuildStageRow) GetId() (r int64) {
@@ -16787,28 +17456,28 @@ func (this *dbGuildStageTable) GetRow(Id int64) (row *dbGuildStageRow) {
 	}
 	return row
 }
-func (this *dbActivitysToDeleteRow)GetStartTime( )(r int32 ){
+func (this *dbActivitysToDeleteRow)GetdbActivitysToDeleteStartTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbActivitysToDeleteRow.GetdbActivitysToDeleteStartTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_StartTime)
+	return int32(this.m_dbActivitysToDeleteStartTimeColumn)
 }
-func (this *dbActivitysToDeleteRow)SetStartTime(v int32){
+func (this *dbActivitysToDeleteRow)SetdbActivitysToDeleteStartTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbActivitysToDeleteRow.SetdbActivitysToDeleteStartTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_StartTime=int32(v)
-	this.m_StartTime_changed=true
+	this.m_dbActivitysToDeleteStartTimeColumn=int32(v)
+	this.m_dbActivitysToDeleteStartTimeColumn_changed=true
 	return
 }
-func (this *dbActivitysToDeleteRow)GetEndTime( )(r int32 ){
+func (this *dbActivitysToDeleteRow)GetdbActivitysToDeleteEndTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbActivitysToDeleteRow.GetdbActivitysToDeleteEndTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_EndTime)
+	return int32(this.m_dbActivitysToDeleteEndTimeColumn)
 }
-func (this *dbActivitysToDeleteRow)SetEndTime(v int32){
+func (this *dbActivitysToDeleteRow)SetdbActivitysToDeleteEndTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbActivitysToDeleteRow.SetdbActivitysToDeleteEndTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_EndTime=int32(v)
-	this.m_EndTime_changed=true
+	this.m_dbActivitysToDeleteEndTimeColumn=int32(v)
+	this.m_dbActivitysToDeleteEndTimeColumn_changed=true
 	return
 }
 type dbActivitysToDeleteRow struct {
@@ -16821,10 +17490,10 @@ type dbActivitysToDeleteRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_Id        int32
-	m_StartTime_changed bool
-	m_StartTime int32
-	m_EndTime_changed bool
-	m_EndTime int32
+	m_dbActivitysToDeleteStartTimeColumn_changed bool
+	m_dbActivitysToDeleteStartTimeColumn int32
+	m_dbActivitysToDeleteEndTimeColumn_changed bool
+	m_dbActivitysToDeleteEndTimeColumn int32
 }
 func new_dbActivitysToDeleteRow(table *dbActivitysToDeleteTable, Id int32) (r *dbActivitysToDeleteRow) {
 	this := &dbActivitysToDeleteRow{}
@@ -17190,52 +17859,52 @@ func (this *dbActivitysToDeleteTable) GetRow(Id int32) (row *dbActivitysToDelete
 	}
 	return row
 }
-func (this *dbGooglePayRecordRow)GetSn( )(r string ){
+func (this *dbGooglePayRecordRow)GetdbGooglePayRecordSnColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbGooglePayRecordRow.GetdbGooglePayRecordSnColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Sn)
+	return string(this.m_dbGooglePayRecordSnColumn)
 }
-func (this *dbGooglePayRecordRow)SetSn(v string){
+func (this *dbGooglePayRecordRow)SetdbGooglePayRecordSnColumn(v string){
 	this.m_lock.UnSafeLock("dbGooglePayRecordRow.SetdbGooglePayRecordSnColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Sn=string(v)
-	this.m_Sn_changed=true
+	this.m_dbGooglePayRecordSnColumn=string(v)
+	this.m_dbGooglePayRecordSnColumn_changed=true
 	return
 }
-func (this *dbGooglePayRecordRow)GetBid( )(r string ){
+func (this *dbGooglePayRecordRow)GetdbGooglePayRecordBidColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbGooglePayRecordRow.GetdbGooglePayRecordBidColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Bid)
+	return string(this.m_dbGooglePayRecordBidColumn)
 }
-func (this *dbGooglePayRecordRow)SetBid(v string){
+func (this *dbGooglePayRecordRow)SetdbGooglePayRecordBidColumn(v string){
 	this.m_lock.UnSafeLock("dbGooglePayRecordRow.SetdbGooglePayRecordBidColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Bid=string(v)
-	this.m_Bid_changed=true
+	this.m_dbGooglePayRecordBidColumn=string(v)
+	this.m_dbGooglePayRecordBidColumn_changed=true
 	return
 }
-func (this *dbGooglePayRecordRow)GetPlayerId( )(r int32 ){
+func (this *dbGooglePayRecordRow)GetdbGooglePayRecordPlayerIdColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGooglePayRecordRow.GetdbGooglePayRecordPlayerIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_PlayerId)
+	return int32(this.m_dbGooglePayRecordPlayerIdColumn)
 }
-func (this *dbGooglePayRecordRow)SetPlayerId(v int32){
+func (this *dbGooglePayRecordRow)SetdbGooglePayRecordPlayerIdColumn(v int32){
 	this.m_lock.UnSafeLock("dbGooglePayRecordRow.SetdbGooglePayRecordPlayerIdColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_PlayerId=int32(v)
-	this.m_PlayerId_changed=true
+	this.m_dbGooglePayRecordPlayerIdColumn=int32(v)
+	this.m_dbGooglePayRecordPlayerIdColumn_changed=true
 	return
 }
-func (this *dbGooglePayRecordRow)GetPayTime( )(r int32 ){
+func (this *dbGooglePayRecordRow)GetdbGooglePayRecordPayTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGooglePayRecordRow.GetdbGooglePayRecordPayTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_PayTime)
+	return int32(this.m_dbGooglePayRecordPayTimeColumn)
 }
-func (this *dbGooglePayRecordRow)SetPayTime(v int32){
+func (this *dbGooglePayRecordRow)SetdbGooglePayRecordPayTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbGooglePayRecordRow.SetdbGooglePayRecordPayTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_PayTime=int32(v)
-	this.m_PayTime_changed=true
+	this.m_dbGooglePayRecordPayTimeColumn=int32(v)
+	this.m_dbGooglePayRecordPayTimeColumn_changed=true
 	return
 }
 type dbGooglePayRecordRow struct {
@@ -17248,14 +17917,14 @@ type dbGooglePayRecordRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_KeyId        int32
-	m_Sn_changed bool
-	m_Sn string
-	m_Bid_changed bool
-	m_Bid string
-	m_PlayerId_changed bool
-	m_PlayerId int32
-	m_PayTime_changed bool
-	m_PayTime int32
+	m_dbGooglePayRecordSnColumn_changed bool
+	m_dbGooglePayRecordSnColumn string
+	m_dbGooglePayRecordBidColumn_changed bool
+	m_dbGooglePayRecordBidColumn string
+	m_dbGooglePayRecordPlayerIdColumn_changed bool
+	m_dbGooglePayRecordPlayerIdColumn int32
+	m_dbGooglePayRecordPayTimeColumn_changed bool
+	m_dbGooglePayRecordPayTimeColumn int32
 }
 func new_dbGooglePayRecordRow(table *dbGooglePayRecordTable, KeyId int32) (r *dbGooglePayRecordRow) {
 	this := &dbGooglePayRecordRow{}
@@ -17767,52 +18436,52 @@ func (this *dbGooglePayRecordTable) GC() {
 	}
 	return
 }
-func (this *dbApplePayRecordRow)GetSn( )(r string ){
+func (this *dbApplePayRecordRow)GetdbApplePayRecordSnColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbApplePayRecordRow.GetdbApplePayRecordSnColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Sn)
+	return string(this.m_dbApplePayRecordSnColumn)
 }
-func (this *dbApplePayRecordRow)SetSn(v string){
+func (this *dbApplePayRecordRow)SetdbApplePayRecordSnColumn(v string){
 	this.m_lock.UnSafeLock("dbApplePayRecordRow.SetdbApplePayRecordSnColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Sn=string(v)
-	this.m_Sn_changed=true
+	this.m_dbApplePayRecordSnColumn=string(v)
+	this.m_dbApplePayRecordSnColumn_changed=true
 	return
 }
-func (this *dbApplePayRecordRow)GetBid( )(r string ){
+func (this *dbApplePayRecordRow)GetdbApplePayRecordBidColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbApplePayRecordRow.GetdbApplePayRecordBidColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Bid)
+	return string(this.m_dbApplePayRecordBidColumn)
 }
-func (this *dbApplePayRecordRow)SetBid(v string){
+func (this *dbApplePayRecordRow)SetdbApplePayRecordBidColumn(v string){
 	this.m_lock.UnSafeLock("dbApplePayRecordRow.SetdbApplePayRecordBidColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Bid=string(v)
-	this.m_Bid_changed=true
+	this.m_dbApplePayRecordBidColumn=string(v)
+	this.m_dbApplePayRecordBidColumn_changed=true
 	return
 }
-func (this *dbApplePayRecordRow)GetPlayerId( )(r int32 ){
+func (this *dbApplePayRecordRow)GetdbApplePayRecordPlayerIdColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbApplePayRecordRow.GetdbApplePayRecordPlayerIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_PlayerId)
+	return int32(this.m_dbApplePayRecordPlayerIdColumn)
 }
-func (this *dbApplePayRecordRow)SetPlayerId(v int32){
+func (this *dbApplePayRecordRow)SetdbApplePayRecordPlayerIdColumn(v int32){
 	this.m_lock.UnSafeLock("dbApplePayRecordRow.SetdbApplePayRecordPlayerIdColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_PlayerId=int32(v)
-	this.m_PlayerId_changed=true
+	this.m_dbApplePayRecordPlayerIdColumn=int32(v)
+	this.m_dbApplePayRecordPlayerIdColumn_changed=true
 	return
 }
-func (this *dbApplePayRecordRow)GetPayTime( )(r int32 ){
+func (this *dbApplePayRecordRow)GetdbApplePayRecordPayTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbApplePayRecordRow.GetdbApplePayRecordPayTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_PayTime)
+	return int32(this.m_dbApplePayRecordPayTimeColumn)
 }
-func (this *dbApplePayRecordRow)SetPayTime(v int32){
+func (this *dbApplePayRecordRow)SetdbApplePayRecordPayTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbApplePayRecordRow.SetdbApplePayRecordPayTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_PayTime=int32(v)
-	this.m_PayTime_changed=true
+	this.m_dbApplePayRecordPayTimeColumn=int32(v)
+	this.m_dbApplePayRecordPayTimeColumn_changed=true
 	return
 }
 type dbApplePayRecordRow struct {
@@ -17825,14 +18494,14 @@ type dbApplePayRecordRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_KeyId        int32
-	m_Sn_changed bool
-	m_Sn string
-	m_Bid_changed bool
-	m_Bid string
-	m_PlayerId_changed bool
-	m_PlayerId int32
-	m_PayTime_changed bool
-	m_PayTime int32
+	m_dbApplePayRecordSnColumn_changed bool
+	m_dbApplePayRecordSnColumn string
+	m_dbApplePayRecordBidColumn_changed bool
+	m_dbApplePayRecordBidColumn string
+	m_dbApplePayRecordPlayerIdColumn_changed bool
+	m_dbApplePayRecordPlayerIdColumn int32
+	m_dbApplePayRecordPayTimeColumn_changed bool
+	m_dbApplePayRecordPayTimeColumn int32
 }
 func new_dbApplePayRecordRow(table *dbApplePayRecordTable, KeyId int32) (r *dbApplePayRecordRow) {
 	this := &dbApplePayRecordRow{}
@@ -18344,52 +19013,52 @@ func (this *dbApplePayRecordTable) GC() {
 	}
 	return
 }
-func (this *dbFaceBPayRecordRow)GetSn( )(r string ){
+func (this *dbFaceBPayRecordRow)GetdbFaceBPayRecordSnColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbFaceBPayRecordRow.GetdbFaceBPayRecordSnColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Sn)
+	return string(this.m_dbFaceBPayRecordSnColumn)
 }
-func (this *dbFaceBPayRecordRow)SetSn(v string){
+func (this *dbFaceBPayRecordRow)SetdbFaceBPayRecordSnColumn(v string){
 	this.m_lock.UnSafeLock("dbFaceBPayRecordRow.SetdbFaceBPayRecordSnColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Sn=string(v)
-	this.m_Sn_changed=true
+	this.m_dbFaceBPayRecordSnColumn=string(v)
+	this.m_dbFaceBPayRecordSnColumn_changed=true
 	return
 }
-func (this *dbFaceBPayRecordRow)GetBid( )(r string ){
+func (this *dbFaceBPayRecordRow)GetdbFaceBPayRecordBidColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbFaceBPayRecordRow.GetdbFaceBPayRecordBidColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Bid)
+	return string(this.m_dbFaceBPayRecordBidColumn)
 }
-func (this *dbFaceBPayRecordRow)SetBid(v string){
+func (this *dbFaceBPayRecordRow)SetdbFaceBPayRecordBidColumn(v string){
 	this.m_lock.UnSafeLock("dbFaceBPayRecordRow.SetdbFaceBPayRecordBidColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Bid=string(v)
-	this.m_Bid_changed=true
+	this.m_dbFaceBPayRecordBidColumn=string(v)
+	this.m_dbFaceBPayRecordBidColumn_changed=true
 	return
 }
-func (this *dbFaceBPayRecordRow)GetPlayerId( )(r int32 ){
+func (this *dbFaceBPayRecordRow)GetdbFaceBPayRecordPlayerIdColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbFaceBPayRecordRow.GetdbFaceBPayRecordPlayerIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_PlayerId)
+	return int32(this.m_dbFaceBPayRecordPlayerIdColumn)
 }
-func (this *dbFaceBPayRecordRow)SetPlayerId(v int32){
+func (this *dbFaceBPayRecordRow)SetdbFaceBPayRecordPlayerIdColumn(v int32){
 	this.m_lock.UnSafeLock("dbFaceBPayRecordRow.SetdbFaceBPayRecordPlayerIdColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_PlayerId=int32(v)
-	this.m_PlayerId_changed=true
+	this.m_dbFaceBPayRecordPlayerIdColumn=int32(v)
+	this.m_dbFaceBPayRecordPlayerIdColumn_changed=true
 	return
 }
-func (this *dbFaceBPayRecordRow)GetPayTime( )(r int32 ){
+func (this *dbFaceBPayRecordRow)GetdbFaceBPayRecordPayTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbFaceBPayRecordRow.GetdbFaceBPayRecordPayTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_PayTime)
+	return int32(this.m_dbFaceBPayRecordPayTimeColumn)
 }
-func (this *dbFaceBPayRecordRow)SetPayTime(v int32){
+func (this *dbFaceBPayRecordRow)SetdbFaceBPayRecordPayTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbFaceBPayRecordRow.SetdbFaceBPayRecordPayTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_PayTime=int32(v)
-	this.m_PayTime_changed=true
+	this.m_dbFaceBPayRecordPayTimeColumn=int32(v)
+	this.m_dbFaceBPayRecordPayTimeColumn_changed=true
 	return
 }
 type dbFaceBPayRecordRow struct {
@@ -18402,14 +19071,14 @@ type dbFaceBPayRecordRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_KeyId        int32
-	m_Sn_changed bool
-	m_Sn string
-	m_Bid_changed bool
-	m_Bid string
-	m_PlayerId_changed bool
-	m_PlayerId int32
-	m_PayTime_changed bool
-	m_PayTime int32
+	m_dbFaceBPayRecordSnColumn_changed bool
+	m_dbFaceBPayRecordSnColumn string
+	m_dbFaceBPayRecordBidColumn_changed bool
+	m_dbFaceBPayRecordBidColumn string
+	m_dbFaceBPayRecordPlayerIdColumn_changed bool
+	m_dbFaceBPayRecordPlayerIdColumn int32
+	m_dbFaceBPayRecordPayTimeColumn_changed bool
+	m_dbFaceBPayRecordPayTimeColumn int32
 }
 func new_dbFaceBPayRecordRow(table *dbFaceBPayRecordTable, KeyId int32) (r *dbFaceBPayRecordRow) {
 	this := &dbFaceBPayRecordRow{}
@@ -18921,28 +19590,28 @@ func (this *dbFaceBPayRecordTable) GC() {
 	}
 	return
 }
-func (this *dbServerInfoRow)GetCreateUnix( )(r int32 ){
+func (this *dbServerInfoRow)GetdbServerInfoCreateUnixColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbServerInfoRow.GetdbServerInfoCreateUnixColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_CreateUnix)
+	return int32(this.m_dbServerInfoCreateUnixColumn)
 }
-func (this *dbServerInfoRow)SetCreateUnix(v int32){
+func (this *dbServerInfoRow)SetdbServerInfoCreateUnixColumn(v int32){
 	this.m_lock.UnSafeLock("dbServerInfoRow.SetdbServerInfoCreateUnixColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_CreateUnix=int32(v)
-	this.m_CreateUnix_changed=true
+	this.m_dbServerInfoCreateUnixColumn=int32(v)
+	this.m_dbServerInfoCreateUnixColumn_changed=true
 	return
 }
-func (this *dbServerInfoRow)GetCurStartUnix( )(r int32 ){
+func (this *dbServerInfoRow)GetdbServerInfoCurStartUnixColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbServerInfoRow.GetdbServerInfoCurStartUnixColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_CurStartUnix)
+	return int32(this.m_dbServerInfoCurStartUnixColumn)
 }
-func (this *dbServerInfoRow)SetCurStartUnix(v int32){
+func (this *dbServerInfoRow)SetdbServerInfoCurStartUnixColumn(v int32){
 	this.m_lock.UnSafeLock("dbServerInfoRow.SetdbServerInfoCurStartUnixColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_CurStartUnix=int32(v)
-	this.m_CurStartUnix_changed=true
+	this.m_dbServerInfoCurStartUnixColumn=int32(v)
+	this.m_dbServerInfoCurStartUnixColumn_changed=true
 	return
 }
 type dbServerInfoRow struct {
@@ -18955,10 +19624,10 @@ type dbServerInfoRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_KeyId        int32
-	m_CreateUnix_changed bool
-	m_CreateUnix int32
-	m_CurStartUnix_changed bool
-	m_CurStartUnix int32
+	m_dbServerInfoCreateUnixColumn_changed bool
+	m_dbServerInfoCreateUnixColumn int32
+	m_dbServerInfoCurStartUnixColumn_changed bool
+	m_dbServerInfoCurStartUnixColumn int32
 }
 func new_dbServerInfoRow(table *dbServerInfoTable, KeyId int32) (r *dbServerInfoRow) {
 	this := &dbServerInfoRow{}
@@ -19166,52 +19835,52 @@ func (this *dbServerInfoTable) Save(quick bool) (err error) {
 func (this *dbServerInfoTable) GetRow( ) (row *dbServerInfoRow) {
 	return this.m_row
 }
-func (this *dbPlayerLoginRow)GetPlayerAccount( )(r string ){
+func (this *dbPlayerLoginRow)GetdbPlayerLoginPlayerAccountColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbPlayerLoginRow.GetdbPlayerLoginPlayerAccountColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_PlayerAccount)
+	return string(this.m_dbPlayerLoginPlayerAccountColumn)
 }
-func (this *dbPlayerLoginRow)SetPlayerAccount(v string){
+func (this *dbPlayerLoginRow)SetdbPlayerLoginPlayerAccountColumn(v string){
 	this.m_lock.UnSafeLock("dbPlayerLoginRow.SetdbPlayerLoginPlayerAccountColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_PlayerAccount=string(v)
-	this.m_PlayerAccount_changed=true
+	this.m_dbPlayerLoginPlayerAccountColumn=string(v)
+	this.m_dbPlayerLoginPlayerAccountColumn_changed=true
 	return
 }
-func (this *dbPlayerLoginRow)GetPlayerId( )(r int32 ){
+func (this *dbPlayerLoginRow)GetdbPlayerLoginPlayerIdColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbPlayerLoginRow.GetdbPlayerLoginPlayerIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_PlayerId)
+	return int32(this.m_dbPlayerLoginPlayerIdColumn)
 }
-func (this *dbPlayerLoginRow)SetPlayerId(v int32){
+func (this *dbPlayerLoginRow)SetdbPlayerLoginPlayerIdColumn(v int32){
 	this.m_lock.UnSafeLock("dbPlayerLoginRow.SetdbPlayerLoginPlayerIdColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_PlayerId=int32(v)
-	this.m_PlayerId_changed=true
+	this.m_dbPlayerLoginPlayerIdColumn=int32(v)
+	this.m_dbPlayerLoginPlayerIdColumn_changed=true
 	return
 }
-func (this *dbPlayerLoginRow)GetPlayerName( )(r string ){
+func (this *dbPlayerLoginRow)GetdbPlayerLoginPlayerNameColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbPlayerLoginRow.GetdbPlayerLoginPlayerNameColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_PlayerName)
+	return string(this.m_dbPlayerLoginPlayerNameColumn)
 }
-func (this *dbPlayerLoginRow)SetPlayerName(v string){
+func (this *dbPlayerLoginRow)SetdbPlayerLoginPlayerNameColumn(v string){
 	this.m_lock.UnSafeLock("dbPlayerLoginRow.SetdbPlayerLoginPlayerNameColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_PlayerName=string(v)
-	this.m_PlayerName_changed=true
+	this.m_dbPlayerLoginPlayerNameColumn=string(v)
+	this.m_dbPlayerLoginPlayerNameColumn_changed=true
 	return
 }
-func (this *dbPlayerLoginRow)GetLoginTime( )(r int32 ){
+func (this *dbPlayerLoginRow)GetdbPlayerLoginLoginTimeColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbPlayerLoginRow.GetdbPlayerLoginLoginTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_LoginTime)
+	return int32(this.m_dbPlayerLoginLoginTimeColumn)
 }
-func (this *dbPlayerLoginRow)SetLoginTime(v int32){
+func (this *dbPlayerLoginRow)SetdbPlayerLoginLoginTimeColumn(v int32){
 	this.m_lock.UnSafeLock("dbPlayerLoginRow.SetdbPlayerLoginLoginTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_LoginTime=int32(v)
-	this.m_LoginTime_changed=true
+	this.m_dbPlayerLoginLoginTimeColumn=int32(v)
+	this.m_dbPlayerLoginLoginTimeColumn_changed=true
 	return
 }
 type dbPlayerLoginRow struct {
@@ -19224,14 +19893,14 @@ type dbPlayerLoginRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_KeyId        int32
-	m_PlayerAccount_changed bool
-	m_PlayerAccount string
-	m_PlayerId_changed bool
-	m_PlayerId int32
-	m_PlayerName_changed bool
-	m_PlayerName string
-	m_LoginTime_changed bool
-	m_LoginTime int32
+	m_dbPlayerLoginPlayerAccountColumn_changed bool
+	m_dbPlayerLoginPlayerAccountColumn string
+	m_dbPlayerLoginPlayerIdColumn_changed bool
+	m_dbPlayerLoginPlayerIdColumn int32
+	m_dbPlayerLoginPlayerNameColumn_changed bool
+	m_dbPlayerLoginPlayerNameColumn string
+	m_dbPlayerLoginLoginTimeColumn_changed bool
+	m_dbPlayerLoginLoginTimeColumn int32
 }
 func new_dbPlayerLoginRow(table *dbPlayerLoginTable, KeyId int32) (r *dbPlayerLoginRow) {
 	this := &dbPlayerLoginRow{}
@@ -19669,52 +20338,52 @@ func (this *dbPlayerLoginTable) GetRow(KeyId int32) (row *dbPlayerLoginRow) {
 	}
 	return row
 }
-func (this *dbOtherServerPlayerRow)GetAccount( )(r string ){
+func (this *dbOtherServerPlayerRow)GetdbOtherServerPlayerAccountColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbOtherServerPlayerRow.GetdbOtherServerPlayerAccountColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Account)
+	return string(this.m_dbOtherServerPlayerAccountColumn)
 }
-func (this *dbOtherServerPlayerRow)SetAccount(v string){
+func (this *dbOtherServerPlayerRow)SetdbOtherServerPlayerAccountColumn(v string){
 	this.m_lock.UnSafeLock("dbOtherServerPlayerRow.SetdbOtherServerPlayerAccountColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Account=string(v)
-	this.m_Account_changed=true
+	this.m_dbOtherServerPlayerAccountColumn=string(v)
+	this.m_dbOtherServerPlayerAccountColumn_changed=true
 	return
 }
-func (this *dbOtherServerPlayerRow)GetName( )(r string ){
+func (this *dbOtherServerPlayerRow)GetdbOtherServerPlayerNameColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbOtherServerPlayerRow.GetdbOtherServerPlayerNameColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Name)
+	return string(this.m_dbOtherServerPlayerNameColumn)
 }
-func (this *dbOtherServerPlayerRow)SetName(v string){
+func (this *dbOtherServerPlayerRow)SetdbOtherServerPlayerNameColumn(v string){
 	this.m_lock.UnSafeLock("dbOtherServerPlayerRow.SetdbOtherServerPlayerNameColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Name=string(v)
-	this.m_Name_changed=true
+	this.m_dbOtherServerPlayerNameColumn=string(v)
+	this.m_dbOtherServerPlayerNameColumn_changed=true
 	return
 }
-func (this *dbOtherServerPlayerRow)GetLevel( )(r int32 ){
+func (this *dbOtherServerPlayerRow)GetdbOtherServerPlayerLevelColumn( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbOtherServerPlayerRow.GetdbOtherServerPlayerLevelColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Level)
+	return int32(this.m_dbOtherServerPlayerLevelColumn)
 }
-func (this *dbOtherServerPlayerRow)SetLevel(v int32){
+func (this *dbOtherServerPlayerRow)SetdbOtherServerPlayerLevelColumn(v int32){
 	this.m_lock.UnSafeLock("dbOtherServerPlayerRow.SetdbOtherServerPlayerLevelColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Level=int32(v)
-	this.m_Level_changed=true
+	this.m_dbOtherServerPlayerLevelColumn=int32(v)
+	this.m_dbOtherServerPlayerLevelColumn_changed=true
 	return
 }
-func (this *dbOtherServerPlayerRow)GetHead( )(r string ){
+func (this *dbOtherServerPlayerRow)GetdbOtherServerPlayerHeadColumn( )(r string ){
 	this.m_lock.UnSafeRLock("dbOtherServerPlayerRow.GetdbOtherServerPlayerHeadColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Head)
+	return string(this.m_dbOtherServerPlayerHeadColumn)
 }
-func (this *dbOtherServerPlayerRow)SetHead(v string){
+func (this *dbOtherServerPlayerRow)SetdbOtherServerPlayerHeadColumn(v string){
 	this.m_lock.UnSafeLock("dbOtherServerPlayerRow.SetdbOtherServerPlayerHeadColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Head=string(v)
-	this.m_Head_changed=true
+	this.m_dbOtherServerPlayerHeadColumn=string(v)
+	this.m_dbOtherServerPlayerHeadColumn_changed=true
 	return
 }
 type dbOtherServerPlayerRow struct {
@@ -19727,14 +20396,14 @@ type dbOtherServerPlayerRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_PlayerId        int32
-	m_Account_changed bool
-	m_Account string
-	m_Name_changed bool
-	m_Name string
-	m_Level_changed bool
-	m_Level int32
-	m_Head_changed bool
-	m_Head string
+	m_dbOtherServerPlayerAccountColumn_changed bool
+	m_dbOtherServerPlayerAccountColumn string
+	m_dbOtherServerPlayerNameColumn_changed bool
+	m_dbOtherServerPlayerNameColumn string
+	m_dbOtherServerPlayerLevelColumn_changed bool
+	m_dbOtherServerPlayerLevelColumn int32
+	m_dbOtherServerPlayerHeadColumn_changed bool
+	m_dbOtherServerPlayerHeadColumn string
 }
 func new_dbOtherServerPlayerRow(table *dbOtherServerPlayerTable, PlayerId int32) (r *dbOtherServerPlayerRow) {
 	this := &dbOtherServerPlayerRow{}

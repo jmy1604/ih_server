@@ -46,6 +46,8 @@ namespace DBCompiler_sql
     [DataContract]
     class DbColumn
     {
+        [DataMember(IsRequired = false)]
+        public int Array;
         [DataMember(IsRequired = true)]
         public string DBColumnName;
         [DataMember(IsRequired = true)]
@@ -627,64 +629,9 @@ namespace DBCompiler_sql
             code.AppendLine("\treturn");
             code.AppendLine("}");
         }
-        static void BuildColumn(DbTable t, DbColumn c, StringBuilder code, StringBuilder row_members, StringBuilder row_ctor)
+
+        static void column_def(DbTable t, DbColumn c, StringBuilder code, StringBuilder row_members, StringBuilder row_ctor, int ArrayIndex, string table_name, string row_name, string column_name, string data_name)
         {
-            //common
-            string table_name = "db" + t.TableName + "Table";
-            string row_name = "db" + t.TableName + "Row";
-            string column_name = "db" + t.TableName + c.ColumnName + "Column";
-            string data_name = "db" + t.TableName + c.ColumnName + "Data";
-
-            if (c.Simple)
-            {
-                //members
-                row_members.AppendLine("\tm_" + c.ColumnName + "_changed bool");
-                row_members.AppendLine("\tm_" + c.ColumnName + " " + c.SimpleType);
-
-                //get
-                code.AppendLine("func (this *" + row_name + ")Get" + c.ColumnName + "( )(r " + GetBigType(c.SimpleType) + " ){");
-                code.AppendLine("\tthis.m_lock.UnSafeRLock(\"" + row_name + ".Get" + column_name + "\")");
-                code.AppendLine("\tdefer this.m_lock.UnSafeRUnlock()");
-                code.AppendLine("\treturn " + GetBigType(c.SimpleType) + "(this.m_" + c.ColumnName + ")");
-                code.AppendLine("}");
-
-                //set
-                code.AppendLine("func (this *" + row_name + ")Set" + c.ColumnName + "(v " + GetBigType(c.SimpleType) + "){");
-                code.AppendLine("\tthis.m_lock.UnSafeLock(\"" + row_name + ".Set" + column_name + "\")");
-                code.AppendLine("\tdefer this.m_lock.UnSafeUnlock()");
-                code.AppendLine("\tthis.m_" + c.ColumnName + "=" + c.SimpleType + "(v)");
-                code.AppendLine("\tthis.m_" + c.ColumnName + "_changed=true");
-                code.AppendLine("\treturn");
-                code.AppendLine("}");
-
-                //inc todo
-
-                return;
-            }
-
-            //members
-            if (c.Map)
-            {
-                row_members.AppendLine("\t" + c.ColumnName + "s " + column_name);
-            }
-            else
-            {
-                row_members.AppendLine("\t" + c.ColumnName + " " + column_name);
-            }
-
-            //ctor
-            if (c.Map)
-            {
-                row_ctor.AppendLine("\tthis." + c.ColumnName + "s.m_row=this");
-                row_ctor.AppendLine("\tthis." + c.ColumnName + "s.m_data=make(map[" + GetBigType(c.Fields[0].Type) + "]*" + data_name + ")");
-            }
-            else
-            {
-                row_ctor.AppendLine("\tthis." + c.ColumnName + ".m_row=this");
-                row_ctor.AppendLine("\tthis." + c.ColumnName + ".m_data=&" + data_name + "{}");
-            }
-
-            //column def
             code.AppendLine("type " + column_name + " struct{");
             code.AppendLine("\tm_row *" + row_name);
             if (c.Map)
@@ -708,7 +655,7 @@ namespace DBCompiler_sql
                 //load
                 code.AppendLine("func (this *" + column_name + ")load(data []byte)(err error){");
                 code.AppendLine("\tif data == nil || len(data) == 0 {");
-                code.AppendLine("\t\tthis.m_data = &"+data_name+"{}");
+                code.AppendLine("\t\tthis.m_data = &" + data_name + "{}");
                 code.AppendLine("\t\tthis.m_changed = false");
                 code.AppendLine("\t\treturn nil");
                 code.AppendLine("\t}");
@@ -722,7 +669,7 @@ namespace DBCompiler_sql
                 else
                 {
                     code.AppendLine("\t\tlog.Error(\"Unmarshal %v\", this.m_row.Get" + t.PrimaryKeyName + "())");
-                }                
+                }
                 code.AppendLine("\t\treturn");
                 code.AppendLine("\t}");
                 code.AppendLine("\tthis.m_data = &" + data_name + "{}");
@@ -825,7 +772,7 @@ namespace DBCompiler_sql
                         code.AppendLine("\tdefer this.m_row.m_lock.UnSafeUnlock()");
                         if (NeedConvert(f.Type))
                         {
-                            code.AppendLine("\tthis.m_data." + f.Name + " += " + f.Type + "(v)");                            
+                            code.AppendLine("\tthis.m_data." + f.Name + " += " + f.Type + "(v)");
                         }
                         else
                         {
@@ -838,8 +785,8 @@ namespace DBCompiler_sql
                         }
                         else
                         {
-                            code.AppendLine("\treturn this.m_data."+f.Name);
-                        }                        
+                            code.AppendLine("\treturn this.m_data." + f.Name);
+                        }
                         code.AppendLine("}");
                     }
                 }
@@ -1158,7 +1105,7 @@ namespace DBCompiler_sql
                         else
                         {
                             code.AppendLine("\treturn d." + f.Name);
-                        }                        
+                        }
                         code.AppendLine("}");
                     }
 
@@ -1378,6 +1325,87 @@ namespace DBCompiler_sql
                 }
             }
         }
+
+        static void BuildColumn(DbTable t, DbColumn c, StringBuilder code, StringBuilder row_members, StringBuilder row_ctor, int array_index = -1)
+        {
+            //common
+            string table_name = "db" + t.TableName + "Table";
+            string row_name = "db" + t.TableName + "Row";
+            string column_name = "db" + t.TableName + c.ColumnName + "Column";
+            string data_name = "db" + t.TableName + c.ColumnName + "Data";
+            string column_val_name = column_name;
+            if (array_index >= 0) {
+                column_val_name = column_val_name + array_index.ToString();
+            }
+
+            if (c.Simple)
+            {
+                //members
+                row_members.AppendLine("\tm_" + column_val_name/*c.ColumnName*/ + "_changed bool");
+                row_members.AppendLine("\tm_" + column_val_name/*c.ColumnName*/ + " " + c.SimpleType);
+
+                //get
+                code.AppendLine("func (this *" + row_name + ")Get" + column_val_name/*c.ColumnName*/ + "( )(r " + GetBigType(c.SimpleType) + " ){");
+                code.AppendLine("\tthis.m_lock.UnSafeRLock(\"" + row_name + ".Get" + column_name + "\")");
+                code.AppendLine("\tdefer this.m_lock.UnSafeRUnlock()");
+                code.AppendLine("\treturn " + GetBigType(c.SimpleType) + "(this.m_" + column_val_name/*c.ColumnName*/ + ")");
+                code.AppendLine("}");
+
+                //set
+                code.AppendLine("func (this *" + row_name + ")Set" + column_val_name/*c.ColumnName*/ + "(v " + GetBigType(c.SimpleType) + "){");
+                code.AppendLine("\tthis.m_lock.UnSafeLock(\"" + row_name + ".Set" + column_name + "\")");
+                code.AppendLine("\tdefer this.m_lock.UnSafeUnlock()");
+                code.AppendLine("\tthis.m_" + column_val_name/*c.ColumnName*/ + "=" + c.SimpleType + "(v)");
+                code.AppendLine("\tthis.m_" + column_val_name/*c.ColumnName*/ + "_changed=true");
+                code.AppendLine("\treturn");
+                code.AppendLine("}");
+
+                //inc todo
+
+                return;
+            }
+
+            //members
+            if (c.Map)
+            {
+                row_members.AppendLine("\t" + column_val_name/*c.ColumnName*/ + "s " + column_name);              
+            }
+            else
+            {
+                row_members.AppendLine("\t" + column_val_name/*c.ColumnName*/ + " " + column_name);
+            }
+
+            //ctor
+            if (c.Map)
+            {
+                row_ctor.AppendLine("\tthis." + column_val_name/*c.ColumnName*/ + "s.m_row=this");
+                row_ctor.AppendLine("\tthis." + column_val_name/*c.ColumnName*/ + "s.m_data=make(map[" + GetBigType(c.Fields[0].Type) + "]*" + data_name + ")");
+            }
+            else
+            {
+                row_ctor.AppendLine("\tthis." + column_val_name/*c.ColumnName*/ + ".m_row=this");
+                row_ctor.AppendLine("\tthis." + column_val_name/*c.ColumnName*/ + ".m_data=&" + data_name + "{}");
+            }
+
+            //column def
+            if (array_index <= 0)
+            {
+                column_def(t, c, code, row_members, row_ctor, array_index, table_name, row_name, column_name, data_name);
+            }
+        }
+
+        static void BuildColumnArray(DbTable t, DbColumn c, StringBuilder code, StringBuilder row_members, StringBuilder row_ctor)
+        {
+            for (int i = 0; i < c.Array; i++) {
+                BuildColumn(t, c, code, row_members, row_ctor, i);
+            }
+        }
+
+        static string ColumnValNameWithIndex(string column_name, int index)
+        {
+            return column_name + index.ToString();
+        }
+
         static void BuildTable(DbTable table, StringBuilder code)
         {
             if (table.PrimaryKeyType != "string" && table.PrimaryKeyType != "int32" && table.PrimaryKeyType != "int64")
@@ -1419,7 +1447,14 @@ namespace DBCompiler_sql
             {
                 if (c.InUse)
                 {
-                    BuildColumn(table, c, code, row_members, row_ctor);
+                    if (c.Array > 1)
+                    {
+                        BuildColumnArray(table, c, code, row_members, row_ctor);
+                    }
+                    else
+                    {
+                        BuildColumn(table, c, code, row_members, row_ctor);
+                    }
                 }
             }
 
@@ -1452,7 +1487,16 @@ namespace DBCompiler_sql
 
                 if (c.Simple)
                 {
-                    code.AppendLine("\tthis.m_" + c.ColumnName + "_changed=true");
+                    if (c.Array > 1)
+                    {
+                        for (int i = 0; i < c.Array; i++) {
+                            code.AppendLine("\tthis.m_" + ColumnValNameWithIndex(c.ColumnName, i) + "_changed=true");
+                        }
+                    }
+                    else
+                    {
+                        code.AppendLine("\tthis.m_" + c.ColumnName + "_changed=true");
+                    }
                 }
             }
             code.Append(row_ctor);
@@ -1502,25 +1546,60 @@ namespace DBCompiler_sql
                     }
                     if (c.Simple)
                     {
-                        code.AppendLine("\tvar d" + c.ColumnName + " " + c.SimpleType);
-                        load_scan_string += "&d" + c.ColumnName;
-                    }
-                    else
-                    {
-                        if (c.Map)
+                        if (c.Array > 1)
                         {
-                            if (c.AutoIndex)
+                            for (int i=0;i <c.Array; i++)
                             {
-                                code.AppendLine("\tvar dMax" + c.ColumnName + "Id int32");
-                                load_scan_string += "&dMax" + c.ColumnName + "Id,";
+                                code.AppendLine("\tvar d" + ColumnValNameWithIndex(c.ColumnName, i) + " " + c.SimpleType);
+                                load_scan_string += "&d" + ColumnValNameWithIndex(c.ColumnName, i);
                             }
-                            code.AppendLine("\tvar d" + c.ColumnName + "s []byte");
-                            load_scan_string += "&d" + c.ColumnName + "s";
                         }
                         else
                         {
-                            code.AppendLine("\tvar d" + c.ColumnName + " []byte");
+                            code.AppendLine("\tvar d" + c.ColumnName + " " + c.SimpleType);
                             load_scan_string += "&d" + c.ColumnName;
+                        }
+                    }
+                    else
+                    {
+                        if (c.Array > 1)
+                        {
+                            for (int i=0; i<c.Array; i++)
+                            {
+                                if (c.Map)
+                                {
+                                    if (c.AutoIndex)
+                                    {
+                                        code.AppendLine("\tvar dMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id int32");
+                                        load_scan_string += "&dMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id,";
+                                    }
+                                    code.AppendLine("\tvar d" + ColumnValNameWithIndex(c.ColumnName, i) + "s []byte");
+                                    load_scan_string += "&d" + ColumnValNameWithIndex(c.ColumnName, i) + "s";
+                                }
+                                else
+                                {
+                                    code.AppendLine("\tvar d" + ColumnValNameWithIndex(c.ColumnName, i) + " []byte");
+                                    load_scan_string += "&d" + ColumnValNameWithIndex(c.ColumnName, i);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    code.AppendLine("\tvar dMax" + c.ColumnName + "Id int32");
+                                    load_scan_string += "&dMax" + c.ColumnName + "Id,";
+                                }
+                                code.AppendLine("\tvar d" + c.ColumnName + "s []byte");
+                                load_scan_string += "&d" + c.ColumnName + "s";
+                            }
+                            else
+                            {
+                                code.AppendLine("\tvar d" + c.ColumnName + " []byte");
+                                load_scan_string += "&d" + c.ColumnName;
+                            }
                         }
                     }
                 }
@@ -1541,39 +1620,83 @@ namespace DBCompiler_sql
                     {
                         continue;
                     }
-                    if (c.Simple)
+                    
+                    if (c.Array > 1)
                     {
-                        code.AppendLine("\t\tthis.m_" + c.ColumnName + "=d" + c.ColumnName);
-                    }
-                    else
-                    {
-                        if (c.Map)
+                        for (int i=0; i<c.Array; i++)
                         {
-                            if (c.AutoIndex)
+                            if (c.Simple)
                             {
-                                code.AppendLine("\terr = this." + c.ColumnName + "s.load(dMax" + c.ColumnName + "Id,d" + c.ColumnName + "s)");
+                                code.AppendLine("\t\tthis.m_" + ColumnValNameWithIndex(c.ColumnName, i) + "=d" + ColumnValNameWithIndex(c.ColumnName, i));
                             }
                             else
                             {
-                                code.AppendLine("\terr = this." + c.ColumnName + "s.load(d" + c.ColumnName + "s)");
+                                if (c.Map)
+                                {
+                                    if (c.AutoIndex)
+                                    {
+                                        code.AppendLine("\terr = this." + ColumnValNameWithIndex(c.ColumnName, i) + "s.load(dMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id,d" + ColumnValNameWithIndex(c.ColumnName, i) + "s)");
+                                    }
+                                    else
+                                    {
+                                        code.AppendLine("\terr = this." + ColumnValNameWithIndex(c.ColumnName, i) + "s.load(d" + ColumnValNameWithIndex(c.ColumnName, i) + "s)");
+                                    }
+                                }
+                                else
+                                {
+                                    code.AppendLine("\terr = this." + ColumnValNameWithIndex(c.ColumnName, i) + ".load(d" + ColumnValNameWithIndex(c.ColumnName, i) + ")");
+                                }
+
+                                code.AppendLine("\tif err != nil {");
+                                if (c.Map)
+                                {
+                                    code.AppendLine("\t\tlog.Error(\"" + ColumnValNameWithIndex(c.ColumnName, i) + "s %v\", this.m_" + table.PrimaryKeyName + ")");
+                                }
+                                else
+                                {
+                                    code.AppendLine("\t\tlog.Error(\"" + ColumnValNameWithIndex(c.ColumnName, i) + " %v\", this.m_" + table.PrimaryKeyName + ")");
+                                }
+                                code.AppendLine("\t\treturn");
+                                code.AppendLine("\t}");
                             }
                         }
+                    }
+                    else
+                    {
+                        if (c.Simple)
+                        {
+                            code.AppendLine("\t\tthis.m_" + c.ColumnName + "=d" + c.ColumnName);
+                        }
                         else
                         {
-                            code.AppendLine("\terr = this." + c.ColumnName + ".load(d" + c.ColumnName + ")");
-                        }
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    code.AppendLine("\terr = this." + c.ColumnName + "s.load(dMax" + c.ColumnName + "Id,d" + c.ColumnName + "s)");
+                                }
+                                else
+                                {
+                                    code.AppendLine("\terr = this." + c.ColumnName + "s.load(d" + c.ColumnName + "s)");
+                                }
+                            }
+                            else
+                            {
+                                code.AppendLine("\terr = this." + c.ColumnName + ".load(d" + c.ColumnName + ")");
+                            }
 
-                        code.AppendLine("\tif err != nil {");
-                        if (c.Map)
-                        {
-                            code.AppendLine("\t\tlog.Error(\"" + c.ColumnName + "s %v\", this.m_" + table.PrimaryKeyName + ")");
+                            code.AppendLine("\tif err != nil {");
+                            if (c.Map)
+                            {
+                                code.AppendLine("\t\tlog.Error(\"" + c.ColumnName + "s %v\", this.m_" + table.PrimaryKeyName + ")");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t\tlog.Error(\"" + c.ColumnName + " %v\", this.m_" + table.PrimaryKeyName + ")");
+                            }
+                            code.AppendLine("\t\treturn");
+                            code.AppendLine("\t}");
                         }
-                        else
-                        {
-                            code.AppendLine("\t\tlog.Error(\"" + c.ColumnName + " %v\", this.m_" + table.PrimaryKeyName + ")");
-                        }
-                        code.AppendLine("\t\treturn");
-                        code.AppendLine("\t}");
                     }
                 }
                 code.AppendLine("\tthis.m_loaded=true");
@@ -1591,7 +1714,17 @@ namespace DBCompiler_sql
 
                     if (c.Simple)
                     {
-                        code.AppendLine("\tthis.m_" + c.ColumnName + "_changed=false");
+                        if (c.Array > 1)
+                        {
+                            for (int i=0; i<c.Array; i++)
+                            {
+                                code.AppendLine("\tthis.m_" + ColumnValNameWithIndex(c.ColumnName, i) + "_changed=false");
+                            }
+                        }
+                        else
+                        {
+                            code.AppendLine("\tthis.m_" + c.ColumnName + "_changed=false");
+                        }
                     }
                 }
                 code.AppendLine("\tthis.Touch(false)");
@@ -1630,43 +1763,91 @@ namespace DBCompiler_sql
                     continue;
                 }
 
-                if (c.Simple)
+                if (c.Array > 1)
                 {
-                    code.AppendLine("\t\tdb_args.Push(this.m_" + c.ColumnName + ")");
-                }
-                else
-                {
-                    if (c.Map)
+                    for (int i=0; i<c.Array; i++)
                     {
-                        if (c.AutoIndex)
+                        if (c.Simple)
                         {
-
-                            code.AppendLine("\t\tdMax" + c.ColumnName + "Id,d" + c.ColumnName + "s,db_err:=this." + c.ColumnName + "s.save()");
+                            code.AppendLine("\t\tdb_args.Push(this.m_" + ColumnValNameWithIndex(c.ColumnName, i) + ")");
                         }
                         else
                         {
-                            code.AppendLine("\t\td" + c.ColumnName + "s,db_err:=this." + c.ColumnName + "s.save()");
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+
+                                    code.AppendLine("\t\tdMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id,d" + ColumnValNameWithIndex(c.ColumnName, i) + "s,db_err:=this." + ColumnValNameWithIndex(c.ColumnName, i) + "s.save()");
+                                }
+                                else
+                                {
+                                    code.AppendLine("\t\td" + ColumnValNameWithIndex(c.ColumnName, i) + "s,db_err:=this." + ColumnValNameWithIndex(c.ColumnName, i) + "s.save()");
+                                }
+                            }
+                            else
+                            {
+                                code.AppendLine("\t\td" + ColumnValNameWithIndex(c.ColumnName, i) + ",db_err:=this." + ColumnValNameWithIndex(c.ColumnName, i) + ".save()");
+                            }
+                            code.AppendLine("\t\tif db_err!=nil{");
+                            code.AppendLine("\t\t\tlog.Error(\"insert save " + ColumnValNameWithIndex(c.ColumnName, i) + " failed\")");
+                            code.AppendLine("\t\t\treturn db_err,false,0,\"\",nil");
+                            code.AppendLine("\t\t}");
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    code.AppendLine("\t\tdb_args.Push(dMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id)");
+                                }
+                                code.AppendLine("\t\tdb_args.Push(d" + ColumnValNameWithIndex(c.ColumnName, i) + "s)");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t\tdb_args.Push(d" + ColumnValNameWithIndex(c.ColumnName, i) + ")");
+                            }
                         }
+                    }
+                }
+                else
+                {
+                    if (c.Simple)
+                    {
+                        code.AppendLine("\t\tdb_args.Push(this.m_" + c.ColumnName + ")");
                     }
                     else
                     {
-                        code.AppendLine("\t\td" + c.ColumnName + ",db_err:=this." + c.ColumnName + ".save()");
-                    }
-                    code.AppendLine("\t\tif db_err!=nil{");
-                    code.AppendLine("\t\t\tlog.Error(\"insert save " + c.ColumnName + " failed\")");
-                    code.AppendLine("\t\t\treturn db_err,false,0,\"\",nil");
-                    code.AppendLine("\t\t}");
-                    if (c.Map)
-                    {
-                        if (c.AutoIndex)
+                        if (c.Map)
                         {
-                            code.AppendLine("\t\tdb_args.Push(dMax" + c.ColumnName + "Id)");
+                            if (c.AutoIndex)
+                            {
+
+                                code.AppendLine("\t\tdMax" + c.ColumnName + "Id,d" + c.ColumnName + "s,db_err:=this." + c.ColumnName + "s.save()");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t\td" + c.ColumnName + "s,db_err:=this." + c.ColumnName + "s.save()");
+                            }
                         }
-                        code.AppendLine("\t\tdb_args.Push(d" + c.ColumnName + "s)");
-                    }
-                    else
-                    {
-                        code.AppendLine("\t\tdb_args.Push(d" + c.ColumnName + ")");
+                        else
+                        {
+                            code.AppendLine("\t\td" + c.ColumnName + ",db_err:=this." + c.ColumnName + ".save()");
+                        }
+                        code.AppendLine("\t\tif db_err!=nil{");
+                        code.AppendLine("\t\t\tlog.Error(\"insert save " + c.ColumnName + " failed\")");
+                        code.AppendLine("\t\t\treturn db_err,false,0,\"\",nil");
+                        code.AppendLine("\t\t}");
+                        if (c.Map)
+                        {
+                            if (c.AutoIndex)
+                            {
+                                code.AppendLine("\t\tdb_args.Push(dMax" + c.ColumnName + "Id)");
+                            }
+                            code.AppendLine("\t\tdb_args.Push(d" + c.ColumnName + "s)");
+                        }
+                        else
+                        {
+                            code.AppendLine("\t\tdb_args.Push(d" + c.ColumnName + ")");
+                        }
                     }
                 }
             }
@@ -1692,26 +1873,57 @@ namespace DBCompiler_sql
                     code.Append("||");
                 }
 
-                if (c.Simple)
+                if (c.Array > 1)
                 {
-                    update_count++;
-                    code.Append("this.m_" + c.ColumnName + "_changed");
+                    for (int i=0; i<c.Array; i++)
+                    {
+                        if (c.Simple)
+                        {
+                            update_count++;
+                            code.Append("this.m_" + ColumnValNameWithIndex(c.ColumnName, i) + "_changed");
+                        }
+                        else
+                        {
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    update_count++;
+                                }
+                                update_count++;
+                                code.Append("this." + ColumnValNameWithIndex(c.ColumnName, i) + "s.m_changed");
+                            }
+                            else
+                            {
+                                update_count++;
+                                code.Append("this." + ColumnValNameWithIndex(c.ColumnName, i) + ".m_changed");
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    if (c.Map)
+                    if (c.Simple)
                     {
-                        if (c.AutoIndex)
-                        {
-                            update_count++;
-                        }
                         update_count++;
-                        code.Append("this." + c.ColumnName + "s.m_changed");
+                        code.Append("this.m_" + c.ColumnName + "_changed");
                     }
                     else
                     {
-                        update_count++;
-                        code.Append("this." + c.ColumnName + ".m_changed");
+                        if (c.Map)
+                        {
+                            if (c.AutoIndex)
+                            {
+                                update_count++;
+                            }
+                            update_count++;
+                            code.Append("this." + c.ColumnName + "s.m_changed");
+                        }
+                        else
+                        {
+                            update_count++;
+                            code.Append("this." + c.ColumnName + ".m_changed");
+                        }
                     }
                 }
             }
@@ -1725,53 +1937,111 @@ namespace DBCompiler_sql
                     continue;
                 }
 
-                if (c.Simple)
+                if (c.Array > 1)
                 {
-                    code.AppendLine("\t\t\tif this.m_" + c.ColumnName + "_changed{");                   
-                    code.AppendLine("\t\t\t\tupdate_string+=\"" + c.ColumnName + "=?,\"");
-                    code.AppendLine("\t\t\t\tdb_args.Push(this.m_" + c.ColumnName+")");
-                    code.AppendLine("\t\t\t}");
-                }
-                else
-                {
-                    if (c.Map)
+                    for (int i=0; i<c.Array; i++)
                     {
-                        code.AppendLine("\t\t\tif this." + c.ColumnName + "s.m_changed{");                       
-                        if (c.AutoIndex)
+                        if (c.Simple)
                         {
-                            code.AppendLine("\t\t\t\tupdate_string+=\"Max" + c.ColumnName + "Id=?,\"");
-                        }
-                        code.AppendLine("\t\t\t\tupdate_string+=\"" + c.ColumnName + "s=?,\"");
-                        if (c.AutoIndex)
-                        {
-                            code.AppendLine("\t\t\t\tdMax" + c.ColumnName + "Id,d" + c.ColumnName + "s,err:=this." + c.ColumnName + "s.save()");
+                            code.AppendLine("\t\t\tif this.m_" + ColumnValNameWithIndex(c.ColumnName, i) + "_changed{");
+                            code.AppendLine("\t\t\t\tupdate_string+=\"" + ColumnValNameWithIndex(c.ColumnName, i) + "=?,\"");
+                            code.AppendLine("\t\t\t\tdb_args.Push(this.m_" + ColumnValNameWithIndex(c.ColumnName, i) + ")");
+                            code.AppendLine("\t\t\t}");
                         }
                         else
                         {
-                            code.AppendLine("\t\t\t\td" + c.ColumnName + "s,err:=this." + c.ColumnName + "s.save()");
+                            if (c.Map)
+                            {
+                                code.AppendLine("\t\t\tif this." + ColumnValNameWithIndex(c.ColumnName, i) + "s.m_changed{");
+                                if (c.AutoIndex)
+                                {
+                                    code.AppendLine("\t\t\t\tupdate_string+=\"Max" + ColumnValNameWithIndex(c.ColumnName, i) + "Id=?,\"");
+                                }
+                                code.AppendLine("\t\t\t\tupdate_string+=\"" + ColumnValNameWithIndex(c.ColumnName, i) + "s=?,\"");
+                                if (c.AutoIndex)
+                                {
+                                    code.AppendLine("\t\t\t\tdMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id,d" + ColumnValNameWithIndex(c.ColumnName, i) + "s,err:=this." + ColumnValNameWithIndex(c.ColumnName, i) + "s.save()");
+                                }
+                                else
+                                {
+                                    code.AppendLine("\t\t\t\td" + ColumnValNameWithIndex(c.ColumnName, i) + "s,err:=this." + ColumnValNameWithIndex(c.ColumnName, i) + "s.save()");
+                                }
+                                code.AppendLine("\t\t\t\tif err!=nil{");
+                                code.AppendLine("\t\t\t\t\tlog.Error(\"insert save " + ColumnValNameWithIndex(c.ColumnName, i) + " failed\")");
+                                code.AppendLine("\t\t\t\t\treturn err,false,0,\"\",nil");
+                                code.AppendLine("\t\t\t\t}");
+                                if (c.AutoIndex)
+                                {
+                                    code.AppendLine("\t\t\t\tdb_args.Push(dMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id)");
+                                }
+                                code.AppendLine("\t\t\t\tdb_args.Push(d" + ColumnValNameWithIndex(c.ColumnName, i) + "s)");
+                                code.AppendLine("\t\t\t}");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t\t\tif this." + ColumnValNameWithIndex(c.ColumnName, i) + ".m_changed{");
+                                code.AppendLine("\t\t\t\tupdate_string+=\"" + ColumnValNameWithIndex(c.ColumnName, i) + "=?,\"");
+                                code.AppendLine("\t\t\t\td" + ColumnValNameWithIndex(c.ColumnName, i) + ",err:=this." + ColumnValNameWithIndex(c.ColumnName, i) + ".save()");
+                                code.AppendLine("\t\t\t\tif err!=nil{");
+                                code.AppendLine("\t\t\t\t\tlog.Error(\"update save " + ColumnValNameWithIndex(c.ColumnName, i) + " failed\")");
+                                code.AppendLine("\t\t\t\t\treturn err,false,0,\"\",nil");
+                                code.AppendLine("\t\t\t\t}");
+                                code.AppendLine("\t\t\t\tdb_args.Push(d" + ColumnValNameWithIndex(c.ColumnName, i) + ")");
+                                code.AppendLine("\t\t\t}");
+                            }
                         }
-                        code.AppendLine("\t\t\t\tif err!=nil{");
-                        code.AppendLine("\t\t\t\t\tlog.Error(\"insert save " + c.ColumnName + " failed\")");
-                        code.AppendLine("\t\t\t\t\treturn err,false,0,\"\",nil");
-                        code.AppendLine("\t\t\t\t}");
-                        if (c.AutoIndex)
-                        {
-                            code.AppendLine("\t\t\t\tdb_args.Push(dMax" + c.ColumnName + "Id)");
-                        }
-                        code.AppendLine("\t\t\t\tdb_args.Push(d" + c.ColumnName + "s)");
+                    }
+                }
+                else
+                {
+                    if (c.Simple)
+                    {
+                        code.AppendLine("\t\t\tif this.m_" + c.ColumnName + "_changed{");
+                        code.AppendLine("\t\t\t\tupdate_string+=\"" + c.ColumnName + "=?,\"");
+                        code.AppendLine("\t\t\t\tdb_args.Push(this.m_" + c.ColumnName + ")");
                         code.AppendLine("\t\t\t}");
                     }
                     else
                     {
-                        code.AppendLine("\t\t\tif this." + c.ColumnName + ".m_changed{");
-                        code.AppendLine("\t\t\t\tupdate_string+=\"" + c.ColumnName + "=?,\"");
-                        code.AppendLine("\t\t\t\td" + c.ColumnName + ",err:=this." + c.ColumnName + ".save()");
-                        code.AppendLine("\t\t\t\tif err!=nil{");
-                        code.AppendLine("\t\t\t\t\tlog.Error(\"update save " + c.ColumnName + " failed\")");
-                        code.AppendLine("\t\t\t\t\treturn err,false,0,\"\",nil");
-                        code.AppendLine("\t\t\t\t}");
-                        code.AppendLine("\t\t\t\tdb_args.Push(d" + c.ColumnName+")");
-                        code.AppendLine("\t\t\t}");
+                        if (c.Map)
+                        {
+                            code.AppendLine("\t\t\tif this." + c.ColumnName + "s.m_changed{");
+                            if (c.AutoIndex)
+                            {
+                                code.AppendLine("\t\t\t\tupdate_string+=\"Max" + c.ColumnName + "Id=?,\"");
+                            }
+                            code.AppendLine("\t\t\t\tupdate_string+=\"" + c.ColumnName + "s=?,\"");
+                            if (c.AutoIndex)
+                            {
+                                code.AppendLine("\t\t\t\tdMax" + c.ColumnName + "Id,d" + c.ColumnName + "s,err:=this." + c.ColumnName + "s.save()");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t\t\t\td" + c.ColumnName + "s,err:=this." + c.ColumnName + "s.save()");
+                            }
+                            code.AppendLine("\t\t\t\tif err!=nil{");
+                            code.AppendLine("\t\t\t\t\tlog.Error(\"insert save " + c.ColumnName + " failed\")");
+                            code.AppendLine("\t\t\t\t\treturn err,false,0,\"\",nil");
+                            code.AppendLine("\t\t\t\t}");
+                            if (c.AutoIndex)
+                            {
+                                code.AppendLine("\t\t\t\tdb_args.Push(dMax" + c.ColumnName + "Id)");
+                            }
+                            code.AppendLine("\t\t\t\tdb_args.Push(d" + c.ColumnName + "s)");
+                            code.AppendLine("\t\t\t}");
+                        }
+                        else
+                        {
+                            code.AppendLine("\t\t\tif this." + c.ColumnName + ".m_changed{");
+                            code.AppendLine("\t\t\t\tupdate_string+=\"" + c.ColumnName + "=?,\"");
+                            code.AppendLine("\t\t\t\td" + c.ColumnName + ",err:=this." + c.ColumnName + ".save()");
+                            code.AppendLine("\t\t\t\tif err!=nil{");
+                            code.AppendLine("\t\t\t\t\tlog.Error(\"update save " + c.ColumnName + " failed\")");
+                            code.AppendLine("\t\t\t\t\treturn err,false,0,\"\",nil");
+                            code.AppendLine("\t\t\t\t}");
+                            code.AppendLine("\t\t\t\tdb_args.Push(d" + c.ColumnName + ")");
+                            code.AppendLine("\t\t\t}");
+                        }
                     }
                 }
             }
@@ -1790,19 +2060,43 @@ namespace DBCompiler_sql
                     continue;
                 }
 
-                if (c.Simple)
+                if (c.Array > 1)
                 {
-                    code.AppendLine("\tthis.m_" + c.ColumnName + "_changed = false");
+                    for (int i=0; i<c.Array; i++)
+                    {
+                        if (c.Simple)
+                        {
+                            code.AppendLine("\tthis.m_" + ColumnValNameWithIndex(c.ColumnName, i) + "_changed = false");
+                        }
+                        else
+                        {
+                            if (c.Map)
+                            {
+                                code.AppendLine("\tthis." + ColumnValNameWithIndex(c.ColumnName, i) + "s.m_changed = false");
+                            }
+                            else
+                            {
+                                code.AppendLine("\tthis." + ColumnValNameWithIndex(c.ColumnName, i) + ".m_changed = false");
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    if (c.Map)
+                    if (c.Simple)
                     {
-                        code.AppendLine("\tthis." + c.ColumnName + "s.m_changed = false");
+                        code.AppendLine("\tthis.m_" + c.ColumnName + "_changed = false");
                     }
                     else
                     {
-                        code.AppendLine("\tthis." + c.ColumnName + ".m_changed = false");
+                        if (c.Map)
+                        {
+                            code.AppendLine("\tthis." + c.ColumnName + "s.m_changed = false");
+                        }
+                        else
+                        {
+                            code.AppendLine("\tthis." + c.ColumnName + ".m_changed = false");
+                        }
                     }
                 }
             }
@@ -1819,10 +2113,24 @@ namespace DBCompiler_sql
                     continue;
                 }
 
-                if (c.Map)
+                if (c.Array > 1)
                 {
-                    string data_name = "db" + table.TableName + c.ColumnName + "Data";
-                    code.AppendLine("\t\tthis." + c.ColumnName + "s.m_data=make(map[" + GetBigType(c.Fields[0].Type) + "]*" + data_name + ")");
+                    for (int i=0; i<c.Array; i++)
+                    {
+                        if (c.Map)
+                        {
+                            string data_name = "db" + table.TableName + c.ColumnName + "Data";
+                            code.AppendLine("\t\tthis." + ColumnValNameWithIndex(c.ColumnName, i) + "s.m_data=make(map[" + GetBigType(c.Fields[0].Type) + "]*" + data_name + ")");
+                        }
+                    }
+                }
+                else
+                {
+                    if (c.Map)
+                    {
+                        string data_name = "db" + table.TableName + c.ColumnName + "Data";
+                        code.AppendLine("\t\tthis." + c.ColumnName + "s.m_data=make(map[" + GetBigType(c.Fields[0].Type) + "]*" + data_name + ")");
+                    }
                 }
             }
             if (!table.SingleRow)
@@ -2157,17 +2465,38 @@ namespace DBCompiler_sql
                     {
                         continue;
                     }
-                    if (c.Map)
+                    if (c.Array > 1)
                     {
-                        if (c.AutoIndex)
+                        for (int i=0; i<c.Array; i++)
                         {
-                            preload_select_string += "Max" + c.ColumnName + "Id,";
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    preload_select_string += "Max" + ColumnValNameWithIndex(c.ColumnName, i) + "Id,";
+                                }
+                                preload_select_string += ColumnValNameWithIndex(c.ColumnName, i) + "s,";
+                            }
+                            else
+                            {
+                                preload_select_string += ColumnValNameWithIndex(c.ColumnName, i) + ",";
+                            }
                         }
-                        preload_select_string += c.ColumnName + "s,";
                     }
                     else
                     {
-                        preload_select_string += c.ColumnName + ",";
+                        if (c.Map)
+                        {
+                            if (c.AutoIndex)
+                            {
+                                preload_select_string += "Max" + c.ColumnName + "Id,";
+                            }
+                            preload_select_string += c.ColumnName + "s,";
+                        }
+                        else
+                        {
+                            preload_select_string += c.ColumnName + ",";
+                        }
                     }
                 }
                 preload_select_string = preload_select_string.TrimEnd(new char[] { ',' });
@@ -2186,17 +2515,38 @@ namespace DBCompiler_sql
                     {
                         continue;
                     }
-                    if (c.Map)
+                    if (c.Array > 1)
                     {
-                        if (c.AutoIndex)
+                        for (int i=0; i<c.Array; i++)
                         {
-                            preload_select_string += "," + "Max" + c.ColumnName + "Id";
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    preload_select_string += "," + "Max" + ColumnValNameWithIndex(c.ColumnName, i) + "Id";
+                                }
+                                preload_select_string += "," + ColumnValNameWithIndex(c.ColumnName, i) + "s";
+                            }
+                            else
+                            {
+                                preload_select_string += "," + ColumnValNameWithIndex(c.ColumnName, i);
+                            }
                         }
-                        preload_select_string += "," + c.ColumnName + "s";
                     }
                     else
                     {
-                        preload_select_string += "," + c.ColumnName;
+                        if (c.Map)
+                        {
+                            if (c.AutoIndex)
+                            {
+                                preload_select_string += "," + "Max" + c.ColumnName + "Id";
+                            }
+                            preload_select_string += "," + c.ColumnName + "s";
+                        }
+                        else
+                        {
+                            preload_select_string += "," + c.ColumnName;
+                        }
                     }
                 }
                 preload_select_string += " FROM " + db_table_name + "\"";
@@ -2235,17 +2585,38 @@ namespace DBCompiler_sql
                     {
                         load_select_string += ",";
                     }
-                    if (c.Map)
+                    if (c.Array > 1)
                     {
-                        if (c.AutoIndex)
+                        for (int i = 0; i < c.Array; i++)
                         {
-                            load_select_string += "Max" + c.ColumnName + "Id,";
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    load_select_string += "Max" + ColumnValNameWithIndex(c.ColumnName, i) + "Id,";
+                                }
+                                load_select_string += ColumnValNameWithIndex(c.ColumnName, i) + "s";
+                            }
+                            else
+                            {
+                                load_select_string += ColumnValNameWithIndex(c.ColumnName, i);
+                            }
                         }
-                        load_select_string += c.ColumnName + "s";
                     }
                     else
                     {
-                        load_select_string += c.ColumnName;
+                        if (c.Map)
+                        {
+                            if (c.AutoIndex)
+                            {
+                                load_select_string += "Max" + c.ColumnName + "Id,";
+                            }
+                            load_select_string += c.ColumnName + "s";
+                        }
+                        else
+                        {
+                            load_select_string += c.ColumnName;
+                        }
                     }
                 }
 
@@ -2274,25 +2645,60 @@ namespace DBCompiler_sql
                 save_insert_stmt_values_string += ",?";
                 if (c.Simple)
                 {
-                    save_insert_stmt_string += "," + c.ColumnName;
-                }
-                else
-                {
-                    if (c.Map)
+                    if (c.Array > 1)
                     {
-                        if (c.AutoIndex)
+                        for (int i=0; i<c.Array; i++)
                         {
-                            save_insert_stmt_values_string += ",?";
-                            save_insert_stmt_string += ",Max" + c.ColumnName + "Id," + c.ColumnName + "s";
-                        }
-                        else
-                        {
-                            save_insert_stmt_string += "," + c.ColumnName + "s";
+                            save_insert_stmt_string += "," + ColumnValNameWithIndex(c.ColumnName, i);
                         }
                     }
                     else
                     {
                         save_insert_stmt_string += "," + c.ColumnName;
+                    }
+                }
+                else
+                {
+                    if (c.Array > 1)
+                    {
+                        for (int i=0; i<c.Array; i++)
+                        {
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    save_insert_stmt_values_string += ",?";
+                                    save_insert_stmt_string += ",Max" + ColumnValNameWithIndex(c.ColumnName, i) + "Id," + ColumnValNameWithIndex(c.ColumnName, i) + "s";
+                                }
+                                else
+                                {
+                                    save_insert_stmt_string += "," + ColumnValNameWithIndex(c.ColumnName, i) + "s";
+                                }
+                            }
+                            else
+                            {
+                                save_insert_stmt_string += "," + ColumnValNameWithIndex(c.ColumnName, i);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (c.Map)
+                        {
+                            if (c.AutoIndex)
+                            {
+                                save_insert_stmt_values_string += ",?";
+                                save_insert_stmt_string += ",Max" + c.ColumnName + "Id," + c.ColumnName + "s";
+                            }
+                            else
+                            {
+                                save_insert_stmt_string += "," + c.ColumnName + "s";
+                            }
+                        }
+                        else
+                        {
+                            save_insert_stmt_string += "," + c.ColumnName;
+                        }
                     }
                 }
             }
@@ -2400,27 +2806,59 @@ namespace DBCompiler_sql
                 {
                     continue;
                 }
-                if (c.Simple)
+                if (c.Array > 1)
                 {
-                    code.AppendLine("\tvar d" + c.ColumnName + " " + c.SimpleType);
-                    preload_scan_string += "&d" + c.ColumnName+",";
+                    for (int i=0; i<c.Array; i++)
+                    {
+                        if (c.Simple)
+                        {
+                            code.AppendLine("\tvar d" + ColumnValNameWithIndex(c.ColumnName, i) + " " + c.SimpleType);
+                            preload_scan_string += "&d" + ColumnValNameWithIndex(c.ColumnName, i) + ",";
+                        }
+                        else
+                        {
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    code.AppendLine("\tvar dMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id int32");
+                                    preload_scan_string += "&dMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id,";
+                                }
+                                code.AppendLine("\tvar d" + ColumnValNameWithIndex(c.ColumnName, i) + "s []byte");
+                                preload_scan_string += "&d" + ColumnValNameWithIndex(c.ColumnName, i) + "s,";
+                            }
+                            else
+                            {
+                                code.AppendLine("\tvar d" + ColumnValNameWithIndex(c.ColumnName, i) + " []byte");
+                                preload_scan_string += "&d" + ColumnValNameWithIndex(c.ColumnName, i) + ",";
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    if (c.Map)
+                    if (c.Simple)
                     {
-                        if (c.AutoIndex)
-                        {
-                            code.AppendLine("\tvar dMax" + c.ColumnName + "Id int32");
-                            preload_scan_string += "&dMax" + c.ColumnName + "Id,";
-                        }
-                        code.AppendLine("\tvar d" + c.ColumnName + "s []byte");
-                        preload_scan_string += "&d" + c.ColumnName + "s,";
+                        code.AppendLine("\tvar d" + c.ColumnName + " " + c.SimpleType);
+                        preload_scan_string += "&d" + c.ColumnName + ",";
                     }
                     else
                     {
-                        code.AppendLine("\tvar d" + c.ColumnName + " []byte");
-                        preload_scan_string += "&d" + c.ColumnName+",";
+                        if (c.Map)
+                        {
+                            if (c.AutoIndex)
+                            {
+                                code.AppendLine("\tvar dMax" + c.ColumnName + "Id int32");
+                                preload_scan_string += "&dMax" + c.ColumnName + "Id,";
+                            }
+                            code.AppendLine("\tvar d" + c.ColumnName + "s []byte");
+                            preload_scan_string += "&d" + c.ColumnName + "s,";
+                        }
+                        else
+                        {
+                            code.AppendLine("\tvar d" + c.ColumnName + " []byte");
+                            preload_scan_string += "&d" + c.ColumnName + ",";
+                        }
                     }
                 }
             }
@@ -2501,46 +2939,96 @@ namespace DBCompiler_sql
                 {
                     continue;
                 }
-                if (c.Simple)
+                if (c.Array > 1)
                 {
-                    code.AppendLine("\t\trow.m_" + c.ColumnName + "=d" + c.ColumnName);
-                }
-                else
-                {
-                    if (c.Map)
+                    for (int i=0; i<c.Array; i++)
                     {
-                        if (c.AutoIndex)
+                        if (c.Simple)
                         {
-                            code.AppendLine("\t\terr = row." + c.ColumnName + "s.load(dMax" + c.ColumnName + "Id,d" + c.ColumnName + "s)");
+                            code.AppendLine("\t\trow.m_" + ColumnValNameWithIndex(c.ColumnName,i) + "=d" + ColumnValNameWithIndex(c.ColumnName, i));
                         }
                         else
                         {
-                            code.AppendLine("\t\terr = row." + c.ColumnName + "s.load(d" + c.ColumnName + "s)");
+                            if (c.Map)
+                            {
+                                if (c.AutoIndex)
+                                {
+                                    code.AppendLine("\t\terr = row." + ColumnValNameWithIndex(c.ColumnName, i) + "s.load(dMax" + ColumnValNameWithIndex(c.ColumnName, i) + "Id,d" + ColumnValNameWithIndex(c.ColumnName, i) + "s)");
+                                }
+                                else
+                                {
+                                    code.AppendLine("\t\terr = row." + ColumnValNameWithIndex(c.ColumnName, i) + "s.load(d" + ColumnValNameWithIndex(c.ColumnName, i) + "s)");
+                                }
+                            }
+                            else
+                            {
+                                code.AppendLine("\t\terr = row." + ColumnValNameWithIndex(c.ColumnName, i) + ".load(d" + ColumnValNameWithIndex(c.ColumnName, i) + ")");
+                            }
+
+                            code.AppendLine("\t\tif err != nil {");
+                            if (table.SingleRow)
+                            {
+                                code.AppendLine("\t\t\tlog.Error(\"" + ColumnValNameWithIndex(c.ColumnName, i) + " \")");
+                            }
+                            else
+                            {
+                                if (c.Map)
+                                {
+                                    code.AppendLine("\t\t\tlog.Error(\"" + ColumnValNameWithIndex(c.ColumnName, i) + "s %v\", " + table.PrimaryKeyName + ")");
+                                }
+                                else
+                                {
+                                    code.AppendLine("\t\t\tlog.Error(\"" + ColumnValNameWithIndex(c.ColumnName, i) + " %v\", " + table.PrimaryKeyName + ")");
+                                }
+                            }
+                            code.AppendLine("\t\t\treturn");
+                            code.AppendLine("\t\t}");
                         }
                     }
-                    else
+                }
+                else
+                {
+                    if (c.Simple)
                     {
-                        code.AppendLine("\t\terr = row." + c.ColumnName + ".load(d" + c.ColumnName + ")");
-                    }
-
-                    code.AppendLine("\t\tif err != nil {");
-                    if (table.SingleRow)
-                    {
-                        code.AppendLine("\t\t\tlog.Error(\"" + c.ColumnName + " \")");
+                        code.AppendLine("\t\trow.m_" + c.ColumnName + "=d" + c.ColumnName);
                     }
                     else
                     {
                         if (c.Map)
                         {
-                            code.AppendLine("\t\t\tlog.Error(\"" + c.ColumnName + "s %v\", " + table.PrimaryKeyName + ")");
+                            if (c.AutoIndex)
+                            {
+                                code.AppendLine("\t\terr = row." + c.ColumnName + "s.load(dMax" + c.ColumnName + "Id,d" + c.ColumnName + "s)");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t\terr = row." + c.ColumnName + "s.load(d" + c.ColumnName + "s)");
+                            }
                         }
                         else
                         {
-                            code.AppendLine("\t\t\tlog.Error(\"" + c.ColumnName + " %v\", " + table.PrimaryKeyName + ")");
+                            code.AppendLine("\t\terr = row." + c.ColumnName + ".load(d" + c.ColumnName + ")");
                         }
+
+                        code.AppendLine("\t\tif err != nil {");
+                        if (table.SingleRow)
+                        {
+                            code.AppendLine("\t\t\tlog.Error(\"" + c.ColumnName + " \")");
+                        }
+                        else
+                        {
+                            if (c.Map)
+                            {
+                                code.AppendLine("\t\t\tlog.Error(\"" + c.ColumnName + "s %v\", " + table.PrimaryKeyName + ")");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t\t\tlog.Error(\"" + c.ColumnName + " %v\", " + table.PrimaryKeyName + ")");
+                            }
+                        }
+                        code.AppendLine("\t\t\treturn");
+                        code.AppendLine("\t\t}");
                     }
-                    code.AppendLine("\t\t\treturn");
-                    code.AppendLine("\t\t}");
                 }
             }
             foreach (var c in table.Columns)
@@ -2557,7 +3045,17 @@ namespace DBCompiler_sql
 
                 if (c.Simple)
                 {
-                    code.AppendLine("\t\trow.m_" + c.ColumnName + "_changed=false");
+                    if (c.Array > 1)
+                    {
+                        for (int i = 0; i < c.Array; i++)
+                        {
+                            code.AppendLine("\t\trow.m_" + ColumnValNameWithIndex(c.ColumnName,i) + "_changed=false");
+                        }
+                    }
+                    else
+                    {
+                        code.AppendLine("\t\trow.m_" + c.ColumnName + "_changed=false");
+                    }
                 }
 			}
 			code.AppendLine("\t\trow.m_valid = true");
@@ -2915,7 +3413,6 @@ namespace DBCompiler_sql
                     {
                         continue;
                     }
-
                     BuildStruct(struct_def, t.TableName + c.ColumnName, c.Fields);
                 }
             }

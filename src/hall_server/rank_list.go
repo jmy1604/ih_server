@@ -11,11 +11,12 @@ import (
 )
 
 const (
-	RANK_LIST_TYPE_NONE       = iota
-	RANK_LIST_TYPE_ARENA      = 1
-	RANK_LIST_TYPE_CAMPAIGN   = 2
-	RANK_LIST_TYPE_ROLE_POWER = 3
-	RANK_LIST_TYPE_MAX        = 16
+	RANK_LIST_TYPE_NONE              = iota
+	RANK_LIST_TYPE_ARENA             = 1
+	RANK_LIST_TYPE_CAMPAIGN          = 2
+	RANK_LIST_TYPE_ROLE_POWER        = 3
+	RANK_LIST_TYPE_TOP_DEFENSE_TOWER = 15 // 最高防守阵型战力
+	RANK_LIST_TYPE_MAX               = 16
 )
 
 type RankList struct {
@@ -102,11 +103,23 @@ func (this *RankList) DeleteItem(key interface{}) bool {
 	return this.DeleteItem(key)
 }
 
-var root_rank_item []utils.SkiplistNode = []utils.SkiplistNode{
-	nil,
-	&ArenaRankItem{},
-	&CampaignRankItem{},
-	&RolesPowerRankItem{},
+var root_rank_item = []utils.SkiplistNode{
+	nil,                   // 0
+	&ArenaRankItem{},      // 1
+	&CampaignRankItem{},   // 2
+	&RolesPowerRankItem{}, // 3
+	nil,                 // 4
+	nil,                 // 5
+	nil,                 // 6
+	nil,                 // 7
+	nil,                 // 8
+	nil,                 // 9
+	nil,                 // 10
+	nil,                 // 11
+	nil,                 // 12
+	nil,                 // 13
+	nil,                 // 14
+	&TopPowerRankItem{}, // 15
 }
 
 type RankListManager struct {

@@ -849,6 +849,38 @@
 						{"Type":"int32","Index":3,"Name":"SubValues","Repeated":true},
 						{"Type":"int32","Index":4,"Name":"SubNum","Incby":true}
 					]
+				},
+				{
+					"ColumnName":"ExpeditionPlayers",
+					"DBColumnName":"ExpeditionPlayers",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int64","Index":1,"Name":"SerialId"},
+						{"Type":"int32","Index":2,"Name":"PlayerIds","Repeated":true}
+					]
+				},
+				{
+					"Array":10,
+					"ColumnName":"ExpeditionRole",
+					"DBColumnName":"ExpeditionRole",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Pos"},
+						{"Type":"int32","Index":2,"Name":"TableId"},
+						{"Type":"int32","Index":3,"Name":"Rank"},
+						{"Type":"int32","Index":4,"Name":"Level"},
+						{"Type":"int32","Index":5,"Name":"Equip","Repeated":true}
+					]
 				}
 			]
 		},
