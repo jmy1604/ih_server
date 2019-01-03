@@ -2350,15 +2350,6 @@ namespace DBCompiler_sql
                 {
                     continue;
                 }
-
-                if (c.Map)
-                {
-                    
-                }
-                else
-                {
-                    
-                }
                 
                 if (c.Map)
                 {
