@@ -1333,7 +1333,7 @@ namespace DBCompiler_sql
             string row_name = "db" + t.TableName + "Row";
             string column_name = "db" + t.TableName + c.ColumnName + "Column";
             string data_name = "db" + t.TableName + c.ColumnName + "Data";
-            string column_val_name = column_name;
+            string column_val_name = c.ColumnName;
             if (array_index >= 0) {
                 column_val_name = column_val_name + array_index.ToString();
             }
@@ -1341,22 +1341,22 @@ namespace DBCompiler_sql
             if (c.Simple)
             {
                 //members
-                row_members.AppendLine("\tm_" + column_val_name/*c.ColumnName*/ + "_changed bool");
-                row_members.AppendLine("\tm_" + column_val_name/*c.ColumnName*/ + " " + c.SimpleType);
+                row_members.AppendLine("\tm_" + c.ColumnName + "_changed bool");
+                row_members.AppendLine("\tm_" + c.ColumnName + " " + c.SimpleType);
 
                 //get
-                code.AppendLine("func (this *" + row_name + ")Get" + column_val_name/*c.ColumnName*/ + "( )(r " + GetBigType(c.SimpleType) + " ){");
+                code.AppendLine("func (this *" + row_name + ")Get" + c.ColumnName + "( )(r " + GetBigType(c.SimpleType) + " ){");
                 code.AppendLine("\tthis.m_lock.UnSafeRLock(\"" + row_name + ".Get" + column_name + "\")");
                 code.AppendLine("\tdefer this.m_lock.UnSafeRUnlock()");
-                code.AppendLine("\treturn " + GetBigType(c.SimpleType) + "(this.m_" + column_val_name/*c.ColumnName*/ + ")");
+                code.AppendLine("\treturn " + GetBigType(c.SimpleType) + "(this.m_" + c.ColumnName + ")");
                 code.AppendLine("}");
 
                 //set
-                code.AppendLine("func (this *" + row_name + ")Set" + column_val_name/*c.ColumnName*/ + "(v " + GetBigType(c.SimpleType) + "){");
+                code.AppendLine("func (this *" + row_name + ")Set" + c.ColumnName + "(v " + GetBigType(c.SimpleType) + "){");
                 code.AppendLine("\tthis.m_lock.UnSafeLock(\"" + row_name + ".Set" + column_name + "\")");
                 code.AppendLine("\tdefer this.m_lock.UnSafeUnlock()");
-                code.AppendLine("\tthis.m_" + column_val_name/*c.ColumnName*/ + "=" + c.SimpleType + "(v)");
-                code.AppendLine("\tthis.m_" + column_val_name/*c.ColumnName*/ + "_changed=true");
+                code.AppendLine("\tthis.m_" + c.ColumnName + "=" + c.SimpleType + "(v)");
+                code.AppendLine("\tthis.m_" + c.ColumnName + "_changed=true");
                 code.AppendLine("\treturn");
                 code.AppendLine("}");
 
@@ -1864,19 +1864,19 @@ namespace DBCompiler_sql
                     continue;
                 }
 
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    code.Append("||");
-                }
-
                 if (c.Array > 1)
                 {
                     for (int i=0; i<c.Array; i++)
                     {
+                        if (first)
+                        {
+                            first = false;
+                        }
+                        else
+                        {
+                            code.Append("||");
+                        }
+
                         if (c.Simple)
                         {
                             update_count++;
@@ -1903,6 +1903,15 @@ namespace DBCompiler_sql
                 }
                 else
                 {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        code.Append("||");
+                    }
+
                     if (c.Simple)
                     {
                         update_count++;
