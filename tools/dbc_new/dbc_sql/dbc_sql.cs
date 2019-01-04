@@ -1406,6 +1406,113 @@ namespace DBCompiler_sql
             return column_name + index.ToString();
         }
 
+        static void check_create_table(DbColumn c, StringBuilder code, string db_table_name, int array_index = -1)
+        {
+            string column_val = c.DBColumnName;
+            if (array_index >= 0)
+            {
+                column_val = column_val + array_index.ToString();
+            }
+            if (c.Map)
+            {
+                if (c.AutoIndex)
+                {
+                    code.AppendLine("\t_, hasMax" + /*c.DBColumnName*/column_val + " := columns[\"Max" + /*c.DBColumnName*/column_val + "Id\"]");
+                    code.AppendLine("\tif !hasMax" + /*c.DBColumnName*/column_val + " {");
+                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN Max" + /*c.DBColumnName*/column_val + "Id" + " int(11) DEFAULT 0\")");
+                    code.AppendLine("\t\tif err != nil {");
+                    code.AppendLine("\t\t\tlog.Error(\"ADD COLUMN map index Max" + /*c.DBColumnName*/column_val + "Id failed\")");
+                    code.AppendLine("\t\t\treturn");
+                    code.AppendLine("\t\t}");
+                    code.AppendLine("\t}");
+                }
+                code.AppendLine("\t_, has" + /*c.DBColumnName*/column_val + " := columns[\"" + /*c.DBColumnName*/column_val + "s\"]");
+                code.AppendLine("\tif !has" + /*c.DBColumnName*/column_val + " {");
+                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + "s LONGBLOB\")");
+            }
+            else
+            {
+                code.AppendLine("\t_, has" + /*c.DBColumnName*/column_val + " := columns[\"" + /*c.DBColumnName*/column_val + "\"]");
+                code.AppendLine("\tif !has" + /*c.DBColumnName*/column_val + " {");
+                if (c.Simple)
+                {
+                    if (IsBaseType(c.SimpleType))
+                    {
+                        string big_type = GetBigType(c.SimpleType);
+                        if (big_type == "bytes")
+                        {
+                            code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " LONGBLOB\")");
+                        }
+                        else if (big_type == "string")
+                        {
+                            if (c.DefaultValue != null)
+                            {
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " varchar(45) DEFAULT \'" + c.DefaultValue + "\'\")");//todo
+                            }
+                            else
+                            {
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " varchar(45)\")");//todo
+                            }
+                        }
+                        else if (big_type == "float32")
+                        {
+                            if (c.DefaultValue != null)
+                            {
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " float DEFAULT " + c.DefaultValue + "\")");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " float\")");
+                            }
+                        }
+                        else if (big_type == "int32")
+                        {
+                            if (c.DefaultValue != null)
+                            {
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " int(11) DEFAULT " + c.DefaultValue + "\")");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " int(11)\")");
+                            }
+                        }
+                        else if (big_type == "int64")
+                        {
+                            if (c.DefaultValue != null)
+                            {
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " bigint(20) DEFAULT " + c.DefaultValue + "\")");
+                            }
+                            else
+                            {
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " bigint(20)\")");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " LONGBLOB\")");
+                    }
+                }
+                else
+                {
+                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " LONGBLOB\")");
+                }
+            }
+            code.AppendLine("\t\tif err != nil {");
+            if (c.Map)
+            {
+                code.AppendLine("\t\t\tlog.Error(\"ADD COLUMN " + /*c.DBColumnName*/column_val + "s failed\")");
+            }
+            else
+            {
+                code.AppendLine("\t\t\tlog.Error(\"ADD COLUMN " + /*c.DBColumnName*/column_val + " failed\")");
+            }
+
+            code.AppendLine("\t\t\treturn");
+            code.AppendLine("\t\t}");
+            code.AppendLine("\t}");
+        }
+
         static void BuildTable(DbTable table, StringBuilder code)
         {
             if (table.PrimaryKeyType != "string" && table.PrimaryKeyType != "int32" && table.PrimaryKeyType != "int64")
@@ -2351,104 +2458,17 @@ namespace DBCompiler_sql
                     continue;
                 }
                 
-                if (c.Map)
+                if (c.Array > 1)
                 {
-                    if (c.AutoIndex)
+                    for (int i =0; i<c.Array; i++)
                     {
-                        code.AppendLine("\t_, hasMax" + c.DBColumnName + " := columns[\"Max" + c.DBColumnName + "Id\"]");
-                        code.AppendLine("\tif !hasMax" + c.DBColumnName + " {");
-                        code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN Max" + c.DBColumnName + "Id" + " int(11) DEFAULT 0\")");
-                        code.AppendLine("\t\tif err != nil {");
-                        code.AppendLine("\t\t\tlog.Error(\"ADD COLUMN map index Max" + c.DBColumnName + "Id failed\")");
-                        code.AppendLine("\t\t\treturn");
-                        code.AppendLine("\t\t}");
-                        code.AppendLine("\t}");
+                        check_create_table(c, code, db_table_name, i);
                     }
-                    code.AppendLine("\t_, has" + c.DBColumnName + " := columns[\"" + c.DBColumnName + "s\"]");
-                    code.AppendLine("\tif !has" + c.DBColumnName + " {");
-                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + "s LONGBLOB\")");
                 }
                 else
                 {
-                    code.AppendLine("\t_, has" + c.DBColumnName + " := columns[\"" + c.DBColumnName + "\"]");
-                    code.AppendLine("\tif !has" + c.DBColumnName + " {");
-                    if (c.Simple)
-                    {
-                        if (IsBaseType(c.SimpleType))
-                        {
-                            string big_type = GetBigType(c.SimpleType);
-                            if (big_type == "bytes")
-                            {
-                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " LONGBLOB\")");
-                            }
-                            else if (big_type == "string")
-                            {
-                                if (c.DefaultValue != null)
-                                {
-                                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " varchar(45) DEFAULT \'" + c.DefaultValue + "\'\")");//todo
-                                }
-                                else
-                                {
-                                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " varchar(45)\")");//todo
-                                }
-                            }
-                            else if (big_type == "float32")
-                            {
-                                if (c.DefaultValue != null)
-                                {
-                                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " float DEFAULT " + c.DefaultValue + "\")");
-                                }
-                                else
-                                {
-                                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " float\")");
-                                }
-                            }
-                            else if (big_type == "int32")
-                            {
-                                if (c.DefaultValue != null)
-                                {
-                                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " int(11) DEFAULT " + c.DefaultValue + "\")");
-                                }
-                                else
-                                {
-                                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " int(11)\")");
-                                }
-                            }
-                            else if (big_type == "int64")
-                            {
-                                if (c.DefaultValue != null)
-                                {
-                                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " bigint(20) DEFAULT " + c.DefaultValue + "\")");
-                                }
-                                else
-                                {
-                                    code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " bigint(20)\")");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " LONGBLOB\")");
-                        }
-                    }
-                    else
-                    {
-                        code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + c.DBColumnName + " LONGBLOB\")");
-                    }
+                    check_create_table(c, code, db_table_name, -1);
                 }
-                code.AppendLine("\t\tif err != nil {");
-                if (c.Map)
-                {
-                    code.AppendLine("\t\t\tlog.Error(\"ADD COLUMN " + c.DBColumnName + "s failed\")");
-                }
-                else
-                {
-                    code.AppendLine("\t\t\tlog.Error(\"ADD COLUMN " + c.DBColumnName + " failed\")");
-                }
-
-                code.AppendLine("\t\t\treturn");
-                code.AppendLine("\t\t}");
-                code.AppendLine("\t}");
             }
             code.AppendLine("\treturn");
             code.AppendLine("}");

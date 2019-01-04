@@ -366,6 +366,8 @@ func (this *TowerRankingList) GetMsgs() (ranking_list []*msg_client_message.Towe
 			PlayerHead:  p.db.Info.GetHead(),
 		})
 	}
+
+	log.Debug("Tower Rank list %v", ranking_list)
 	return
 }
 

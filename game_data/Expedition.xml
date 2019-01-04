@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item ID="1" StageType="1" PlayerCardMax="5" EnemyBattlePower="3000" GoldBase="(F6+1000)*5" GoldRate="5000" TokenBase="100" TokenRate="10" BattleNum="5" />
+     <item ID="2" StageType="1" PlayerCardMax="5" EnemyBattlePower="4000" GoldBase="(F7+1000)*5" GoldRate="5500" TokenBase="100" TokenRate="10" BattleNum="5" />
+     <item ID="3" StageType="2" PlayerCardMax="5" EnemyBattlePower="7000" GoldBase="(F8+1000)*5" GoldRate="8000" TokenBase="300" TokenRate="10" BattleNum="5" />
+     <item ID="4" StageType="1" PlayerCardMax="5" EnemyBattlePower="4000" GoldBase="(F9+1000)*5" GoldRate="6000" TokenBase="100" TokenRate="10" BattleNum="5" />
+     <item ID="5" StageType="1" PlayerCardMax="5" EnemyBattlePower="5000" GoldBase="(F10+1000)*5" GoldRate="6500" TokenBase="100" TokenRate="10" BattleNum="5" />
+     <item ID="6" StageType="2" PlayerCardMax="5" EnemyBattlePower="8000" GoldBase="(F11+1000)*5" GoldRate="8500" TokenBase="300" TokenRate="10" BattleNum="5" />
+     <item ID="7" StageType="1" PlayerCardMax="5" EnemyBattlePower="5000" GoldBase="(F12+1000)*5" GoldRate="7000" TokenBase="100" TokenRate="10" BattleNum="5" />
+     <item ID="8" StageType="1" PlayerCardMax="5" EnemyBattlePower="6000" GoldBase="(F13+1000)*5" GoldRate="7500" TokenBase="100" TokenRate="10" BattleNum="5" />
+     <item ID="9" StageType="2" PlayerCardMax="5" EnemyBattlePower="9000" GoldBase="(F14+1000)*5" GoldRate="9000" TokenBase="300" TokenRate="10" BattleNum="5" />
+     <item ID="10" StageType="3" PlayerCardMax="5" EnemyBattlePower="11000" GoldBase="(F15+1000)*5" GoldRate="10000" TokenBase="500" TokenRate="10" BattleNum="5" />
+</Config>

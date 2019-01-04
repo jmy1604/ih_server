@@ -141,6 +141,7 @@ message PlayerTowerCommon{
 	optional int32 CurrId=1;
 	optional int32 Keys=2;
 	optional int32 LastGetNewKeyTime=3;
+	optional int32 RankSerialId=4;
 }
 
 message PlayerTower{

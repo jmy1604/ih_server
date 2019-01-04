@@ -765,6 +765,7 @@ type dbPlayerTowerCommonData struct{
 	CurrId int32
 	Keys int32
 	LastGetNewKeyTime int32
+	RankSerialId int32
 }
 func (this* dbPlayerTowerCommonData)from_pb(pb *db.PlayerTowerCommon){
 	if pb == nil {
@@ -773,6 +774,7 @@ func (this* dbPlayerTowerCommonData)from_pb(pb *db.PlayerTowerCommon){
 	this.CurrId = pb.GetCurrId()
 	this.Keys = pb.GetKeys()
 	this.LastGetNewKeyTime = pb.GetLastGetNewKeyTime()
+	this.RankSerialId = pb.GetRankSerialId()
 	return
 }
 func (this* dbPlayerTowerCommonData)to_pb()(pb *db.PlayerTowerCommon){
@@ -780,12 +782,14 @@ func (this* dbPlayerTowerCommonData)to_pb()(pb *db.PlayerTowerCommon){
 	pb.CurrId = proto.Int32(this.CurrId)
 	pb.Keys = proto.Int32(this.Keys)
 	pb.LastGetNewKeyTime = proto.Int32(this.LastGetNewKeyTime)
+	pb.RankSerialId = proto.Int32(this.RankSerialId)
 	return
 }
 func (this* dbPlayerTowerCommonData)clone_to(d *dbPlayerTowerCommonData){
 	d.CurrId = this.CurrId
 	d.Keys = this.Keys
 	d.LastGetNewKeyTime = this.LastGetNewKeyTime
+	d.RankSerialId = this.RankSerialId
 	return
 }
 type dbPlayerTowerData struct{
@@ -5071,6 +5075,19 @@ func (this *dbPlayerTowerCommonColumn)SetLastGetNewKeyTime(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerTowerCommonColumn.SetLastGetNewKeyTime")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.LastGetNewKeyTime = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerTowerCommonColumn)GetRankSerialId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTowerCommonColumn.GetRankSerialId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.RankSerialId
+	return
+}
+func (this *dbPlayerTowerCommonColumn)SetRankSerialId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerTowerCommonColumn.SetRankSerialId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.RankSerialId = v
 	this.m_changed = true
 	return
 }
@@ -12886,11 +12903,83 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasExpeditionRole := columns["ExpeditionRoles"]
-	if !hasExpeditionRole {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRoles LONGBLOB")
+	_, hasExpeditionRole0 := columns["ExpeditionRole0s"]
+	if !hasExpeditionRole0 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole0s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRoles failed")
+			log.Error("ADD COLUMN ExpeditionRole0s failed")
+			return
+		}
+	}
+	_, hasExpeditionRole1 := columns["ExpeditionRole1s"]
+	if !hasExpeditionRole1 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole1s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRole1s failed")
+			return
+		}
+	}
+	_, hasExpeditionRole2 := columns["ExpeditionRole2s"]
+	if !hasExpeditionRole2 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole2s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRole2s failed")
+			return
+		}
+	}
+	_, hasExpeditionRole3 := columns["ExpeditionRole3s"]
+	if !hasExpeditionRole3 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole3s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRole3s failed")
+			return
+		}
+	}
+	_, hasExpeditionRole4 := columns["ExpeditionRole4s"]
+	if !hasExpeditionRole4 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole4s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRole4s failed")
+			return
+		}
+	}
+	_, hasExpeditionRole5 := columns["ExpeditionRole5s"]
+	if !hasExpeditionRole5 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole5s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRole5s failed")
+			return
+		}
+	}
+	_, hasExpeditionRole6 := columns["ExpeditionRole6s"]
+	if !hasExpeditionRole6 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole6s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRole6s failed")
+			return
+		}
+	}
+	_, hasExpeditionRole7 := columns["ExpeditionRole7s"]
+	if !hasExpeditionRole7 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole7s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRole7s failed")
+			return
+		}
+	}
+	_, hasExpeditionRole8 := columns["ExpeditionRole8s"]
+	if !hasExpeditionRole8 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole8s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRole8s failed")
+			return
+		}
+	}
+	_, hasExpeditionRole9 := columns["ExpeditionRole9s"]
+	if !hasExpeditionRole9 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole9s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionRole9s failed")
 			return
 		}
 	}

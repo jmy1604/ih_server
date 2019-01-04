@@ -108,18 +108,18 @@ var root_rank_item = []utils.SkiplistNode{
 	&ArenaRankItem{},      // 1
 	&CampaignRankItem{},   // 2
 	&RolesPowerRankItem{}, // 3
-	nil,                 // 4
-	nil,                 // 5
-	nil,                 // 6
-	nil,                 // 7
-	nil,                 // 8
-	nil,                 // 9
-	nil,                 // 10
-	nil,                 // 11
-	nil,                 // 12
-	nil,                 // 13
-	nil,                 // 14
-	&TopPowerRankItem{}, // 15
+	nil, // 4
+	nil, // 5
+	nil, // 6
+	nil, // 7
+	nil, // 8
+	nil, // 9
+	nil, // 10
+	nil, // 11
+	nil, // 12
+	nil, // 13
+	nil, // 14
+	//&TopPowerRankItem{}, // 15
 }
 
 type RankListManager struct {

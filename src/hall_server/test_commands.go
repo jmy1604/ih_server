@@ -2347,6 +2347,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"role_displace":          role_displace_cmd,
 	"role_displace_confirm":  role_displace_confirm_cmd,
 	"activity_data":          activity_data_cmd,
+	"test_power":             test_power_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {
