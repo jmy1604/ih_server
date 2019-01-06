@@ -290,49 +290,49 @@ func (this *Skiplist) GetLayerLength(layer int32) int32 {
 	return this.lengths_num[layer-1]
 }
 
-type PlayerId int32
+type Int32Value int32
 
-func (this PlayerId) Less(id interface{}) bool {
-	if this < id.(PlayerId) {
+func (this Int32Value) Less(id interface{}) bool {
+	if this < id.(Int32Value) {
 		return true
 	}
 	return false
 }
 
-func (this PlayerId) Greater(id interface{}) bool {
-	if this > id.(PlayerId) {
+func (this Int32Value) Greater(id interface{}) bool {
+	if this > id.(Int32Value) {
 		return true
 	}
 	return false
 }
 
-func (this PlayerId) KeyEqual(id interface{}) bool {
+func (this Int32Value) KeyEqual(id interface{}) bool {
 	if this == id {
 		return true
 	}
 	return false
 }
 
-func (this PlayerId) GetKey() interface{} {
+func (this Int32Value) GetKey() interface{} {
 	return this
 }
 
-func (this PlayerId) GetValue() interface{} {
+func (this Int32Value) GetValue() interface{} {
 	return this
 }
 
-func (this PlayerId) SetValue(value interface{}) {
+func (this Int32Value) SetValue(value interface{}) {
 
 }
 
-func (this PlayerId) New() SkiplistNode {
+func (this Int32Value) New() SkiplistNode {
 	return this
 }
 
-func (this PlayerId) Assign(node SkiplistNode) {
+func (this Int32Value) Assign(node SkiplistNode) {
 }
 
-func (this PlayerId) CopyDataTo(node interface{}) {
+func (this Int32Value) CopyDataTo(node interface{}) {
 
 }
 
@@ -430,9 +430,9 @@ func SkiplistTest(node_count int32) {
 
 	now_time := time.Now()
 	rand.Seed(now_time.Unix() + now_time.UnixNano())
-	player_ids := make([]PlayerId, node_count)
+	player_ids := make([]Int32Value, node_count)
 	for i := 0; i < len(player_ids); i++ {
-		n := PlayerId(rand.Int31n(1000000))
+		n := Int32Value(rand.Int31n(1000000))
 		sp.Insert(n)
 	}
 	end_time := time.Now()

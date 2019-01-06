@@ -2203,6 +2203,22 @@ func activity_data_cmd(p *Player, args []string) int32 {
 	return p.activity_data()
 }
 
+func test_power_cmd(p *Player, args []string) int32 {
+	type info struct {
+		player_id int32
+		power     int32
+	}
+	var info_list = []info{
+		{player_id: 1, power: 100},
+		{player_id: 2, power: 200},
+	}
+	rank_list := NewTopPowerRanklist(&TopPowerRankItem{}, 100)
+	for _, v := range info_list {
+		rank_list.Update(v.player_id, v.power)
+	}
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{

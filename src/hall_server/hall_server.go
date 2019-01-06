@@ -79,8 +79,6 @@ func (this *HallServer) Init() (ok bool) {
 	guild_stage_manager.Init()
 	// 载入公会副本伤害列表
 	guild_manager.LoadDB4StageDamageList()
-	// 最高战力玩家管理
-	top_power_area_mgr.Init()
 
 	this.initialized = true
 
