@@ -251,7 +251,7 @@ func (this *TopPowerRanklist) GetNearestRandPlayer(power int32) int32 {
 		for {
 			_r := (left + right) / 2
 			if r == _r {
-				return _r
+				break
 			}
 			r = _r
 
