@@ -155,7 +155,7 @@ func (this *DBC) Loop() {
 		if err != nil {
 			log.Error("save db failed %v", err)
 		}
-		log.Trace("db存数据花费时长: %v", time.Now().Sub(begin).Nanoseconds())
+		log.Trace("db存数据花费时长: %vms", time.Now().Sub(begin).Nanoseconds()/1000000)
 		
 		/*
 			now_time_hour := int32(time.Now().Hour())
