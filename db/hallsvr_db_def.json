@@ -852,8 +852,8 @@
 					]
 				},
 				{
-					"ColumnName":"ExpeditionPlayers",
-					"DBColumnName":"ExpeditionPlayers",
+					"ColumnName":"ExpeditionData",
+					"DBColumnName":"ExpeditionData",
 					"InUse":true,
 					"Simple":false,
 					"SimpleType":"",
@@ -861,14 +861,30 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int64","Index":1,"Name":"SerialId"},
-						{"Type":"int32","Index":2,"Name":"PlayerIds","Repeated":true}
+						{"Type":"int32","Index":1,"Name":"RefreshTime"},
+						{"Type":"int32","Index":2,"Name":"PlayerIds","Repeated":true},
+						{"Type":"int32","Index":3,"Name":"CurrLevel","Incby":true},
+						{"Type":"int32","Index":4,"Name":"PlayerPowers","Repeated":true}
+					]
+				},
+				{
+					"ColumnName":"ExpeditionRole",
+					"DBColumnName":"ExpeditionRole",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"HP"}
 					]
 				},
 				{
 					"Array":10,
-					"ColumnName":"ExpeditionRole",
-					"DBColumnName":"ExpeditionRole",
+					"ColumnName":"ExpeditionLevelRole",
+					"DBColumnName":"ExpeditionLevelRole",
 					"InUse":true,
 					"Simple":false,
 					"SimpleType":"",
@@ -880,7 +896,9 @@
 						{"Type":"int32","Index":2,"Name":"TableId"},
 						{"Type":"int32","Index":3,"Name":"Rank"},
 						{"Type":"int32","Index":4,"Name":"Level"},
-						{"Type":"int32","Index":5,"Name":"Equip","Repeated":true}
+						{"Type":"int32","Index":5,"Name":"Equip","Repeated":true},
+						{"Type":"int32","Index":6,"Name":"HP"},
+						{"Type":"int32","Index":7,"Name":"HpPercent"}
 					]
 				}
 			]

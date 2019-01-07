@@ -119,6 +119,8 @@ type GlobalConfig struct {
 	MonthCardSendRewardTime string // 月卡发奖时间
 
 	AccelHungupRefreshCostDiamond int32 // 加速挂机刷新花费钻石
+
+	ExpeditionRefreshTime string // 远征重置时间
 }
 
 func (this *GlobalConfig) Init(config_file string) bool {

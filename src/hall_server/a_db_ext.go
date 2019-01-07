@@ -27,6 +27,11 @@ func (this *DBC) on_preload() (err error) {
 			p.db.SetLevel(p.db.Info.GetLvl())
 		}
 
+		defense_power := p.get_defense_team_power()
+		if defense_power > 0 {
+			arena_season_mgr.top_power_ranklist.Update(p.Id, defense_power)
+		}
+
 		//login_token_mgr.AddToAcc2Token(p.Account, p.Token, p.Id)
 		//login_token_mgr.AddToId2Acc(p.Id, p.Account)
 	}

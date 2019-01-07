@@ -597,8 +597,8 @@ message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
 	int32 CampaignId						= 3; // 战役ID
-	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务    7 探索剧情任务    8 好友切磋     9 公会副本
-	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID    探索剧情任务ID    好友ID         公会副本ID
+	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务    7 探索剧情任务    8 好友切磋     9 公会副本       10 远征
+	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID    探索剧情任务ID    好友ID         公会副本ID        
 	int32 AssistFriendId					= 6; // 助战好友ID
 	int32 AssistRoleId					 	= 7; // 助战角色ID
 	int32 AssistPos							= 8; // 助战角色阵型位置
@@ -2250,7 +2250,7 @@ message S2CGuideDataResponse {
 	bytes Data								= 1;
 }
 
-// ----------------------------------- 活动 -----------------------------------
+// ---------------------------------- 活动 ------------------------------------
 
 // 子活动数据
 message SubActivityData {
@@ -2290,4 +2290,40 @@ message C2SActivityExchangeRequest {
 message S2CActivityExchangeResponse {
 	int32 Id								= 1;
 	int32 SubId								= 2;
+}
+
+// ---------------------------------- 远征 ------------------------------------
+// 数据请求
+message C2SExpeditionDataRequest {
+}
+
+message ExpeditionSelfRole {
+	int32 Id								= 1; // 角色ID
+	int32 HP 								= 2; // 当前血量
+}
+message S2CExpeditionDataResponse {
+	int32 CurrLevel							= 1; // 当前关卡  0 开始
+	int32 RemainRefreshSeconds              = 2; // 剩余刷新时间
+	repeated ExpeditionSelfRole Roles		= 3; // 已使用的角色列表
+}
+
+// 当前关卡数据
+message C2SExpeditionLevelDataRequest {
+}
+
+message ExpeditionEnemyRole {
+	int32 Position							= 1; // 位置
+	int32 TableId							= 2; // 配置ID
+	int32 Rank								= 3; // 品阶
+	int32 Level								= 4; // 等级
+	int32 HpPercent							= 5; // 血量百分比
+}
+message S2CExpeditionLevelDataResponse {
+	int32 PlayerId							= 1; // 玩家ID
+	string PlayerName						= 2; // 玩家名称
+	int32 PlayerLevel						= 3; // 玩家等级
+	int32 PlayerVipLevel					= 4; // 玩家VIP等级
+	int32 PlayerHead						= 5; // 玩家头像
+	int32 PlayerPower						= 6; // 玩家战力
+	repeated ExpeditionEnemyRole RoleList   = 7; // 对方角色列表
 }

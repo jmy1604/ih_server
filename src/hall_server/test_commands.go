@@ -264,7 +264,7 @@ func set_attack_team_cmd(p *Player, args []string) int32 {
 		team = append(team, int32(role_id))
 	}
 
-	if p.SetTeam(BATTLE_ATTACK_TEAM, team) < 0 {
+	if p.SetTeam(BATTLE_TEAM_ATTACK, team) < 0 {
 		log.Error("设置玩家[%v]攻击阵容失败", p.Id)
 		return -1
 	}
@@ -290,7 +290,7 @@ func set_defense_team_cmd(p *Player, args []string) int32 {
 		team = append(team, int32(role_id))
 	}
 
-	if p.SetTeam(BATTLE_DEFENSE_TEAM, team) < 0 {
+	if p.SetTeam(BATTLE_TEAM_DEFENSE, team) < 0 {
 		log.Error("设置玩家[%v]防守阵容失败", p.Id)
 		return -1
 	}
@@ -2245,29 +2245,29 @@ func test_power_cmd(p *Player, args []string) int32 {
 		{player_id: 10, power: 100},
 	}*/
 
-	var info_num int32 = 100
+	var info_num int32 = 10000
 	rand.Seed(time.Now().Unix())
 	var info_list []*info = make([]*info, info_num)
 	for i := int32(0); i < info_num; i++ {
 		info_list[i] = &info{}
-		_, info_list[i].player_id = rand31n_from_range(1, 10000)
-		_, info_list[i].power = rand31n_from_range(1, 10000)
+		_, info_list[i].player_id = rand31n_from_range(1, 100000)
+		_, info_list[i].power = rand31n_from_range(1, 100000)
 	}
 
-	rank_list := NewTopPowerRanklist(&TopPowerRankItem{}, 100)
+	rank_list := NewTopPowerRanklist(&TopPowerRankItem{}, 100000)
 	for _, v := range info_list {
 		rank_list.Update(v.player_id, v.power)
 	}
 	rank_list.OutputList()
 
-	var r int32
+	var pid int32
 	begin := time.Now()
 	for i := 0; i < count; i++ {
-		r = rank_list.GetNearestRank(int32(power))
+		pid = rank_list.GetNearestRandPlayer(int32(power))
 	}
 	cost_ms := time.Now().Sub(begin).Nanoseconds() / 1000000
 
-	log.Trace("@@@ get the nearest rank is %v, count %v, cost ms %v", r, count, cost_ms)
+	log.Trace("@@@ get the last nearest player is %v, count %v, cost ms %v", pid, count, cost_ms)
 
 	return 1
 }

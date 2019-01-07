@@ -2007,47 +2007,90 @@ func (this* dbPlayerActivityDataData)clone_to(d *dbPlayerActivityDataData){
 	d.SubNum = this.SubNum
 	return
 }
-type dbPlayerExpeditionPlayersData struct{
-	SerialId int64
+type dbPlayerExpeditionDataData struct{
+	RefreshTime int32
 	PlayerIds []int32
+	CurrLevel int32
+	PlayerPowers []int32
 }
-func (this* dbPlayerExpeditionPlayersData)from_pb(pb *db.PlayerExpeditionPlayers){
+func (this* dbPlayerExpeditionDataData)from_pb(pb *db.PlayerExpeditionData){
 	if pb == nil {
 		this.PlayerIds = make([]int32,0)
+		this.PlayerPowers = make([]int32,0)
 		return
 	}
-	this.SerialId = pb.GetSerialId()
+	this.RefreshTime = pb.GetRefreshTime()
 	this.PlayerIds = make([]int32,len(pb.GetPlayerIds()))
 	for i, v := range pb.GetPlayerIds() {
 		this.PlayerIds[i] = v
 	}
+	this.CurrLevel = pb.GetCurrLevel()
+	this.PlayerPowers = make([]int32,len(pb.GetPlayerPowers()))
+	for i, v := range pb.GetPlayerPowers() {
+		this.PlayerPowers[i] = v
+	}
 	return
 }
-func (this* dbPlayerExpeditionPlayersData)to_pb()(pb *db.PlayerExpeditionPlayers){
-	pb = &db.PlayerExpeditionPlayers{}
-	pb.SerialId = proto.Int64(this.SerialId)
+func (this* dbPlayerExpeditionDataData)to_pb()(pb *db.PlayerExpeditionData){
+	pb = &db.PlayerExpeditionData{}
+	pb.RefreshTime = proto.Int32(this.RefreshTime)
 	pb.PlayerIds = make([]int32, len(this.PlayerIds))
 	for i, v := range this.PlayerIds {
 		pb.PlayerIds[i]=v
 	}
+	pb.CurrLevel = proto.Int32(this.CurrLevel)
+	pb.PlayerPowers = make([]int32, len(this.PlayerPowers))
+	for i, v := range this.PlayerPowers {
+		pb.PlayerPowers[i]=v
+	}
 	return
 }
-func (this* dbPlayerExpeditionPlayersData)clone_to(d *dbPlayerExpeditionPlayersData){
-	d.SerialId = this.SerialId
+func (this* dbPlayerExpeditionDataData)clone_to(d *dbPlayerExpeditionDataData){
+	d.RefreshTime = this.RefreshTime
 	d.PlayerIds = make([]int32, len(this.PlayerIds))
 	for _ii, _vv := range this.PlayerIds {
 		d.PlayerIds[_ii]=_vv
 	}
+	d.CurrLevel = this.CurrLevel
+	d.PlayerPowers = make([]int32, len(this.PlayerPowers))
+	for _ii, _vv := range this.PlayerPowers {
+		d.PlayerPowers[_ii]=_vv
+	}
 	return
 }
 type dbPlayerExpeditionRoleData struct{
+	Id int32
+	HP int32
+}
+func (this* dbPlayerExpeditionRoleData)from_pb(pb *db.PlayerExpeditionRole){
+	if pb == nil {
+		return
+	}
+	this.Id = pb.GetId()
+	this.HP = pb.GetHP()
+	return
+}
+func (this* dbPlayerExpeditionRoleData)to_pb()(pb *db.PlayerExpeditionRole){
+	pb = &db.PlayerExpeditionRole{}
+	pb.Id = proto.Int32(this.Id)
+	pb.HP = proto.Int32(this.HP)
+	return
+}
+func (this* dbPlayerExpeditionRoleData)clone_to(d *dbPlayerExpeditionRoleData){
+	d.Id = this.Id
+	d.HP = this.HP
+	return
+}
+type dbPlayerExpeditionLevelRoleData struct{
 	Pos int32
 	TableId int32
 	Rank int32
 	Level int32
 	Equip []int32
+	HP int32
+	HpPercent int32
 }
-func (this* dbPlayerExpeditionRoleData)from_pb(pb *db.PlayerExpeditionRole){
+func (this* dbPlayerExpeditionLevelRoleData)from_pb(pb *db.PlayerExpeditionLevelRole){
 	if pb == nil {
 		this.Equip = make([]int32,0)
 		return
@@ -2060,10 +2103,12 @@ func (this* dbPlayerExpeditionRoleData)from_pb(pb *db.PlayerExpeditionRole){
 	for i, v := range pb.GetEquip() {
 		this.Equip[i] = v
 	}
+	this.HP = pb.GetHP()
+	this.HpPercent = pb.GetHpPercent()
 	return
 }
-func (this* dbPlayerExpeditionRoleData)to_pb()(pb *db.PlayerExpeditionRole){
-	pb = &db.PlayerExpeditionRole{}
+func (this* dbPlayerExpeditionLevelRoleData)to_pb()(pb *db.PlayerExpeditionLevelRole){
+	pb = &db.PlayerExpeditionLevelRole{}
 	pb.Pos = proto.Int32(this.Pos)
 	pb.TableId = proto.Int32(this.TableId)
 	pb.Rank = proto.Int32(this.Rank)
@@ -2072,9 +2117,11 @@ func (this* dbPlayerExpeditionRoleData)to_pb()(pb *db.PlayerExpeditionRole){
 	for i, v := range this.Equip {
 		pb.Equip[i]=v
 	}
+	pb.HP = proto.Int32(this.HP)
+	pb.HpPercent = proto.Int32(this.HpPercent)
 	return
 }
-func (this* dbPlayerExpeditionRoleData)clone_to(d *dbPlayerExpeditionRoleData){
+func (this* dbPlayerExpeditionLevelRoleData)clone_to(d *dbPlayerExpeditionLevelRoleData){
 	d.Pos = this.Pos
 	d.TableId = this.TableId
 	d.Rank = this.Rank
@@ -2083,6 +2130,8 @@ func (this* dbPlayerExpeditionRoleData)clone_to(d *dbPlayerExpeditionRoleData){
 	for _ii, _vv := range this.Equip {
 		d.Equip[_ii]=_vv
 	}
+	d.HP = this.HP
+	d.HpPercent = this.HpPercent
 	return
 }
 type dbBattleSaveDataData struct{
@@ -10713,29 +10762,29 @@ func (this *dbPlayerActivityDataColumn)IncbySubNum(id int32,v int32)(r int32){
 	this.m_changed = true
 	return d.SubNum
 }
-type dbPlayerExpeditionPlayersColumn struct{
+type dbPlayerExpeditionDataColumn struct{
 	m_row *dbPlayerRow
-	m_data *dbPlayerExpeditionPlayersData
+	m_data *dbPlayerExpeditionDataData
 	m_changed bool
 }
-func (this *dbPlayerExpeditionPlayersColumn)load(data []byte)(err error){
+func (this *dbPlayerExpeditionDataColumn)load(data []byte)(err error){
 	if data == nil || len(data) == 0 {
-		this.m_data = &dbPlayerExpeditionPlayersData{}
+		this.m_data = &dbPlayerExpeditionDataData{}
 		this.m_changed = false
 		return nil
 	}
-	pb := &db.PlayerExpeditionPlayers{}
+	pb := &db.PlayerExpeditionData{}
 	err = proto.Unmarshal(data, pb)
 	if err != nil {
 		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
 		return
 	}
-	this.m_data = &dbPlayerExpeditionPlayersData{}
+	this.m_data = &dbPlayerExpeditionDataData{}
 	this.m_data.from_pb(pb)
 	this.m_changed = false
 	return
 }
-func (this *dbPlayerExpeditionPlayersColumn)save( )(data []byte,err error){
+func (this *dbPlayerExpeditionDataColumn)save( )(data []byte,err error){
 	pb:=this.m_data.to_pb()
 	data, err = proto.Marshal(pb)
 	if err != nil {
@@ -10745,36 +10794,36 @@ func (this *dbPlayerExpeditionPlayersColumn)save( )(data []byte,err error){
 	this.m_changed = false
 	return
 }
-func (this *dbPlayerExpeditionPlayersColumn)Get( )(v *dbPlayerExpeditionPlayersData ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionPlayersColumn.Get")
+func (this *dbPlayerExpeditionDataColumn)Get( )(v *dbPlayerExpeditionDataData ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionDataColumn.Get")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	v=&dbPlayerExpeditionPlayersData{}
+	v=&dbPlayerExpeditionDataData{}
 	this.m_data.clone_to(v)
 	return
 }
-func (this *dbPlayerExpeditionPlayersColumn)Set(v dbPlayerExpeditionPlayersData ){
-	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionPlayersColumn.Set")
+func (this *dbPlayerExpeditionDataColumn)Set(v dbPlayerExpeditionDataData ){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.Set")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=&dbPlayerExpeditionPlayersData{}
+	this.m_data=&dbPlayerExpeditionDataData{}
 	v.clone_to(this.m_data)
 	this.m_changed=true
 	return
 }
-func (this *dbPlayerExpeditionPlayersColumn)GetSerialId( )(v int64 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionPlayersColumn.GetSerialId")
+func (this *dbPlayerExpeditionDataColumn)GetRefreshTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionDataColumn.GetRefreshTime")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.SerialId
+	v = this.m_data.RefreshTime
 	return
 }
-func (this *dbPlayerExpeditionPlayersColumn)SetSerialId(v int64){
-	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionPlayersColumn.SetSerialId")
+func (this *dbPlayerExpeditionDataColumn)SetRefreshTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.SetRefreshTime")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.SerialId = v
+	this.m_data.RefreshTime = v
 	this.m_changed = true
 	return
 }
-func (this *dbPlayerExpeditionPlayersColumn)GetPlayerIds( )(v []int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionPlayersColumn.GetPlayerIds")
+func (this *dbPlayerExpeditionDataColumn)GetPlayerIds( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionDataColumn.GetPlayerIds")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	v = make([]int32, len(this.m_data.PlayerIds))
 	for _ii, _vv := range this.m_data.PlayerIds {
@@ -10782,12 +10831,51 @@ func (this *dbPlayerExpeditionPlayersColumn)GetPlayerIds( )(v []int32 ){
 	}
 	return
 }
-func (this *dbPlayerExpeditionPlayersColumn)SetPlayerIds(v []int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionPlayersColumn.SetPlayerIds")
+func (this *dbPlayerExpeditionDataColumn)SetPlayerIds(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.SetPlayerIds")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.PlayerIds = make([]int32, len(v))
 	for _ii, _vv := range v {
 		this.m_data.PlayerIds[_ii]=_vv
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)GetCurrLevel( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionDataColumn.GetCurrLevel")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.CurrLevel
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)SetCurrLevel(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.SetCurrLevel")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.CurrLevel = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)IncbyCurrLevel(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.IncbyCurrLevel")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.CurrLevel += v
+	this.m_changed = true
+	return this.m_data.CurrLevel
+}
+func (this *dbPlayerExpeditionDataColumn)GetPlayerPowers( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionDataColumn.GetPlayerPowers")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]int32, len(this.m_data.PlayerPowers))
+	for _ii, _vv := range this.m_data.PlayerPowers {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)SetPlayerPowers(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.SetPlayerPowers")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.PlayerPowers = make([]int32, len(v))
+	for _ii, _vv := range v {
+		this.m_data.PlayerPowers[_ii]=_vv
 	}
 	this.m_changed = true
 	return
@@ -10811,7 +10899,7 @@ func (this *dbPlayerExpeditionRoleColumn)load(data []byte)(err error){
 	for _, v := range pb.List {
 		d := &dbPlayerExpeditionRoleData{}
 		d.from_pb(v)
-		this.m_data[int32(d.Pos)] = d
+		this.m_data[int32(d.Id)] = d
 	}
 	this.m_changed = false
 	return
@@ -10874,9 +10962,9 @@ func (this *dbPlayerExpeditionRoleColumn)Get(id int32)(v *dbPlayerExpeditionRole
 func (this *dbPlayerExpeditionRoleColumn)Set(v dbPlayerExpeditionRoleData)(has bool){
 	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.Set")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.Pos)]
+	d := this.m_data[int32(v.Id)]
 	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Pos)
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Id)
 		return false
 	}
 	v.clone_to(d)
@@ -10886,14 +10974,14 @@ func (this *dbPlayerExpeditionRoleColumn)Set(v dbPlayerExpeditionRoleData)(has b
 func (this *dbPlayerExpeditionRoleColumn)Add(v *dbPlayerExpeditionRoleData)(ok bool){
 	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.Add")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.Pos)]
+	_, has := this.m_data[int32(v.Id)]
 	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Pos)
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Id)
 		return false
 	}
 	d:=&dbPlayerExpeditionRoleData{}
 	v.clone_to(d)
-	this.m_data[int32(v.Pos)]=d
+	this.m_data[int32(v.Id)]=d
 	this.m_changed = true
 	return true
 }
@@ -10919,8 +11007,157 @@ func (this *dbPlayerExpeditionRoleColumn)NumAll()(n int32){
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	return int32(len(this.m_data))
 }
-func (this *dbPlayerExpeditionRoleColumn)GetTableId(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetTableId")
+func (this *dbPlayerExpeditionRoleColumn)GetHP(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetHP")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.HP
+	return v,true
+}
+func (this *dbPlayerExpeditionRoleColumn)SetHP(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetHP")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.HP = v
+	this.m_changed = true
+	return true
+}
+type dbPlayerExpeditionLevelRoleColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerExpeditionLevelRoleData
+	m_changed bool
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerExpeditionLevelRoleList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerExpeditionLevelRoleData{}
+		d.from_pb(v)
+		this.m_data[int32(d.Pos)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)save( )(data []byte,err error){
+	pb := &db.PlayerExpeditionLevelRoleList{}
+	pb.List=make([]*db.PlayerExpeditionLevelRole,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)GetAll()(list []dbPlayerExpeditionLevelRoleData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerExpeditionLevelRoleData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)Get(id int32)(v *dbPlayerExpeditionLevelRoleData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerExpeditionLevelRoleData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)Set(v dbPlayerExpeditionLevelRoleData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.Pos)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Pos)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)Add(v *dbPlayerExpeditionLevelRoleData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.Pos)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Pos)
+		return false
+	}
+	d:=&dbPlayerExpeditionLevelRoleData{}
+	v.clone_to(d)
+	this.m_data[int32(v.Pos)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)GetTableId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.GetTableId")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -10929,8 +11166,8 @@ func (this *dbPlayerExpeditionRoleColumn)GetTableId(id int32)(v int32 ,has bool)
 	v = d.TableId
 	return v,true
 }
-func (this *dbPlayerExpeditionRoleColumn)SetTableId(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetTableId")
+func (this *dbPlayerExpeditionLevelRoleColumn)SetTableId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.SetTableId")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -10941,8 +11178,8 @@ func (this *dbPlayerExpeditionRoleColumn)SetTableId(id int32,v int32)(has bool){
 	this.m_changed = true
 	return true
 }
-func (this *dbPlayerExpeditionRoleColumn)GetRank(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetRank")
+func (this *dbPlayerExpeditionLevelRoleColumn)GetRank(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.GetRank")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -10951,8 +11188,8 @@ func (this *dbPlayerExpeditionRoleColumn)GetRank(id int32)(v int32 ,has bool){
 	v = d.Rank
 	return v,true
 }
-func (this *dbPlayerExpeditionRoleColumn)SetRank(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetRank")
+func (this *dbPlayerExpeditionLevelRoleColumn)SetRank(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.SetRank")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -10963,8 +11200,8 @@ func (this *dbPlayerExpeditionRoleColumn)SetRank(id int32,v int32)(has bool){
 	this.m_changed = true
 	return true
 }
-func (this *dbPlayerExpeditionRoleColumn)GetLevel(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetLevel")
+func (this *dbPlayerExpeditionLevelRoleColumn)GetLevel(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.GetLevel")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -10973,8 +11210,8 @@ func (this *dbPlayerExpeditionRoleColumn)GetLevel(id int32)(v int32 ,has bool){
 	v = d.Level
 	return v,true
 }
-func (this *dbPlayerExpeditionRoleColumn)SetLevel(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetLevel")
+func (this *dbPlayerExpeditionLevelRoleColumn)SetLevel(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.SetLevel")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -10985,8 +11222,8 @@ func (this *dbPlayerExpeditionRoleColumn)SetLevel(id int32,v int32)(has bool){
 	this.m_changed = true
 	return true
 }
-func (this *dbPlayerExpeditionRoleColumn)GetEquip(id int32)(v []int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetEquip")
+func (this *dbPlayerExpeditionLevelRoleColumn)GetEquip(id int32)(v []int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.GetEquip")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -10998,8 +11235,8 @@ func (this *dbPlayerExpeditionRoleColumn)GetEquip(id int32)(v []int32 ,has bool)
 	}
 	return v,true
 }
-func (this *dbPlayerExpeditionRoleColumn)SetEquip(id int32,v []int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetEquip")
+func (this *dbPlayerExpeditionLevelRoleColumn)SetEquip(id int32,v []int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.SetEquip")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
@@ -11010,6 +11247,50 @@ func (this *dbPlayerExpeditionRoleColumn)SetEquip(id int32,v []int32)(has bool){
 	for _ii, _vv := range v {
 		d.Equip[_ii]=_vv
 	}
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)GetHP(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.GetHP")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.HP
+	return v,true
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)SetHP(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.SetHP")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.HP = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)GetHpPercent(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionLevelRoleColumn.GetHpPercent")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.HpPercent
+	return v,true
+}
+func (this *dbPlayerExpeditionLevelRoleColumn)SetHpPercent(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionLevelRoleColumn.SetHpPercent")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.HpPercent = v
 	this.m_changed = true
 	return true
 }
@@ -11088,17 +11369,18 @@ type dbPlayerRow struct {
 	Pays dbPlayerPayColumn
 	GuideData dbPlayerGuideDataColumn
 	ActivityDatas dbPlayerActivityDataColumn
-	ExpeditionPlayers dbPlayerExpeditionPlayersColumn
-	ExpeditionRole0s dbPlayerExpeditionRoleColumn
-	ExpeditionRole1s dbPlayerExpeditionRoleColumn
-	ExpeditionRole2s dbPlayerExpeditionRoleColumn
-	ExpeditionRole3s dbPlayerExpeditionRoleColumn
-	ExpeditionRole4s dbPlayerExpeditionRoleColumn
-	ExpeditionRole5s dbPlayerExpeditionRoleColumn
-	ExpeditionRole6s dbPlayerExpeditionRoleColumn
-	ExpeditionRole7s dbPlayerExpeditionRoleColumn
-	ExpeditionRole8s dbPlayerExpeditionRoleColumn
-	ExpeditionRole9s dbPlayerExpeditionRoleColumn
+	ExpeditionData dbPlayerExpeditionDataColumn
+	ExpeditionRoles dbPlayerExpeditionRoleColumn
+	ExpeditionLevelRole0s dbPlayerExpeditionLevelRoleColumn
+	ExpeditionLevelRole1s dbPlayerExpeditionLevelRoleColumn
+	ExpeditionLevelRole2s dbPlayerExpeditionLevelRoleColumn
+	ExpeditionLevelRole3s dbPlayerExpeditionLevelRoleColumn
+	ExpeditionLevelRole4s dbPlayerExpeditionLevelRoleColumn
+	ExpeditionLevelRole5s dbPlayerExpeditionLevelRoleColumn
+	ExpeditionLevelRole6s dbPlayerExpeditionLevelRoleColumn
+	ExpeditionLevelRole7s dbPlayerExpeditionLevelRoleColumn
+	ExpeditionLevelRole8s dbPlayerExpeditionLevelRoleColumn
+	ExpeditionLevelRole9s dbPlayerExpeditionLevelRoleColumn
 }
 func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this := &dbPlayerRow{}
@@ -11217,28 +11499,30 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.GuideData.m_data=&dbPlayerGuideDataData{}
 	this.ActivityDatas.m_row=this
 	this.ActivityDatas.m_data=make(map[int32]*dbPlayerActivityDataData)
-	this.ExpeditionPlayers.m_row=this
-	this.ExpeditionPlayers.m_data=&dbPlayerExpeditionPlayersData{}
-	this.ExpeditionRole0s.m_row=this
-	this.ExpeditionRole0s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
-	this.ExpeditionRole1s.m_row=this
-	this.ExpeditionRole1s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
-	this.ExpeditionRole2s.m_row=this
-	this.ExpeditionRole2s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
-	this.ExpeditionRole3s.m_row=this
-	this.ExpeditionRole3s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
-	this.ExpeditionRole4s.m_row=this
-	this.ExpeditionRole4s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
-	this.ExpeditionRole5s.m_row=this
-	this.ExpeditionRole5s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
-	this.ExpeditionRole6s.m_row=this
-	this.ExpeditionRole6s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
-	this.ExpeditionRole7s.m_row=this
-	this.ExpeditionRole7s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
-	this.ExpeditionRole8s.m_row=this
-	this.ExpeditionRole8s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
-	this.ExpeditionRole9s.m_row=this
-	this.ExpeditionRole9s.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.ExpeditionData.m_row=this
+	this.ExpeditionData.m_data=&dbPlayerExpeditionDataData{}
+	this.ExpeditionRoles.m_row=this
+	this.ExpeditionRoles.m_data=make(map[int32]*dbPlayerExpeditionRoleData)
+	this.ExpeditionLevelRole0s.m_row=this
+	this.ExpeditionLevelRole0s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.ExpeditionLevelRole1s.m_row=this
+	this.ExpeditionLevelRole1s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.ExpeditionLevelRole2s.m_row=this
+	this.ExpeditionLevelRole2s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.ExpeditionLevelRole3s.m_row=this
+	this.ExpeditionLevelRole3s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.ExpeditionLevelRole4s.m_row=this
+	this.ExpeditionLevelRole4s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.ExpeditionLevelRole5s.m_row=this
+	this.ExpeditionLevelRole5s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.ExpeditionLevelRole6s.m_row=this
+	this.ExpeditionLevelRole6s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.ExpeditionLevelRole7s.m_row=this
+	this.ExpeditionLevelRole7s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.ExpeditionLevelRole8s.m_row=this
+	this.ExpeditionLevelRole8s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.ExpeditionLevelRole9s.m_row=this
+	this.ExpeditionLevelRole9s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
 	return this
 }
 func (this *dbPlayerRow) GetPlayerId() (r int32) {
@@ -11248,7 +11532,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(62)
+		db_args:=new_db_args(63)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_UniqueId)
 		db_args.Push(this.m_Account)
@@ -11574,78 +11858,84 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dActivityDatas)
-		dExpeditionPlayers,db_err:=this.ExpeditionPlayers.save()
+		dExpeditionData,db_err:=this.ExpeditionData.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionPlayers failed")
+			log.Error("insert save ExpeditionData failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionPlayers)
-		dExpeditionRole0s,db_err:=this.ExpeditionRole0s.save()
+		db_args.Push(dExpeditionData)
+		dExpeditionRoles,db_err:=this.ExpeditionRoles.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole0 failed")
+			log.Error("insert save ExpeditionRole failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole0s)
-		dExpeditionRole1s,db_err:=this.ExpeditionRole1s.save()
+		db_args.Push(dExpeditionRoles)
+		dExpeditionLevelRole0s,db_err:=this.ExpeditionLevelRole0s.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole1 failed")
+			log.Error("insert save ExpeditionLevelRole0 failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole1s)
-		dExpeditionRole2s,db_err:=this.ExpeditionRole2s.save()
+		db_args.Push(dExpeditionLevelRole0s)
+		dExpeditionLevelRole1s,db_err:=this.ExpeditionLevelRole1s.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole2 failed")
+			log.Error("insert save ExpeditionLevelRole1 failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole2s)
-		dExpeditionRole3s,db_err:=this.ExpeditionRole3s.save()
+		db_args.Push(dExpeditionLevelRole1s)
+		dExpeditionLevelRole2s,db_err:=this.ExpeditionLevelRole2s.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole3 failed")
+			log.Error("insert save ExpeditionLevelRole2 failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole3s)
-		dExpeditionRole4s,db_err:=this.ExpeditionRole4s.save()
+		db_args.Push(dExpeditionLevelRole2s)
+		dExpeditionLevelRole3s,db_err:=this.ExpeditionLevelRole3s.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole4 failed")
+			log.Error("insert save ExpeditionLevelRole3 failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole4s)
-		dExpeditionRole5s,db_err:=this.ExpeditionRole5s.save()
+		db_args.Push(dExpeditionLevelRole3s)
+		dExpeditionLevelRole4s,db_err:=this.ExpeditionLevelRole4s.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole5 failed")
+			log.Error("insert save ExpeditionLevelRole4 failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole5s)
-		dExpeditionRole6s,db_err:=this.ExpeditionRole6s.save()
+		db_args.Push(dExpeditionLevelRole4s)
+		dExpeditionLevelRole5s,db_err:=this.ExpeditionLevelRole5s.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole6 failed")
+			log.Error("insert save ExpeditionLevelRole5 failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole6s)
-		dExpeditionRole7s,db_err:=this.ExpeditionRole7s.save()
+		db_args.Push(dExpeditionLevelRole5s)
+		dExpeditionLevelRole6s,db_err:=this.ExpeditionLevelRole6s.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole7 failed")
+			log.Error("insert save ExpeditionLevelRole6 failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole7s)
-		dExpeditionRole8s,db_err:=this.ExpeditionRole8s.save()
+		db_args.Push(dExpeditionLevelRole6s)
+		dExpeditionLevelRole7s,db_err:=this.ExpeditionLevelRole7s.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole8 failed")
+			log.Error("insert save ExpeditionLevelRole7 failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole8s)
-		dExpeditionRole9s,db_err:=this.ExpeditionRole9s.save()
+		db_args.Push(dExpeditionLevelRole7s)
+		dExpeditionLevelRole8s,db_err:=this.ExpeditionLevelRole8s.save()
 		if db_err!=nil{
-			log.Error("insert save ExpeditionRole9 failed")
+			log.Error("insert save ExpeditionLevelRole8 failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dExpeditionRole9s)
+		db_args.Push(dExpeditionLevelRole8s)
+		dExpeditionLevelRole9s,db_err:=this.ExpeditionLevelRole9s.save()
+		if db_err!=nil{
+			log.Error("insert save ExpeditionLevelRole9 failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dExpeditionLevelRole9s)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionPlayers.m_changed||this.ExpeditionRole0s.m_changed||this.ExpeditionRole1s.m_changed||this.ExpeditionRole2s.m_changed||this.ExpeditionRole3s.m_changed||this.ExpeditionRole4s.m_changed||this.ExpeditionRole5s.m_changed||this.ExpeditionRole6s.m_changed||this.ExpeditionRole7s.m_changed||this.ExpeditionRole8s.m_changed||this.ExpeditionRole9s.m_changed{
+		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionData.m_changed||this.ExpeditionRoles.m_changed||this.ExpeditionLevelRole0s.m_changed||this.ExpeditionLevelRole1s.m_changed||this.ExpeditionLevelRole2s.m_changed||this.ExpeditionLevelRole3s.m_changed||this.ExpeditionLevelRole4s.m_changed||this.ExpeditionLevelRole5s.m_changed||this.ExpeditionLevelRole6s.m_changed||this.ExpeditionLevelRole7s.m_changed||this.ExpeditionLevelRole8s.m_changed||this.ExpeditionLevelRole9s.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(71)
+			db_args:=new_db_args(72)
 			if this.m_UniqueId_changed{
 				update_string+="UniqueId=?,"
 				db_args.Push(this.m_UniqueId)
@@ -12147,104 +12437,113 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dActivityDatas)
 			}
-			if this.ExpeditionPlayers.m_changed{
-				update_string+="ExpeditionPlayers=?,"
-				dExpeditionPlayers,err:=this.ExpeditionPlayers.save()
+			if this.ExpeditionData.m_changed{
+				update_string+="ExpeditionData=?,"
+				dExpeditionData,err:=this.ExpeditionData.save()
 				if err!=nil{
-					log.Error("update save ExpeditionPlayers failed")
+					log.Error("update save ExpeditionData failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionPlayers)
+				db_args.Push(dExpeditionData)
 			}
-			if this.ExpeditionRole0s.m_changed{
-				update_string+="ExpeditionRole0s=?,"
-				dExpeditionRole0s,err:=this.ExpeditionRole0s.save()
+			if this.ExpeditionRoles.m_changed{
+				update_string+="ExpeditionRoles=?,"
+				dExpeditionRoles,err:=this.ExpeditionRoles.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole0 failed")
+					log.Error("insert save ExpeditionRole failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole0s)
+				db_args.Push(dExpeditionRoles)
 			}
-			if this.ExpeditionRole1s.m_changed{
-				update_string+="ExpeditionRole1s=?,"
-				dExpeditionRole1s,err:=this.ExpeditionRole1s.save()
+			if this.ExpeditionLevelRole0s.m_changed{
+				update_string+="ExpeditionLevelRole0s=?,"
+				dExpeditionLevelRole0s,err:=this.ExpeditionLevelRole0s.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole1 failed")
+					log.Error("insert save ExpeditionLevelRole0 failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole1s)
+				db_args.Push(dExpeditionLevelRole0s)
 			}
-			if this.ExpeditionRole2s.m_changed{
-				update_string+="ExpeditionRole2s=?,"
-				dExpeditionRole2s,err:=this.ExpeditionRole2s.save()
+			if this.ExpeditionLevelRole1s.m_changed{
+				update_string+="ExpeditionLevelRole1s=?,"
+				dExpeditionLevelRole1s,err:=this.ExpeditionLevelRole1s.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole2 failed")
+					log.Error("insert save ExpeditionLevelRole1 failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole2s)
+				db_args.Push(dExpeditionLevelRole1s)
 			}
-			if this.ExpeditionRole3s.m_changed{
-				update_string+="ExpeditionRole3s=?,"
-				dExpeditionRole3s,err:=this.ExpeditionRole3s.save()
+			if this.ExpeditionLevelRole2s.m_changed{
+				update_string+="ExpeditionLevelRole2s=?,"
+				dExpeditionLevelRole2s,err:=this.ExpeditionLevelRole2s.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole3 failed")
+					log.Error("insert save ExpeditionLevelRole2 failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole3s)
+				db_args.Push(dExpeditionLevelRole2s)
 			}
-			if this.ExpeditionRole4s.m_changed{
-				update_string+="ExpeditionRole4s=?,"
-				dExpeditionRole4s,err:=this.ExpeditionRole4s.save()
+			if this.ExpeditionLevelRole3s.m_changed{
+				update_string+="ExpeditionLevelRole3s=?,"
+				dExpeditionLevelRole3s,err:=this.ExpeditionLevelRole3s.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole4 failed")
+					log.Error("insert save ExpeditionLevelRole3 failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole4s)
+				db_args.Push(dExpeditionLevelRole3s)
 			}
-			if this.ExpeditionRole5s.m_changed{
-				update_string+="ExpeditionRole5s=?,"
-				dExpeditionRole5s,err:=this.ExpeditionRole5s.save()
+			if this.ExpeditionLevelRole4s.m_changed{
+				update_string+="ExpeditionLevelRole4s=?,"
+				dExpeditionLevelRole4s,err:=this.ExpeditionLevelRole4s.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole5 failed")
+					log.Error("insert save ExpeditionLevelRole4 failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole5s)
+				db_args.Push(dExpeditionLevelRole4s)
 			}
-			if this.ExpeditionRole6s.m_changed{
-				update_string+="ExpeditionRole6s=?,"
-				dExpeditionRole6s,err:=this.ExpeditionRole6s.save()
+			if this.ExpeditionLevelRole5s.m_changed{
+				update_string+="ExpeditionLevelRole5s=?,"
+				dExpeditionLevelRole5s,err:=this.ExpeditionLevelRole5s.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole6 failed")
+					log.Error("insert save ExpeditionLevelRole5 failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole6s)
+				db_args.Push(dExpeditionLevelRole5s)
 			}
-			if this.ExpeditionRole7s.m_changed{
-				update_string+="ExpeditionRole7s=?,"
-				dExpeditionRole7s,err:=this.ExpeditionRole7s.save()
+			if this.ExpeditionLevelRole6s.m_changed{
+				update_string+="ExpeditionLevelRole6s=?,"
+				dExpeditionLevelRole6s,err:=this.ExpeditionLevelRole6s.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole7 failed")
+					log.Error("insert save ExpeditionLevelRole6 failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole7s)
+				db_args.Push(dExpeditionLevelRole6s)
 			}
-			if this.ExpeditionRole8s.m_changed{
-				update_string+="ExpeditionRole8s=?,"
-				dExpeditionRole8s,err:=this.ExpeditionRole8s.save()
+			if this.ExpeditionLevelRole7s.m_changed{
+				update_string+="ExpeditionLevelRole7s=?,"
+				dExpeditionLevelRole7s,err:=this.ExpeditionLevelRole7s.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole8 failed")
+					log.Error("insert save ExpeditionLevelRole7 failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole8s)
+				db_args.Push(dExpeditionLevelRole7s)
 			}
-			if this.ExpeditionRole9s.m_changed{
-				update_string+="ExpeditionRole9s=?,"
-				dExpeditionRole9s,err:=this.ExpeditionRole9s.save()
+			if this.ExpeditionLevelRole8s.m_changed{
+				update_string+="ExpeditionLevelRole8s=?,"
+				dExpeditionLevelRole8s,err:=this.ExpeditionLevelRole8s.save()
 				if err!=nil{
-					log.Error("insert save ExpeditionRole9 failed")
+					log.Error("insert save ExpeditionLevelRole8 failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dExpeditionRole9s)
+				db_args.Push(dExpeditionLevelRole8s)
+			}
+			if this.ExpeditionLevelRole9s.m_changed{
+				update_string+="ExpeditionLevelRole9s=?,"
+				dExpeditionLevelRole9s,err:=this.ExpeditionLevelRole9s.save()
+				if err!=nil{
+					log.Error("insert save ExpeditionLevelRole9 failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dExpeditionLevelRole9s)
 			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE PlayerId=?"
@@ -12313,17 +12612,18 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.Pays.m_changed = false
 	this.GuideData.m_changed = false
 	this.ActivityDatas.m_changed = false
-	this.ExpeditionPlayers.m_changed = false
-	this.ExpeditionRole0s.m_changed = false
-	this.ExpeditionRole1s.m_changed = false
-	this.ExpeditionRole2s.m_changed = false
-	this.ExpeditionRole3s.m_changed = false
-	this.ExpeditionRole4s.m_changed = false
-	this.ExpeditionRole5s.m_changed = false
-	this.ExpeditionRole6s.m_changed = false
-	this.ExpeditionRole7s.m_changed = false
-	this.ExpeditionRole8s.m_changed = false
-	this.ExpeditionRole9s.m_changed = false
+	this.ExpeditionData.m_changed = false
+	this.ExpeditionRoles.m_changed = false
+	this.ExpeditionLevelRole0s.m_changed = false
+	this.ExpeditionLevelRole1s.m_changed = false
+	this.ExpeditionLevelRole2s.m_changed = false
+	this.ExpeditionLevelRole3s.m_changed = false
+	this.ExpeditionLevelRole4s.m_changed = false
+	this.ExpeditionLevelRole5s.m_changed = false
+	this.ExpeditionLevelRole6s.m_changed = false
+	this.ExpeditionLevelRole7s.m_changed = false
+	this.ExpeditionLevelRole8s.m_changed = false
+	this.ExpeditionLevelRole9s.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -12895,98 +13195,106 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasExpeditionPlayers := columns["ExpeditionPlayers"]
-	if !hasExpeditionPlayers {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionPlayers LONGBLOB")
+	_, hasExpeditionData := columns["ExpeditionData"]
+	if !hasExpeditionData {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionData LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionPlayers failed")
+			log.Error("ADD COLUMN ExpeditionData failed")
 			return
 		}
 	}
-	_, hasExpeditionRole0 := columns["ExpeditionRole0s"]
-	if !hasExpeditionRole0 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole0s LONGBLOB")
+	_, hasExpeditionRole := columns["ExpeditionRoles"]
+	if !hasExpeditionRole {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRoles LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole0s failed")
+			log.Error("ADD COLUMN ExpeditionRoles failed")
 			return
 		}
 	}
-	_, hasExpeditionRole1 := columns["ExpeditionRole1s"]
-	if !hasExpeditionRole1 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole1s LONGBLOB")
+	_, hasExpeditionLevelRole0 := columns["ExpeditionLevelRole0s"]
+	if !hasExpeditionLevelRole0 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole0s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole1s failed")
+			log.Error("ADD COLUMN ExpeditionLevelRole0s failed")
 			return
 		}
 	}
-	_, hasExpeditionRole2 := columns["ExpeditionRole2s"]
-	if !hasExpeditionRole2 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole2s LONGBLOB")
+	_, hasExpeditionLevelRole1 := columns["ExpeditionLevelRole1s"]
+	if !hasExpeditionLevelRole1 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole1s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole2s failed")
+			log.Error("ADD COLUMN ExpeditionLevelRole1s failed")
 			return
 		}
 	}
-	_, hasExpeditionRole3 := columns["ExpeditionRole3s"]
-	if !hasExpeditionRole3 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole3s LONGBLOB")
+	_, hasExpeditionLevelRole2 := columns["ExpeditionLevelRole2s"]
+	if !hasExpeditionLevelRole2 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole2s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole3s failed")
+			log.Error("ADD COLUMN ExpeditionLevelRole2s failed")
 			return
 		}
 	}
-	_, hasExpeditionRole4 := columns["ExpeditionRole4s"]
-	if !hasExpeditionRole4 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole4s LONGBLOB")
+	_, hasExpeditionLevelRole3 := columns["ExpeditionLevelRole3s"]
+	if !hasExpeditionLevelRole3 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole3s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole4s failed")
+			log.Error("ADD COLUMN ExpeditionLevelRole3s failed")
 			return
 		}
 	}
-	_, hasExpeditionRole5 := columns["ExpeditionRole5s"]
-	if !hasExpeditionRole5 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole5s LONGBLOB")
+	_, hasExpeditionLevelRole4 := columns["ExpeditionLevelRole4s"]
+	if !hasExpeditionLevelRole4 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole4s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole5s failed")
+			log.Error("ADD COLUMN ExpeditionLevelRole4s failed")
 			return
 		}
 	}
-	_, hasExpeditionRole6 := columns["ExpeditionRole6s"]
-	if !hasExpeditionRole6 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole6s LONGBLOB")
+	_, hasExpeditionLevelRole5 := columns["ExpeditionLevelRole5s"]
+	if !hasExpeditionLevelRole5 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole5s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole6s failed")
+			log.Error("ADD COLUMN ExpeditionLevelRole5s failed")
 			return
 		}
 	}
-	_, hasExpeditionRole7 := columns["ExpeditionRole7s"]
-	if !hasExpeditionRole7 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole7s LONGBLOB")
+	_, hasExpeditionLevelRole6 := columns["ExpeditionLevelRole6s"]
+	if !hasExpeditionLevelRole6 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole6s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole7s failed")
+			log.Error("ADD COLUMN ExpeditionLevelRole6s failed")
 			return
 		}
 	}
-	_, hasExpeditionRole8 := columns["ExpeditionRole8s"]
-	if !hasExpeditionRole8 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole8s LONGBLOB")
+	_, hasExpeditionLevelRole7 := columns["ExpeditionLevelRole7s"]
+	if !hasExpeditionLevelRole7 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole7s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole8s failed")
+			log.Error("ADD COLUMN ExpeditionLevelRole7s failed")
 			return
 		}
 	}
-	_, hasExpeditionRole9 := columns["ExpeditionRole9s"]
-	if !hasExpeditionRole9 {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionRole9s LONGBLOB")
+	_, hasExpeditionLevelRole8 := columns["ExpeditionLevelRole8s"]
+	if !hasExpeditionLevelRole8 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole8s LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN ExpeditionRole9s failed")
+			log.Error("ADD COLUMN ExpeditionLevelRole8s failed")
+			return
+		}
+	}
+	_, hasExpeditionLevelRole9 := columns["ExpeditionLevelRole9s"]
+	if !hasExpeditionLevelRole9 {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ExpeditionLevelRole9s LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ExpeditionLevelRole9s failed")
 			return
 		}
 	}
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionPlayers,ExpeditionRole0s,ExpeditionRole1s,ExpeditionRole2s,ExpeditionRole3s,ExpeditionRole4s,ExpeditionRole5s,ExpeditionRole6s,ExpeditionRole7s,ExpeditionRole8s,ExpeditionRole9s FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -12994,7 +13302,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionPlayers,ExpeditionRole0s,ExpeditionRole1s,ExpeditionRole2s,ExpeditionRole3s,ExpeditionRole4s,ExpeditionRole5s,ExpeditionRole6s,ExpeditionRole7s,ExpeditionRole8s,ExpeditionRole9s) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13098,20 +13406,21 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dPays []byte
 	var dGuideData []byte
 	var dActivityDatas []byte
-	var dExpeditionPlayers []byte
-	var dExpeditionRole0s []byte
-	var dExpeditionRole1s []byte
-	var dExpeditionRole2s []byte
-	var dExpeditionRole3s []byte
-	var dExpeditionRole4s []byte
-	var dExpeditionRole5s []byte
-	var dExpeditionRole6s []byte
-	var dExpeditionRole7s []byte
-	var dExpeditionRole8s []byte
-	var dExpeditionRole9s []byte
+	var dExpeditionData []byte
+	var dExpeditionRoles []byte
+	var dExpeditionLevelRole0s []byte
+	var dExpeditionLevelRole1s []byte
+	var dExpeditionLevelRole2s []byte
+	var dExpeditionLevelRole3s []byte
+	var dExpeditionLevelRole4s []byte
+	var dExpeditionLevelRole5s []byte
+	var dExpeditionLevelRole6s []byte
+	var dExpeditionLevelRole7s []byte
+	var dExpeditionLevelRole8s []byte
+	var dExpeditionLevelRole9s []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionPlayers,&dExpeditionRole0s,&dExpeditionRole1s,&dExpeditionRole2s,&dExpeditionRole3s,&dExpeditionRole4s,&dExpeditionRole5s,&dExpeditionRole6s,&dExpeditionRole7s,&dExpeditionRole8s,&dExpeditionRole9s)
+		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionData,&dExpeditionRoles,&dExpeditionLevelRole0s,&dExpeditionLevelRole1s,&dExpeditionLevelRole2s,&dExpeditionLevelRole3s,&dExpeditionLevelRole4s,&dExpeditionLevelRole5s,&dExpeditionLevelRole6s,&dExpeditionLevelRole7s,&dExpeditionLevelRole8s,&dExpeditionLevelRole9s)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -13391,59 +13700,64 @@ func (this *dbPlayerTable) Preload() (err error) {
 			log.Error("ActivityDatas %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionPlayers.load(dExpeditionPlayers)
+		err = row.ExpeditionData.load(dExpeditionData)
 		if err != nil {
-			log.Error("ExpeditionPlayers %v", PlayerId)
+			log.Error("ExpeditionData %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole0s.load(dExpeditionRole0s)
+		err = row.ExpeditionRoles.load(dExpeditionRoles)
 		if err != nil {
-			log.Error("ExpeditionRole0s %v", PlayerId)
+			log.Error("ExpeditionRoles %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole1s.load(dExpeditionRole1s)
+		err = row.ExpeditionLevelRole0s.load(dExpeditionLevelRole0s)
 		if err != nil {
-			log.Error("ExpeditionRole1s %v", PlayerId)
+			log.Error("ExpeditionLevelRole0s %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole2s.load(dExpeditionRole2s)
+		err = row.ExpeditionLevelRole1s.load(dExpeditionLevelRole1s)
 		if err != nil {
-			log.Error("ExpeditionRole2s %v", PlayerId)
+			log.Error("ExpeditionLevelRole1s %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole3s.load(dExpeditionRole3s)
+		err = row.ExpeditionLevelRole2s.load(dExpeditionLevelRole2s)
 		if err != nil {
-			log.Error("ExpeditionRole3s %v", PlayerId)
+			log.Error("ExpeditionLevelRole2s %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole4s.load(dExpeditionRole4s)
+		err = row.ExpeditionLevelRole3s.load(dExpeditionLevelRole3s)
 		if err != nil {
-			log.Error("ExpeditionRole4s %v", PlayerId)
+			log.Error("ExpeditionLevelRole3s %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole5s.load(dExpeditionRole5s)
+		err = row.ExpeditionLevelRole4s.load(dExpeditionLevelRole4s)
 		if err != nil {
-			log.Error("ExpeditionRole5s %v", PlayerId)
+			log.Error("ExpeditionLevelRole4s %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole6s.load(dExpeditionRole6s)
+		err = row.ExpeditionLevelRole5s.load(dExpeditionLevelRole5s)
 		if err != nil {
-			log.Error("ExpeditionRole6s %v", PlayerId)
+			log.Error("ExpeditionLevelRole5s %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole7s.load(dExpeditionRole7s)
+		err = row.ExpeditionLevelRole6s.load(dExpeditionLevelRole6s)
 		if err != nil {
-			log.Error("ExpeditionRole7s %v", PlayerId)
+			log.Error("ExpeditionLevelRole6s %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole8s.load(dExpeditionRole8s)
+		err = row.ExpeditionLevelRole7s.load(dExpeditionLevelRole7s)
 		if err != nil {
-			log.Error("ExpeditionRole8s %v", PlayerId)
+			log.Error("ExpeditionLevelRole7s %v", PlayerId)
 			return
 		}
-		err = row.ExpeditionRole9s.load(dExpeditionRole9s)
+		err = row.ExpeditionLevelRole8s.load(dExpeditionLevelRole8s)
 		if err != nil {
-			log.Error("ExpeditionRole9s %v", PlayerId)
+			log.Error("ExpeditionLevelRole8s %v", PlayerId)
+			return
+		}
+		err = row.ExpeditionLevelRole9s.load(dExpeditionLevelRole9s)
+		if err != nil {
+			log.Error("ExpeditionLevelRole9s %v", PlayerId)
 			return
 		}
 		row.m_UniqueId_changed=false

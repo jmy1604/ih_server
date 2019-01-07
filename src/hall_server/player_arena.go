@@ -606,11 +606,12 @@ const (
 
 // 竞技场赛季管理
 type ArenaSeasonMgr struct {
-	state          int32 // 0 结束  1 开始
-	start_time     int32
-	day_checker    *utils.DaysTimeChecker
-	season_checker *utils.DaysTimeChecker
-	to_exit        int32
+	state              int32 // 0 结束  1 开始
+	start_time         int32
+	day_checker        *utils.DaysTimeChecker
+	season_checker     *utils.DaysTimeChecker
+	to_exit            int32
+	top_power_ranklist *TopPowerRanklist
 }
 
 var arena_season_mgr ArenaSeasonMgr
@@ -625,6 +626,9 @@ func (this *ArenaSeasonMgr) Init() bool {
 	if !this.season_checker.Init(dbc.ArenaSeason.GetRow().Data.GetLastSeasonResetTime(), global_config.ArenaSeasonResetTime, global_config.ArenaSeasonDays) {
 		log.Error("ArenaSeasonMgr season checker init failed")
 		return false
+	}
+	if this.top_power_ranklist == nil {
+		this.top_power_ranklist = NewTopPowerRanklist(&TopPowerRankItem{}, 100000)
 	}
 	return true
 }

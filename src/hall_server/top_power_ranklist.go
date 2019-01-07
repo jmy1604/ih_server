@@ -231,38 +231,48 @@ func (this *TopPowerRanklist) Update(player_id, power int32) bool {
 	return true
 }
 
-func (this *TopPowerRanklist) GetNearestRank(power int32) int32 {
+func (this *TopPowerRanklist) GetNearestRandPlayer(power int32) int32 {
 	this.locker.RLock()
 	defer this.locker.RUnlock()
 
 	l := this.rank_powers.GetLength()
-	if l < 2 {
+	if l < 1 {
 		return -1
 	}
 
-	left := int32(1)
-	right := int32(l)
-	var r int32
-	for {
-		_r := (left + right) / 2
-		if r == _r {
-			return _r
-		}
-		r = _r
+	players, o := this.power2players[power]
+	if !o {
+		left := int32(1)
+		right := int32(l)
+		var r, new_power int32
+		new_power = power
+		for {
+			_r := (left + right) / 2
+			if r == _r {
+				return _r
+			}
+			r = _r
 
-		item := this.rank_powers.GetByRank(r)
-		it := item.(*TopPowerRankItem)
-		if it != nil {
-			if it.TopPower < power {
-				right = r
-			} else if it.TopPower > power {
-				left = r
-			} else {
-				break
+			item := this.rank_powers.GetByRank(r)
+			it := item.(*TopPowerRankItem)
+			if it != nil {
+				new_power = it.TopPower
+				if it.TopPower < power {
+					right = r
+				} else if it.TopPower > power {
+					left = r
+				} else {
+					break
+				}
 			}
 		}
+		players = this.power2players[new_power]
+		if players == nil {
+			log.Error("@@@@ New power %v have no players", new_power)
+		}
 	}
-	return r
+
+	return players.Random()
 }
 
 func (this *TopPowerRanklist) OutputList() {

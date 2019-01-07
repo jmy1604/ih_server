@@ -136,6 +136,8 @@
 	
 	"AccelHungupRefreshCostDiamond": 20,
 	
+	"ExpeditionRefreshTime":"00:00:00",
+	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
 	"AppleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
 	"FaceBookLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",

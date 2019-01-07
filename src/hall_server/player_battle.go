@@ -156,11 +156,11 @@ type BattleTeam struct {
 // 利用玩家初始化
 func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	var members []int32
-	if team_id == BATTLE_DEFENSE_TEAM {
+	if team_id == BATTLE_TEAM_DEFENSE {
 		members = p.db.BattleTeam.GetDefenseMembers()
-	} else if team_id == BATTLE_CAMPAIN_TEAM {
+	} else if team_id == BATTLE_TEAM_CAMPAIN {
 		members = p.db.BattleTeam.GetCampaignMembers()
-	} else if team_id < BATTLE_MAX_TEAM {
+	} else if team_id < BATTLE_TEAM_MAX {
 		if p.tmp_teams == nil {
 			p.tmp_teams = make(map[int32][]int32)
 		}
@@ -215,6 +215,13 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	this.curr_attack = 0
 	this.side = side
 	this.temp_curr_id = p.db.Global.GetCurrentRoleId() + 1
+
+	// 远征
+	if team_id == BATTLE_TEAM_EXPEDITION {
+		p.expedition_team_init(this.members)
+	} else if team_id == BATTLE_TEAM_EXPEDITION_ENEMY {
+		p.expedition_enemy_team_init(this.members)
+	}
 
 	return 1
 }
@@ -369,6 +376,58 @@ func (this *BattleTeam) InitWithArenaRobot(robot *table_config.XmlArenaRobotItem
 		m := team_member_pool.Get()
 
 		m.init_all(this, 0, monster.Level, role_card, pos, nil, monster.EquipID)
+		this.members[pos] = m
+	}
+
+	return true
+}
+
+func (this *BattleTeam) InitExpeditionEnemy(p *Player) bool {
+	db_expe := p.get_curr_expedition_db_roles()
+	if db_expe == nil {
+		return false
+	}
+
+	all_pos := db_expe.GetAllIndex()
+	if all_pos == nil || len(all_pos) == 0 {
+		return false
+	}
+
+	if this.members == nil {
+		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
+	}
+
+	for i := 0; i < len(this.members); i++ {
+		if this.members[i] != nil {
+			team_member_pool.Put(this.members[i])
+			this.members[i] = nil
+		}
+	}
+
+	this.side = 1
+	this.curr_attack = 0
+
+	for i := 0; i < len(all_pos); i++ {
+		pos := all_pos[i]
+		if pos < 0 || pos >= BATTLE_ROUND_MAX_NUM {
+			log.Error("Player %v Expedition enemy pos [%v] invalid", p.Id, pos)
+			return false
+		}
+
+		table_id, _ := db_expe.GetTableId(pos)
+		rank, _ := db_expe.GetRank(pos)
+		level, _ := db_expe.GetLevel(pos)
+		equips, _ := db_expe.GetEquip(pos)
+
+		role_card := card_table_mgr.GetRankCard(table_id, rank)
+		if role_card == nil {
+			log.Error("Cant get card by role_id[%v] and rank[%v]", table_id, rank)
+			return false
+		}
+
+		m := team_member_pool.Get()
+
+		m.init_all(this, 0, level, role_card, pos, equips, nil)
 		this.members[pos] = m
 	}
 
@@ -1011,7 +1070,7 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 
 	if team_members != nil && len(team_members) > 0 {
 		if battle_type == 1 || battle_type == 8 {
-			res := this.SetTeam(BATTLE_ATTACK_TEAM, team_members)
+			res := this.SetTeam(BATTLE_TEAM_ATTACK, team_members)
 			if res < 0 {
 				this.assist_friend = nil
 				log.Error("Player[%v] set attack team failed", this.Id)
@@ -1029,19 +1088,19 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 			team_type := int32(-1)
 			if battle_type == 3 {
 				// 爬塔阵容
-				team_type = BATTLE_TOWER_TEAM
+				team_type = BATTLE_TEAM_TOWER
 			} else if battle_type == 4 {
 				// 活动副本阵容
-				team_type = BATTLE_ACTIVE_STAGE_TEAM
+				team_type = BATTLE_TEAM_ACTIVE_STAGE
 			} else if battle_type == 5 {
 				// 好友BOSS
-				team_type = BATTLE_FRIEND_BOSS_TEAM
+				team_type = BATTLE_TEAM_FRIEND_BOSS
 			} else if battle_type == 6 || battle_type == 7 {
 				// 探索任务
-				team_type = BATTLE_EXPLORE_TEAM
+				team_type = BATTLE_TEAM_EXPLORE
 			} else if battle_type == 9 {
 				// 公会副本
-				team_type = BATTLE_GUILD_STAGE_TEAM
+				team_type = BATTLE_TEAM_GUILD_STAGE
 			} else {
 				this.assist_friend = nil
 				log.Error("Player[%v] set battle_type[%v] team[%v] invalid", this.Id, battle_type, team_type)
@@ -1074,6 +1133,8 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 		res = this.explore_fight(battle_param, true)
 	} else if battle_type == 9 {
 		res = this.guild_stage_fight(battle_param)
+	} else if battle_type == 10 {
+		res = this.expedition_fight()
 	} else {
 		res = -1
 	}
@@ -1089,9 +1150,9 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 		if battle_type == 1 {
 			//this.send_battle_team(BATTLE_ATTACK_TEAM, team_members)
 		} else if battle_type == 2 {
-			this.send_battle_team(BATTLE_CAMPAIN_TEAM, team_members)
+			this.send_battle_team(BATTLE_TEAM_CAMPAIN, team_members)
 		} else if battle_type == 3 {
-			this.send_battle_team(BATTLE_TOWER_TEAM, team_members)
+			this.send_battle_team(BATTLE_TEAM_TOWER, team_members)
 		}
 	}
 
@@ -1135,12 +1196,15 @@ func C2SSetTeamHandler(p *Player, msg_data []byte) int32 {
 
 	var res int32
 	tt := req.GetTeamType()
-	if tt == BATTLE_ATTACK_TEAM {
+	if tt == BATTLE_TEAM_ATTACK {
 		//res = p.SetAttackTeam(req.TeamMembers)
-	} else if tt == BATTLE_DEFENSE_TEAM {
-		res = p.SetTeam(BATTLE_DEFENSE_TEAM, req.TeamMembers)
-	} else if tt == BATTLE_CAMPAIN_TEAM {
-		res = p.SetTeam(BATTLE_CAMPAIN_TEAM, req.TeamMembers)
+	} else if tt == BATTLE_TEAM_DEFENSE {
+		res = p.SetTeam(BATTLE_TEAM_DEFENSE, req.TeamMembers)
+		if res > 0 {
+			arena_season_mgr.top_power_ranklist.Update(p.Id, p.get_defense_team_power())
+		}
+	} else if tt == BATTLE_TEAM_CAMPAIN {
+		res = p.SetTeam(BATTLE_TEAM_CAMPAIN, req.TeamMembers)
 	} else {
 		log.Warn("Unknown team type[%v] to player[%v]", tt, p.Id)
 	}

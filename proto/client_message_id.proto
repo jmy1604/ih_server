@@ -339,4 +339,9 @@ enum MSGID {
 	S2C_ACTIVITY_DATA_NOTIFY				= 12504; // 活动数据通知 S2CActivityDataNotify
 	C2S_ACTIVITY_EXCHANGE_REQUEST			= 12505; // 活动兑换 C2SActivityExchangeRequest
 	S2C_ACTIVITY_EXCHANGE_RESPONSE			= 12506; // 活动兑换返回 S2CActivityExchangeResponse
+	
+	C2S_EXPEDITION_DATA_REQUEST				= 12600; // 远征数据 C2SExpeditionDataRequest
+	S2C_EXPEDITION_DATA_RESPONSE			= 12601; // 远征数据返回 S2CExpeditionDataResponse
+	C2S_EXPEDITION_LEVEL_DATA_REQUEST		= 12602; // 远征关卡数据 C2SExpeditionLevelDataRequest
+	S2C_EXPEDITION_LEVEL_DATA_RESPONSE		= 12603; // 远征关卡数据返回 S2CExpeditionLevelDataResponse
 }

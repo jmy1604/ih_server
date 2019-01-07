@@ -199,49 +199,49 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 			this.attack_team = &BattleTeam{}
 		}
 		attack_team = this.attack_team
-		team_type = BATTLE_ATTACK_TEAM
+		team_type = BATTLE_TEAM_ATTACK
 	} else if stage_type == 2 {
 		// PVE战役
 		if this.campaign_team == nil {
 			this.campaign_team = &BattleTeam{}
 		}
 		attack_team = this.campaign_team
-		team_type = BATTLE_CAMPAIN_TEAM
+		team_type = BATTLE_TEAM_CAMPAIN
 	} else if stage_type == 3 {
 		// 爬塔
 		if this.tower_team == nil {
 			this.tower_team = &BattleTeam{}
 		}
 		attack_team = this.tower_team
-		team_type = BATTLE_TOWER_TEAM
+		team_type = BATTLE_TEAM_TOWER
 	} else if stage_type == 4 {
 		// 活动副本，助战角色
 		if this.active_stage_team == nil {
 			this.active_stage_team = &BattleTeam{}
 		}
 		attack_team = this.active_stage_team
-		team_type = BATTLE_ACTIVE_STAGE_TEAM
+		team_type = BATTLE_TEAM_ACTIVE_STAGE
 	} else if stage_type == 5 {
 		// 好友BOSS
 		if this.friend_boss_team == nil {
 			this.friend_boss_team = &BattleTeam{}
 		}
 		attack_team = this.friend_boss_team
-		team_type = BATTLE_FRIEND_BOSS_TEAM
+		team_type = BATTLE_TEAM_FRIEND_BOSS
 	} else if stage_type == 6 || stage_type == 7 {
 		// 探索副本
 		if this.explore_team == nil {
 			this.explore_team = &BattleTeam{}
 		}
 		attack_team = this.explore_team
-		team_type = BATTLE_EXPLORE_TEAM
+		team_type = BATTLE_TEAM_EXPLORE
 	} else if stage_type == 9 {
 		// 公会副本
 		if this.guild_stage_team == nil {
 			this.guild_stage_team = &BattleTeam{}
 		}
 		attack_team = this.guild_stage_team
-		team_type = BATTLE_GUILD_STAGE_TEAM
+		team_type = BATTLE_TEAM_GUILD_STAGE
 	} else {
 		err = int32(msg_client_message.E_ERR_PLAYER_TEAM_TYPE_INVALID)
 		log.Error("Stage type %v invalid", stage_type)

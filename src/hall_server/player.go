@@ -101,6 +101,8 @@ type Player struct {
 	friend_boss_team       *BattleTeam                           // PVE好友BOSS进攻阵容
 	explore_team           *BattleTeam                           // PVE探索任务进攻阵容
 	guild_stage_team       *BattleTeam                           // PVE公会副本进攻阵容
+	expedition_team        *BattleTeam                           // PVE远征阵型
+	expedition_enemy_team  *BattleTeam                           // PVE远征对方阵型
 	fighing_friend_boss    int32                                 // 是否好友BOSS正在被挑战
 	defense_team           *BattleTeam                           // PVP防守阵型
 	use_defense            int32                                 // 是否正在使用防守阵型
@@ -414,11 +416,11 @@ func (this *Player) send_teams() {
 		TeamMembers: this.db.BattleTeam.GetAttackMembers(),
 	}*/
 	defense_team := &msg_client_message.TeamData{
-		TeamType:    BATTLE_DEFENSE_TEAM,
+		TeamType:    BATTLE_TEAM_DEFENSE,
 		TeamMembers: this.db.BattleTeam.GetDefenseMembers(),
 	}
 	campaign_team := &msg_client_message.TeamData{
-		TeamType:    BATTLE_CAMPAIN_TEAM,
+		TeamType:    BATTLE_TEAM_CAMPAIN,
 		TeamMembers: this.db.BattleTeam.GetCampaignMembers(),
 	}
 	msg.Teams = []*msg_client_message.TeamData{ /*attack_team, */ defense_team, campaign_team}
@@ -627,7 +629,7 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TEAM_MEMBERS_IS_EMPTY)
 	}
 
-	if team_type == BATTLE_ATTACK_TEAM || team_type == BATTLE_DEFENSE_TEAM {
+	if team_type == BATTLE_TEAM_ATTACK || team_type == BATTLE_TEAM_DEFENSE {
 		if member_num > PVP_TEAM_MAX_MEMBER_NUM {
 			return int32(msg_client_message.E_ERR_PLAYER_PVP_TEAM_MEMBERS_TOO_MORE)
 		}
@@ -658,9 +660,9 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 		team[this.assist_role_pos] = this.assist_role_id
 	}
 
-	if team_type == BATTLE_CAMPAIN_TEAM {
+	if team_type == BATTLE_TEAM_CAMPAIN {
 		this.db.BattleTeam.SetCampaignMembers(team)
-	} else if team_type == BATTLE_DEFENSE_TEAM {
+	} else if team_type == BATTLE_TEAM_DEFENSE {
 		this.db.BattleTeam.SetDefenseMembers(team)
 	} else {
 		if this.tmp_teams == nil {
@@ -786,7 +788,7 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		this.attack_team = &BattleTeam{}
 	}
 
-	res := this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0)
+	res := this.attack_team.Init(this, BATTLE_TEAM_ATTACK, 0)
 	if res < 0 {
 		if p != nil {
 			p.CancelDefensing()
@@ -801,7 +803,7 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		if p.defense_team == nil {
 			p.defense_team = &BattleTeam{}
 		}
-		res = p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1)
+		res = p.defense_team.Init(p, BATTLE_TEAM_DEFENSE, 1)
 		if res < 0 {
 			p.CancelDefensing()
 			log.Error("Player[%v] init defense team failed, err %v", player_id, res)

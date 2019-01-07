@@ -16,7 +16,6 @@ type XmlExpeditionItem struct {
 	GoldRate         int32 `xml:"GoldRate,attr"`
 	TokenBase        int32 `xml:"TokenBase,attr"`
 	TokenRate        int32 `xml:"TokenRate,attr"`
-	BattleNum        int32 `xml:"BattleNum,attr"`
 }
 
 type XmlExpeditionConfig struct {

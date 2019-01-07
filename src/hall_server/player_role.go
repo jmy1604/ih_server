@@ -643,9 +643,9 @@ func get_decompose_rank_res(table_id, rank int32) []int32 {
 
 func (this *Player) team_has_role(team_id int32, role_id int32) bool {
 	var members []int32
-	if team_id == BATTLE_CAMPAIN_TEAM {
+	if team_id == BATTLE_TEAM_CAMPAIN {
 		members = this.db.BattleTeam.GetCampaignMembers()
-	} else if team_id == BATTLE_DEFENSE_TEAM {
+	} else if team_id == BATTLE_TEAM_DEFENSE {
 		members = this.db.BattleTeam.GetDefenseMembers()
 	}
 	if members != nil {

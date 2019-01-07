@@ -7,11 +7,9 @@ import (
 )
 
 // 战力排行榜序号
-//var role_power_rank_serial_id int32
 var roles_power_rank_serial_id int32
 
 type RolePowerRankItem struct {
-	//SerialId int32
 	Power  int32
 	RoleId int32
 }
