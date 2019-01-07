@@ -82,6 +82,10 @@ func (this *PlayerManager) RemoveFromIdMap(id int32) {
 }
 
 func (this *PlayerManager) Add2UidMap(unique_id string, p *Player) {
+	if unique_id == "" {
+		return
+	}
+
 	this.uid2players_locker.Lock()
 	defer this.uid2players_locker.Unlock()
 

@@ -157,6 +157,8 @@ type TopPowerRanklist struct {
 	locker        *sync.RWMutex
 }
 
+var top_power_ranklist *TopPowerRanklist
+
 func NewTopPowerRanklist(root_node *TopPowerRankItem, max_rank int32) *TopPowerRanklist {
 	ranking_list := &TopPowerRanklist{
 		rank_powers:   utils.NewSkiplist(),
