@@ -610,6 +610,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 	}
 
 	response := &msg_client_message.S2CExploreSelRoleResponse{
+		Id:      id,
 		RoleIds: role_ids,
 		IsStory: is_story,
 	}
