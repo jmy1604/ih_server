@@ -249,11 +249,11 @@ func (this *TopPowerRanklist) GetNearestRandPlayer(power int32) int32 {
 		var r, new_power int32
 		new_power = power
 		for {
-			_r := (left + right) / 2
-			if r == _r {
+			mid := (left + right) / 2
+			if r == mid {
 				break
 			}
-			r = _r
+			r = mid
 
 			item := this.rank_powers.GetByRank(r)
 			it := item.(*TopPowerRankItem)
