@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"ih_server/libs/log"
 	"ih_server/libs/utils"
 	"math/rand"
@@ -93,6 +94,8 @@ func (this *TopPowerPlayers) Insert(player_id int32) bool {
 	var idx int = len(this.player2index)
 	if this.players != nil && len(this.players) > idx {
 		this.players[idx] = player_id
+	} else {
+		this.players = append(this.players, player_id)
 	}
 	this.player2index[player_id] = int32(idx)
 	return true
@@ -198,25 +201,31 @@ func (this *TopPowerRanklist) Update(player_id, power int32) bool {
 		}
 
 		if ps.IsEmpty() {
-			this.items_pool.Put(ps)
 			delete(this.power2players, old_power)
+			var dt = TopPowerRankItem{
+				TopPower: old_power,
+			}
+			if !this.rank_powers.Delete(&dt) {
+				log.Warn("Delete empty power %v players to top power rank list failed", old_power)
+			}
 		}
 	}
 
 	var players *TopPowerPlayers
 	players, o = this.power2players[power]
 	if !o {
-		players := this.items_pool.Get().(*TopPowerPlayers)
+		players = &TopPowerPlayers{}
 		players.Init()
 		this.power2players[power] = players
 	}
 	players.Insert(player_id)
 
-	var t = TopPowerRankItem{
-		TopPower: power,
-	}
-	if this.rank_powers.GetNode(&t) == nil {
-		this.rank_powers.Insert(&t)
+	this.player2power[player_id] = power
+
+	t := this.items_pool.Get().(*TopPowerRankItem)
+	t.TopPower = power
+	if this.rank_powers.GetNode(t) == nil {
+		this.rank_powers.Insert(t)
 	}
 
 	return true
@@ -245,13 +254,32 @@ func (this *TopPowerRanklist) GetNearestRank(power int32) int32 {
 		it := item.(*TopPowerRankItem)
 		if it != nil {
 			if it.TopPower < power {
-				left = r
-			} else if it.TopPower > power {
 				right = r
+			} else if it.TopPower > power {
+				left = r
 			} else {
 				break
 			}
 		}
 	}
 	return r
+}
+
+func (this *TopPowerRanklist) OutputList() {
+	l := this.rank_powers.GetLength()
+	if l > 0 {
+		var s string
+		for r := int32(1); r < l; r++ {
+			v := this.rank_powers.GetByRank(r)
+			vv := v.(*TopPowerRankItem)
+			if vv != nil {
+				if r > 1 {
+					s = fmt.Sprintf("%v,%v", s, vv.TopPower)
+				} else {
+					s = fmt.Sprintf("%v", vv.TopPower)
+				}
+			}
+		}
+		log.Trace("@@@@@ TopPowerRanklist %v", s)
+	}
 }

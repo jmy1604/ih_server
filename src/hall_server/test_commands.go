@@ -2204,18 +2204,71 @@ func activity_data_cmd(p *Player, args []string) int32 {
 }
 
 func test_power_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var power int
+	var err error
+	power, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	var count int = 1
+	if len(args) > 1 {
+		count, err = strconv.Atoi(args[1])
+		if err != nil {
+			return -1
+		}
+	}
+
 	type info struct {
 		player_id int32
 		power     int32
 	}
-	var info_list = []info{
+	/*var info_list = []info{
 		{player_id: 1, power: 100},
 		{player_id: 2, power: 200},
+		{player_id: 3, power: 300},
+		{player_id: 4, power: 400},
+		{player_id: 5, power: 500},
+		{player_id: 6, power: 600},
+		{player_id: 7, power: 700},
+		{player_id: 8, power: 800},
+		{player_id: 9, power: 900},
+		{player_id: 10, power: 1000},
+		{player_id: 11, power: 1100},
+		{player_id: 1, power: 10000},
+		{player_id: 2, power: 20000},
+		{player_id: 10, power: 100},
+	}*/
+
+	var info_num int32 = 100
+	rand.Seed(time.Now().Unix())
+	var info_list []*info = make([]*info, info_num)
+	for i := int32(0); i < info_num; i++ {
+		info_list[i] = &info{}
+		_, info_list[i].player_id = rand31n_from_range(1, 10000)
+		_, info_list[i].power = rand31n_from_range(1, 10000)
 	}
+
 	rank_list := NewTopPowerRanklist(&TopPowerRankItem{}, 100)
 	for _, v := range info_list {
 		rank_list.Update(v.player_id, v.power)
 	}
+	rank_list.OutputList()
+
+	var r int32
+	begin := time.Now()
+	for i := 0; i < count; i++ {
+		r = rank_list.GetNearestRank(int32(power))
+	}
+	cost_ms := time.Now().Sub(begin).Nanoseconds() / 1000000
+
+	log.Trace("@@@ get the nearest rank is %v, count %v, cost ms %v", r, count, cost_ms)
+
 	return 1
 }
 
