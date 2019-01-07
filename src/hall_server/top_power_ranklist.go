@@ -196,6 +196,11 @@ func (this *TopPowerRanklist) Update(player_id, power int32) bool {
 			log.Error("Update old_power[%v] to power[%v] for player %v failed", old_power, power, player_id)
 			return false
 		}
+
+		if ps.IsEmpty() {
+			this.items_pool.Put(ps)
+			delete(this.power2players, old_power)
+		}
 	}
 
 	var players *TopPowerPlayers
@@ -203,6 +208,7 @@ func (this *TopPowerRanklist) Update(player_id, power int32) bool {
 	if !o {
 		players := this.items_pool.Get().(*TopPowerPlayers)
 		players.Init()
+		this.power2players[power] = players
 	}
 	players.Insert(player_id)
 

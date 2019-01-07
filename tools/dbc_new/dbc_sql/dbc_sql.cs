@@ -2669,6 +2669,10 @@ namespace DBCompiler_sql
                     {
                         for (int i=0; i<c.Array; i++)
                         {
+                            if (i > 0)
+                            {
+                                save_insert_stmt_values_string += ",?";
+                            }
                             save_insert_stmt_string += "," + ColumnValNameWithIndex(c.ColumnName, i);
                         }
                     }
@@ -2683,6 +2687,10 @@ namespace DBCompiler_sql
                     {
                         for (int i=0; i<c.Array; i++)
                         {
+                            if (i > 0)
+                            {
+                                save_insert_stmt_values_string += ",?";
+                            }
                             if (c.Map)
                             {
                                 if (c.AutoIndex)
