@@ -474,6 +474,8 @@ message PlayerExpeditionData{
 	repeated int32 PlayerIds=2;
 	optional int32 CurrLevel=3;
 	repeated int32 PlayerPowers=4;
+	repeated int32 GoldIncome=5;
+	repeated int32 ExpeditionGoldIncome=6;
 }
 
 message PlayerExpeditionRole{

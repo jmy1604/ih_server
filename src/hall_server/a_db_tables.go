@@ -2012,11 +2012,15 @@ type dbPlayerExpeditionDataData struct{
 	PlayerIds []int32
 	CurrLevel int32
 	PlayerPowers []int32
+	GoldIncome []int32
+	ExpeditionGoldIncome []int32
 }
 func (this* dbPlayerExpeditionDataData)from_pb(pb *db.PlayerExpeditionData){
 	if pb == nil {
 		this.PlayerIds = make([]int32,0)
 		this.PlayerPowers = make([]int32,0)
+		this.GoldIncome = make([]int32,0)
+		this.ExpeditionGoldIncome = make([]int32,0)
 		return
 	}
 	this.RefreshTime = pb.GetRefreshTime()
@@ -2028,6 +2032,14 @@ func (this* dbPlayerExpeditionDataData)from_pb(pb *db.PlayerExpeditionData){
 	this.PlayerPowers = make([]int32,len(pb.GetPlayerPowers()))
 	for i, v := range pb.GetPlayerPowers() {
 		this.PlayerPowers[i] = v
+	}
+	this.GoldIncome = make([]int32,len(pb.GetGoldIncome()))
+	for i, v := range pb.GetGoldIncome() {
+		this.GoldIncome[i] = v
+	}
+	this.ExpeditionGoldIncome = make([]int32,len(pb.GetExpeditionGoldIncome()))
+	for i, v := range pb.GetExpeditionGoldIncome() {
+		this.ExpeditionGoldIncome[i] = v
 	}
 	return
 }
@@ -2043,6 +2055,14 @@ func (this* dbPlayerExpeditionDataData)to_pb()(pb *db.PlayerExpeditionData){
 	for i, v := range this.PlayerPowers {
 		pb.PlayerPowers[i]=v
 	}
+	pb.GoldIncome = make([]int32, len(this.GoldIncome))
+	for i, v := range this.GoldIncome {
+		pb.GoldIncome[i]=v
+	}
+	pb.ExpeditionGoldIncome = make([]int32, len(this.ExpeditionGoldIncome))
+	for i, v := range this.ExpeditionGoldIncome {
+		pb.ExpeditionGoldIncome[i]=v
+	}
 	return
 }
 func (this* dbPlayerExpeditionDataData)clone_to(d *dbPlayerExpeditionDataData){
@@ -2055,6 +2075,14 @@ func (this* dbPlayerExpeditionDataData)clone_to(d *dbPlayerExpeditionDataData){
 	d.PlayerPowers = make([]int32, len(this.PlayerPowers))
 	for _ii, _vv := range this.PlayerPowers {
 		d.PlayerPowers[_ii]=_vv
+	}
+	d.GoldIncome = make([]int32, len(this.GoldIncome))
+	for _ii, _vv := range this.GoldIncome {
+		d.GoldIncome[_ii]=_vv
+	}
+	d.ExpeditionGoldIncome = make([]int32, len(this.ExpeditionGoldIncome))
+	for _ii, _vv := range this.ExpeditionGoldIncome {
+		d.ExpeditionGoldIncome[_ii]=_vv
 	}
 	return
 }
@@ -10880,6 +10908,44 @@ func (this *dbPlayerExpeditionDataColumn)SetPlayerPowers(v []int32){
 	this.m_data.PlayerPowers = make([]int32, len(v))
 	for _ii, _vv := range v {
 		this.m_data.PlayerPowers[_ii]=_vv
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)GetGoldIncome( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionDataColumn.GetGoldIncome")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]int32, len(this.m_data.GoldIncome))
+	for _ii, _vv := range this.m_data.GoldIncome {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)SetGoldIncome(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.SetGoldIncome")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.GoldIncome = make([]int32, len(v))
+	for _ii, _vv := range v {
+		this.m_data.GoldIncome[_ii]=_vv
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)GetExpeditionGoldIncome( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionDataColumn.GetExpeditionGoldIncome")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]int32, len(this.m_data.ExpeditionGoldIncome))
+	for _ii, _vv := range this.m_data.ExpeditionGoldIncome {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)SetExpeditionGoldIncome(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.SetExpeditionGoldIncome")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.ExpeditionGoldIncome = make([]int32, len(v))
+	for _ii, _vv := range v {
+		this.m_data.ExpeditionGoldIncome[_ii]=_vv
 	}
 	this.m_changed = true
 	return

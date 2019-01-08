@@ -2318,6 +2318,11 @@ func expedition_fight_cmd(p *Player, args []string) int32 {
 		}
 	}
 
+	if mems == nil || len(mems) == 0 {
+		log.Error("expedition team is empty!!!")
+		return -1
+	}
+
 	res := p.SetTeam(BATTLE_TEAM_EXPEDITION, mems)
 	if res < 0 {
 		return res

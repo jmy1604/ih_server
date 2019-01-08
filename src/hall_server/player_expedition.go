@@ -74,6 +74,8 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 
 	var player_ids []int32
 	var player_powers []int32
+	var gold_incomes []int32
+	var expedition_gold_incomes []int32
 	for i := 0; i < len(arr); i++ {
 		power := int32(float32(n.Power) * (float32(arr[i].EnemyBattlePower) / 10000))
 		pid := top_power_ranklist.GetNearestRandPlayer(power)
@@ -115,19 +117,43 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 			}
 		}
 		player_ids = append(player_ids, pid)
-		player_powers = append(player_powers, player.get_defense_team_power())
+		player_power := player.get_defense_team_power()
+		player_powers = append(player_powers, player_power)
+		gold_income := arr[i].GoldBase + int32(int64(player_power)*int64(arr[i].EnemyBattlePower)/10000)
+		gold_incomes = append(gold_incomes, gold_income)
+		expedition_gold_income := arr[i].TokenBase
+		expedition_gold_incomes = append(expedition_gold_incomes, expedition_gold_income)
 	}
 
 	this.db.ExpeditionData.SetCurrLevel(0)
 	this.db.ExpeditionData.SetRefreshTime(int32(time.Now().Unix()))
 	this.db.ExpeditionData.SetPlayerIds(player_ids)
 	this.db.ExpeditionData.SetPlayerPowers(player_powers)
+	this.db.ExpeditionData.SetGoldIncome(gold_incomes)
+	this.db.ExpeditionData.SetExpeditionGoldIncome(expedition_gold_incomes)
 
 	if this.db.ExpeditionRoles.NumAll() > 0 {
 		this.db.ExpeditionRoles.Clear()
 	}
 
 	return 1
+}
+
+func (this *Player) expedition_get_self_roles() []*msg_client_message.ExpeditionSelfRole {
+	used_ids := this.db.ExpeditionRoles.GetAllIndex()
+	var roles []*msg_client_message.ExpeditionSelfRole
+	if used_ids != nil {
+		for _, id := range used_ids {
+			hp, _ := this.db.ExpeditionRoles.GetHP(id)
+			weak, _ := this.db.ExpeditionRoles.GetWeak(id)
+			roles = append(roles, &msg_client_message.ExpeditionSelfRole{
+				Id:   id,
+				HP:   hp,
+				Weak: weak,
+			})
+		}
+	}
+	return roles
 }
 
 func (this *Player) send_expedition_data() int32 {
@@ -142,17 +168,7 @@ func (this *Player) send_expedition_data() int32 {
 	}
 
 	curr_level := this.db.ExpeditionData.GetCurrLevel()
-	used_ids := this.db.ExpeditionRoles.GetAllIndex()
-	var roles []*msg_client_message.ExpeditionSelfRole
-	if used_ids != nil {
-		for _, id := range used_ids {
-			hp, _ := this.db.ExpeditionRoles.GetHP(id)
-			roles = append(roles, &msg_client_message.ExpeditionSelfRole{
-				Id: id,
-				HP: hp,
-			})
-		}
-	}
+	roles := this.expedition_get_self_roles()
 
 	response := &msg_client_message.S2CExpeditionDataResponse{
 		CurrLevel:            curr_level,
@@ -166,24 +182,12 @@ func (this *Player) send_expedition_data() int32 {
 	return 1
 }
 
-func (this *Player) get_expedition_level_data_with_level(curr_level int32) int32 {
-	player_ids := this.db.ExpeditionData.GetPlayerIds()
-	player_powers := this.db.ExpeditionData.GetPlayerPowers()
-	if player_ids == nil || len(player_ids) <= int(curr_level) || player_powers == nil || len(player_powers) <= int(curr_level) {
-		log.Error("Player %v expedition enemy list length %v not enough", this.Id, len(player_ids))
-		return -1
-	}
-	player := player_mgr.GetPlayerById(player_ids[curr_level])
-	if player == nil {
-		log.Error("Player %v not found expedition player %v data", this.Id, player_ids[curr_level])
-		return -1
-	}
-
+func (this *Player) expedition_get_enemy_roles(curr_level int32) (int32, []*msg_client_message.ExpeditionEnemyRole) {
 	db_expe_list := this.get_expedition_db_role_list()
 	all_pos := db_expe_list[curr_level].GetAllIndex()
 	if all_pos == nil || len(all_pos) == 0 {
 		log.Error("Player %v expedition level %v enemy role list is empty", this.Id, curr_level)
-		return -1
+		return -1, nil
 	}
 
 	var role_list []*msg_client_message.ExpeditionEnemyRole
@@ -200,15 +204,38 @@ func (this *Player) get_expedition_level_data_with_level(curr_level int32) int32
 			HpPercent: hp_percent,
 		})
 	}
+	return 1, role_list
+}
 
+func (this *Player) get_expedition_level_data_with_level(curr_level int32) int32 {
+	player_ids := this.db.ExpeditionData.GetPlayerIds()
+	player_powers := this.db.ExpeditionData.GetPlayerPowers()
+	gold_incomes := this.db.ExpeditionData.GetGoldIncome()
+	expedition_gold_incomes := this.db.ExpeditionData.GetExpeditionGoldIncome()
+	if player_ids == nil || len(player_ids) <= int(curr_level) || player_powers == nil || len(player_powers) <= int(curr_level) || gold_incomes == nil || len(gold_incomes) <= int(curr_level) || expedition_gold_incomes == nil || len(expedition_gold_incomes) <= int(curr_level) {
+		log.Error("Player %v expedition enemy list length %v not enough", this.Id, len(player_ids))
+		return -1
+	}
+	player := player_mgr.GetPlayerById(player_ids[curr_level])
+	if player == nil {
+		log.Error("Player %v not found expedition player %v data", this.Id, player_ids[curr_level])
+		return -1
+	}
+
+	res, role_list := this.expedition_get_enemy_roles(curr_level)
+	if res < 0 {
+		return res
+	}
 	response := &msg_client_message.S2CExpeditionLevelDataResponse{
-		PlayerId:       player_ids[curr_level],
-		PlayerName:     player.db.GetName(),
-		PlayerLevel:    player.db.GetLevel(),
-		PlayerVipLevel: player.db.Info.GetVipLvl(),
-		PlayerHead:     player.db.Info.GetHead(),
-		PlayerPower:    player_powers[curr_level],
-		RoleList:       role_list,
+		PlayerId:             player_ids[curr_level],
+		PlayerName:           player.db.GetName(),
+		PlayerLevel:          player.db.GetLevel(),
+		PlayerVipLevel:       player.db.Info.GetVipLvl(),
+		PlayerHead:           player.db.Info.GetHead(),
+		PlayerPower:          player_powers[curr_level],
+		RoleList:             role_list,
+		GoldIncome:           gold_incomes[curr_level],
+		ExpeditionGoldIncome: expedition_gold_incomes[curr_level],
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPEDITION_LEVEL_DATA_RESPONSE), response)
 
@@ -262,6 +289,13 @@ func (this *Player) expedition_team_init(members []*TeamMember) int32 {
 }
 
 func (this *Player) expedition_update_self_roles(members []*TeamMember) {
+	curr_level := this.db.ExpeditionData.GetCurrLevel()
+	e := expedition_table_mgr.Array[curr_level]
+	if e == nil {
+		return
+	}
+
+	used := make(map[int32]int32)
 	for pos := 0; pos < len(members); pos++ {
 		m := members[pos]
 		if m == nil {
@@ -272,13 +306,38 @@ func (this *Player) expedition_update_self_roles(members []*TeamMember) {
 		if m.is_dead() {
 			hp = 0
 		}
+		var weak int32
+		// 精英关卡
+		if e.StageType == EXPEDITION_LEVEL_DIFFCULTY_ELITE && hp > 0 {
+			weak = 1
+		}
 		if !this.db.ExpeditionRoles.HasIndex(id) {
 			this.db.ExpeditionRoles.Add(&dbPlayerExpeditionRoleData{
-				Id: id,
-				HP: hp,
+				Id:   id,
+				HP:   hp,
+				Weak: weak,
 			})
 		} else {
 			this.db.ExpeditionRoles.SetHP(id, hp)
+			this.db.ExpeditionRoles.SetWeak(id, weak)
+		}
+		used[id] = id
+	}
+
+	// 把上一场疲劳的角色恢复成正常状态
+	all_ids := this.db.ExpeditionRoles.GetAllIndex()
+	if all_ids != nil {
+		for i := 0; i < len(all_ids); i++ {
+			_, o := used[all_ids[i]]
+			if o {
+				continue
+			}
+			if this.db.ExpeditionRoles.HasIndex(all_ids[i]) {
+				weak, _ := this.db.ExpeditionRoles.GetWeak(all_ids[i])
+				if weak > 0 {
+					this.db.ExpeditionRoles.SetWeak(all_ids[i], 0)
+				}
+			}
 		}
 	}
 }
@@ -346,6 +405,12 @@ func (this *Player) expedition_fight() int32 {
 	is_win, enter_reports, rounds := this.expedition_team.Fight(this.expedition_enemy_team, BATTLE_END_BY_ALL_DEAD, 0)
 
 	if is_win {
+		gold_incomes := this.db.ExpeditionData.GetGoldIncome()
+		gold_income := gold_incomes[curr_level]
+		this.add_gold(gold_income)
+		expedition_gold_incomes := this.db.ExpeditionData.GetExpeditionGoldIncome()
+		expedition_gold_income := expedition_gold_incomes[curr_level]
+		this.add_resource(ITEM_RESOURCE_ID_EXPEDITION, expedition_gold_income)
 		curr_level = this.db.ExpeditionData.IncbyCurrLevel(1)
 	}
 
@@ -368,11 +433,13 @@ func (this *Player) expedition_fight() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
-	if is_win {
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPEDITION_CURR_LEVEL_SYNC), &msg_client_message.S2CExpeditionCurrLevelSync{
-			CurrLevel: curr_level,
-		})
-	}
+	self_roles := this.expedition_get_self_roles()
+	_, enemy_roles := this.expedition_get_enemy_roles(curr_level)
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPEDITION_CURR_LEVEL_SYNC), &msg_client_message.S2CExpeditionCurrLevelSync{
+		CurrLevel:  curr_level,
+		SelfRoles:  self_roles,
+		EnemyRoles: enemy_roles,
+	})
 
 	log.Trace("Player %v expedition fight %v", this.Id, response)
 

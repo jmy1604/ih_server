@@ -12,11 +12,12 @@ import (
 )
 
 const (
-	SHOP_TYPE_NORMAL = 1
-	SHOP_TYPE_HERO   = 2
-	SHOP_TYPE_TOWER  = 3
-	SHOP_TYPE_ARENA  = 4
-	SHOP_TYPE_GUILD  = 5
+	SHOP_TYPE_NORMAL     = 1
+	SHOP_TYPE_HERO       = 2
+	SHOP_TYPE_TOWER      = 3
+	SHOP_TYPE_ARENA      = 4
+	SHOP_TYPE_GUILD      = 5
+	SHOP_TYPE_EXPEDITOIN = 6
 )
 
 func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {

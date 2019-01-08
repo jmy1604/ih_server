@@ -2304,6 +2304,7 @@ message C2SExpeditionDataRequest {
 message ExpeditionSelfRole {
 	int32 Id								= 1; // 角色ID
 	int32 HP 								= 2; // 当前血量
+	int32 Weak								= 3; // 虚弱
 }
 message S2CExpeditionDataResponse {
 	int32 CurrLevel							= 1; // 当前关卡  0 开始
@@ -2336,5 +2337,7 @@ message S2CExpeditionLevelDataResponse {
 
 // 远征当前关卡同步
 message S2CExpeditionCurrLevelSync {
-	int32 CurrLevel							= 1;
+	int32 CurrLevel							= 1; // 当前关卡
+	repeated ExpeditionSelfRole SelfRoles   = 2; // 自己用过的角色
+	repeated ExpeditionEnemyRole EnemyRoles = 3; // 对手的角色
 }

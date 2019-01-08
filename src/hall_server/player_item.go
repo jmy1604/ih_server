@@ -32,6 +32,7 @@ const (
 	ITEM_RESOURCE_ID_HEROCOIN    = 10 // 英雄币
 	ITEM_RESOURCE_ID_HONOR       = 17 // 荣誉点
 	ITEM_RESOURCE_ID_VIP_EXP     = 21 // vip经验
+	ITEM_RESOURCE_ID_EXPEDITION  = 24 // 远征币
 )
 
 // 装备类型
