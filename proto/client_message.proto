@@ -2328,4 +2328,6 @@ message S2CExpeditionLevelDataResponse {
 	int32 PlayerHead						= 5; // 玩家头像
 	int32 PlayerPower						= 6; // 玩家战力
 	repeated ExpeditionEnemyRole RoleList   = 7; // 对方角色列表
+	int32 GoldIncome						= 8; // 金币收益
+	int32 ExpeditionGoldIncome				= 9; // 远征币收益
 }

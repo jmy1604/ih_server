@@ -2277,11 +2277,27 @@ func expedition_data_cmd(p *Player, args []string) int32 {
 }
 
 func expedition_level_data_cmd(p *Player, args []string) int32 {
-	return p.get_expedition_level_data()
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var level int
+	var err error
+	level, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	return p.get_expedition_level_data_with_level(int32(level))
 }
 
 func expedition_fight_cmd(p *Player, args []string) int32 {
 	return p.expedition_fight()
+}
+
+func expedition_powerlist_cmd(p *Player, args []string) int32 {
+	top_power_ranklist.OutputList()
+	return 1
 }
 
 type test_cmd_func func(*Player, []string) int32
@@ -2432,6 +2448,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"expedition_data":        expedition_data_cmd,
 	"expedition_level_data":  expedition_level_data_cmd,
 	"expedition_fight":       expedition_fight_cmd,
+	"expedition_powerlist":   expedition_powerlist_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {

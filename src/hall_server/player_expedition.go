@@ -67,6 +67,7 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 	log.Debug("@@@@@@@@@@@ Player %v roles power %v", this.Id, n.Power)
 
 	var player_ids []int32
+	var player_powers []int32
 	for i := 0; i < len(arr); i++ {
 		power := int32(float32(n.Power) * (float32(arr[i].EnemyBattlePower) / 10000))
 		pid := top_power_ranklist.GetNearestRandPlayer(power)
@@ -97,21 +98,24 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 				rank, _ := player.db.Roles.GetRank(id)
 				equip, _ := player.db.Roles.GetEquip(id)
 				db_expe_list[i].Add(&dbPlayerExpeditionLevelRoleData{
-					Pos:     int32(pos),
-					TableId: table_id,
-					Rank:    rank,
-					Level:   level,
-					Equip:   equip,
-					HP:      -1,
+					Pos:       int32(pos),
+					TableId:   table_id,
+					Rank:      rank,
+					Level:     level,
+					Equip:     equip,
+					HP:        -1,
+					HpPercent: 100,
 				})
 			}
 		}
 		player_ids = append(player_ids, pid)
+		player_powers = append(player_powers, player.get_defense_team_power())
 	}
 
 	this.db.ExpeditionData.SetCurrLevel(0)
 	this.db.ExpeditionData.SetRefreshTime(int32(time.Now().Unix()))
 	this.db.ExpeditionData.SetPlayerIds(player_ids)
+	this.db.ExpeditionData.SetPlayerPowers(player_powers)
 
 	return 1
 }
@@ -124,7 +128,7 @@ func (this *Player) send_expedition_data() int32 {
 		if res < 0 {
 			return res
 		}
-		remain_seconds = 24 * 3600
+		remain_seconds = utils.GetRemainSeconds2NextDayTime(int32(time.Now().Unix()), global_config.ExpeditionRefreshTime)
 	}
 
 	curr_level := this.db.ExpeditionData.GetCurrLevel()
@@ -152,19 +156,11 @@ func (this *Player) send_expedition_data() int32 {
 	return 1
 }
 
-func (this *Player) get_expedition_level_data() int32 {
-	if this.db.ExpeditionData.GetRefreshTime() == 0 {
-		return -1
-	}
-	curr_level := this.db.ExpeditionData.GetCurrLevel()
-	if int(curr_level) >= len(expedition_table_mgr.Array) {
-		log.Error("Player %v curr expedition level %v invalid", this.Id)
-		return -1
-	}
+func (this *Player) get_expedition_level_data_with_level(curr_level int32) int32 {
 	player_ids := this.db.ExpeditionData.GetPlayerIds()
 	player_powers := this.db.ExpeditionData.GetPlayerPowers()
 	if player_ids == nil || len(player_ids) <= int(curr_level) || player_powers == nil || len(player_powers) <= int(curr_level) {
-		log.Error("Player %v expedition enemy list length %v not enough", this.Id)
+		log.Error("Player %v expedition enemy list length %v not enough", this.Id, len(player_ids))
 		return -1
 	}
 	player := player_mgr.GetPlayerById(player_ids[curr_level])
@@ -209,6 +205,18 @@ func (this *Player) get_expedition_level_data() int32 {
 	log.Trace("Player %v get expedition level %v data %v", this.Id, curr_level, response)
 
 	return 1
+}
+
+func (this *Player) get_expedition_level_data() int32 {
+	if this.db.ExpeditionData.GetRefreshTime() == 0 {
+		return -1
+	}
+	curr_level := this.db.ExpeditionData.GetCurrLevel()
+	if int(curr_level) >= len(expedition_table_mgr.Array) {
+		log.Error("Player %v curr expedition level %v invalid", this.Id)
+		return -1
+	}
+	return this.get_expedition_level_data_with_level(curr_level)
 }
 
 func (this *Player) expedition_team_init(team []*TeamMember) {

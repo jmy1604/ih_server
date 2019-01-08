@@ -878,7 +878,8 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Id"},
-						{"Type":"int32","Index":2,"Name":"HP"}
+						{"Type":"int32","Index":2,"Name":"HP"},
+						{"Type":"int32","Index":3,"Name":"Weak"}
 					]
 				},
 				{
