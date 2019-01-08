@@ -610,6 +610,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 	}
 
 	response := &msg_client_message.S2CExploreSelRoleResponse{
+		Id:      id,
 		RoleIds: role_ids,
 		IsStory: is_story,
 	}
@@ -984,7 +985,8 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 
 	// 触发关卡
 	var reward_stage_id int32
-	if rand.Int31n(10000) < task.BonusStageChance && this.db.Info.GetLvl() >= task.BonusStageLevelCond {
+	b := rand.Int31n(10000) < task.BonusStageChance && this.db.Info.GetLvl() >= task.BonusStageLevelCond
+	if b {
 		boss := explore_task_boss_mgr.Random(task.BonusStageListID)
 		if boss != nil {
 			if is_story {
@@ -997,12 +999,6 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 			reward_stage_id = boss.StageId
 		}
 		this.explore_remove_roles(id, is_story)
-	} else {
-		this.explore_remove_task(id, is_story)
-
-		// 更新任务
-		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_EXPLORE_NUM, false, 0, 1)
-		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_STAR_EXPLORE, false, task.TaskStar, 1)
 	}
 
 	response := &msg_client_message.S2CExploreGetRewardResponse{
@@ -1012,6 +1008,13 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 		RewardStageId: reward_stage_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_GET_REWARD_RESPONSE), response)
+
+	if !b {
+		this.explore_remove_task(id, is_story)
+		// 更新任务
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_EXPLORE_NUM, false, 0, 1)
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_STAR_EXPLORE, false, task.TaskStar, 1)
+	}
 
 	if !is_story {
 		this.activitys_update(ACTIVITY_EVENT_EXPLORE, task.TaskStar, 1, 0, 0)

@@ -35,20 +35,20 @@ func (this *Player) check_signed() (signed int32) {
 			log.Error("Sign table is empty")
 			return int32(msg_client_message.E_ERR_SIGN_TABLE_DATA_NOT_FOUND)
 		}
-		this.db.Sign.SetCurrGroup(item.Group)
+		//this.db.Sign.SetCurrGroup(item.Group)
 		this.db.Sign.SetSignedIndex(1)
 		signed = 1
 	} else {
 		t := time.Unix(int64(last_signed), 0)
-		curr_group := this.db.Sign.GetCurrGroup()
+		/*curr_group := this.db.Sign.GetCurrGroup()
 		group_items := sign_table_mgr.GetGroup(curr_group)
 		if group_items == nil {
 			log.Error("Sign table not found group %v data", curr_group)
 			return int32(msg_client_message.E_ERR_SIGN_TABLE_DATA_NOT_FOUND)
-		}
+		}*/
 		if !(now_time.Year() == t.Year() && now_time.Month() == t.Month() && now_time.Day() == t.Day()) {
 			curr_signed := this.db.Sign.GetSignedIndex()
-			if int(curr_signed) >= len(group_items) {
+			/*if int(curr_signed) >= len(group_items) {
 				next_group := curr_group + 1
 				group_items = sign_table_mgr.GetGroup(next_group)
 				if group_items == nil {
@@ -58,9 +58,9 @@ func (this *Player) check_signed() (signed int32) {
 				this.db.Sign.SetCurrGroup(next_group)
 				this.db.Sign.SetSignedIndex(1)
 				this.db.Sign.SetAwardIndex(0)
-			} else {
-				this.db.Sign.SetSignedIndex(curr_signed + 1)
-			}
+			} else {*/
+			this.db.Sign.SetSignedIndex(curr_signed + 1)
+			//}
 			signed = 1
 		}
 	}
@@ -104,15 +104,21 @@ func (this *Player) sign_award(id int32) int32 {
 		return int32(msg_client_message.E_ERR_SIGN_ALL_AWARDED)
 	}
 
-	curr_group := this.db.Sign.GetCurrGroup()
+	/*curr_group := this.db.Sign.GetCurrGroup()
 	group_items := sign_table_mgr.GetGroup(curr_group)
 	if group_items == nil {
 		log.Error("Player[%v] sign award with group[%v] not found", this.Id, curr_group)
 		return -1
+	}*/
+
+	sign_item := sign_table_mgr.Get(id)
+	if sign_item == nil {
+		log.Error("Player[%v] sign award with id[%v] not found", this.Id, id)
+		return -1
 	}
 
 	var rewards map[int32]int32
-	reward := group_items[id-1].Reward
+	reward := sign_item.Reward
 	if reward != nil {
 		this.add_resources(reward)
 		for n := 0; n < len(reward)/2; n++ {
