@@ -315,7 +315,7 @@ func (this *Player) expedition_fight() int32 {
 		return -1
 	}
 
-	e := expedition_table_mgr.Get(curr_level)
+	e := expedition_table_mgr.Get(curr_level + 1)
 	if e == nil {
 		log.Error("not found expedition with level %v", curr_level)
 		return -1
