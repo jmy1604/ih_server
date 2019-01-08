@@ -2061,6 +2061,7 @@ func (this* dbPlayerExpeditionDataData)clone_to(d *dbPlayerExpeditionDataData){
 type dbPlayerExpeditionRoleData struct{
 	Id int32
 	HP int32
+	Weak int32
 }
 func (this* dbPlayerExpeditionRoleData)from_pb(pb *db.PlayerExpeditionRole){
 	if pb == nil {
@@ -2068,17 +2069,20 @@ func (this* dbPlayerExpeditionRoleData)from_pb(pb *db.PlayerExpeditionRole){
 	}
 	this.Id = pb.GetId()
 	this.HP = pb.GetHP()
+	this.Weak = pb.GetWeak()
 	return
 }
 func (this* dbPlayerExpeditionRoleData)to_pb()(pb *db.PlayerExpeditionRole){
 	pb = &db.PlayerExpeditionRole{}
 	pb.Id = proto.Int32(this.Id)
 	pb.HP = proto.Int32(this.HP)
+	pb.Weak = proto.Int32(this.Weak)
 	return
 }
 func (this* dbPlayerExpeditionRoleData)clone_to(d *dbPlayerExpeditionRoleData){
 	d.Id = this.Id
 	d.HP = this.HP
+	d.Weak = this.Weak
 	return
 }
 type dbPlayerExpeditionLevelRoleData struct{
@@ -11029,6 +11033,28 @@ func (this *dbPlayerExpeditionRoleColumn)SetHP(id int32,v int32)(has bool){
 	this.m_changed = true
 	return true
 }
+func (this *dbPlayerExpeditionRoleColumn)GetWeak(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetWeak")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Weak
+	return v,true
+}
+func (this *dbPlayerExpeditionRoleColumn)SetWeak(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetWeak")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Weak = v
+	this.m_changed = true
+	return true
+}
 type dbPlayerExpeditionLevelRoleColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerExpeditionLevelRoleData
@@ -11532,7 +11558,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(63)
+		db_args:=new_db_args(72)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_UniqueId)
 		db_args.Push(this.m_Account)

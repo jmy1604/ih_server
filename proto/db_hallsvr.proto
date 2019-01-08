@@ -479,6 +479,7 @@ message PlayerExpeditionData{
 message PlayerExpeditionRole{
 	optional int32 Id=1;
 	optional int32 HP=2;
+	optional int32 Weak=3;
 }
 
 message PlayerExpeditionRoleList{

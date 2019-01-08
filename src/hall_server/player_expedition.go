@@ -15,6 +15,12 @@ const (
 	EXPEDITION_MATCH_LEVELS_NUM = 10
 )
 
+const (
+	EXPEDITION_LEVEL_DIFFCULTY_NORMAL    = 1
+	EXPEDITION_LEVEL_DIFFCULTY_ELITE     = 2
+	EXPEDITION_LEVEL_DIFFCULTY_NIGHTMARE = 3
+)
+
 func (this *Player) get_expedition_db_role_list() []*dbPlayerExpeditionLevelRoleColumn {
 	return []*dbPlayerExpeditionLevelRoleColumn{
 		&this.db.ExpeditionLevelRole0s,
@@ -223,9 +229,9 @@ func (this *Player) get_expedition_level_data() int32 {
 	return this.get_expedition_level_data_with_level(curr_level)
 }
 
-func (this *Player) expedition_team_init(members []*TeamMember) bool {
+func (this *Player) expedition_team_init(members []*TeamMember) int32 {
 	if members == nil {
-		return false
+		return -1
 	}
 
 	for _, m := range members {
@@ -236,8 +242,15 @@ func (this *Player) expedition_team_init(members []*TeamMember) bool {
 			hp, _ := this.db.ExpeditionRoles.GetHP(m.id)
 			if hp <= 0 {
 				log.Warn("Player %v expedition role %v no hp, cant use", this.Id, m.id)
-				return false
+				return int32(msg_client_message.E_ERR_EXPEDITION_ROLE_NO_HP_CANT_USE)
 			}
+
+			weak, _ := this.db.ExpeditionRoles.GetWeak(m.id)
+			if weak > 0 {
+				log.Warn("Player %v expedition role %v is weak, cant use", this.Id, m.id)
+				return int32(msg_client_message.E_ERR_EXPEDITION_ROLE_WEAK_CANT_USE)
+			}
+
 			if hp >= 0 {
 				m.hp = hp
 				m.attrs[ATTR_HP] = hp
@@ -245,7 +258,7 @@ func (this *Player) expedition_team_init(members []*TeamMember) bool {
 		}
 	}
 
-	return true
+	return 1
 }
 
 func (this *Player) expedition_update_self_roles(members []*TeamMember) {
@@ -299,6 +312,12 @@ func (this *Player) expedition_fight() int32 {
 	curr_level := this.db.ExpeditionData.GetCurrLevel()
 	if int(curr_level) >= len(expedition_table_mgr.Array) {
 		log.Error("Player %v already pass all level expedition", this.Id)
+		return -1
+	}
+
+	e := expedition_table_mgr.Get(curr_level)
+	if e == nil {
+		log.Error("not found expedition with level %v", curr_level)
 		return -1
 	}
 

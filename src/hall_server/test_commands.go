@@ -2292,6 +2292,37 @@ func expedition_level_data_cmd(p *Player, args []string) int32 {
 }
 
 func expedition_fight_cmd(p *Player, args []string) int32 {
+	all_roles := p.db.Roles.GetAllIndex()
+	if all_roles == nil {
+		return -1
+	}
+
+	var mems []int32
+	for i := 0; i < len(all_roles); i++ {
+		rid := all_roles[i]
+		if p.db.ExpeditionRoles.HasIndex(rid) {
+			hp, _ := p.db.ExpeditionRoles.GetHP(rid)
+			if hp <= 0 {
+				log.Error("Player %v role %v hp is zero, cant expedition fight", p.Id, rid)
+				return -1
+			}
+			weak, _ := p.db.ExpeditionRoles.GetWeak(rid)
+			if weak > 0 {
+				log.Error("Player %v role %v is weak, cant expedition fight", p.Id, rid)
+				return -1
+			}
+		}
+		mems = append(mems, rid)
+		if len(mems) >= 5 {
+			break
+		}
+	}
+
+	res := p.SetTeam(BATTLE_TEAM_EXPEDITION, mems)
+	if res < 0 {
+		return res
+	}
+
 	return p.expedition_fight()
 }
 

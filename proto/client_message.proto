@@ -270,6 +270,8 @@ enum E_ERR {
 	CHARGE_NO_ACTIVITY_ON_THIS_TIME			= -30002; // 无充值活动可用
 	
 	EXPEDITION_ROLE_NUM_TOO_MORE 			= -31000; // 远征上阵角色数太多
+	EXPEDITION_ROLE_WEAK_CANT_USE			= -31001; // 远征虚弱角色不能上场
+	EXPEDITION_ROLE_NO_HP_CANT_USE			= -31002; // 远征角色HP为0不能上场
 	
 	// 保留
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;

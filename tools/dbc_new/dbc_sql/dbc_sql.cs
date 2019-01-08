@@ -1854,11 +1854,18 @@ namespace DBCompiler_sql
                     continue;
                 }
 
-                insert_count++;
+                if (c.Array > 1)
+                {
+                    insert_count += c.Array;
+                }
+                else
+                {
+                    insert_count++;
+                }
                 if (c.Map && c.AutoIndex)
                 {
                     insert_count++;
-                } 
+                }
             }
             code.AppendLine("\t\tdb_args:=new_db_args(" + insert_count + ")");
             code.AppendLine("\t\tdb_args.Push(this.m_" + table.PrimaryKeyName + ")");

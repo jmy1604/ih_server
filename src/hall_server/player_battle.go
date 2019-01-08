@@ -218,8 +218,9 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 
 	// 远征
 	if team_id == BATTLE_TEAM_EXPEDITION {
-		if !p.expedition_team_init(this.members) {
-			return -1
+		res := p.expedition_team_init(this.members)
+		if res < 0 {
+			return res
 		}
 	}
 
