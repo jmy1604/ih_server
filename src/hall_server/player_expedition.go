@@ -117,6 +117,10 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 	this.db.ExpeditionData.SetPlayerIds(player_ids)
 	this.db.ExpeditionData.SetPlayerPowers(player_powers)
 
+	if this.db.ExpeditionRoles.NumAll() > 0 {
+		this.db.ExpeditionRoles.Clear()
+	}
+
 	return 1
 }
 
@@ -219,17 +223,71 @@ func (this *Player) get_expedition_level_data() int32 {
 	return this.get_expedition_level_data_with_level(curr_level)
 }
 
-func (this *Player) expedition_team_init(team []*TeamMember) {
-	if team == nil {
-		return
+func (this *Player) expedition_team_init(members []*TeamMember) bool {
+	if members == nil {
+		return false
 	}
 
-	for pos, m := range team {
-		if !this.db.ExpeditionRoles.HasIndex(int32(pos)) {
-			log.Warn("Player %v not have expedition role on pos %v", this.Id, pos)
+	for _, m := range members {
+		if m == nil {
 			continue
 		}
-		m.hp, _ = this.db.ExpeditionRoles.GetHP(int32(pos))
+		if this.db.ExpeditionRoles.HasIndex(m.id) {
+			hp, _ := this.db.ExpeditionRoles.GetHP(m.id)
+			if hp <= 0 {
+				log.Warn("Player %v expedition role %v no hp, cant use", this.Id, m.id)
+				return false
+			}
+			if hp >= 0 {
+				m.hp = hp
+				m.attrs[hp] = hp
+			}
+		}
+	}
+
+	return true
+}
+
+func (this *Player) expedition_update_self_roles(members []*TeamMember) {
+	for pos := 0; pos < len(members); pos++ {
+		m := members[pos]
+		if m == nil {
+			continue
+		}
+		id := m.id
+		hp := m.hp
+		if m.is_dead() {
+			hp = 0
+		}
+		if !this.db.ExpeditionRoles.HasIndex(id) {
+			this.db.ExpeditionRoles.Add(&dbPlayerExpeditionRoleData{
+				Id: id,
+				HP: hp,
+			})
+		} else {
+			this.db.ExpeditionRoles.SetHP(id, hp)
+		}
+	}
+}
+
+func (this *Player) expedition_update_enemy_roles(members []*TeamMember) {
+	db_roles := this.get_curr_expedition_db_roles()
+	for pos := 0; pos < len(members); pos++ {
+		m := members[pos]
+		if m == nil {
+			continue
+		}
+		if !db_roles.HasIndex(int32(pos)) {
+			continue
+		}
+
+		hp := m.hp
+		if m.is_dead() {
+			db_roles.Remove(int32(pos))
+		}
+		hp_percent := 100 * hp / m.attrs[ATTR_HP_MAX]
+		db_roles.SetHpPercent(int32(pos), hp_percent)
+		db_roles.SetHP(int32(pos), hp)
 	}
 }
 
@@ -269,7 +327,7 @@ func (this *Player) expedition_fight() int32 {
 	is_win, enter_reports, rounds := this.expedition_team.Fight(this.expedition_enemy_team, BATTLE_END_BY_ALL_DEAD, 0)
 
 	if is_win {
-		this.db.ExpeditionData.IncbyCurrLevel(1)
+		curr_level = this.db.ExpeditionData.IncbyCurrLevel(1)
 	}
 
 	members_damage := this.expedition_team.common_data.members_damage
@@ -290,6 +348,12 @@ func (this *Player) expedition_fight() int32 {
 		TargetSpeedBonus:    this.expedition_enemy_team.first_hand,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
+
+	if is_win {
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPEDITION_CURR_LEVEL_SYNC), &msg_client_message.S2CExpeditionCurrLevelSync{
+			CurrLevel: curr_level,
+		})
+	}
 
 	log.Trace("Player %v expedition fight %v", this.Id, response)
 

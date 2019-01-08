@@ -2331,3 +2331,8 @@ message S2CExpeditionLevelDataResponse {
 	int32 GoldIncome						= 8; // 金币收益
 	int32 ExpeditionGoldIncome				= 9; // 远征币收益
 }
+
+// 远征当前关卡同步
+message S2CExpeditionCurrLevelSync {
+	int32 CurrLevel							= 1;
+}

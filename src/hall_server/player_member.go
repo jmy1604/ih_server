@@ -73,16 +73,17 @@ const (
 
 // 阵容类型
 const (
-	BATTLE_TEAM_ATTACK       = 1 // pvp attack
-	BATTLE_TEAM_DEFENSE      = 2 // pvp defense
-	BATTLE_TEAM_CAMPAIN      = 3 // campaign
-	BATTLE_TEAM_TOWER        = 4 // tower
-	BATTLE_TEAM_ACTIVE_STAGE = 5 // active stage
-	BATTLE_TEAM_FRIEND_BOSS  = 6 // friend boss
-	BATTLE_TEAM_EXPLORE      = 7 // explore
-	BATTLE_TEAM_GUILD_STAGE  = 8 // guild stage
-	BATTLE_TEAM_EXPEDITION   = 9 // expedition
-	BATTLE_TEAM_MAX          = 100
+	BATTLE_TEAM_ATTACK           = 1  // pvp attack
+	BATTLE_TEAM_DEFENSE          = 2  // pvp defense
+	BATTLE_TEAM_CAMPAIN          = 3  // campaign
+	BATTLE_TEAM_TOWER            = 4  // tower
+	BATTLE_TEAM_ACTIVE_STAGE     = 5  // active stage
+	BATTLE_TEAM_FRIEND_BOSS      = 6  // friend boss
+	BATTLE_TEAM_EXPLORE          = 7  // explore
+	BATTLE_TEAM_GUILD_STAGE      = 8  // guild stage
+	BATTLE_TEAM_EXPEDITION       = 9  // expedition
+	BATTLE_TEAM_EXPEDITION_ENEMY = 10 // expedition enemy
+	BATTLE_TEAM_MAX              = 100
 )
 
 const (

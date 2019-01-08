@@ -344,4 +344,5 @@ enum MSGID {
 	S2C_EXPEDITION_DATA_RESPONSE			= 12601; // 远征数据返回 S2CExpeditionDataResponse
 	C2S_EXPEDITION_LEVEL_DATA_REQUEST		= 12602; // 远征关卡数据 C2SExpeditionLevelDataRequest
 	S2C_EXPEDITION_LEVEL_DATA_RESPONSE		= 12603; // 远征关卡数据返回 S2CExpeditionLevelDataResponse
+	S2C_EXPEDITION_CURR_LEVEL_SYNC			= 12604; // 远征当前关卡同步 S2CExpeditionCurrLevelSync
 }

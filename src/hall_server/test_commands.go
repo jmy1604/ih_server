@@ -2300,6 +2300,25 @@ func expedition_powerlist_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func expedition_team_set_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var mids []int32
+	var id int
+	var err error
+	for i := 0; i < len(args); i++ {
+		id, err = strconv.Atoi(args[i])
+		if err != nil {
+			return -1
+		}
+		mids = append(mids, int32(id))
+	}
+	return p.SetTeam(BATTLE_TEAM_EXPEDITION, mids)
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2449,6 +2468,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"expedition_level_data":  expedition_level_data_cmd,
 	"expedition_fight":       expedition_fight_cmd,
 	"expedition_powerlist":   expedition_powerlist_cmd,
+	"expedition_team_set":    expedition_team_set_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {

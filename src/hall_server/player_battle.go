@@ -218,7 +218,9 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 
 	// 远征
 	if team_id == BATTLE_TEAM_EXPEDITION {
-		p.expedition_team_init(this.members)
+		if !p.expedition_team_init(this.members) {
+			return -1
+		}
 	}
 
 	return 1
@@ -424,9 +426,15 @@ func (this *BattleTeam) InitExpeditionEnemy(p *Player) bool {
 		level, _ := db_expe.GetLevel(pos)
 		equips, _ := db_expe.GetEquip(pos)
 		m.init_all(this, 0, level, role_card, pos, equips, nil)
-		m.hp, _ = db_expe.GetHP(pos)
+		hp, _ := db_expe.GetHP(pos)
+		if hp >= 0 {
+			m.hp = hp
+			m.attrs[ATTR_HP] = hp
+		}
 		this.members[pos] = m
 	}
+
+	this.team_type = BATTLE_TEAM_EXPEDITION_ENEMY
 
 	return true
 }
@@ -905,6 +913,14 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	// 公会副本BOSS血量更新
 	if target_team.guild != nil {
 		target_team.UpdateGuildStageBossHP()
+	}
+
+	// 远征
+	if this.team_type == BATTLE_TEAM_EXPEDITION {
+		this.player.expedition_update_self_roles(this.members)
+	}
+	if target_team.team_type == BATTLE_TEAM_EXPEDITION_ENEMY {
+		this.player.expedition_update_enemy_roles(target_team.members)
 	}
 
 	// 扫荡
