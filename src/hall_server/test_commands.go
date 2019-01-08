@@ -2304,12 +2304,12 @@ func expedition_fight_cmd(p *Player, args []string) int32 {
 			hp, _ := p.db.ExpeditionRoles.GetHP(rid)
 			if hp <= 0 {
 				log.Error("Player %v role %v hp is zero, cant expedition fight", p.Id, rid)
-				return -1
+				continue
 			}
 			weak, _ := p.db.ExpeditionRoles.GetWeak(rid)
 			if weak > 0 {
 				log.Error("Player %v role %v is weak, cant expedition fight", p.Id, rid)
-				return -1
+				continue
 			}
 		}
 		mems = append(mems, rid)
