@@ -219,8 +219,6 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	// 远征
 	if team_id == BATTLE_TEAM_EXPEDITION {
 		p.expedition_team_init(this.members)
-	} else if team_id == BATTLE_TEAM_EXPEDITION_ENEMY {
-		p.expedition_enemy_team_init(this.members)
 	}
 
 	return 1
@@ -416,9 +414,6 @@ func (this *BattleTeam) InitExpeditionEnemy(p *Player) bool {
 
 		table_id, _ := db_expe.GetTableId(pos)
 		rank, _ := db_expe.GetRank(pos)
-		level, _ := db_expe.GetLevel(pos)
-		equips, _ := db_expe.GetEquip(pos)
-
 		role_card := card_table_mgr.GetRankCard(table_id, rank)
 		if role_card == nil {
 			log.Error("Cant get card by role_id[%v] and rank[%v]", table_id, rank)
@@ -426,8 +421,10 @@ func (this *BattleTeam) InitExpeditionEnemy(p *Player) bool {
 		}
 
 		m := team_member_pool.Get()
-
+		level, _ := db_expe.GetLevel(pos)
+		equips, _ := db_expe.GetEquip(pos)
 		m.init_all(this, 0, level, role_card, pos, equips, nil)
+		m.hp, _ = db_expe.GetHP(pos)
 		this.members[pos] = m
 	}
 
@@ -1101,6 +1098,9 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 			} else if battle_type == 9 {
 				// 公会副本
 				team_type = BATTLE_TEAM_GUILD_STAGE
+			} else if battle_type == 10 {
+				// 远征
+				team_type = BATTLE_TEAM_EXPEDITION
 			} else {
 				this.assist_friend = nil
 				log.Error("Player[%v] set battle_type[%v] team[%v] invalid", this.Id, battle_type, team_type)

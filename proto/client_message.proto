@@ -269,6 +269,8 @@ enum E_ERR {
 	CHARGE_PAY_REPEATED_VERIFY				= -30001; // 充值支付重复验证
 	CHARGE_NO_ACTIVITY_ON_THIS_TIME			= -30002; // 无充值活动可用
 	
+	EXPEDITION_ROLE_NUM_TOO_MORE 			= -31000; // 远征上阵角色数太多
+	
 	// 保留
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
 	CHARGE_ORDER_DATA_INVALID				= -200001;

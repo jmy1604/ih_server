@@ -36,6 +36,14 @@ func (this *Player) get_curr_expedition_db_roles() *dbPlayerExpeditionLevelRoleC
 	return role_list[curr_level]
 }
 
+func (this *Player) get_curr_expedition_max_role_num() int32 {
+	if this.db.ExpeditionData.GetRefreshTime() == 0 {
+		return 0
+	}
+	curr_level := this.db.ExpeditionData.GetCurrLevel()
+	return expedition_table_mgr.Array[curr_level].PlayerCardMax
+}
+
 func (this *Player) MatchExpeditionPlayer() int32 {
 	arr := expedition_table_mgr.Array
 	if len(arr) < int(EXPEDITION_MATCH_LEVELS_NUM) {
@@ -215,24 +223,6 @@ func (this *Player) expedition_team_init(team []*TeamMember) {
 	}
 }
 
-func (this *Player) expedition_enemy_team_init(team []*TeamMember) {
-	if team == nil {
-		return
-	}
-
-	db_expe := this.get_curr_expedition_db_roles()
-	if db_expe == nil {
-		return
-	}
-
-	for pos, m := range team {
-		if !db_expe.HasIndex(int32(pos)) {
-			continue
-		}
-		m.hp, _ = db_expe.GetHP(int32(pos))
-	}
-}
-
 func (this *Player) expedition_fight() int32 {
 	if this.db.ExpeditionData.GetRefreshTime() == 0 {
 		return -1
@@ -257,9 +247,8 @@ func (this *Player) expedition_fight() int32 {
 	if this.expedition_enemy_team == nil {
 		this.expedition_enemy_team = &BattleTeam{}
 	}
-	res = this.expedition_enemy_team.Init(this, BATTLE_TEAM_EXPEDITION_ENEMY, 1)
-	if res < 0 {
-		log.Error("Player[%v] init expedition enemy team failed, err %v", this.Id, res)
+	if !this.expedition_enemy_team.InitExpeditionEnemy(this) {
+		log.Error("Player[%v] init expedition enemy team failed", this.Id)
 		return res
 	}
 

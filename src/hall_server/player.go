@@ -592,8 +592,6 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_RED_POINT_STATES_RESPONSE), &response)
 
-	//log.Debug("Player[%v] red point states %v", this.Id, states)
-
 	return 1
 }
 
@@ -632,6 +630,10 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 	if team_type == BATTLE_TEAM_ATTACK || team_type == BATTLE_TEAM_DEFENSE {
 		if member_num > PVP_TEAM_MAX_MEMBER_NUM {
 			return int32(msg_client_message.E_ERR_PLAYER_PVP_TEAM_MEMBERS_TOO_MORE)
+		}
+	} else if team_type == BATTLE_TEAM_EXPEDITION {
+		if member_num > this.get_curr_expedition_max_role_num() {
+			return int32(msg_client_message.E_ERR_EXPEDITION_ROLE_NUM_TOO_MORE)
 		}
 	}
 
