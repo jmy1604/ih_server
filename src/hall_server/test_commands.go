@@ -2272,6 +2272,18 @@ func test_power_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func expedition_data_cmd(p *Player, args []string) int32 {
+	return p.send_expedition_data()
+}
+
+func expedition_level_data_cmd(p *Player, args []string) int32 {
+	return p.get_expedition_level_data()
+}
+
+func expedition_fight_cmd(p *Player, args []string) int32 {
+	return p.expedition_fight()
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2417,6 +2429,9 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"role_displace_confirm":  role_displace_confirm_cmd,
 	"activity_data":          activity_data_cmd,
 	"test_power":             test_power_cmd,
+	"expedition_data":        expedition_data_cmd,
+	"expedition_level_data":  expedition_level_data_cmd,
+	"expedition_fight":       expedition_fight_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {

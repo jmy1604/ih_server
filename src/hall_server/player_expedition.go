@@ -64,13 +64,15 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 		return -1
 	}
 
+	log.Debug("@@@@@@@@@@@ Player %v roles power %v", this.Id, n.Power)
+
 	var player_ids []int32
 	for i := 0; i < len(arr); i++ {
 		power := int32(float32(n.Power) * (float32(arr[i].EnemyBattlePower) / 10000))
-		pid := arena_season_mgr.top_power_ranklist.GetNearestRandPlayer(power)
+		pid := top_power_ranklist.GetNearestRandPlayer(power)
 		player := player_mgr.GetPlayerById(pid)
 		if player == nil {
-			log.Error("Not found player %v by match expedition with level %v for player %v", pid, i+1, this.Id)
+			log.Error("Not found player %v by match expedition with level %v power %v for player %v", pid, i+1, power, this.Id)
 			continue
 		}
 

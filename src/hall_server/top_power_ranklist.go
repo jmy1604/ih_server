@@ -157,6 +157,8 @@ type TopPowerRanklist struct {
 	locker        *sync.RWMutex
 }
 
+var top_power_ranklist *TopPowerRanklist
+
 func NewTopPowerRanklist(root_node *TopPowerRankItem, max_rank int32) *TopPowerRanklist {
 	ranking_list := &TopPowerRanklist{
 		rank_powers:   utils.NewSkiplist(),
@@ -247,11 +249,11 @@ func (this *TopPowerRanklist) GetNearestRandPlayer(power int32) int32 {
 		var r, new_power int32
 		new_power = power
 		for {
-			_r := (left + right) / 2
-			if r == _r {
-				return _r
+			mid := (left + right) / 2
+			if r == mid {
+				break
 			}
-			r = _r
+			r = mid
 
 			item := this.rank_powers.GetByRank(r)
 			it := item.(*TopPowerRankItem)
