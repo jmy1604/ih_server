@@ -240,7 +240,7 @@ func (this *Player) expedition_team_init(members []*TeamMember) bool {
 			}
 			if hp >= 0 {
 				m.hp = hp
-				m.attrs[hp] = hp
+				m.attrs[ATTR_HP] = hp
 			}
 		}
 	}
