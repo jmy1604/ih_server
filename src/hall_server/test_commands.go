@@ -2303,12 +2303,12 @@ func expedition_fight_cmd(p *Player, args []string) int32 {
 		if p.db.ExpeditionRoles.HasIndex(rid) {
 			hp, _ := p.db.ExpeditionRoles.GetHP(rid)
 			if hp <= 0 {
-				log.Error("Player %v role %v hp is zero, cant expedition fight", p.Id, rid)
+				log.Debug("Player %v role %v hp is zero, cant expedition fight", p.Id, rid)
 				continue
 			}
 			weak, _ := p.db.ExpeditionRoles.GetWeak(rid)
 			if weak > 0 {
-				log.Error("Player %v role %v is weak, cant expedition fight", p.Id, rid)
+				log.Debug("Player %v role %v is weak, cant expedition fight", p.Id, rid)
 				continue
 			}
 		}

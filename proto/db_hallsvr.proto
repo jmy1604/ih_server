@@ -472,6 +472,7 @@ message PlayerActivityDataList{
 message PlayerExpeditionData{
 	optional int32 RefreshTime=1;
 	optional int32 CurrLevel=3;
+	optional int32 PurifyPoints=4;
 }
 
 message PlayerExpeditionRole{

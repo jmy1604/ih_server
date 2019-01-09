@@ -120,7 +120,9 @@ type GlobalConfig struct {
 
 	AccelHungupRefreshCostDiamond int32 // 加速挂机刷新花费钻石
 
-	ExpeditionRefreshTime string // 远征重置时间
+	ExpeditionRefreshTime      string  // 远征重置时间
+	ExpeditionPurifyChangeCost int32   // 远征净化消耗
+	ExpeditionPurifyChangeItem []int32 // 远征净化获得道具
 }
 
 func (this *GlobalConfig) Init(config_file string) bool {

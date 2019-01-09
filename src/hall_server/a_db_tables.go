@@ -2010,6 +2010,7 @@ func (this* dbPlayerActivityDataData)clone_to(d *dbPlayerActivityDataData){
 type dbPlayerExpeditionDataData struct{
 	RefreshTime int32
 	CurrLevel int32
+	PurifyPoints int32
 }
 func (this* dbPlayerExpeditionDataData)from_pb(pb *db.PlayerExpeditionData){
 	if pb == nil {
@@ -2017,17 +2018,20 @@ func (this* dbPlayerExpeditionDataData)from_pb(pb *db.PlayerExpeditionData){
 	}
 	this.RefreshTime = pb.GetRefreshTime()
 	this.CurrLevel = pb.GetCurrLevel()
+	this.PurifyPoints = pb.GetPurifyPoints()
 	return
 }
 func (this* dbPlayerExpeditionDataData)to_pb()(pb *db.PlayerExpeditionData){
 	pb = &db.PlayerExpeditionData{}
 	pb.RefreshTime = proto.Int32(this.RefreshTime)
 	pb.CurrLevel = proto.Int32(this.CurrLevel)
+	pb.PurifyPoints = proto.Int32(this.PurifyPoints)
 	return
 }
 func (this* dbPlayerExpeditionDataData)clone_to(d *dbPlayerExpeditionDataData){
 	d.RefreshTime = this.RefreshTime
 	d.CurrLevel = this.CurrLevel
+	d.PurifyPoints = this.PurifyPoints
 	return
 }
 type dbPlayerExpeditionRoleData struct{
@@ -10852,6 +10856,26 @@ func (this *dbPlayerExpeditionDataColumn)IncbyCurrLevel(v int32)(r int32){
 	this.m_data.CurrLevel += v
 	this.m_changed = true
 	return this.m_data.CurrLevel
+}
+func (this *dbPlayerExpeditionDataColumn)GetPurifyPoints( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionDataColumn.GetPurifyPoints")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.PurifyPoints
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)SetPurifyPoints(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.SetPurifyPoints")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.PurifyPoints = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerExpeditionDataColumn)IncbyPurifyPoints(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionDataColumn.IncbyPurifyPoints")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.PurifyPoints += v
+	this.m_changed = true
+	return this.m_data.PurifyPoints
 }
 type dbPlayerExpeditionRoleColumn struct{
 	m_row *dbPlayerRow

@@ -318,6 +318,7 @@ func (this *PlayerManager) RegMsgHandler() {
 	// 远征
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_EXPEDITION_DATA_REQUEST), C2SExpeditionDataHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_EXPEDITION_LEVEL_DATA_REQUEST), C2SExpeditionLevelDataHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_EXPEDITION_PURIFY_REWARD_REQUEST), C2SExpeditionPurifyRewardHandler)
 }
 
 func C2SEnterGameRequestHandler(msg_data []byte) (int32, *Player) {

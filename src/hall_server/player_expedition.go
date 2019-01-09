@@ -158,6 +158,12 @@ func (this *Player) expedition_get_self_roles() []*msg_client_message.Expedition
 }
 
 func (this *Player) send_expedition_data() int32 {
+	need_level := system_unlock_table_mgr.GetUnlockLevel("ExpeditionEnterLevel")
+	if need_level > this.db.Info.GetLvl() {
+		log.Error("Player[%v] level not enough level %v enter expedition", this.Id, need_level)
+		return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
+	}
+
 	refresh_time := this.db.ExpeditionData.GetRefreshTime()
 	remain_seconds := utils.GetRemainSeconds2NextDayTime(refresh_time, global_config.ExpeditionRefreshTime)
 	if remain_seconds <= 0 {
@@ -175,6 +181,7 @@ func (this *Player) send_expedition_data() int32 {
 		CurrLevel:            curr_level,
 		RemainRefreshSeconds: remain_seconds,
 		Roles:                roles,
+		PurifyPoints:         this.db.ExpeditionData.GetPurifyPoints(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPEDITION_DATA_RESPONSE), response)
 
@@ -369,7 +376,19 @@ func (this *Player) expedition_update_enemy_roles(members []*TeamMember) {
 	}
 }
 
+func (this *Player) expedition_sync_purify_points() {
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPEDITION_PURIFY_POINTS_SYNC), &msg_client_message.S2CExpeditionPurifyPointsSync{
+		PurifyPoints: this.db.ExpeditionData.GetPurifyPoints(),
+	})
+}
+
 func (this *Player) expedition_fight() int32 {
+	need_level := system_unlock_table_mgr.GetUnlockLevel("ExpeditionEnterLevel")
+	if need_level > this.db.Info.GetLvl() {
+		log.Error("Player[%v] level not enough level %v enter expedition", this.Id, need_level)
+		return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
+	}
+
 	curr_level := this.db.ExpeditionData.GetCurrLevel()
 	if int(curr_level) >= len(expedition_table_mgr.Array) {
 		log.Error("Player %v already pass all level expedition", this.Id)
@@ -408,7 +427,6 @@ func (this *Player) expedition_fight() int32 {
 	team_format := this.expedition_team._format_members_for_msg()
 	enemy_team_format := this.expedition_enemy_team._format_members_for_msg()
 
-	// To Fight
 	is_win, enter_reports, rounds := this.expedition_team.Fight(this.expedition_enemy_team, BATTLE_END_BY_ALL_DEAD, 0)
 
 	if is_win {
@@ -417,6 +435,7 @@ func (this *Player) expedition_fight() int32 {
 		expedition_gold_income, _ := this.db.ExpeditionLevels.GetExpeditionGoldIncome(curr_level)
 		this.add_resource(ITEM_RESOURCE_ID_EXPEDITION, expedition_gold_income)
 		curr_level = this.db.ExpeditionData.IncbyCurrLevel(1)
+		this.db.ExpeditionData.IncbyPurifyPoints(e.PurifyPoint)
 	}
 
 	members_damage := this.expedition_team.common_data.members_damage
@@ -446,7 +465,35 @@ func (this *Player) expedition_fight() int32 {
 		EnemyRoles: enemy_roles,
 	})
 
+	this.expedition_sync_purify_points()
+
 	log.Trace("Player %v expedition fight %v", this.Id, response)
+
+	return 1
+}
+
+func (this *Player) expedition_purify_reward() int32 {
+	need_level := system_unlock_table_mgr.GetUnlockLevel("ExpeditionEnterLevel")
+	if need_level > this.db.Info.GetLvl() {
+		log.Error("Player[%v] level not enough level %v enter expedition", this.Id, need_level)
+		return int32(msg_client_message.E_ERR_PLAYER_LEVEL_NOT_ENOUGH)
+	}
+
+	purify_points := this.db.ExpeditionData.GetPurifyPoints()
+	if purify_points < global_config.ExpeditionPurifyChangeCost {
+		log.Error("Player %v expedition purify points %v not enough to reward", this.Id, purify_points)
+		return -1
+	}
+
+	this.db.ExpeditionData.IncbyPurifyPoints(-global_config.ExpeditionPurifyChangeCost)
+	this.add_resources(global_config.ExpeditionPurifyChangeItem)
+
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPEDITION_PURIFY_REWARD_RESPONSE), &msg_client_message.S2CExpeditionPurifyRewardResponse{
+		Rewards: global_config.ExpeditionPurifyChangeItem,
+	})
+	this.expedition_sync_purify_points()
+
+	log.Trace("Player %v expeditioin purfiy reward", this.Id)
 
 	return 1
 }
@@ -469,4 +516,14 @@ func C2SExpeditionLevelDataHandler(p *Player, msg_data []byte) int32 {
 		return -1
 	}
 	return p.get_expedition_level_data()
+}
+
+func C2SExpeditionPurifyRewardHandler(p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SExpeditionPurifyRewardRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.expedition_purify_reward()
 }

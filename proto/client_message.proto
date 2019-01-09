@@ -2310,6 +2310,7 @@ message S2CExpeditionDataResponse {
 	int32 CurrLevel							= 1; // 当前关卡  0 开始
 	int32 RemainRefreshSeconds              = 2; // 剩余刷新时间
 	repeated ExpeditionSelfRole Roles		= 3; // 已使用的角色列表
+	int32 PurifyPoints						= 4; // 净化点
 }
 
 // 当前关卡数据
@@ -2340,4 +2341,17 @@ message S2CExpeditionCurrLevelSync {
 	int32 CurrLevel							= 1; // 当前关卡
 	repeated ExpeditionSelfRole SelfRoles   = 2; // 自己用过的角色
 	repeated ExpeditionEnemyRole EnemyRoles = 3; // 对手的角色
+}
+
+// 远征净化奖励
+message C2SExpeditionPurifyRewardRequest {
+}
+
+message S2CExpeditionPurifyRewardResponse {
+	repeated int32 Rewards					= 1; // 奖励物品
+}
+
+// 远征净化点同步
+message S2CExpeditionPurifyPointsSync {
+	int32 PurifyPoints						= 1; // 净化点
 }
