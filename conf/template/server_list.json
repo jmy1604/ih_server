@@ -11,7 +11,21 @@
 			"Id":2,
 			"Name":"server2",
 			"IP":":30200",
-			"Weight": 1
+			"Weight": 1,
+		},
+		{
+			"Id":3,
+			"Name":"android_server",
+			"IP":"30300",
+			"Weight": 0,
+			"ClientOS": "android"
+		},
+		{
+			"Id":4,
+			"Name":"ios_server",
+			"IP":"30400",
+			"Weight": 0,
+			"ClientOS": "ios"
 		}
 	]
 }
