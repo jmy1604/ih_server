@@ -254,7 +254,6 @@ func (this *TopPowerRanklist) GetNearestRandPlayer(power int32) int32 {
 				break
 			}
 			r = mid
-
 			item := this.rank_powers.GetByRank(r)
 			it := item.(*TopPowerRankItem)
 			if it != nil {

@@ -70,12 +70,6 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 		return -1
 	}
 
-	log.Debug("@@@@@@@@@@@ Player %v roles power %v", this.Id, n.Power)
-
-	var player_ids []int32
-	var player_powers []int32
-	var gold_incomes []int32
-	var expedition_gold_incomes []int32
 	for i := 0; i < len(arr); i++ {
 		power := int32(float32(n.Power) * (float32(arr[i].EnemyBattlePower) / 10000))
 		pid := top_power_ranklist.GetNearestRandPlayer(power)
@@ -116,21 +110,28 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 				})
 			}
 		}
-		player_ids = append(player_ids, pid)
+
 		player_power := player.get_defense_team_power()
-		player_powers = append(player_powers, player_power)
-		gold_income := arr[i].GoldBase + int32(int64(player_power)*int64(arr[i].EnemyBattlePower)/10000)
-		gold_incomes = append(gold_incomes, gold_income)
-		expedition_gold_income := arr[i].TokenBase
-		expedition_gold_incomes = append(expedition_gold_incomes, expedition_gold_income)
+		gold_income := arr[i].GoldBase + int32(float32(player_power)*(float32(arr[i].GoldRate)/10000))
+		expedition_gold_income := arr[i].TokenBase + int32(float32(player_power)*(float32(arr[i].TokenRate)/10000))
+		if !this.db.ExpeditionLevels.HasIndex(int32(i)) {
+			this.db.ExpeditionLevels.Add(&dbPlayerExpeditionLevelData{
+				Level:                int32(i),
+				PlayerId:             pid,
+				Power:                player_power,
+				GoldIncome:           gold_income,
+				ExpeditionGoldIncome: expedition_gold_income,
+			})
+		} else {
+			this.db.ExpeditionLevels.SetPlayerId(int32(i), pid)
+			this.db.ExpeditionLevels.SetPower(int32(i), player_power)
+			this.db.ExpeditionLevels.SetGoldIncome(int32(i), gold_income)
+			this.db.ExpeditionLevels.SetExpeditionGoldIncome(int32(i), expedition_gold_income)
+		}
 	}
 
 	this.db.ExpeditionData.SetCurrLevel(0)
 	this.db.ExpeditionData.SetRefreshTime(int32(time.Now().Unix()))
-	this.db.ExpeditionData.SetPlayerIds(player_ids)
-	this.db.ExpeditionData.SetPlayerPowers(player_powers)
-	this.db.ExpeditionData.SetGoldIncome(gold_incomes)
-	this.db.ExpeditionData.SetExpeditionGoldIncome(expedition_gold_incomes)
 
 	if this.db.ExpeditionRoles.NumAll() > 0 {
 		this.db.ExpeditionRoles.Clear()
@@ -208,17 +209,15 @@ func (this *Player) expedition_get_enemy_roles(curr_level int32) (int32, []*msg_
 }
 
 func (this *Player) get_expedition_level_data_with_level(curr_level int32) int32 {
-	player_ids := this.db.ExpeditionData.GetPlayerIds()
-	player_powers := this.db.ExpeditionData.GetPlayerPowers()
-	gold_incomes := this.db.ExpeditionData.GetGoldIncome()
-	expedition_gold_incomes := this.db.ExpeditionData.GetExpeditionGoldIncome()
-	if player_ids == nil || len(player_ids) <= int(curr_level) || player_powers == nil || len(player_powers) <= int(curr_level) || gold_incomes == nil || len(gold_incomes) <= int(curr_level) || expedition_gold_incomes == nil || len(expedition_gold_incomes) <= int(curr_level) {
-		log.Error("Player %v expedition enemy list length %v not enough", this.Id, len(player_ids))
+	if !this.db.ExpeditionLevels.HasIndex(curr_level) {
+		log.Error("Player %v not found expedition level %v data", this.Id, curr_level)
 		return -1
 	}
-	player := player_mgr.GetPlayerById(player_ids[curr_level])
+
+	player_id, _ := this.db.ExpeditionLevels.GetPlayerId(curr_level)
+	player := player_mgr.GetPlayerById(player_id)
 	if player == nil {
-		log.Error("Player %v not found expedition player %v data", this.Id, player_ids[curr_level])
+		log.Error("Player %v not found expedition player %v data", this.Id, player_id)
 		return -1
 	}
 
@@ -226,16 +225,20 @@ func (this *Player) get_expedition_level_data_with_level(curr_level int32) int32
 	if res < 0 {
 		return res
 	}
+
+	player_power, _ := this.db.ExpeditionLevels.GetPower(curr_level)
+	gold_income, _ := this.db.ExpeditionLevels.GetGoldIncome(curr_level)
+	expedition_gold_income, _ := this.db.ExpeditionLevels.GetExpeditionGoldIncome(curr_level)
 	response := &msg_client_message.S2CExpeditionLevelDataResponse{
-		PlayerId:             player_ids[curr_level],
+		PlayerId:             player_id,
 		PlayerName:           player.db.GetName(),
 		PlayerLevel:          player.db.GetLevel(),
 		PlayerVipLevel:       player.db.Info.GetVipLvl(),
 		PlayerHead:           player.db.Info.GetHead(),
-		PlayerPower:          player_powers[curr_level],
+		PlayerPower:          player_power,
 		RoleList:             role_list,
-		GoldIncome:           gold_incomes[curr_level],
-		ExpeditionGoldIncome: expedition_gold_incomes[curr_level],
+		GoldIncome:           gold_income,
+		ExpeditionGoldIncome: expedition_gold_income,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPEDITION_LEVEL_DATA_RESPONSE), response)
 
@@ -279,6 +282,9 @@ func (this *Player) expedition_team_init(members []*TeamMember) int32 {
 			}
 
 			if hp >= 0 {
+				if hp > m.attrs[ATTR_HP_MAX] {
+					hp = m.attrs[ATTR_HP_MAX]
+				}
 				m.hp = hp
 				m.attrs[ATTR_HP] = hp
 			}
@@ -364,13 +370,14 @@ func (this *Player) expedition_update_enemy_roles(members []*TeamMember) {
 }
 
 func (this *Player) expedition_fight() int32 {
-	if this.db.ExpeditionData.GetRefreshTime() == 0 {
-		return -1
-	}
-
 	curr_level := this.db.ExpeditionData.GetCurrLevel()
 	if int(curr_level) >= len(expedition_table_mgr.Array) {
 		log.Error("Player %v already pass all level expedition", this.Id)
+		return -1
+	}
+
+	if !this.db.ExpeditionLevels.HasIndex(curr_level) {
+		log.Error("Player %v not found expedition level %v data", this.Id, curr_level)
 		return -1
 	}
 
@@ -405,11 +412,9 @@ func (this *Player) expedition_fight() int32 {
 	is_win, enter_reports, rounds := this.expedition_team.Fight(this.expedition_enemy_team, BATTLE_END_BY_ALL_DEAD, 0)
 
 	if is_win {
-		gold_incomes := this.db.ExpeditionData.GetGoldIncome()
-		gold_income := gold_incomes[curr_level]
+		gold_income, _ := this.db.ExpeditionLevels.GetGoldIncome(curr_level)
 		this.add_gold(gold_income)
-		expedition_gold_incomes := this.db.ExpeditionData.GetExpeditionGoldIncome()
-		expedition_gold_income := expedition_gold_incomes[curr_level]
+		expedition_gold_income, _ := this.db.ExpeditionLevels.GetExpeditionGoldIncome(curr_level)
 		this.add_resource(ITEM_RESOURCE_ID_EXPEDITION, expedition_gold_income)
 		curr_level = this.db.ExpeditionData.IncbyCurrLevel(1)
 	}
