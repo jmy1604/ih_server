@@ -471,11 +471,7 @@ message PlayerActivityDataList{
 
 message PlayerExpeditionData{
 	optional int32 RefreshTime=1;
-	repeated int32 PlayerIds=2;
 	optional int32 CurrLevel=3;
-	repeated int32 PlayerPowers=4;
-	repeated int32 GoldIncome=5;
-	repeated int32 ExpeditionGoldIncome=6;
 }
 
 message PlayerExpeditionRole{
@@ -486,6 +482,18 @@ message PlayerExpeditionRole{
 
 message PlayerExpeditionRoleList{
 	repeated PlayerExpeditionRole List=1;
+}
+
+message PlayerExpeditionLevel{
+	optional int32 Level=1;
+	optional int32 PlayerId=2;
+	optional int32 Power=3;
+	optional int32 GoldIncome=4;
+	optional int32 ExpeditionGoldIncome=5;
+}
+
+message PlayerExpeditionLevelList{
+	repeated PlayerExpeditionLevel List=1;
 }
 
 message PlayerExpeditionLevelRole{

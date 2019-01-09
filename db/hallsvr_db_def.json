@@ -862,11 +862,7 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"RefreshTime"},
-						{"Type":"int32","Index":2,"Name":"PlayerIds","Repeated":true},
-						{"Type":"int32","Index":3,"Name":"CurrLevel","Incby":true},
-						{"Type":"int32","Index":4,"Name":"PlayerPowers","Repeated":true},
-						{"Type":"int32","Index":5,"Name":"GoldIncome","Repeated":true},
-						{"Type":"int32","Index":6,"Name":"ExpeditionGoldIncome","Repeated":true}
+						{"Type":"int32","Index":3,"Name":"CurrLevel","Incby":true}
 					]
 				},
 				{
@@ -882,6 +878,23 @@
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"HP"},
 						{"Type":"int32","Index":3,"Name":"Weak"}
+					]
+				},
+				{
+					"ColumnName":"ExpeditionLevel",
+					"DBColumnName":"ExpeditionLevel",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Level"},
+						{"Type":"int32","Index":2,"Name":"PlayerId"},
+						{"Type":"int32","Index":3,"Name":"Power"},
+						{"Type":"int32","Index":4,"Name":"GoldIncome"},
+						{"Type":"int32","Index":5,"Name":"ExpeditionGoldIncome"}
 					]
 				},
 				{
