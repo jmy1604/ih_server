@@ -12,11 +12,16 @@ import (
 	"time"
 )
 
+const (
+	CLIENT_OS_DEFAULT = "android"
+)
+
 type HallServerInfo struct {
-	Id     int32
-	Name   string
-	IP     string
-	Weight int32
+	Id       int32
+	Name     string
+	IP       string
+	Weight   int32
+	ClientOS string
 }
 
 type ServerList struct {

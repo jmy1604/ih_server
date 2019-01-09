@@ -449,6 +449,7 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	row.SetBindNewAccount(new_account)
 	register_time := row.GetRegisterTime()
 	uid := row.GetUniqueId()
+	last_server_id := row.GetLastSelectServerId()
 
 	row = dbc.Accounts.AddRow(new_account)
 	if row == nil {
@@ -462,6 +463,7 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	}
 	row.SetRegisterTime(register_time)
 	row.SetUniqueId(uid)
+	row.SetLastSelectServerId(last_server_id)
 	//dbc.Accounts.RemoveRow(account) // 暂且不删除
 
 	hall_agent := hall_agent_manager.GetAgentByID(server_id)
