@@ -99,6 +99,18 @@
 					"Fields":[]
 				},
 				{
+					"ColumnName":"LastSelectIOSServerId",
+					"DBColumnName":"LastSelectIOSServerId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
 					"ColumnName":"BindNewAccount",
 					"DBColumnName":"BindNewAccount",
 					"InUse":true,
@@ -113,18 +125,6 @@
 				{
 					"ColumnName":"OldAccount",
 					"DBColumnName":"OldAccount",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"string",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"DefaultValue":0,
-					"Fields":[]
-				},
-				{
-					"ColumnName":"ClientOS",
-					"DBColumnName":"ClientOS",
 					"InUse":true,
 					"Simple":true,
 					"SimpleType":"string",

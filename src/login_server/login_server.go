@@ -566,7 +566,7 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 	return 1
 }
 
-func login_handler(account, password, channel string) (err_code int32, resp_data []byte) {
+func login_handler(account, password, channel, client_os string) (err_code int32, resp_data []byte) {
 	var err error
 	acc_row := dbc.Accounts.GetRow(account)
 	if config.VerifyAccount {
@@ -629,16 +629,25 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 
 	// --------------------------------------------------------------------------------------------
 	// 选择默认服
-	select_server_id := acc_row.GetLastSelectServerId()
+	var select_server_id int32
+	if client_os == share_data.CLIENT_OS_IOS {
+		select_server_id = acc_row.GetLastSelectIOSServerId()
+	} else {
+		select_server_id = acc_row.GetLastSelectServerId()
+	}
 	if select_server_id <= 0 {
-		server := server_list.RandomOne()
+		server := server_list.RandomOne(client_os)
 		if server == nil {
 			err_code = int32(msg_client_message.E_ERR_INTERNAL)
 			log.Error("Server List random null !!!")
 			return
 		}
 		select_server_id = server.Id
-		acc_row.SetLastSelectServerId(select_server_id)
+		if client_os == share_data.CLIENT_OS_IOS {
+			acc_row.SetLastSelectIOSServerId(select_server_id)
+		} else {
+			acc_row.SetLastSelectServerId(select_server_id)
+		}
 	}
 
 	var hall_ip, token string
@@ -648,7 +657,7 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 	}
 	// --------------------------------------------------------------------------------------------
 
-	account_login(account, token)
+	account_login(account, token, client_os)
 
 	response := &msg_client_message.S2CLoginResponse{
 		Acc:    account,
@@ -659,13 +668,14 @@ func login_handler(account, password, channel string) (err_code int32, resp_data
 	if server_list.Servers == nil {
 		response.Servers = make([]*msg_client_message.ServerInfo, 0)
 	} else {
-		l := len(server_list.Servers)
+		servers := server_list.GetServers(client_os)
+		l := len(servers)
 		response.Servers = make([]*msg_client_message.ServerInfo, l)
 		for i := 0; i < l; i++ {
 			response.Servers[i] = &msg_client_message.ServerInfo{
-				Id:   server_list.Servers[i].Id,
-				Name: server_list.Servers[i].Name,
-				IP:   server_list.Servers[i].IP,
+				Id:   servers[i].Id,
+				Name: servers[i].Name,
+				IP:   servers[i].IP,
 			}
 		}
 	}
@@ -729,6 +739,13 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
+	client_os := acc.get_client_os()
+	if !server_list.HasId(client_os, server_id) {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
+		log.Error("account %v select server id %v not found in client os %v", account, server_id, client_os)
+		return
+	}
+
 	// 暂时不判断状态
 	/*if acc.get_state() != 1 {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_ALREADY_SELECTED_SERVER)
@@ -767,7 +784,11 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	row.SetLastSelectServerId(server_id)
+	if client_os == share_data.CLIENT_OS_IOS {
+		row.SetLastSelectIOSServerId(server_id)
+	} else {
+		row.SetLastSelectServerId(server_id)
+	}
 
 	return
 }
@@ -953,11 +974,14 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 	// channel
 	channel := r.URL.Query().Get("channel")
 
+	// client os
+	client_os := r.URL.Query().Get("client_os")
+
 	log.Debug("account: %v, password: %v, channel: %v", account, password, channel)
 
 	var err_code int32
 	var data []byte
-	err_code, data = login_handler(account, password, channel)
+	err_code, data = login_handler(account, password, channel, client_os)
 
 	if err_code < 0 {
 		response_error(err_code, w)
@@ -1164,7 +1188,7 @@ func client_http_handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		msg_id = int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE)
-		err_code, data = login_handler(login_msg.GetAcc(), login_msg.GetPassword(), login_msg.GetChannel())
+		err_code, data = login_handler(login_msg.GetAcc(), login_msg.GetPassword(), login_msg.GetChannel(), login_msg.GetClientOS())
 	} else if msg.MsgCode == int32(msg_client_message_id.MSGID_C2S_SELECT_SERVER_REQUEST) {
 		var select_msg msg_client_message.C2SSelectServerRequest
 		err = proto.Unmarshal(msg.GetData(), &select_msg)

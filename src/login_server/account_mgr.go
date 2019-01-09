@@ -9,6 +9,7 @@ type AccountInfo struct {
 	token     string
 	unique_id string
 	state     int32 // 0 未登录   1 已登陆   2 已进入游戏
+	client_os string
 	locker    *sync.RWMutex
 }
 
@@ -43,6 +44,19 @@ func (this *AccountInfo) set_state(state int32) {
 	this.locker.Lock()
 	defer this.locker.Unlock()
 	this.state = state
+}
+
+func (this *AccountInfo) get_client_os() string {
+	this.locker.RLock()
+	client_os := this.client_os
+	defer this.locker.RUnlock()
+	return client_os
+}
+
+func (this *AccountInfo) set_client_os(client_os string) {
+	this.locker.Lock()
+	defer this.locker.Unlock()
+	this.client_os = client_os
 }
 
 var account_mgr map[string]*AccountInfo
@@ -87,13 +101,14 @@ func has_account_login(acc string) bool {
 	return true
 }
 
-func account_login(acc, token string) {
+func account_login(acc, token, client_os string) {
 	account_info := account_info_get(acc, true)
 	if account_info == nil {
 		return
 	}
 	account_info.set_state(1)
 	account_info.set_token(token)
+	account_info.set_client_os(client_os)
 }
 
 func account_enter_game(acc string) {
@@ -110,4 +125,12 @@ func account_logout(acc string) {
 		return
 	}
 	account_info.set_state(0)
+}
+
+func account_get_client_os(acc string) (bool, string) {
+	account_info := account_info_get(acc, false)
+	if account_info == nil {
+		return false, ""
+	}
+	return true, account_info.get_client_os()
 }

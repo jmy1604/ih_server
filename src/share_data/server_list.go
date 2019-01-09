@@ -13,7 +13,9 @@ import (
 )
 
 const (
-	CLIENT_OS_DEFAULT = "android"
+	CLIENT_OS_DEFAULT = ""
+	CLIENT_OS_ANDROID = "android"
+	CLIENT_OS_IOS     = "ios"
 )
 
 type HallServerInfo struct {
@@ -25,14 +27,15 @@ type HallServerInfo struct {
 }
 
 type ServerList struct {
-	CommonIP    string
-	Servers     []*HallServerInfo
-	Data        string
-	TotalWeight int32
-	ConfigPath  string
-	MD5Str      string
-	LastTime    int32
-	Locker      sync.RWMutex
+	CommonIP       string
+	Servers        []*HallServerInfo
+	Data           string
+	TotalWeight    int32
+	TotalWeightIos int32
+	ConfigPath     string
+	MD5Str         string
+	LastTime       int32
+	Locker         sync.RWMutex
 }
 
 func _get_md5(data []byte) string {
@@ -51,6 +54,7 @@ func (this *ServerList) _read_config(data []byte) bool {
 	}
 
 	var total_weight int32
+	var total_weight_ios int32
 	if this.Servers != nil {
 		for i := 0; i < len(this.Servers); i++ {
 			s := this.Servers[i]
@@ -60,16 +64,22 @@ func (this *ServerList) _read_config(data []byte) bool {
 			} else if s.Weight == 0 {
 				log.Trace("Server Id %v Weight %v", s.Id, s.Weight)
 			}
-			total_weight += s.Weight
+
+			if s.ClientOS == CLIENT_OS_IOS {
+				total_weight_ios += s.Weight
+			} else {
+				total_weight += s.Weight
+			}
 		}
 	}
 
-	if total_weight <= 0 {
+	if total_weight <= 0 && total_weight_ios <= 0 {
 		log.Error("Server List Total Weight is invalid %v", total_weight)
 		return false
 	}
 
 	this.TotalWeight = total_weight
+	this.TotalWeightIos = total_weight_ios
 	this.Data = string(data)
 	this.MD5Str = _get_md5(data)
 
@@ -109,6 +119,7 @@ func (this *ServerList) RereadConfig() bool {
 
 	this.Servers = nil
 	this.TotalWeight = 0
+	this.TotalWeightIos = 0
 
 	if !this._read_config(data) {
 		return false
@@ -139,29 +150,68 @@ func (this *ServerList) GetById(id int32) (info *HallServerInfo) {
 	return
 }
 
-func (this *ServerList) RandomOne() (info *HallServerInfo) {
+func (this *ServerList) RandomOne(client_os string) (info *HallServerInfo) {
 	this.Locker.RLock()
 	defer this.Locker.RUnlock()
 
+	var total_weight int32
+	if client_os == CLIENT_OS_IOS {
+		total_weight = this.TotalWeightIos
+	} else {
+		total_weight = this.TotalWeight
+	}
+
 	now_time := time.Now()
 	rand.Seed(now_time.Unix() + now_time.UnixNano())
-	r := rand.Int31n(this.TotalWeight)
+	r := rand.Int31n(total_weight)
 
-	log.Debug("!!!!! Server List Random %v", r)
+	log.Debug("!!!!! Server List Random %v with client os %v", r, client_os)
 
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		if s.Weight <= 0 {
-			continue
+		if (s.ClientOS == CLIENT_OS_IOS && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
+			if s.Weight <= 0 {
+				continue
+			}
+			if r < s.Weight {
+				info = s
+				break
+			}
+			r -= s.Weight
 		}
-		if r < s.Weight {
-			info = s
-			break
-		}
-		r -= s.Weight
 	}
 
 	return
+}
+
+func (this *ServerList) GetServers(client_os string) (servers []*HallServerInfo) {
+	this.Locker.RLock()
+	defer this.Locker.RUnlock()
+
+	for i := 0; i < len(this.Servers); i++ {
+		s := this.Servers[i]
+		if (s.ClientOS == CLIENT_OS_IOS && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
+			servers = append(servers, s)
+		}
+	}
+	return
+}
+
+func (this *ServerList) HasId(client_os string, server_id int32) bool {
+	this.Locker.RLock()
+	defer this.Locker.RUnlock()
+
+	var found bool
+	for i := 0; i < len(this.Servers); i++ {
+		s := this.Servers[i]
+		if (s.ClientOS == CLIENT_OS_IOS && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
+			if s.Id == server_id {
+				found = true
+				break
+			}
+		}
+	}
+	return found
 }
 
 func (this *ServerList) Run() {

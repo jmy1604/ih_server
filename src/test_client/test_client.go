@@ -338,60 +338,12 @@ func bind_new_account_func(account, password, new_account, new_password, new_cha
 	log.Debug("Account[%v] bind new account %v, password is %v", msg.GetAccount(), msg.GetNewAccount(), msg.GetNewPassword())
 }
 
-func login_func(account, password, channel string) {
-	/*var url_str string
-	if config.UseHttps {
-		url_str = fmt.Sprintf("https://"+config.LoginUrl, config.LoginServerIP, account, password, channel)
-	} else {
-		url_str = fmt.Sprintf("http://"+config.LoginUrl, config.LoginServerIP, account, password, channel)
-	}
-	log.Debug("login Url str %s", url_str)
-
-	var resp *http.Response
-	var err error
-	if config.UseHttps {
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		client := &http.Client{Transport: tr}
-		resp, err = client.Get(url_str)
-	} else {
-		resp, err = http.Get(url_str)
-	}
-	if nil != err {
-		log.Error("login http get err (%s)", err.Error())
-		return
-	}
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if nil != err {
-		log.Error("login ioutil readall failed err(%s) !", err.Error())
-		return
-	}
-
-	log.Debug("login result data: %v", data)
-
-	res := &JsonResponseData{}
-	err = json.Unmarshal(data, res)
-	if nil != err {
-		log.Error("login ummarshal failed err(%s)", err.Error())
-		return
-	}
-
-	if res.Code < 0 {
-		log.Warn("return error_code[%v]", res.Code)
-		return
-	}
-
-	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE) {
-		log.Warn("returned msg_id[%v] is not correct")
-		return
-	}*/
-
+func login_func(account, password, channel, client_os string) {
 	var login_msg = msg_client_message.C2SLoginRequest{
 		Acc:      account,
 		Password: password,
 		Channel:  channel,
+		ClientOS: client_os,
 	}
 	data, err := proto.Marshal(&login_msg)
 	if err != nil {
@@ -624,13 +576,15 @@ func (this *TestClient) cmd_bind_new_account(use_https bool) {
 }
 
 func (this *TestClient) cmd_login(use_https bool) {
-	var acc, pwd, chl string
+	var acc, pwd, chl, cos string
 	fmt.Printf("请输入账号: ")
 	fmt.Scanf("%s\n", &acc)
 	fmt.Printf("请输入密码: ")
 	fmt.Scanf("%s\n", &pwd)
 	fmt.Printf("请输入渠道: ")
 	fmt.Scanf("%s\n", &chl)
+	fmt.Printf("请输入客户端系统: ")
+	fmt.Scanf("%s\n", &cos)
 	cur_hall_conn = hall_conn_mgr.GetHallConnByAcc(acc)
 	if nil != cur_hall_conn && cur_hall_conn.blogin {
 		log.Info("[%s] already login", acc)
@@ -646,7 +600,7 @@ func (this *TestClient) cmd_login(use_https bool) {
 			account = fmt.Sprintf("%s_%v", acc, i)
 		}
 
-		login_func(account, pwd, chl)
+		login_func(account, pwd, chl, cos)
 
 		if config.AccountNum > 1 {
 			log.Debug("Account[%v] logined, total count[%v]", account, i+1)
