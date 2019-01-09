@@ -64,6 +64,9 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 	}
 
 	self_node := rank_list_mgr.GetItemByKey(RANK_LIST_TYPE_ROLE_POWER, this.Id)
+	if self_node == nil {
+		return -1
+	}
 	n := self_node.(*RolesPowerRankItem)
 	if n == nil {
 		log.Error("Player[%v] no data in Role power rank list", this.Id)

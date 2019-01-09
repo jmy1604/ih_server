@@ -109,6 +109,30 @@
 					"AutoIndex":false,
 					"DefaultValue":0,
 					"Fields":[]
+				},
+				{
+					"ColumnName":"OldAccount",
+					"DBColumnName":"OldAccount",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
+					"ColumnName":"ClientOS",
+					"DBColumnName":"ClientOS",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
 				}
 			]
 		}
