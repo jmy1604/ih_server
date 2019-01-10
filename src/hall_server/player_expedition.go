@@ -229,6 +229,10 @@ func (this *Player) send_expedition_data() int32 {
 }
 
 func (this *Player) expedition_get_enemy_roles(curr_level int32) (int32, []*msg_client_message.ExpeditionEnemyRole) {
+	if int(curr_level) >= len(expedition_table_mgr.Array) {
+		return -1, nil
+	}
+
 	db_expe_list := this.get_expedition_db_role_list()
 	all_pos := db_expe_list[curr_level].GetAllIndex()
 	if all_pos == nil || len(all_pos) == 0 {
@@ -496,7 +500,10 @@ func (this *Player) expedition_fight() int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	self_roles := this.expedition_get_self_roles()
-	_, enemy_roles := this.expedition_get_enemy_roles(curr_level)
+	var enemy_roles []*msg_client_message.ExpeditionEnemyRole
+	if int(curr_level) < len(expedition_table_mgr.Array) {
+		_, enemy_roles = this.expedition_get_enemy_roles(curr_level)
+	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPEDITION_CURR_LEVEL_SYNC), &msg_client_message.S2CExpeditionCurrLevelSync{
 		CurrLevel:  curr_level,
 		SelfRoles:  self_roles,
