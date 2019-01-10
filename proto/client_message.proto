@@ -393,6 +393,7 @@ message S2CLoginResponse {
 	repeated AccountPlayerInfo InfoList		= 5; // 账号玩家列表
 	int32 LastServerId						= 6; // 上次登陆的游戏服
 	string GameIP							= 7; // 游戏服地址
+	string BoundAccount						= 8; // 已绑定账号，游客模式下
 }
 
 /// 其它地方登录

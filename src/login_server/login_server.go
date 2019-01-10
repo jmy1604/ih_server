@@ -682,6 +682,9 @@ func login_handler(account, password, channel, client_os string) (err_code int32
 
 	response.InfoList = share_data.GetAccountPlayerList(account)
 	response.LastServerId = select_server_id
+	if channel == "guest" {
+		response.BoundAccount = acc_row.GetBindNewAccount()
+	}
 
 	resp_data, err = proto.Marshal(response)
 	if err != nil {
