@@ -304,7 +304,7 @@ func (this *Player) expedition_team_init(members []*TeamMember) int32 {
 	return 1
 }
 
-func (this *Player) expedition_update_self_roles(members []*TeamMember) {
+func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMember) {
 	curr_level := this.db.ExpeditionData.GetCurrLevel()
 	e := expedition_table_mgr.Array[curr_level]
 	if e == nil {
@@ -324,7 +324,7 @@ func (this *Player) expedition_update_self_roles(members []*TeamMember) {
 		}
 		var weak int32
 		// 精英关卡
-		if e.StageType == EXPEDITION_LEVEL_DIFFCULTY_ELITE && hp > 0 {
+		if is_win && e.StageType == EXPEDITION_LEVEL_DIFFCULTY_ELITE && hp > 0 {
 			weak = 1
 		}
 		if !this.db.ExpeditionRoles.HasIndex(id) {

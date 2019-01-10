@@ -918,7 +918,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	// 远征
 	if this.team_type == BATTLE_TEAM_EXPEDITION {
-		this.player.expedition_update_self_roles(this.members)
+		this.player.expedition_update_self_roles(is_win, this.members)
 	}
 	if target_team.team_type == BATTLE_TEAM_EXPEDITION_ENEMY {
 		this.player.expedition_update_enemy_roles(target_team.members)
