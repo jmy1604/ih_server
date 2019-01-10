@@ -174,6 +174,9 @@ func (this *Player) _update_roles_power_rank_info() {
 		p := value.(int32)
 		power += p
 	}
+	if power <= 0 {
+		return
+	}
 	sid := atomic.AddInt32(&roles_power_rank_serial_id, 1)
 	var data = RolesPowerRankItem{
 		SerialId: sid,
@@ -216,7 +219,9 @@ func (this *Player) LoadRolesPowerRankData() {
 	for _, id := range ids {
 		this.role_update_suit_attr_power(id, false, true)
 		power := this.get_role_power(id)
-		this._update_role_power_rank_info(id, power)
+		if power > 0 {
+			this._update_role_power_rank_info(id, power)
+		}
 	}
 
 	this._update_roles_power_rank_info()
