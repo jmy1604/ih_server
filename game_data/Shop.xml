@@ -5,4 +5,5 @@
      <item ID="3" ShopType="2" ShopMaxSlot="-1" AutoRefreshTime="" FreeRefreshTime="0" RefreshRes="" />
      <item ID="4" ShopType="2" ShopMaxSlot="-1" AutoRefreshTime="00:00:00" FreeRefreshTime="0" RefreshRes="" />
      <item ID="5" ShopType="2" ShopMaxSlot="-1" AutoRefreshTime="" FreeRefreshTime="0" RefreshRes="20,20000" />
+     <item ID="6" ShopType="2" ShopMaxSlot="-1" AutoRefreshTime="" FreeRefreshTime="0" RefreshRes="" />
 </Config>

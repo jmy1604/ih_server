@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
      <item MainActiveID="100001" ActiveType="1" EventID="301" StartTime="2019-01-01 17:00:00" EndTime="2019-02-01 13:00:00" SubActiveList="1001,1002,1003,1004" RewardMailID="0" />
-     <item MainActiveID="100002" ActiveType="1" EventID="301" StartTime="2019-02-01 17:00:00" EndTime="2019-03-01 13:00:00" SubActiveList="1001,1002,1003,1004" RewardMailID="0" />
+     <item MainActiveID="100002" ActiveType="1" EventID="301" StartTime="2019-02-01 17:00:00" EndTime="2019-03-01 13:00:00" SubActiveList="1005,1006,1007,1008" RewardMailID="0" />
      <item MainActiveID="200001" ActiveType="2" EventID="301" StartTime="2018-12-14 17:00:00" EndTime="2018-12-21 13:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
      <item MainActiveID="200002" ActiveType="2" EventID="301" StartTime="2018-12-21 17:00:00" EndTime="2018-12-28 13:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />
      <item MainActiveID="200003" ActiveType="2" EventID="301" StartTime="2018-12-28 17:00:00" EndTime="2019-01-04 13:00:00" SubActiveList="2001,2002,2003,2004" RewardMailID="0" />

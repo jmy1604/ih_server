@@ -4,6 +4,10 @@
      <item SubActiveID="1002" BundleID="ih.gem18" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="3" Reward="1,10000000,13,6000,3,1000,21,1000" />
      <item SubActiveID="1003" BundleID="ih.gem19" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="2" Reward="1,30000000,16,30,3,2500,21,2500" />
      <item SubActiveID="1004" BundleID="ih.gem20" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="1,60000000,22,15,3,5000,21,5000" />
+     <item SubActiveID="1005" BundleID="ih.gem17" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="5" Reward="1,5000000,2,5000000,3,500,21,500" />
+     <item SubActiveID="1006" BundleID="ih.gem18" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="3" Reward="1,10000000,13,6000,3,1000,21,1000" />
+     <item SubActiveID="1007" BundleID="ih.gem19" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="2" Reward="16,40,3,2500,21,2500" />
+     <item SubActiveID="1008" BundleID="ih.gem20" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,20,3,5000,21,5000" />
      <item SubActiveID="2001" BundleID="ih.gem9" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="5" Reward="1,500000,2,500000,21,500" />
      <item SubActiveID="2002" BundleID="ih.gem10" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="3" Reward="1,1000000,4,500,5,500,6,500,21,1000" />
      <item SubActiveID="2003" BundleID="ih.gem11" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="2" Reward="1,3000000,57020,50,16,20,21,2500" />

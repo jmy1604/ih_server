@@ -6,4 +6,5 @@
      <item ServerID="GuildEnterLevel" Level="22" />
      <item ServerID="LifeTreeEnterLevel" Level="24" />
      <item ServerID="FriendBossEnterLevel" Level="34" />
+     <item ServerID="ExpeditionEnterLevel" Level="40" />
 </Config>
