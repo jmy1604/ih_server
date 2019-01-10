@@ -79,7 +79,7 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 		player := player_mgr.GetPlayerById(pid)
 		var robot *ArenaRobot
 		if player == nil {
-			robot := arena_robot_mgr.Get(pid)
+			robot = arena_robot_mgr.Get(pid)
 			if robot == nil {
 				log.Error("Not found player %v by match expedition with level %v power %v for player %v", pid, i+1, power, this.Id)
 				continue
