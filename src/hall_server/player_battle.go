@@ -394,6 +394,17 @@ func (this *BattleTeam) InitExpeditionEnemy(p *Player) bool {
 		return false
 	}
 
+	/*curr_level := p.db.ExpeditionData.GetCurrLevel()
+	var robot *ArenaRobot
+	enemy_id, _ := p.db.ExpeditionLevels.GetPlayerId(curr_level)
+	if player_mgr.GetPlayerById(enemy_id) == nil {
+		robot = arena_robot_mgr.Get(enemy_id)
+		if robot == nil {
+			log.Error("Player %v current expedition level %v cant found player", this.Id, curr_level)
+			return false
+		}
+	}*/
+
 	if this.members == nil {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
 	}

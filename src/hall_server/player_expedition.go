@@ -77,46 +77,81 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 		power := int32(float32(n.Power) * (float32(arr[i].EnemyBattlePower) / 10000))
 		pid := top_power_ranklist.GetNearestRandPlayer(power)
 		player := player_mgr.GetPlayerById(pid)
+		var robot *ArenaRobot
 		if player == nil {
-			log.Error("Not found player %v by match expedition with level %v power %v for player %v", pid, i+1, power, this.Id)
-			continue
-		}
-
-		// 防守阵型
-		dm := player.db.BattleTeam.GetDefenseMembers()
-		if dm == nil || len(dm) == 0 {
-			log.Error("Player %v matched expedition player %v defense team is empty", this.Id, pid)
-			continue
-		}
-
-		if db_expe_list[i].NumAll() > 0 {
-			db_expe_list[i].Clear()
-		}
-
-		for pos, id := range dm {
-			if id <= 0 {
+			robot := arena_robot_mgr.Get(pid)
+			if robot == nil {
+				log.Error("Not found player %v by match expedition with level %v power %v for player %v", pid, i+1, power, this.Id)
 				continue
 			}
-			if player.db.Roles.HasIndex(id) {
-				table_id, _ := player.db.Roles.GetTableId(id)
-				level, _ := player.db.Roles.GetLevel(id)
-				rank, _ := player.db.Roles.GetRank(id)
-				equip, _ := player.db.Roles.GetEquip(id)
+		}
+
+		var player_power int32
+		if player != nil { // 玩家
+			var dm []int32
+			dm = player.db.BattleTeam.GetDefenseMembers()
+			if dm == nil || len(dm) == 0 {
+				log.Error("Player %v matched expedition player %v defense team is empty", this.Id, pid)
+				continue
+			}
+
+			if db_expe_list[i].NumAll() > 0 {
+				db_expe_list[i].Clear()
+			}
+
+			for pos, id := range dm {
+				if id <= 0 {
+					continue
+				}
+				if player.db.Roles.HasIndex(id) {
+					table_id, _ := player.db.Roles.GetTableId(id)
+					level, _ := player.db.Roles.GetLevel(id)
+					rank, _ := player.db.Roles.GetRank(id)
+					equip, _ := player.db.Roles.GetEquip(id)
+					db_expe_list[i].Add(&dbPlayerExpeditionLevelRoleData{
+						Pos:       int32(pos),
+						TableId:   table_id,
+						Rank:      rank,
+						Level:     level,
+						Equip:     equip,
+						HP:        -1,
+						HpPercent: 100,
+					})
+				}
+			}
+			player_power = player.get_defense_team_power()
+		} else { // 机器人
+			robot_card_list := robot.robot_data.RobotCardList
+			if robot_card_list == nil {
+				log.Error("Robot %v card list is empty", pid)
+				return -1
+			}
+
+			if db_expe_list[i].NumAll() > 0 {
+				db_expe_list[i].Clear()
+			}
+
+			for n := 0; n < len(robot_card_list); n++ {
+				m := robot_card_list[n]
+				if m == nil {
+					continue
+				}
 				db_expe_list[i].Add(&dbPlayerExpeditionLevelRoleData{
-					Pos:       int32(pos),
-					TableId:   table_id,
-					Rank:      rank,
-					Level:     level,
-					Equip:     equip,
+					Pos:       m.Slot - 1,
+					TableId:   m.MonsterID,
+					Rank:      m.Rank,
+					Level:     m.Level,
+					Equip:     m.EquipID,
 					HP:        -1,
 					HpPercent: 100,
 				})
 			}
+			player_power = robot.power
 		}
 
-		player_power := player.get_defense_team_power()
 		gold_income := arr[i].GoldBase + int32(float32(player_power)*(float32(arr[i].GoldRate)/10000))
 		expedition_gold_income := arr[i].TokenBase + int32(float32(player_power)*(float32(arr[i].TokenRate)/10000))
+
 		if !this.db.ExpeditionLevels.HasIndex(int32(i)) {
 			this.db.ExpeditionLevels.Add(&dbPlayerExpeditionLevelData{
 				Level:                int32(i),

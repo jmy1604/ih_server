@@ -164,6 +164,7 @@ func (this *ArenaRobotManager) Init() {
 			PlayerId:    r.Id,
 		}
 		rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ARENA, &d)
+		top_power_ranklist.Update(r.Id, robot.power)
 	}
 }
 
