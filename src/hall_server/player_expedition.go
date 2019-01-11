@@ -92,7 +92,7 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 			}
 		}
 
-		log.Trace("@@@@@ Player %v matched power %v for level %v", this.Id, power, i)
+		log.Trace("@@@@@ Player %v matched power %v for level %v with player %v", this.Id, power, i, pid)
 
 		var player_power int32
 		if player != nil { // 玩家
