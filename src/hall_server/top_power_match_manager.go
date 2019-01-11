@@ -272,6 +272,7 @@ func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 				return -1
 			}
 
+			// 比较相邻的另一个战力差距，取差值小的那个
 			if r == mid {
 				if new_power > power {
 					if r+2 <= l {
@@ -298,7 +299,6 @@ func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 						}
 					}
 				}
-
 				log.Trace("@@@@@@@@@@@ matched rank %v", r)
 				break
 			}
