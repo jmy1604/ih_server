@@ -191,12 +191,12 @@ func (this *Player) expedition_get_self_roles() []*msg_client_message.Expedition
 	var roles []*msg_client_message.ExpeditionSelfRole
 	if used_ids != nil {
 		for _, id := range used_ids {
-			hp, _ := this.db.ExpeditionRoles.GetHP(id)
+			hp_percent, _ := this.db.ExpeditionRoles.GetHpPercent(id)
 			weak, _ := this.db.ExpeditionRoles.GetWeak(id)
 			roles = append(roles, &msg_client_message.ExpeditionSelfRole{
-				Id:   id,
-				HP:   hp,
-				Weak: weak,
+				Id:        id,
+				HpPercent: hp_percent,
+				Weak:      weak,
 			})
 		}
 	}
@@ -326,8 +326,8 @@ func (this *Player) expedition_team_init(members []*TeamMember) int32 {
 			continue
 		}
 		if this.db.ExpeditionRoles.HasIndex(m.id) {
-			hp, _ := this.db.ExpeditionRoles.GetHP(m.id)
-			if hp <= 0 {
+			hp_percent, _ := this.db.ExpeditionRoles.GetHpPercent(m.id)
+			if hp_percent <= 0 {
 				log.Warn("Player %v expedition role %v no hp, cant use", this.Id, m.id)
 				return int32(msg_client_message.E_ERR_EXPEDITION_ROLE_NO_HP_CANT_USE)
 			}
@@ -338,13 +338,12 @@ func (this *Player) expedition_team_init(members []*TeamMember) int32 {
 				return int32(msg_client_message.E_ERR_EXPEDITION_ROLE_WEAK_CANT_USE)
 			}
 
-			if hp >= 0 {
-				if hp > m.attrs[ATTR_HP_MAX] {
-					hp = m.attrs[ATTR_HP_MAX]
-				}
-				m.hp = hp
-				m.attrs[ATTR_HP] = hp
+			if hp_percent > 100 {
+				hp_percent = 100
 			}
+			m.hp = int32(float32(m.attrs[ATTR_HP_MAX]) * float32(hp_percent/100))
+			m.attrs[ATTR_HP] = m.hp
+
 		}
 	}
 
@@ -374,15 +373,18 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 		if is_win && e.StageType == EXPEDITION_LEVEL_DIFFCULTY_ELITE && hp > 0 {
 			weak = 1
 		}
+		hp_percent := int32(100 * float32(hp/m.attrs[ATTR_HP_MAX]))
 		if !this.db.ExpeditionRoles.HasIndex(id) {
 			this.db.ExpeditionRoles.Add(&dbPlayerExpeditionRoleData{
-				Id:   id,
-				HP:   hp,
-				Weak: weak,
+				Id:        id,
+				HP:        hp,
+				Weak:      weak,
+				HpPercent: hp_percent,
 			})
 		} else {
 			this.db.ExpeditionRoles.SetHP(id, hp)
 			this.db.ExpeditionRoles.SetWeak(id, weak)
+			this.db.ExpeditionRoles.SetHpPercent(id, hp_percent)
 		}
 		used[id] = id
 	}

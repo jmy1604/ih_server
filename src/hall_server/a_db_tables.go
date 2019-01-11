@@ -2038,6 +2038,7 @@ type dbPlayerExpeditionRoleData struct{
 	Id int32
 	HP int32
 	Weak int32
+	HpPercent int32
 }
 func (this* dbPlayerExpeditionRoleData)from_pb(pb *db.PlayerExpeditionRole){
 	if pb == nil {
@@ -2046,6 +2047,7 @@ func (this* dbPlayerExpeditionRoleData)from_pb(pb *db.PlayerExpeditionRole){
 	this.Id = pb.GetId()
 	this.HP = pb.GetHP()
 	this.Weak = pb.GetWeak()
+	this.HpPercent = pb.GetHpPercent()
 	return
 }
 func (this* dbPlayerExpeditionRoleData)to_pb()(pb *db.PlayerExpeditionRole){
@@ -2053,12 +2055,14 @@ func (this* dbPlayerExpeditionRoleData)to_pb()(pb *db.PlayerExpeditionRole){
 	pb.Id = proto.Int32(this.Id)
 	pb.HP = proto.Int32(this.HP)
 	pb.Weak = proto.Int32(this.Weak)
+	pb.HpPercent = proto.Int32(this.HpPercent)
 	return
 }
 func (this* dbPlayerExpeditionRoleData)clone_to(d *dbPlayerExpeditionRoleData){
 	d.Id = this.Id
 	d.HP = this.HP
 	d.Weak = this.Weak
+	d.HpPercent = this.HpPercent
 	return
 }
 type dbPlayerExpeditionLevelData struct{
@@ -11045,6 +11049,28 @@ func (this *dbPlayerExpeditionRoleColumn)SetWeak(id int32,v int32)(has bool){
 		return
 	}
 	d.Weak = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExpeditionRoleColumn)GetHpPercent(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExpeditionRoleColumn.GetHpPercent")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.HpPercent
+	return v,true
+}
+func (this *dbPlayerExpeditionRoleColumn)SetHpPercent(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExpeditionRoleColumn.SetHpPercent")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.HpPercent = v
 	this.m_changed = true
 	return true
 }

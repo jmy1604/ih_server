@@ -2305,7 +2305,7 @@ message C2SExpeditionDataRequest {
 
 message ExpeditionSelfRole {
 	int32 Id								= 1; // 角色ID
-	int32 HP 								= 2; // 当前血量
+	int32 HpPercent 						= 2; // 当前血量百分比
 	int32 Weak								= 3; // 虚弱
 }
 message S2CExpeditionDataResponse {
