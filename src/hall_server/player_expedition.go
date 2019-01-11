@@ -38,6 +38,9 @@ func (this *Player) get_expedition_db_role_list() []*dbPlayerExpeditionLevelRole
 
 func (this *Player) get_curr_expedition_db_roles() *dbPlayerExpeditionLevelRoleColumn {
 	curr_level := this.db.ExpeditionData.GetCurrLevel()
+	if curr_level >= int32(len(expedition_table_mgr.Array)) {
+		return nil
+	}
 	role_list := this.get_expedition_db_role_list()
 	return role_list[curr_level]
 }
@@ -47,6 +50,9 @@ func (this *Player) get_curr_expedition_max_role_num() int32 {
 		return 0
 	}
 	curr_level := this.db.ExpeditionData.GetCurrLevel()
+	if curr_level >= int32(len(expedition_table_mgr.Array)) {
+		return 0
+	}
 	return expedition_table_mgr.Array[curr_level].PlayerCardMax
 }
 
@@ -399,6 +405,9 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 
 func (this *Player) expedition_update_enemy_roles(members []*TeamMember) {
 	db_roles := this.get_curr_expedition_db_roles()
+	if db_roles == nil {
+		return
+	}
 	for pos := 0; pos < len(members); pos++ {
 		m := members[pos]
 		if m == nil {
