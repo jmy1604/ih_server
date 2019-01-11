@@ -265,6 +265,7 @@ func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 		for {
 			mid := (left + right) / 2
 			if r == mid {
+
 				break
 			}
 			r = mid

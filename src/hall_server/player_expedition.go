@@ -373,7 +373,7 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 		if is_win && e.StageType == EXPEDITION_LEVEL_DIFFCULTY_ELITE && hp > 0 {
 			weak = 1
 		}
-		hp_percent := int32(100 * float32(hp/m.attrs[ATTR_HP_MAX]))
+		hp_percent := int32(100 * (float32(hp) / float32(m.attrs[ATTR_HP_MAX])))
 		if !this.db.ExpeditionRoles.HasIndex(id) {
 			this.db.ExpeditionRoles.Add(&dbPlayerExpeditionRoleData{
 				Id:        id,
