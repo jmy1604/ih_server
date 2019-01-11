@@ -127,6 +127,8 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 	// 更新排行榜
 	this.UpdateRolePowerRank(role.Id)
 
+	top_power_ranklist.CheckDefensePowerUpdate(this)
+
 	// 活动更新
 	this.activitys_update(ACTIVITY_EVENT_GET_HERO, card.Rarity, 1, card.Camp, card.Type)
 
@@ -195,6 +197,8 @@ func (this *Player) rand_role() int32 {
 
 		// 更新排行榜
 		this.UpdateRolePowerRank(id)
+
+		top_power_ranklist.CheckDefensePowerUpdate(this)
 	}
 
 	return id
@@ -539,6 +543,8 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
 
+	top_power_ranklist.CheckDefensePowerUpdate(this)
+
 	return lvl
 }
 
@@ -611,6 +617,8 @@ func (this *Player) rankup_role(role_id int32) int32 {
 
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
+
+	top_power_ranklist.CheckDefensePowerUpdate(this)
 
 	return rank
 }
@@ -941,6 +949,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		this.roles_id_change_info.id_update(main_role_id)
 		// 排行榜更新
 		this.UpdateRolePowerRank(main_role_id)
+		top_power_ranklist.CheckDefensePowerUpdate(this)
 	} else {
 		new_role_id = this.new_role(item.Id, 1, 1)
 	}
@@ -1020,6 +1029,8 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
+
+	top_power_ranklist.CheckDefensePowerUpdate(this)
 
 	return 1
 }
@@ -1150,6 +1161,8 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
 
+	top_power_ranklist.CheckDefensePowerUpdate(this)
+
 	return 1
 }
 
@@ -1182,6 +1195,8 @@ func (this *Player) role_one_key_unequip(role_id int32) int32 {
 
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
+
+	top_power_ranklist.CheckDefensePowerUpdate(this)
 
 	return 1
 }

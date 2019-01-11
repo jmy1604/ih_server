@@ -148,9 +148,9 @@ func (this *TopPowerPlayers) Random() int32 {
 }
 
 type TopPowerRanklist struct {
-	rank_powers   *utils.Skiplist            // 战力排序
-	player2power  map[int32]int32            // 保存玩家当前战力
-	power2players map[int32]*TopPowerPlayers // 战力到玩家的映射
+	rank_powers   *utils.Skiplist            // 防守战力排序
+	player2power  map[int32]int32            // 保存玩家当前防守战力
+	power2players map[int32]*TopPowerPlayers // 防守战力到玩家的映射
 	root_node     *TopPowerRankItem
 	max_rank      int32
 	items_pool    *sync.Pool
@@ -231,6 +231,20 @@ func (this *TopPowerRanklist) Update(player_id, power int32) bool {
 	}
 
 	return true
+}
+
+func (this *TopPowerRanklist) CheckDefensePowerUpdate(p *Player) bool {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+
+	now_power := p.get_defense_team_power()
+	power := this.player2power[p.Id]
+	if power != now_power {
+		this.Update(p.Id, now_power)
+		return true
+	}
+
+	return false
 }
 
 func (this *TopPowerRanklist) GetNearestRandPlayer(power int32) int32 {
