@@ -341,7 +341,7 @@ func (this *Player) expedition_team_init(members []*TeamMember) int32 {
 			if hp_percent > 100 {
 				hp_percent = 100
 			}
-			m.hp = int32(float32(m.attrs[ATTR_HP_MAX]) * float32(hp_percent/100))
+			m.hp = int32(float32(m.attrs[ATTR_HP_MAX]) * float32(hp_percent) / 100)
 			m.attrs[ATTR_HP] = m.hp
 
 		}
