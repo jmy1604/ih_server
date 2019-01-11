@@ -1229,7 +1229,7 @@ func C2SSetTeamHandler(p *Player, msg_data []byte) int32 {
 	} else if tt == BATTLE_TEAM_DEFENSE {
 		res = p.SetTeam(BATTLE_TEAM_DEFENSE, req.TeamMembers)
 		if res > 0 {
-			top_power_ranklist.Update(p.Id, p.get_defense_team_power())
+			top_power_match_manager.Update(p.Id, p.get_defense_team_power())
 		}
 	} else if tt == BATTLE_TEAM_CAMPAIN {
 		res = p.SetTeam(BATTLE_TEAM_CAMPAIN, req.TeamMembers)

@@ -29,7 +29,7 @@ func (this *DBC) on_preload() (err error) {
 
 		defense_power := p.get_defense_team_power()
 		if defense_power > 0 {
-			top_power_ranklist.Update(p.Id, defense_power)
+			top_power_match_manager.Update(p.Id, defense_power)
 		}
 	}
 

@@ -2254,7 +2254,7 @@ func test_power_cmd(p *Player, args []string) int32 {
 		_, info_list[i].power = rand31n_from_range(1, 100000)
 	}
 
-	rank_list := NewTopPowerRanklist(&TopPowerRankItem{}, 100000)
+	rank_list := NewTopPowerMatchManager(&TopPowerRankItem{}, 100000)
 	for _, v := range info_list {
 		rank_list.Update(v.player_id, v.power)
 	}
@@ -2332,7 +2332,7 @@ func expedition_fight_cmd(p *Player, args []string) int32 {
 }
 
 func expedition_powerlist_cmd(p *Player, args []string) int32 {
-	top_power_ranklist.OutputList()
+	top_power_match_manager.OutputList()
 	return 1
 }
 

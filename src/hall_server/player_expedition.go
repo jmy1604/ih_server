@@ -81,7 +81,7 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 
 	for i := 0; i < len(arr); i++ {
 		power := int32(float32(n.Power) * (float32(arr[i].EnemyBattlePower) / 10000))
-		pid := top_power_ranklist.GetNearestRandPlayer(power)
+		pid := top_power_match_manager.GetNearestRandPlayer(power)
 		player := player_mgr.GetPlayerById(pid)
 		var robot *ArenaRobot
 		if player == nil {

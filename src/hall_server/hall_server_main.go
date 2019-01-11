@@ -99,8 +99,8 @@ func main() {
 	// 月卡管理
 	charge_month_card_manager.Init()
 
-	// 远征战力管理
-	top_power_ranklist = NewTopPowerRanklist(&TopPowerRankItem{}, 100000)
+	// 远征战力匹配管理
+	top_power_match_manager = NewTopPowerMatchManager(&TopPowerRankItem{}, 100000)
 
 	if nil != dbc.Preload() {
 		log.Error("dbc Preload Failed !!")

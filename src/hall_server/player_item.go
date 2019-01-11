@@ -481,7 +481,7 @@ func (this *Player) equip(role_id, equip_id int32) int32 {
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
 
-	top_power_ranklist.CheckDefensePowerUpdate(this)
+	top_power_match_manager.CheckDefensePowerUpdate(this)
 
 	log.Debug("Player[%v] equip role[%v] item[%v] on equip type[%v]", this.Id, role_id, equip_id, item_tdata.EquipType)
 
@@ -520,7 +520,7 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
 
-	top_power_ranklist.CheckDefensePowerUpdate(this)
+	top_power_match_manager.CheckDefensePowerUpdate(this)
 
 	log.Debug("Player[%v] unequip role[%v] equip type[%v]", this.Id, role_id, equip_type)
 
@@ -768,7 +768,7 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
 
-	top_power_ranklist.CheckDefensePowerUpdate(this)
+	top_power_match_manager.CheckDefensePowerUpdate(this)
 
 	log.Debug("Player[%v] upgraded item[%v] to new item[%v]", this.Id, item_id, new_items)
 
