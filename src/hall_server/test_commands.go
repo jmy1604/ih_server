@@ -2373,6 +2373,13 @@ func expedition_purify_points_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func expeditin_match_cmd(p *Player, args []string) int32 {
+	if p.db.ExpeditionData.GetCurrLevel() < int32(len(expedition_table_mgr.Array)) {
+		return -1
+	}
+	return p.MatchExpeditionPlayer()
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2524,6 +2531,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"expedition_powerlist":     expedition_powerlist_cmd,
 	"expedition_team_set":      expedition_team_set_cmd,
 	"expedition_purify_points": expedition_purify_points_cmd,
+	"expedition_match":         expeditin_match_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {
