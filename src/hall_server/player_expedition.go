@@ -92,6 +92,8 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 			}
 		}
 
+		log.Trace("@@@@@ Player %v matched power for level %v", this.Id, i)
+
 		var player_power int32
 		if player != nil { // 玩家
 			var dm []int32
