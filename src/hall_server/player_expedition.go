@@ -368,12 +368,13 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 		if m.is_dead() {
 			hp = 0
 		}
+
+		var weak int32
+		if is_win && e.StageType == EXPEDITION_LEVEL_DIFFCULTY_ELITE && hp > 0 { // 精英关卡
+			weak = 1
+		}
 		hp_percent := int32(100 * (float32(hp) / float32(m.attrs[ATTR_HP_MAX])))
 		if !this.db.ExpeditionRoles.HasIndex(id) {
-			var weak int32
-			if is_win && e.StageType == EXPEDITION_LEVEL_DIFFCULTY_ELITE && hp > 0 { // 精英关卡
-				weak = 1
-			}
 			this.db.ExpeditionRoles.Add(&dbPlayerExpeditionRoleData{
 				Id:        id,
 				HP:        hp,
@@ -382,7 +383,7 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 			})
 		} else {
 			this.db.ExpeditionRoles.SetHP(id, hp)
-			if is_win {
+			if weak > 0 {
 				old_weak, _ := this.db.ExpeditionRoles.GetWeak(id)
 				if old_weak <= 0 {
 					this.db.ExpeditionRoles.SetWeak(id, 1)
