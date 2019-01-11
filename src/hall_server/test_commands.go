@@ -2374,9 +2374,6 @@ func expedition_purify_points_cmd(p *Player, args []string) int32 {
 }
 
 func expeditin_match_cmd(p *Player, args []string) int32 {
-	if p.db.ExpeditionData.GetCurrLevel() < int32(len(expedition_table_mgr.Array)) {
-		return -1
-	}
 	return p.MatchExpeditionPlayer()
 }
 
