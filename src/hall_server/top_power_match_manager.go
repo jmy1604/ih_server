@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"ih_server/libs/log"
 	"ih_server/libs/utils"
+	"math"
 	"math/rand"
 	"sync"
 	"time"
@@ -264,22 +265,53 @@ func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 		new_power = power
 		for {
 			mid := (left + right) / 2
-			if r == mid {
+			item := this.rank_powers.GetByRank(mid)
+			it := item.(*TopPowerRankItem)
+			if it == nil {
+				log.Error("@@@@@@@@@@@ Expedition power rank %v item type invalid", mid)
+				return -1
+			}
 
+			if r == mid {
+				if new_power > power {
+					if r+2 <= l {
+						next_power_item := this.rank_powers.GetByRank(r + 2)
+						if next_power_item != nil {
+							npi := next_power_item.(*TopPowerRankItem)
+							if npi != nil {
+								if math.Abs(float64(new_power-power)) > math.Abs(float64(power-npi.TopPower)) {
+									new_power = npi.TopPower
+								}
+							}
+						}
+					}
+				} else if new_power < power {
+					if r-2 >= 1 {
+						next_power_item := this.rank_powers.GetByRank(r - 2)
+						if next_power_item != nil {
+							npi := next_power_item.(*TopPowerRankItem)
+							if npi != nil {
+								if math.Abs(float64(new_power-power)) > math.Abs(float64(power-npi.TopPower)) {
+									new_power = npi.TopPower
+								}
+							}
+						}
+					}
+				}
+
+				log.Trace("@@@@@@@@@@@ matched rank %v", r)
 				break
 			}
+
 			r = mid
-			item := this.rank_powers.GetByRank(r)
-			it := item.(*TopPowerRankItem)
-			if it != nil {
-				new_power = it.TopPower
-				if it.TopPower < power {
-					right = r
-				} else if it.TopPower > power {
-					left = r
-				} else {
-					break
-				}
+			new_power = it.TopPower
+			if new_power < power {
+				right = r
+			} else if new_power > power {
+				left = r
+			} else {
+				log.Trace("########### matched power self")
+				break
 			}
 		}
 		players = this.power2players[new_power]
