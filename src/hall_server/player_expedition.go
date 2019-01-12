@@ -383,13 +383,11 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 			})
 		} else {
 			this.db.ExpeditionRoles.SetHP(id, hp)
-			if weak > 0 {
-				old_weak, _ := this.db.ExpeditionRoles.GetWeak(id)
-				if old_weak <= 0 {
-					this.db.ExpeditionRoles.SetWeak(id, 1)
-				} else {
-					this.db.ExpeditionRoles.SetWeak(id, 0)
-				}
+			old_weak, _ := this.db.ExpeditionRoles.GetWeak(id)
+			if weak > 0 && old_weak <= 0 {
+				this.db.ExpeditionRoles.SetWeak(id, 1)
+			} else if is_win && old_weak > 0 {
+				this.db.ExpeditionRoles.SetWeak(id, 0)
 			}
 			this.db.ExpeditionRoles.SetHpPercent(id, hp_percent)
 		}
