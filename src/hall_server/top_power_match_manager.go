@@ -248,6 +248,16 @@ func (this *TopPowerMatchManager) CheckDefensePowerUpdate(p *Player) bool {
 	return false
 }
 
+func (this *TopPowerMatchManager) _get_power_by_rank(rank int32) int32 {
+	item := this.rank_powers.GetByRank(rank)
+	it := item.(*TopPowerRankItem)
+	if it == nil {
+		log.Error("@@@@@@@@@@@ Expedition power rank %v item type invalid", rank)
+		return -1
+	}
+	return it.TopPower
+}
+
 func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 	this.locker.RLock()
 	defer this.locker.RUnlock()
@@ -265,10 +275,8 @@ func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 		new_power = power
 		for {
 			mid := (left + right) / 2
-			item := this.rank_powers.GetByRank(mid)
-			it := item.(*TopPowerRankItem)
-			if it == nil {
-				log.Error("@@@@@@@@@@@ Expedition power rank %v item type invalid", mid)
+			mid_power := this._get_power_by_rank(mid)
+			if mid_power < 0 {
 				return -1
 			}
 
@@ -276,41 +284,34 @@ func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 			if r == mid {
 				if new_power > power {
 					if r+2 <= l {
-						next_power_item := this.rank_powers.GetByRank(r + 2)
-						if next_power_item != nil {
-							npi := next_power_item.(*TopPowerRankItem)
-							if npi != nil {
-								if math.Abs(float64(new_power-power)) > math.Abs(float64(power-npi.TopPower)) {
-									new_power = npi.TopPower
-								}
+						next_power := this._get_power_by_rank(r + 2)
+						if next_power > 0 {
+							if math.Abs(float64(new_power-power)) > math.Abs(float64(power-next_power)) {
+								new_power = next_power
 							}
 						}
 					}
 				} else if new_power < power {
 					if r-2 >= 1 {
-						next_power_item := this.rank_powers.GetByRank(r - 2)
-						if next_power_item != nil {
-							npi := next_power_item.(*TopPowerRankItem)
-							if npi != nil {
-								if math.Abs(float64(new_power-power)) > math.Abs(float64(power-npi.TopPower)) {
-									new_power = npi.TopPower
-								}
+						next_power := this._get_power_by_rank(r - 2)
+						if next_power > 0 {
+							if math.Abs(float64(new_power-power)) > math.Abs(float64(power-next_power)) {
+								new_power = next_power
 							}
 						}
 					}
 				}
-				log.Trace("@@@@@@@@@@@ matched rank %v", r)
+				log.Debug("@@@@@@@@@@@ matched rank %v", r)
 				break
 			}
 
 			r = mid
-			new_power = it.TopPower
+			new_power = mid_power
 			if new_power < power {
 				right = r
 			} else if new_power > power {
 				left = r
 			} else {
-				log.Trace("########### matched power self")
 				break
 			}
 		}

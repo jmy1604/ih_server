@@ -357,7 +357,6 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 		return
 	}
 
-	//used := make(map[int32]int32)
 	for pos := 0; pos < len(members); pos++ {
 		m := members[pos]
 		if m == nil {
@@ -368,7 +367,6 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 		if m.is_dead() {
 			hp = 0
 		}
-
 		var weak int32
 		if is_win && e.StageType == EXPEDITION_LEVEL_DIFFCULTY_ELITE && hp > 0 { // 精英关卡
 			weak = 1
@@ -391,25 +389,7 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 			}
 			this.db.ExpeditionRoles.SetHpPercent(id, hp_percent)
 		}
-		//used[id] = id
 	}
-
-	// 把上一关疲劳的角色恢复成正常状态
-	/*all_ids := this.db.ExpeditionRoles.GetAllIndex()
-	if all_ids != nil {
-		for i := 0; i < len(all_ids); i++ {
-			_, o := used[all_ids[i]]
-			if o {
-				continue
-			}
-			if this.db.ExpeditionRoles.HasIndex(all_ids[i]) {
-				weak, _ := this.db.ExpeditionRoles.GetWeak(all_ids[i])
-				if weak > 0 {
-					this.db.ExpeditionRoles.SetWeak(all_ids[i], 0)
-				}
-			}
-		}
-	}*/
 }
 
 func (this *Player) expedition_update_enemy_roles(members []*TeamMember) {
