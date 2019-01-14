@@ -85,7 +85,6 @@ func (this *Player) is_explore_task_can_refresh(id int32, is_auto bool) bool {
 	if start_time > 0 {
 		return false
 	}
-
 	is_lock, _ := this.db.Explores.GetIsLock(id)
 	if is_lock > 0 {
 		return false
@@ -95,8 +94,17 @@ func (this *Player) is_explore_task_can_refresh(id int32, is_auto bool) bool {
 		if state != 0 {
 			return false
 		}
+	} else {
 	}
 	return true
+}
+
+func (this *Player) is_explore_task_locked(id int32) bool {
+	is_lock, _ := this.db.Explores.GetIsLock(id)
+	if is_lock > 0 {
+		return true
+	}
+	return false
 }
 
 func (this *Player) _explore_gen_task_data(etask *table_config.XmlSearchTaskItem) (camps, types []int32, roleid4task, nameid4task int32, random_rewards []int32) {
@@ -207,8 +215,15 @@ func (this *Player) explore_random_task(is_auto bool) (datas []*msg_client_messa
 			for i := 0; i < len(all); i++ {
 				id := all[i]
 				if !this.is_explore_task_can_refresh(id, is_auto) {
+					if is_auto && this.is_explore_task_locked(id) {
+						need_random_num -= 1
+						if need_random_num <= 0 {
+							break
+						}
+					}
 					continue
 				}
+
 				d := this.explore_rand_one_task(id, false)
 				datas = append(datas, d)
 

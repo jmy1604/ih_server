@@ -497,7 +497,7 @@ func (this *Player) expedition_fight() int32 {
 
 	is_win, enter_reports, rounds := this.expedition_team.Fight(this.expedition_enemy_team, BATTLE_END_BY_ALL_DEAD, 0)
 
-	if is_win || (this.expedition_team.IsAllDead() && this.expedition_enemy_team.IsAllDead()) {
+	if is_win {
 		gold_income, _ := this.db.ExpeditionLevels.GetGoldIncome(curr_level)
 		this.add_gold(gold_income)
 		expedition_gold_income, _ := this.db.ExpeditionLevels.GetExpeditionGoldIncome(curr_level)
