@@ -325,6 +325,9 @@ func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 }
 
 func (this *TopPowerMatchManager) OutputList() {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+
 	l := this.rank_powers.GetLength()
 	if l > 0 {
 		var s string

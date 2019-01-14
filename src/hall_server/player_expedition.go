@@ -272,9 +272,8 @@ func (this *Player) get_expedition_level_data_with_level(curr_level int32) int32
 	}
 
 	player_id, _ := this.db.ExpeditionLevels.GetPlayerId(curr_level)
-	player := player_mgr.GetPlayerById(player_id)
-	if player == nil {
-		log.Error("Player %v not found expedition player %v data", this.Id, player_id)
+	if player_id <= 0 {
+		log.Error("Player %v not found expedition player %v data with level %v", this.Id, player_id, curr_level)
 		return -1
 	}
 
@@ -283,15 +282,17 @@ func (this *Player) get_expedition_level_data_with_level(curr_level int32) int32
 		return res
 	}
 
+	name, level, head, _, _, _ := GetFighterInfo(player_id)
+
 	player_power, _ := this.db.ExpeditionLevels.GetPower(curr_level)
 	gold_income, _ := this.db.ExpeditionLevels.GetGoldIncome(curr_level)
 	expedition_gold_income, _ := this.db.ExpeditionLevels.GetExpeditionGoldIncome(curr_level)
 	response := &msg_client_message.S2CExpeditionLevelDataResponse{
 		PlayerId:             player_id,
-		PlayerName:           player.db.GetName(),
-		PlayerLevel:          player.db.GetLevel(),
-		PlayerVipLevel:       player.db.Info.GetVipLvl(),
-		PlayerHead:           player.db.Info.GetHead(),
+		PlayerName:           name,
+		PlayerLevel:          level,
+		PlayerVipLevel:       0,
+		PlayerHead:           head,
 		PlayerPower:          player_power,
 		RoleList:             role_list,
 		GoldIncome:           gold_income,
