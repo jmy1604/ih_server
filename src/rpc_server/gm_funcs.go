@@ -10,6 +10,7 @@ import (
 var gm_handles = map[int32]gm_handle{
 	rpc_common.GM_CMD_TEST:        gm_test,
 	rpc_common.GM_CMD_ANOUNCEMENT: gm_anouncement,
+	rpc_common.GM_CMD_SYS_MAIL:    gm_mail,
 }
 
 func gm_test(id int32, data []byte) (int32, []byte) {
