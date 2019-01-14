@@ -358,6 +358,17 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 		return
 	}
 
+	var used_map map[int32]int32
+	if is_win {
+		used_ids := this.db.ExpeditionRoles.GetAllIndex()
+		used_map = make(map[int32]int32)
+		if used_ids != nil {
+			for i := 0; i < len(used_ids); i++ {
+				used_map[used_ids[i]] = used_ids[i]
+			}
+		}
+	}
+
 	for pos := 0; pos < len(members); pos++ {
 		m := members[pos]
 		if m == nil {
@@ -389,6 +400,21 @@ func (this *Player) expedition_update_self_roles(is_win bool, members []*TeamMem
 				this.db.ExpeditionRoles.SetWeak(id, 0)
 			}
 			this.db.ExpeditionRoles.SetHpPercent(id, hp_percent)
+		}
+
+		if is_win {
+			delete(used_map, id)
+		}
+	}
+
+	if used_map != nil {
+		for k, _ := range used_map {
+			if this.db.ExpeditionRoles.HasIndex(k) {
+				old_weak, _ := this.db.ExpeditionRoles.GetWeak(k)
+				if old_weak > 0 {
+					this.db.ExpeditionRoles.SetWeak(k, 0)
+				}
+			}
 		}
 	}
 }
@@ -471,7 +497,6 @@ func (this *Player) expedition_fight() int32 {
 
 	is_win, enter_reports, rounds := this.expedition_team.Fight(this.expedition_enemy_team, BATTLE_END_BY_ALL_DEAD, 0)
 
-	self_roles := this.expedition_get_self_roles()
 	if is_win {
 		gold_income, _ := this.db.ExpeditionLevels.GetGoldIncome(curr_level)
 		this.add_gold(gold_income)
@@ -500,6 +525,7 @@ func (this *Player) expedition_fight() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
+	self_roles := this.expedition_get_self_roles()
 	var enemy_roles []*msg_client_message.ExpeditionEnemyRole
 	if int(curr_level) < len(expedition_table_mgr.Array) {
 		_, enemy_roles = this.expedition_get_enemy_roles(curr_level)
