@@ -16,6 +16,7 @@ type XmlArenaRobotItem struct {
 	RobotScore       int32  `xml:"RobotScore,attr"`
 	RobotCardList    []*JsonMonster
 	RobotLevel       int32 `xml:"RobotLevel,attr"`
+	IsExpedition     int32 `xml:"IsExpenditonRobot,attr"`
 }
 
 type XmlArenaRobotConfig struct {

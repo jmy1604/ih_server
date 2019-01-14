@@ -2228,22 +2228,6 @@ func test_power_cmd(p *Player, args []string) int32 {
 		player_id int32
 		power     int32
 	}
-	/*var info_list = []info{
-		{player_id: 1, power: 100},
-		{player_id: 2, power: 200},
-		{player_id: 3, power: 300},
-		{player_id: 4, power: 400},
-		{player_id: 5, power: 500},
-		{player_id: 6, power: 600},
-		{player_id: 7, power: 700},
-		{player_id: 8, power: 800},
-		{player_id: 9, power: 900},
-		{player_id: 10, power: 1000},
-		{player_id: 11, power: 1100},
-		{player_id: 1, power: 10000},
-		{player_id: 2, power: 20000},
-		{player_id: 10, power: 100},
-	}*/
 
 	var info_num int32 = 10000
 	rand.Seed(time.Now().Unix())
@@ -2255,13 +2239,14 @@ func test_power_cmd(p *Player, args []string) int32 {
 	}
 
 	rank_list := NewTopPowerMatchManager(&TopPowerRankItem{}, 100000)
+
 	for _, v := range info_list {
 		rank_list.Update(v.player_id, v.power)
 	}
 	rank_list.OutputList()
 
-	var pid int32
 	begin := time.Now()
+	var pid int32
 	for i := 0; i < count; i++ {
 		pid = rank_list.GetNearestRandPlayer(int32(power))
 	}

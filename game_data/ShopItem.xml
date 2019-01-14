@@ -40,7 +40,7 @@
      <item GoodID="1042" ShopID="1" LevelMin="1" LevelMax="9999" ItemList="16,1" BuyCost="3,150" StockNum="1" RandomWeight="6000" />
      <item GoodID="1043" ShopID="1" LevelMin="1" LevelMax="9999" ItemList="15,1" BuyCost="3,20" StockNum="1" RandomWeight="15000" />
      <item GoodID="1044" ShopID="1" LevelMin="25" LevelMax="9999" ItemList="22,1" BuyCost="3,500" StockNum="1" RandomWeight="1000" />
-     <item GoodID="1045" ShopID="1" LevelMin="25" LevelMax="9999" ItemList="23,100" BuyCost="3,300" StockNum="1" RandomWeight="6000" />
+     <item GoodID="1045" ShopID="1" LevelMin="25" LevelMax="9999" ItemList="23,100" BuyCost="3,300" StockNum="1" RandomWeight="2000" />
      <item GoodID="1051" ShopID="1" LevelMin="1" LevelMax="20" ItemList="2,10000" BuyCost="1,100000" StockNum="1" RandomWeight="4000" />
      <item GoodID="1052" ShopID="1" LevelMin="21" LevelMax="50" ItemList="2,50000" BuyCost="1,500000" StockNum="1" RandomWeight="4000" />
      <item GoodID="1053" ShopID="1" LevelMin="51" LevelMax="90" ItemList="2,200000" BuyCost="1,2000000" StockNum="1" RandomWeight="4000" />

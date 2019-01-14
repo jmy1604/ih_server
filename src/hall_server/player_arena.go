@@ -156,15 +156,18 @@ func (this *ArenaRobotManager) Init() {
 	for _, r := range array {
 		robot := &ArenaRobot{}
 		robot.Init(r)
-		this.robots[r.Id] = robot
-		// 加入排行榜
-		var d = ArenaRankItem{
-			SerialId:    atomic.AddInt32(&arena_serial_id, 1),
-			PlayerScore: r.RobotScore,
-			PlayerId:    r.Id,
+		if r.IsExpedition == 0 {
+			this.robots[r.Id] = robot
+			// 加入排行榜
+			var d = ArenaRankItem{
+				SerialId:    atomic.AddInt32(&arena_serial_id, 1),
+				PlayerScore: r.RobotScore,
+				PlayerId:    r.Id,
+			}
+			rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ARENA, &d)
+		} else {
+			top_power_match_manager.Update(r.Id, robot.power)
 		}
-		rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ARENA, &d)
-		top_power_match_manager.Update(r.Id, robot.power)
 	}
 }
 
