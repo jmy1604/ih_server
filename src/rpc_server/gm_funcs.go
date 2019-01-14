@@ -79,3 +79,51 @@ func gm_anouncement(id int32, data []byte) (int32, []byte) {
 
 	return 1, data
 }
+
+func gm_mail(id int32, data []byte) (int32, []byte) {
+	if id != rpc_common.GM_CMD_SYS_MAIL {
+		log.Error("gm sys mail cmd id %v not correct", id)
+		return -1, nil
+	}
+
+	var err error
+	var args rpc_common.GmSendSysMailCmd
+	err = json.Unmarshal(data, &args)
+	if err != nil {
+		log.Error("gm cmd GmSendSysMailCmd unmarshal failed")
+		return -1, nil
+	}
+
+	player_id := args.PlayerId
+	//player_account := args.PlayerAccount
+
+	var result rpc_common.GmSendSysMailResponse
+	if player_id <= 0 {
+		for _, r := range server.hall_rpc_clients {
+			if r.rpc_client != nil {
+				err = r.rpc_client.Call("G2H_Proc.SysMail", &args, &result)
+				if err != nil {
+					log.Error("gm rpc call G2H_Proc.SysMail err %v", err.Error())
+					continue
+				}
+			}
+		}
+	} else {
+		rpc_client := GetRpcClientByPlayerId(player_id)
+		if rpc_client != nil {
+			err = rpc_client.Call("G2H_Proc.SysMail", &args, &result)
+			if err != nil {
+				log.Error("gm rpc call G2H_Proc.SysMail err %v", err.Error())
+				return -1, nil
+			}
+		}
+	}
+
+	data, err = json.Marshal(&result)
+	if err != nil {
+		log.Error("marshal gm cmd response GmSendSysMailResponse err %v", err.Error())
+		return -1, nil
+	}
+
+	return 1, data
+}

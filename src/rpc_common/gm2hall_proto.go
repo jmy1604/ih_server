@@ -1,17 +1,17 @@
 package rpc_common
 
 const (
-	GM_CMD_TEST          = iota
-	GM_CMD_ANOUNCEMENT   = 1
-	GM_CMD_ADD_ITEMS     = 2
-	GM_CMD_SEND_SYS_MAIL = 3
+	GM_CMD_TEST        = iota
+	GM_CMD_ANOUNCEMENT = 1
+	GM_CMD_ADD_ITEMS   = 2
+	GM_CMD_SYS_MAIL    = 3
 )
 
 const (
-	GM_CMD_TEST_STRING          = "test"
-	GM_CMD_ANOUNCEMENT_STRING   = "anounce"
-	GM_CMD_ADD_ITEMS_STRING     = "add_items"
-	GM_CMD_SEND_SYS_MAIL_STRING = "send_sys_mail"
+	GM_CMD_TEST_STRING        = "test"
+	GM_CMD_ANOUNCEMENT_STRING = "anounce"
+	GM_CMD_ADD_ITEMS_STRING   = "add_items"
+	GM_CMD_SYS_MAIL_STRING    = "sys_mail"
 )
 
 // 通用GM命令结构
@@ -58,9 +58,10 @@ type GmAddItemResponse struct {
 
 // 发送系统邮件
 type GmSendSysMailCmd struct {
-	ReceivePlayerId int32   `json:"ReceivePlayerId"`
-	MailType        int32   `json:"MailType"`
-	AttachItems     []int32 `json"AttachItems"`
+	PlayerAccount string  `json:"PlayerAccount"`
+	PlayerId      int32   `json:"PlayerId"`
+	MailTableID   int32   `json:"MailTableID"`
+	AttachItems   []int32 `json"AttachItems"`
 }
 
 type GmSendSysMailResponse struct {

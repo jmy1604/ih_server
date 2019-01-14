@@ -363,13 +363,6 @@ func RealSendMail(sender *Player, receiver_id, mail_type, mail_subtype int32, ti
 		}
 	}
 
-	/*if !receiver.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
-		receiver.db.NotifyStates.Add(&dbPlayerNotifyStateData{
-			ModuleType: int32(msg_client_message.MODULE_STATE_NEW_MAIL),
-		})
-		receiver.notify_state_changed(int32(msg_client_message.MODULE_STATE_NEW_MAIL), 1)
-	}*/
-
 	// 解锁
 	receiver.receive_mail_locker.Unlock()
 
