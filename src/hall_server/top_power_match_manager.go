@@ -236,10 +236,10 @@ func (this *TopPowerMatchManager) Update(player_id, power int32) bool {
 
 func (this *TopPowerMatchManager) CheckDefensePowerUpdate(p *Player) bool {
 	this.locker.RLock()
-	defer this.locker.RUnlock()
+	power := this.player2power[p.Id]
+	this.locker.RUnlock()
 
 	now_power := p.get_defense_team_power()
-	power := this.player2power[p.Id]
 	if power != now_power {
 		this.Update(p.Id, now_power)
 		return true
