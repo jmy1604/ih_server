@@ -13,7 +13,7 @@ type HallRpcClient struct {
 }
 
 func get_server_id_by_player_id(player_id int32) int32 {
-	return (player_id >> 20) & 0x1000
+	return (player_id >> 20) & 0xffff
 }
 
 // 通过玩家ID对应大厅的rpc客户端

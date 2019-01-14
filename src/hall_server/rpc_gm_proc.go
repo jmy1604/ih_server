@@ -37,3 +37,22 @@ func (this *G2H_Proc) Anouncement(args *rpc_common.GmAnouncementCmd, result *rpc
 	log.Trace("@@@ G2H_Proc::Anouncement %v", args)
 	return nil
 }
+
+func (this *G2H_Proc) SysMail(args *rpc_common.GmSendSysMailCmd, result *rpc_common.GmSendSysMailResponse) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+
+	// 群发邮件
+	if args.PlayerId <= 0 {
+
+	} else {
+		res := RealSendMail(nil, args.PlayerId, MAIL_TYPE_SYSTEM, args.MailTableID, "", "", args.AttachItems, 0)
+		if res < 0 {
+
+		}
+	}
+	return nil
+}
