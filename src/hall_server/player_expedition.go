@@ -471,6 +471,7 @@ func (this *Player) expedition_fight() int32 {
 
 	is_win, enter_reports, rounds := this.expedition_team.Fight(this.expedition_enemy_team, BATTLE_END_BY_ALL_DEAD, 0)
 
+	self_roles := this.expedition_get_self_roles()
 	if is_win {
 		gold_income, _ := this.db.ExpeditionLevels.GetGoldIncome(curr_level)
 		this.add_gold(gold_income)
@@ -499,7 +500,6 @@ func (this *Player) expedition_fight() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
-	self_roles := this.expedition_get_self_roles()
 	var enemy_roles []*msg_client_message.ExpeditionEnemyRole
 	if int(curr_level) < len(expedition_table_mgr.Array) {
 		_, enemy_roles = this.expedition_get_enemy_roles(curr_level)
