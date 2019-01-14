@@ -85,16 +85,16 @@ func (this *Player) is_explore_task_can_refresh(id int32, is_auto bool) bool {
 	if start_time > 0 {
 		return false
 	}
+	is_lock, _ := this.db.Explores.GetIsLock(id)
+	if is_lock > 0 {
+		return false
+	}
 	if is_auto {
 		state, _ := this.db.Explores.GetState(id)
 		if state != 0 {
 			return false
 		}
 	} else {
-		is_lock, _ := this.db.Explores.GetIsLock(id)
-		if is_lock > 0 {
-			return false
-		}
 	}
 	return true
 }
