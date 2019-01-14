@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item ID="1" StageType="1" PlayerCardMax="5" EnemyBattlePower="3000" GoldBase="10000" GoldRate="5000" TokenBase="50" TokenRate="15" PurifyPoint="1" />
-     <item ID="2" StageType="1" PlayerCardMax="5" EnemyBattlePower="3500" GoldBase="12000" GoldRate="5300" TokenBase="60" TokenRate="16" PurifyPoint="1" />
-     <item ID="3" StageType="1" PlayerCardMax="5" EnemyBattlePower="4000" GoldBase="14000" GoldRate="5500" TokenBase="70" TokenRate="17" PurifyPoint="1" />
-     <item ID="4" StageType="2" PlayerCardMax="5" EnemyBattlePower="7000" GoldBase="28000" GoldRate="6700" TokenBase="140" TokenRate="21" PurifyPoint="3" />
-     <item ID="5" StageType="1" PlayerCardMax="5" EnemyBattlePower="4500" GoldBase="18000" GoldRate="6300" TokenBase="90" TokenRate="19" PurifyPoint="1" />
-     <item ID="6" StageType="1" PlayerCardMax="5" EnemyBattlePower="5000" GoldBase="24000" GoldRate="7500" TokenBase="120" TokenRate="23" PurifyPoint="1" />
-     <item ID="7" StageType="1" PlayerCardMax="5" EnemyBattlePower="5500" GoldBase="28000" GoldRate="8100" TokenBase="160" TokenRate="25" PurifyPoint="1" />
-     <item ID="8" StageType="2" PlayerCardMax="5" EnemyBattlePower="8000" GoldBase="44000" GoldRate="8600" TokenBase="220" TokenRate="26" PurifyPoint="3" />
-     <item ID="9" StageType="1" PlayerCardMax="5" EnemyBattlePower="6000" GoldBase="32000" GoldRate="8500" TokenBase="160" TokenRate="26" PurifyPoint="1" />
-     <item ID="10" StageType="3" PlayerCardMax="5" EnemyBattlePower="11000" GoldBase="60000" GoldRate="10000" TokenBase="300" TokenRate="30" PurifyPoint="7" />
+     <item ID="1" StageType="1" PlayerCardMax="5" EnemyBattlePower="3000" GoldBase="10000" GoldRate="2500" TokenBase="50" TokenRate="12" PurifyPoint="1" />
+     <item ID="2" StageType="1" PlayerCardMax="5" EnemyBattlePower="3500" GoldBase="12000" GoldRate="2600" TokenBase="60" TokenRate="13" PurifyPoint="1" />
+     <item ID="3" StageType="1" PlayerCardMax="5" EnemyBattlePower="4000" GoldBase="14000" GoldRate="2700" TokenBase="70" TokenRate="13" PurifyPoint="1" />
+     <item ID="4" StageType="2" PlayerCardMax="5" EnemyBattlePower="7000" GoldBase="28000" GoldRate="3300" TokenBase="140" TokenRate="16" PurifyPoint="3" />
+     <item ID="5" StageType="1" PlayerCardMax="5" EnemyBattlePower="4500" GoldBase="18000" GoldRate="3300" TokenBase="90" TokenRate="16" PurifyPoint="1" />
+     <item ID="6" StageType="1" PlayerCardMax="5" EnemyBattlePower="5000" GoldBase="22000" GoldRate="3700" TokenBase="110" TokenRate="18" PurifyPoint="1" />
+     <item ID="7" StageType="1" PlayerCardMax="5" EnemyBattlePower="5500" GoldBase="26000" GoldRate="4100" TokenBase="130" TokenRate="20" PurifyPoint="1" />
+     <item ID="8" StageType="2" PlayerCardMax="5" EnemyBattlePower="8000" GoldBase="40000" GoldRate="4500" TokenBase="200" TokenRate="22" PurifyPoint="3" />
+     <item ID="9" StageType="1" PlayerCardMax="5" EnemyBattlePower="6000" GoldBase="30000" GoldRate="4500" TokenBase="150" TokenRate="22" PurifyPoint="1" />
+     <item ID="10" StageType="3" PlayerCardMax="5" EnemyBattlePower="11000" GoldBase="60000" GoldRate="5000" TokenBase="300" TokenRate="25" PurifyPoint="7" />
 </Config>
