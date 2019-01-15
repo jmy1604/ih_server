@@ -9,9 +9,13 @@ cp ../bin/hall_server ./bin
 cp ../bin/rpc_server ./bin
 cp ../bin/test_client ./bin
 
-cp -r ../conf ./ 
+mkdir conf
+cp -r ../conf/template ./conf 
 cp -r ../game_data ./
 cp -r ../sh_script ./
+
+cp ../*.sh ./
+
 cd ../
 
 tar -czvf ih_server.tar.gz ih_server
