@@ -512,6 +512,15 @@ message PlayerExpeditionLevelRoleList{
 	repeated PlayerExpeditionLevelRole List=1;
 }
 
+message PlayerSysMail{
+	optional int32 Id=1;
+	optional int32 TableId=2;
+}
+
+message PlayerSysMailList{
+	repeated PlayerSysMail List=1;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }

@@ -24,8 +24,13 @@ type GmCmd struct {
 // GM命令返回结构
 type GmResponse struct {
 	Id   int32  `json:"Id"`
-	Err  int32  `json:"Err"`
+	Res  int32  `json:"Res"`
 	Data []byte `json:"Data"`
+}
+
+// 通用返回
+type GmCommonResponse struct {
+	Res int32
 }
 
 // 测试命令
@@ -35,16 +40,10 @@ type GmTestCmd struct {
 	BytesValue  []byte `json:"BytesValue"`
 }
 
-type GmTestResponse struct {
-}
-
 // 公告
 type GmAnouncementCmd struct {
 	Content       []byte `json:"Content"`
 	RemainSeconds int32  `json:"RemainSeconds"`
-}
-
-type GmAnouncementResponse struct {
 }
 
 // 增加物品
@@ -53,16 +52,10 @@ type GmAddItemCmd struct {
 	PlayerIds []int32 `json:"PlayerIds"`
 }
 
-type GmAddItemResponse struct {
-}
-
 // 发送系统邮件
 type GmSendSysMailCmd struct {
 	PlayerAccount string  `json:"PlayerAccount"`
 	PlayerId      int32   `json:"PlayerId"`
 	MailTableID   int32   `json:"MailTableID"`
 	AttachItems   []int32 `json"AttachItems"`
-}
-
-type GmSendSysMailResponse struct {
 }

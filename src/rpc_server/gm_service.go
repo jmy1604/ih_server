@@ -107,28 +107,32 @@ func gm_http_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var res int32
+	var resp_data []byte
 	var gm_cmd rpc_common.GmCmd
 	err = json.Unmarshal(data, &gm_cmd)
 	if err != nil {
+		res = -1
 		log.Error("Gm json unmarshal GmCmd err %v", err.Error())
-		return
 	}
 
-	f := gm_handles[gm_cmd.Id]
-	if f == nil {
-		log.Error("Unknown gm cmd %v %v", gm_cmd.Id, gm_cmd.String)
-		return
-	}
-
-	err_code, resp_data := f(gm_cmd.Id, gm_cmd.Data)
-	if err_code < 0 {
-		log.Error("Gm cmd %v %v execute failed %v", gm_cmd.Id, gm_cmd.String, err_code)
-		return
+	if res >= 0 {
+		f := gm_handles[gm_cmd.Id]
+		if f == nil {
+			res = -1
+			log.Error("Unknown gm cmd %v %v", gm_cmd.Id, gm_cmd.String)
+		} else {
+			res, resp_data = f(gm_cmd.Id, gm_cmd.Data)
+			if res < 0 {
+				res = -1
+				log.Error("Gm cmd %v %v execute failed %v", gm_cmd.Id, gm_cmd.String, res)
+			}
+		}
 	}
 
 	var gm_resp = rpc_common.GmResponse{
 		Id:   gm_cmd.Id,
-		Err:  err_code,
+		Res:  res,
 		Data: resp_data,
 	}
 	data, err = json.Marshal(&gm_resp)
@@ -139,5 +143,7 @@ func gm_http_handler(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(data)
 
-	log.Debug("Gm cmd: %v", gm_cmd.String)
+	if res >= 0 {
+		log.Debug("Gm cmd: %v", gm_cmd.String)
+	}
 }

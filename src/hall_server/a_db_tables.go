@@ -2153,6 +2153,29 @@ func (this* dbPlayerExpeditionLevelRoleData)clone_to(d *dbPlayerExpeditionLevelR
 	d.HpPercent = this.HpPercent
 	return
 }
+type dbPlayerSysMailData struct{
+	Id int32
+	TableId int32
+}
+func (this* dbPlayerSysMailData)from_pb(pb *db.PlayerSysMail){
+	if pb == nil {
+		return
+	}
+	this.Id = pb.GetId()
+	this.TableId = pb.GetTableId()
+	return
+}
+func (this* dbPlayerSysMailData)to_pb()(pb *db.PlayerSysMail){
+	pb = &db.PlayerSysMail{}
+	pb.Id = proto.Int32(this.Id)
+	pb.TableId = proto.Int32(this.TableId)
+	return
+}
+func (this* dbPlayerSysMailData)clone_to(d *dbPlayerSysMailData){
+	d.Id = this.Id
+	d.TableId = this.TableId
+	return
+}
 type dbBattleSaveDataData struct{
 	Data []byte
 }
@@ -11554,6 +11577,155 @@ func (this *dbPlayerExpeditionLevelRoleColumn)SetHpPercent(id int32,v int32)(has
 	this.m_changed = true
 	return true
 }
+type dbPlayerSysMailColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerSysMailData
+	m_changed bool
+}
+func (this *dbPlayerSysMailColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerSysMailList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerSysMailData{}
+		d.from_pb(v)
+		this.m_data[int32(d.Id)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerSysMailColumn)save( )(data []byte,err error){
+	pb := &db.PlayerSysMailList{}
+	pb.List=make([]*db.PlayerSysMail,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerSysMailColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerSysMailColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerSysMailColumn)GetAll()(list []dbPlayerSysMailData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerSysMailData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerSysMailColumn)Get(id int32)(v *dbPlayerSysMailData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerSysMailData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerSysMailColumn)Set(v dbPlayerSysMailData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.Id)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Id)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerSysMailColumn)Add(v *dbPlayerSysMailData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.Id)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Id)
+		return false
+	}
+	d:=&dbPlayerSysMailData{}
+	v.clone_to(d)
+	this.m_data[int32(v.Id)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerSysMailColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerSysMailColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerSysMailData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerSysMailColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbPlayerSysMailColumn)GetTableId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.GetTableId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.TableId
+	return v,true
+}
+func (this *dbPlayerSysMailColumn)SetTableId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.SetTableId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.TableId = v
+	this.m_changed = true
+	return true
+}
 type dbPlayerRow struct {
 	m_table *dbPlayerTable
 	m_lock       *RWMutex
@@ -11642,6 +11814,7 @@ type dbPlayerRow struct {
 	ExpeditionLevelRole7s dbPlayerExpeditionLevelRoleColumn
 	ExpeditionLevelRole8s dbPlayerExpeditionLevelRoleColumn
 	ExpeditionLevelRole9s dbPlayerExpeditionLevelRoleColumn
+	SysMails dbPlayerSysMailColumn
 }
 func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this := &dbPlayerRow{}
@@ -11786,6 +11959,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.ExpeditionLevelRole8s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
 	this.ExpeditionLevelRole9s.m_row=this
 	this.ExpeditionLevelRole9s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
+	this.SysMails.m_row=this
+	this.SysMails.m_data=make(map[int32]*dbPlayerSysMailData)
 	return this
 }
 func (this *dbPlayerRow) GetPlayerId() (r int32) {
@@ -11795,7 +11970,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(73)
+		db_args:=new_db_args(74)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_UniqueId)
 		db_args.Push(this.m_Account)
@@ -12199,12 +12374,18 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dExpeditionLevelRole9s)
+		dSysMails,db_err:=this.SysMails.save()
+		if db_err!=nil{
+			log.Error("insert save SysMail failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dSysMails)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionData.m_changed||this.ExpeditionRoles.m_changed||this.ExpeditionLevels.m_changed||this.ExpeditionLevelRole0s.m_changed||this.ExpeditionLevelRole1s.m_changed||this.ExpeditionLevelRole2s.m_changed||this.ExpeditionLevelRole3s.m_changed||this.ExpeditionLevelRole4s.m_changed||this.ExpeditionLevelRole5s.m_changed||this.ExpeditionLevelRole6s.m_changed||this.ExpeditionLevelRole7s.m_changed||this.ExpeditionLevelRole8s.m_changed||this.ExpeditionLevelRole9s.m_changed{
+		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionData.m_changed||this.ExpeditionRoles.m_changed||this.ExpeditionLevels.m_changed||this.ExpeditionLevelRole0s.m_changed||this.ExpeditionLevelRole1s.m_changed||this.ExpeditionLevelRole2s.m_changed||this.ExpeditionLevelRole3s.m_changed||this.ExpeditionLevelRole4s.m_changed||this.ExpeditionLevelRole5s.m_changed||this.ExpeditionLevelRole6s.m_changed||this.ExpeditionLevelRole7s.m_changed||this.ExpeditionLevelRole8s.m_changed||this.ExpeditionLevelRole9s.m_changed||this.SysMails.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(73)
+			db_args:=new_db_args(74)
 			if this.m_UniqueId_changed{
 				update_string+="UniqueId=?,"
 				db_args.Push(this.m_UniqueId)
@@ -12823,6 +13004,15 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dExpeditionLevelRole9s)
 			}
+			if this.SysMails.m_changed{
+				update_string+="SysMails=?,"
+				dSysMails,err:=this.SysMails.save()
+				if err!=nil{
+					log.Error("insert save SysMail failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dSysMails)
+			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE PlayerId=?"
 			db_args.Push(this.m_PlayerId)
@@ -12903,6 +13093,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.ExpeditionLevelRole7s.m_changed = false
 	this.ExpeditionLevelRole8s.m_changed = false
 	this.ExpeditionLevelRole9s.m_changed = false
+	this.SysMails.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -13578,10 +13769,18 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasSysMail := columns["SysMails"]
+	if !hasSysMail {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN SysMails LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN SysMails failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMails FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13589,7 +13788,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMails) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13706,9 +13905,10 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dExpeditionLevelRole7s []byte
 	var dExpeditionLevelRole8s []byte
 	var dExpeditionLevelRole9s []byte
+	var dSysMails []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionData,&dExpeditionRoles,&dExpeditionLevels,&dExpeditionLevelRole0s,&dExpeditionLevelRole1s,&dExpeditionLevelRole2s,&dExpeditionLevelRole3s,&dExpeditionLevelRole4s,&dExpeditionLevelRole5s,&dExpeditionLevelRole6s,&dExpeditionLevelRole7s,&dExpeditionLevelRole8s,&dExpeditionLevelRole9s)
+		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionData,&dExpeditionRoles,&dExpeditionLevels,&dExpeditionLevelRole0s,&dExpeditionLevelRole1s,&dExpeditionLevelRole2s,&dExpeditionLevelRole3s,&dExpeditionLevelRole4s,&dExpeditionLevelRole5s,&dExpeditionLevelRole6s,&dExpeditionLevelRole7s,&dExpeditionLevelRole8s,&dExpeditionLevelRole9s,&dSysMails)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -14051,6 +14251,11 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.ExpeditionLevelRole9s.load(dExpeditionLevelRole9s)
 		if err != nil {
 			log.Error("ExpeditionLevelRole9s %v", PlayerId)
+			return
+		}
+		err = row.SysMails.load(dSysMails)
+		if err != nil {
+			log.Error("SysMails %v", PlayerId)
 			return
 		}
 		row.m_UniqueId_changed=false
@@ -18555,6 +18760,477 @@ func (this *dbActivitysToDeleteTable) GetRow(Id int32) (row *dbActivitysToDelete
 	}
 	return row
 }
+func (this *dbSysMailRow)GetTableId( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbSysMailRow.GetdbSysMailTableIdColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_TableId)
+}
+func (this *dbSysMailRow)SetTableId(v int32){
+	this.m_lock.UnSafeLock("dbSysMailRow.SetdbSysMailTableIdColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_TableId=int32(v)
+	this.m_TableId_changed=true
+	return
+}
+func (this *dbSysMailRow)GetAttachedItems( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbSysMailRow.GetdbSysMailAttachedItemsColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_AttachedItems)
+}
+func (this *dbSysMailRow)SetAttachedItems(v int32){
+	this.m_lock.UnSafeLock("dbSysMailRow.SetdbSysMailAttachedItemsColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_AttachedItems=int32(v)
+	this.m_AttachedItems_changed=true
+	return
+}
+func (this *dbSysMailRow)GetSendTime( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbSysMailRow.GetdbSysMailSendTimeColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_SendTime)
+}
+func (this *dbSysMailRow)SetSendTime(v int32){
+	this.m_lock.UnSafeLock("dbSysMailRow.SetdbSysMailSendTimeColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_SendTime=int32(v)
+	this.m_SendTime_changed=true
+	return
+}
+type dbSysMailRow struct {
+	m_table *dbSysMailTable
+	m_lock       *RWMutex
+	m_loaded  bool
+	m_new     bool
+	m_remove  bool
+	m_touch      int32
+	m_releasable bool
+	m_valid   bool
+	m_Id        int32
+	m_TableId_changed bool
+	m_TableId int32
+	m_AttachedItems_changed bool
+	m_AttachedItems int32
+	m_SendTime_changed bool
+	m_SendTime int32
+}
+func new_dbSysMailRow(table *dbSysMailTable, Id int32) (r *dbSysMailRow) {
+	this := &dbSysMailRow{}
+	this.m_table = table
+	this.m_Id = Id
+	this.m_lock = NewRWMutex()
+	this.m_TableId_changed=true
+	this.m_AttachedItems_changed=true
+	this.m_SendTime_changed=true
+	return this
+}
+func (this *dbSysMailRow) GetId() (r int32) {
+	return this.m_Id
+}
+func (this *dbSysMailRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbSysMailRow.save_data")
+	defer this.m_lock.UnSafeUnlock()
+	if this.m_new {
+		db_args:=new_db_args(4)
+		db_args.Push(this.m_Id)
+		db_args.Push(this.m_TableId)
+		db_args.Push(this.m_AttachedItems)
+		db_args.Push(this.m_SendTime)
+		args=db_args.GetArgs()
+		state = 1
+	} else {
+		if this.m_TableId_changed||this.m_AttachedItems_changed||this.m_SendTime_changed{
+			update_string = "UPDATE SysMails SET "
+			db_args:=new_db_args(4)
+			if this.m_TableId_changed{
+				update_string+="TableId=?,"
+				db_args.Push(this.m_TableId)
+			}
+			if this.m_AttachedItems_changed{
+				update_string+="AttachedItems=?,"
+				db_args.Push(this.m_AttachedItems)
+			}
+			if this.m_SendTime_changed{
+				update_string+="SendTime=?,"
+				db_args.Push(this.m_SendTime)
+			}
+			update_string = strings.TrimRight(update_string, ", ")
+			update_string+=" WHERE Id=?"
+			db_args.Push(this.m_Id)
+			args=db_args.GetArgs()
+			state = 2
+		}
+	}
+	this.m_new = false
+	this.m_TableId_changed = false
+	this.m_AttachedItems_changed = false
+	this.m_SendTime_changed = false
+	if release && this.m_loaded {
+		atomic.AddInt32(&this.m_table.m_gc_n, -1)
+		this.m_loaded = false
+		released = true
+	}
+	return nil,released,state,update_string,args
+}
+func (this *dbSysMailRow) Save(release bool) (err error, d bool, released bool) {
+	err,released, state, update_string, args := this.save_data(release)
+	if err != nil {
+		log.Error("save data failed")
+		return err, false, false
+	}
+	if state == 0 {
+		d = false
+	} else if state == 1 {
+		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
+		if err != nil {
+			log.Error("INSERT SysMails exec failed %v ", this.m_Id)
+			return err, false, released
+		}
+		d = true
+	} else if state == 2 {
+		_, err = this.m_table.m_dbc.Exec(update_string, args...)
+		if err != nil {
+			log.Error("UPDATE SysMails exec failed %v", this.m_Id)
+			return err, false, released
+		}
+		d = true
+	}
+	return nil, d, released
+}
+func (this *dbSysMailRow) Touch(releasable bool) {
+	this.m_touch = int32(time.Now().Unix())
+	this.m_releasable = releasable
+}
+type dbSysMailRowSort struct {
+	rows []*dbSysMailRow
+}
+func (this *dbSysMailRowSort) Len() (length int) {
+	return len(this.rows)
+}
+func (this *dbSysMailRowSort) Less(i int, j int) (less bool) {
+	return this.rows[i].m_touch < this.rows[j].m_touch
+}
+func (this *dbSysMailRowSort) Swap(i int, j int) {
+	temp := this.rows[i]
+	this.rows[i] = this.rows[j]
+	this.rows[j] = temp
+}
+type dbSysMailTable struct{
+	m_dbc *DBC
+	m_lock *RWMutex
+	m_rows map[int32]*dbSysMailRow
+	m_new_rows map[int32]*dbSysMailRow
+	m_removed_rows map[int32]*dbSysMailRow
+	m_gc_n int32
+	m_gcing int32
+	m_pool_size int32
+	m_preload_select_stmt *sql.Stmt
+	m_preload_max_id int32
+	m_save_insert_stmt *sql.Stmt
+	m_delete_stmt *sql.Stmt
+	m_max_id int32
+	m_max_id_changed bool
+}
+func new_dbSysMailTable(dbc *DBC) (this *dbSysMailTable) {
+	this = &dbSysMailTable{}
+	this.m_dbc = dbc
+	this.m_lock = NewRWMutex()
+	this.m_rows = make(map[int32]*dbSysMailRow)
+	this.m_new_rows = make(map[int32]*dbSysMailRow)
+	this.m_removed_rows = make(map[int32]*dbSysMailRow)
+	return this
+}
+func (this *dbSysMailTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS SysMailsMaxId(PlaceHolder int(11),MaxId int(11),PRIMARY KEY (PlaceHolder))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS SysMailsMaxId failed")
+		return
+	}
+	r := this.m_dbc.QueryRow("SELECT Count(*) FROM SysMailsMaxId WHERE PlaceHolder=0")
+	if r != nil {
+		var count int32
+		err = r.Scan(&count)
+		if err != nil {
+			log.Error("scan count failed")
+			return
+		}
+		if count == 0 {
+		_, err = this.m_dbc.Exec("INSERT INTO SysMailsMaxId (PlaceHolder,MaxId) VALUES (0,0)")
+			if err != nil {
+				log.Error("INSERTSysMailsMaxId failed")
+				return
+			}
+		}
+	}
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS SysMails(Id int(11),PRIMARY KEY (Id))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS SysMails failed")
+		return
+	}
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='SysMails'", this.m_dbc.m_db_name)
+	if err != nil {
+		log.Error("SELECT information_schema failed")
+		return
+	}
+	columns := make(map[string]int32)
+	for rows.Next() {
+		var column_name string
+		var ordinal_position int32
+		err = rows.Scan(&column_name, &ordinal_position)
+		if err != nil {
+			log.Error("scan information_schema row failed")
+			return
+		}
+		if ordinal_position < 1 {
+			log.Error("col ordinal out of range")
+			continue
+		}
+		columns[column_name] = ordinal_position
+	}
+	_, hasTableId := columns["TableId"]
+	if !hasTableId {
+		_, err = this.m_dbc.Exec("ALTER TABLE SysMails ADD COLUMN TableId int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN TableId failed")
+			return
+		}
+	}
+	_, hasAttachedItems := columns["AttachedItems"]
+	if !hasAttachedItems {
+		_, err = this.m_dbc.Exec("ALTER TABLE SysMails ADD COLUMN AttachedItems int(11) DEFAULT ")
+		if err != nil {
+			log.Error("ADD COLUMN AttachedItems failed")
+			return
+		}
+	}
+	_, hasSendTime := columns["SendTime"]
+	if !hasSendTime {
+		_, err = this.m_dbc.Exec("ALTER TABLE SysMails ADD COLUMN SendTime int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN SendTime failed")
+			return
+		}
+	}
+	return
+}
+func (this *dbSysMailTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,TableId,AttachedItems,SendTime FROM SysMails")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbSysMailTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO SysMails (Id,TableId,AttachedItems,SendTime) VALUES (?,?,?,?)")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbSysMailTable) prepare_delete_stmt() (err error) {
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM SysMails WHERE Id=?")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbSysMailTable) Init() (err error) {
+	err=this.check_create_table()
+	if err!=nil{
+		log.Error("check_create_table failed")
+		return
+	}
+	err=this.prepare_preload_select_stmt()
+	if err!=nil{
+		log.Error("prepare_preload_select_stmt failed")
+		return
+	}
+	err=this.prepare_save_insert_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	err=this.prepare_delete_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	return
+}
+func (this *dbSysMailTable) Preload() (err error) {
+	r_max_id := this.m_dbc.QueryRow("SELECT MaxId FROM SysMailsMaxId WHERE PLACEHOLDER=0")
+	if r_max_id != nil {
+		err = r_max_id.Scan(&this.m_max_id)
+		if err != nil {
+			log.Error("scan max id failed")
+			return
+		}
+	}
+	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
+	if err != nil {
+		log.Error("SELECT")
+		return
+	}
+	var Id int32
+	var dTableId int32
+	var dAttachedItems int32
+	var dSendTime int32
+	for r.Next() {
+		err = r.Scan(&Id,&dTableId,&dAttachedItems,&dSendTime)
+		if err != nil {
+			log.Error("Scan err[%v]", err.Error())
+			return
+		}
+		if Id>this.m_max_id{
+			log.Error("max id ext")
+			this.m_max_id = Id
+			this.m_max_id_changed = true
+		}
+		row := new_dbSysMailRow(this,Id)
+		row.m_TableId=dTableId
+		row.m_AttachedItems=dAttachedItems
+		row.m_SendTime=dSendTime
+		row.m_TableId_changed=false
+		row.m_AttachedItems_changed=false
+		row.m_SendTime_changed=false
+		row.m_valid = true
+		this.m_rows[Id]=row
+	}
+	return
+}
+func (this *dbSysMailTable) GetPreloadedMaxId() (max_id int32) {
+	return this.m_preload_max_id
+}
+func (this *dbSysMailTable) fetch_rows(rows map[int32]*dbSysMailRow) (r map[int32]*dbSysMailRow) {
+	this.m_lock.UnSafeLock("dbSysMailTable.fetch_rows")
+	defer this.m_lock.UnSafeUnlock()
+	r = make(map[int32]*dbSysMailRow)
+	for i, v := range rows {
+		r[i] = v
+	}
+	return r
+}
+func (this *dbSysMailTable) fetch_new_rows() (new_rows map[int32]*dbSysMailRow) {
+	this.m_lock.UnSafeLock("dbSysMailTable.fetch_new_rows")
+	defer this.m_lock.UnSafeUnlock()
+	new_rows = make(map[int32]*dbSysMailRow)
+	for i, v := range this.m_new_rows {
+		_, has := this.m_rows[i]
+		if has {
+			log.Error("rows already has new rows %v", i)
+			continue
+		}
+		this.m_rows[i] = v
+		new_rows[i] = v
+	}
+	for i, _ := range new_rows {
+		delete(this.m_new_rows, i)
+	}
+	return
+}
+func (this *dbSysMailTable) save_rows(rows map[int32]*dbSysMailRow, quick bool) {
+	for _, v := range rows {
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		err, delay, _ := v.Save(false)
+		if err != nil {
+			log.Error("save failed %v", err)
+		}
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		if delay&&!quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+}
+func (this *dbSysMailTable) Save(quick bool) (err error){
+	if this.m_max_id_changed {
+		max_id := atomic.LoadInt32(&this.m_max_id)
+		_, err := this.m_dbc.Exec("UPDATE SysMailsMaxId SET MaxId=?", max_id)
+		if err != nil {
+			log.Error("save max id failed %v", err)
+		}
+	}
+	removed_rows := this.fetch_rows(this.m_removed_rows)
+	for _, v := range removed_rows {
+		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetId())
+		if err != nil {
+			log.Error("exec delete stmt failed %v", err)
+		}
+		v.m_valid = false
+		if !quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+	this.m_removed_rows = make(map[int32]*dbSysMailRow)
+	rows := this.fetch_rows(this.m_rows)
+	this.save_rows(rows, quick)
+	new_rows := this.fetch_new_rows()
+	this.save_rows(new_rows, quick)
+	return
+}
+func (this *dbSysMailTable) AddRow() (row *dbSysMailRow) {
+	this.m_lock.UnSafeLock("dbSysMailTable.AddRow")
+	defer this.m_lock.UnSafeUnlock()
+	Id := atomic.AddInt32(&this.m_max_id, 1)
+	this.m_max_id_changed = true
+	row = new_dbSysMailRow(this,Id)
+	row.m_new = true
+	row.m_loaded = true
+	row.m_valid = true
+	this.m_new_rows[Id] = row
+	atomic.AddInt32(&this.m_gc_n,1)
+	return row
+}
+func (this *dbSysMailTable) RemoveRow(Id int32) {
+	this.m_lock.UnSafeLock("dbSysMailTable.RemoveRow")
+	defer this.m_lock.UnSafeUnlock()
+	row := this.m_rows[Id]
+	if row != nil {
+		row.m_remove = true
+		delete(this.m_rows, Id)
+		rm_row := this.m_removed_rows[Id]
+		if rm_row != nil {
+			log.Error("rows and removed rows both has %v", Id)
+		}
+		this.m_removed_rows[Id] = row
+		_, has_new := this.m_new_rows[Id]
+		if has_new {
+			delete(this.m_new_rows, Id)
+			log.Error("rows and new_rows both has %v", Id)
+		}
+	} else {
+		row = this.m_removed_rows[Id]
+		if row == nil {
+			_, has_new := this.m_new_rows[Id]
+			if has_new {
+				delete(this.m_new_rows, Id)
+			} else {
+				log.Error("row not exist %v", Id)
+			}
+		} else {
+			log.Error("already removed %v", Id)
+			_, has_new := this.m_new_rows[Id]
+			if has_new {
+				delete(this.m_new_rows, Id)
+				log.Error("removed rows and new_rows both has %v", Id)
+			}
+		}
+	}
+}
+func (this *dbSysMailTable) GetRow(Id int32) (row *dbSysMailRow) {
+	this.m_lock.UnSafeRLock("dbSysMailTable.GetRow")
+	defer this.m_lock.UnSafeRUnlock()
+	row = this.m_rows[Id]
+	if row == nil {
+		row = this.m_new_rows[Id]
+	}
+	return row
+}
 func (this *dbGooglePayRecordRow)GetSn( )(r string ){
 	this.m_lock.UnSafeRLock("dbGooglePayRecordRow.GetdbGooglePayRecordSnColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -20286,754 +20962,6 @@ func (this *dbFaceBPayRecordTable) GC() {
 	}
 	return
 }
-func (this *dbServerInfoRow)GetCreateUnix( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbServerInfoRow.GetdbServerInfoCreateUnixColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_CreateUnix)
-}
-func (this *dbServerInfoRow)SetCreateUnix(v int32){
-	this.m_lock.UnSafeLock("dbServerInfoRow.SetdbServerInfoCreateUnixColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_CreateUnix=int32(v)
-	this.m_CreateUnix_changed=true
-	return
-}
-func (this *dbServerInfoRow)GetCurStartUnix( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbServerInfoRow.GetdbServerInfoCurStartUnixColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_CurStartUnix)
-}
-func (this *dbServerInfoRow)SetCurStartUnix(v int32){
-	this.m_lock.UnSafeLock("dbServerInfoRow.SetdbServerInfoCurStartUnixColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_CurStartUnix=int32(v)
-	this.m_CurStartUnix_changed=true
-	return
-}
-type dbServerInfoRow struct {
-	m_table *dbServerInfoTable
-	m_lock       *RWMutex
-	m_loaded  bool
-	m_new     bool
-	m_remove  bool
-	m_touch      int32
-	m_releasable bool
-	m_valid   bool
-	m_KeyId        int32
-	m_CreateUnix_changed bool
-	m_CreateUnix int32
-	m_CurStartUnix_changed bool
-	m_CurStartUnix int32
-}
-func new_dbServerInfoRow(table *dbServerInfoTable, KeyId int32) (r *dbServerInfoRow) {
-	this := &dbServerInfoRow{}
-	this.m_table = table
-	this.m_KeyId = KeyId
-	this.m_lock = NewRWMutex()
-	this.m_CreateUnix_changed=true
-	this.m_CurStartUnix_changed=true
-	return this
-}
-func (this *dbServerInfoRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
-	this.m_lock.UnSafeLock("dbServerInfoRow.save_data")
-	defer this.m_lock.UnSafeUnlock()
-	if this.m_new {
-		db_args:=new_db_args(3)
-		db_args.Push(this.m_KeyId)
-		db_args.Push(this.m_CreateUnix)
-		db_args.Push(this.m_CurStartUnix)
-		args=db_args.GetArgs()
-		state = 1
-	} else {
-		if this.m_CreateUnix_changed||this.m_CurStartUnix_changed{
-			update_string = "UPDATE ServerInfo SET "
-			db_args:=new_db_args(3)
-			if this.m_CreateUnix_changed{
-				update_string+="CreateUnix=?,"
-				db_args.Push(this.m_CreateUnix)
-			}
-			if this.m_CurStartUnix_changed{
-				update_string+="CurStartUnix=?,"
-				db_args.Push(this.m_CurStartUnix)
-			}
-			update_string = strings.TrimRight(update_string, ", ")
-			update_string+=" WHERE KeyId=?"
-			db_args.Push(this.m_KeyId)
-			args=db_args.GetArgs()
-			state = 2
-		}
-	}
-	this.m_new = false
-	this.m_CreateUnix_changed = false
-	this.m_CurStartUnix_changed = false
-	if release && this.m_loaded {
-		this.m_loaded = false
-		released = true
-	}
-	return nil,released,state,update_string,args
-}
-func (this *dbServerInfoRow) Save(release bool) (err error, d bool, released bool) {
-	err,released, state, update_string, args := this.save_data(release)
-	if err != nil {
-		log.Error("save data failed")
-		return err, false, false
-	}
-	if state == 0 {
-		d = false
-	} else if state == 1 {
-		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
-		if err != nil {
-			log.Error("INSERT ServerInfo exec failed %v ", this.m_KeyId)
-			return err, false, released
-		}
-		d = true
-	} else if state == 2 {
-		_, err = this.m_table.m_dbc.Exec(update_string, args...)
-		if err != nil {
-			log.Error("UPDATE ServerInfo exec failed %v", this.m_KeyId)
-			return err, false, released
-		}
-		d = true
-	}
-	return nil, d, released
-}
-type dbServerInfoTable struct{
-	m_dbc *DBC
-	m_lock *RWMutex
-	m_row *dbServerInfoRow
-	m_preload_select_stmt *sql.Stmt
-	m_save_insert_stmt *sql.Stmt
-}
-func new_dbServerInfoTable(dbc *DBC) (this *dbServerInfoTable) {
-	this = &dbServerInfoTable{}
-	this.m_dbc = dbc
-	this.m_lock = NewRWMutex()
-	return this
-}
-func (this *dbServerInfoTable) check_create_table() (err error) {
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS ServerInfo(KeyId int(11),PRIMARY KEY (KeyId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
-	if err != nil {
-		log.Error("CREATE TABLE IF NOT EXISTS ServerInfo failed")
-		return
-	}
-	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='ServerInfo'", this.m_dbc.m_db_name)
-	if err != nil {
-		log.Error("SELECT information_schema failed")
-		return
-	}
-	columns := make(map[string]int32)
-	for rows.Next() {
-		var column_name string
-		var ordinal_position int32
-		err = rows.Scan(&column_name, &ordinal_position)
-		if err != nil {
-			log.Error("scan information_schema row failed")
-			return
-		}
-		if ordinal_position < 1 {
-			log.Error("col ordinal out of range")
-			continue
-		}
-		columns[column_name] = ordinal_position
-	}
-	_, hasCreateUnix := columns["CreateUnix"]
-	if !hasCreateUnix {
-		_, err = this.m_dbc.Exec("ALTER TABLE ServerInfo ADD COLUMN CreateUnix int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN CreateUnix failed")
-			return
-		}
-	}
-	_, hasCurStartUnix := columns["CurStartUnix"]
-	if !hasCurStartUnix {
-		_, err = this.m_dbc.Exec("ALTER TABLE ServerInfo ADD COLUMN CurStartUnix int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN CurStartUnix failed")
-			return
-		}
-	}
-	return
-}
-func (this *dbServerInfoTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT CreateUnix,CurStartUnix FROM ServerInfo WHERE KeyId=0")
-	if err!=nil{
-		log.Error("prepare failed")
-		return
-	}
-	return
-}
-func (this *dbServerInfoTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO ServerInfo (KeyId,CreateUnix,CurStartUnix) VALUES (?,?,?)")
-	if err!=nil{
-		log.Error("prepare failed")
-		return
-	}
-	return
-}
-func (this *dbServerInfoTable) Init() (err error) {
-	err=this.check_create_table()
-	if err!=nil{
-		log.Error("check_create_table failed")
-		return
-	}
-	err=this.prepare_preload_select_stmt()
-	if err!=nil{
-		log.Error("prepare_preload_select_stmt failed")
-		return
-	}
-	err=this.prepare_save_insert_stmt()
-	if err!=nil{
-		log.Error("prepare_save_insert_stmt failed")
-		return
-	}
-	return
-}
-func (this *dbServerInfoTable) Preload() (err error) {
-	r := this.m_dbc.StmtQueryRow(this.m_preload_select_stmt)
-	var dCreateUnix int32
-	var dCurStartUnix int32
-	err = r.Scan(&dCreateUnix,&dCurStartUnix)
-	if err!=nil{
-		if err!=sql.ErrNoRows{
-			log.Error("Scan failed")
-			return
-		}
-	}else{
-		row := new_dbServerInfoRow(this,0)
-		row.m_CreateUnix=dCreateUnix
-		row.m_CurStartUnix=dCurStartUnix
-		row.m_CreateUnix_changed=false
-		row.m_CurStartUnix_changed=false
-		row.m_valid = true
-		row.m_loaded=true
-		this.m_row=row
-	}
-	if this.m_row == nil {
-		this.m_row = new_dbServerInfoRow(this, 0)
-		this.m_row.m_new = true
-		this.m_row.m_valid = true
-		err = this.Save(false)
-		if err != nil {
-			log.Error("save failed")
-			return
-		}
-		this.m_row.m_loaded = true
-	}
-	return
-}
-func (this *dbServerInfoTable) Save(quick bool) (err error) {
-	if this.m_row==nil{
-		return errors.New("row nil")
-	}
-	err, _, _ = this.m_row.Save(false)
-	return err
-}
-func (this *dbServerInfoTable) GetRow( ) (row *dbServerInfoRow) {
-	return this.m_row
-}
-func (this *dbPlayerLoginRow)GetPlayerAccount( )(r string ){
-	this.m_lock.UnSafeRLock("dbPlayerLoginRow.GetdbPlayerLoginPlayerAccountColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_PlayerAccount)
-}
-func (this *dbPlayerLoginRow)SetPlayerAccount(v string){
-	this.m_lock.UnSafeLock("dbPlayerLoginRow.SetdbPlayerLoginPlayerAccountColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_PlayerAccount=string(v)
-	this.m_PlayerAccount_changed=true
-	return
-}
-func (this *dbPlayerLoginRow)GetPlayerId( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerLoginRow.GetdbPlayerLoginPlayerIdColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_PlayerId)
-}
-func (this *dbPlayerLoginRow)SetPlayerId(v int32){
-	this.m_lock.UnSafeLock("dbPlayerLoginRow.SetdbPlayerLoginPlayerIdColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_PlayerId=int32(v)
-	this.m_PlayerId_changed=true
-	return
-}
-func (this *dbPlayerLoginRow)GetPlayerName( )(r string ){
-	this.m_lock.UnSafeRLock("dbPlayerLoginRow.GetdbPlayerLoginPlayerNameColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_PlayerName)
-}
-func (this *dbPlayerLoginRow)SetPlayerName(v string){
-	this.m_lock.UnSafeLock("dbPlayerLoginRow.SetdbPlayerLoginPlayerNameColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_PlayerName=string(v)
-	this.m_PlayerName_changed=true
-	return
-}
-func (this *dbPlayerLoginRow)GetLoginTime( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerLoginRow.GetdbPlayerLoginLoginTimeColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_LoginTime)
-}
-func (this *dbPlayerLoginRow)SetLoginTime(v int32){
-	this.m_lock.UnSafeLock("dbPlayerLoginRow.SetdbPlayerLoginLoginTimeColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_LoginTime=int32(v)
-	this.m_LoginTime_changed=true
-	return
-}
-type dbPlayerLoginRow struct {
-	m_table *dbPlayerLoginTable
-	m_lock       *RWMutex
-	m_loaded  bool
-	m_new     bool
-	m_remove  bool
-	m_touch      int32
-	m_releasable bool
-	m_valid   bool
-	m_KeyId        int32
-	m_PlayerAccount_changed bool
-	m_PlayerAccount string
-	m_PlayerId_changed bool
-	m_PlayerId int32
-	m_PlayerName_changed bool
-	m_PlayerName string
-	m_LoginTime_changed bool
-	m_LoginTime int32
-}
-func new_dbPlayerLoginRow(table *dbPlayerLoginTable, KeyId int32) (r *dbPlayerLoginRow) {
-	this := &dbPlayerLoginRow{}
-	this.m_table = table
-	this.m_KeyId = KeyId
-	this.m_lock = NewRWMutex()
-	this.m_PlayerAccount_changed=true
-	this.m_PlayerId_changed=true
-	this.m_PlayerName_changed=true
-	this.m_LoginTime_changed=true
-	return this
-}
-func (this *dbPlayerLoginRow) GetKeyId() (r int32) {
-	return this.m_KeyId
-}
-func (this *dbPlayerLoginRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
-	this.m_lock.UnSafeLock("dbPlayerLoginRow.save_data")
-	defer this.m_lock.UnSafeUnlock()
-	if this.m_new {
-		db_args:=new_db_args(5)
-		db_args.Push(this.m_KeyId)
-		db_args.Push(this.m_PlayerAccount)
-		db_args.Push(this.m_PlayerId)
-		db_args.Push(this.m_PlayerName)
-		db_args.Push(this.m_LoginTime)
-		args=db_args.GetArgs()
-		state = 1
-	} else {
-		if this.m_PlayerAccount_changed||this.m_PlayerId_changed||this.m_PlayerName_changed||this.m_LoginTime_changed{
-			update_string = "UPDATE PlayerLogins SET "
-			db_args:=new_db_args(5)
-			if this.m_PlayerAccount_changed{
-				update_string+="PlayerAccount=?,"
-				db_args.Push(this.m_PlayerAccount)
-			}
-			if this.m_PlayerId_changed{
-				update_string+="PlayerId=?,"
-				db_args.Push(this.m_PlayerId)
-			}
-			if this.m_PlayerName_changed{
-				update_string+="PlayerName=?,"
-				db_args.Push(this.m_PlayerName)
-			}
-			if this.m_LoginTime_changed{
-				update_string+="LoginTime=?,"
-				db_args.Push(this.m_LoginTime)
-			}
-			update_string = strings.TrimRight(update_string, ", ")
-			update_string+=" WHERE KeyId=?"
-			db_args.Push(this.m_KeyId)
-			args=db_args.GetArgs()
-			state = 2
-		}
-	}
-	this.m_new = false
-	this.m_PlayerAccount_changed = false
-	this.m_PlayerId_changed = false
-	this.m_PlayerName_changed = false
-	this.m_LoginTime_changed = false
-	if release && this.m_loaded {
-		atomic.AddInt32(&this.m_table.m_gc_n, -1)
-		this.m_loaded = false
-		released = true
-	}
-	return nil,released,state,update_string,args
-}
-func (this *dbPlayerLoginRow) Save(release bool) (err error, d bool, released bool) {
-	err,released, state, update_string, args := this.save_data(release)
-	if err != nil {
-		log.Error("save data failed")
-		return err, false, false
-	}
-	if state == 0 {
-		d = false
-	} else if state == 1 {
-		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
-		if err != nil {
-			log.Error("INSERT PlayerLogins exec failed %v ", this.m_KeyId)
-			return err, false, released
-		}
-		d = true
-	} else if state == 2 {
-		_, err = this.m_table.m_dbc.Exec(update_string, args...)
-		if err != nil {
-			log.Error("UPDATE PlayerLogins exec failed %v", this.m_KeyId)
-			return err, false, released
-		}
-		d = true
-	}
-	return nil, d, released
-}
-func (this *dbPlayerLoginRow) Touch(releasable bool) {
-	this.m_touch = int32(time.Now().Unix())
-	this.m_releasable = releasable
-}
-type dbPlayerLoginRowSort struct {
-	rows []*dbPlayerLoginRow
-}
-func (this *dbPlayerLoginRowSort) Len() (length int) {
-	return len(this.rows)
-}
-func (this *dbPlayerLoginRowSort) Less(i int, j int) (less bool) {
-	return this.rows[i].m_touch < this.rows[j].m_touch
-}
-func (this *dbPlayerLoginRowSort) Swap(i int, j int) {
-	temp := this.rows[i]
-	this.rows[i] = this.rows[j]
-	this.rows[j] = temp
-}
-type dbPlayerLoginTable struct{
-	m_dbc *DBC
-	m_lock *RWMutex
-	m_rows map[int32]*dbPlayerLoginRow
-	m_new_rows map[int32]*dbPlayerLoginRow
-	m_removed_rows map[int32]*dbPlayerLoginRow
-	m_gc_n int32
-	m_gcing int32
-	m_pool_size int32
-	m_preload_select_stmt *sql.Stmt
-	m_preload_max_id int32
-	m_save_insert_stmt *sql.Stmt
-	m_delete_stmt *sql.Stmt
-	m_max_id int32
-	m_max_id_changed bool
-}
-func new_dbPlayerLoginTable(dbc *DBC) (this *dbPlayerLoginTable) {
-	this = &dbPlayerLoginTable{}
-	this.m_dbc = dbc
-	this.m_lock = NewRWMutex()
-	this.m_rows = make(map[int32]*dbPlayerLoginRow)
-	this.m_new_rows = make(map[int32]*dbPlayerLoginRow)
-	this.m_removed_rows = make(map[int32]*dbPlayerLoginRow)
-	return this
-}
-func (this *dbPlayerLoginTable) check_create_table() (err error) {
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS PlayerLoginsMaxId(PlaceHolder int(11),MaxKeyId int(11),PRIMARY KEY (PlaceHolder))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
-	if err != nil {
-		log.Error("CREATE TABLE IF NOT EXISTS PlayerLoginsMaxId failed")
-		return
-	}
-	r := this.m_dbc.QueryRow("SELECT Count(*) FROM PlayerLoginsMaxId WHERE PlaceHolder=0")
-	if r != nil {
-		var count int32
-		err = r.Scan(&count)
-		if err != nil {
-			log.Error("scan count failed")
-			return
-		}
-		if count == 0 {
-		_, err = this.m_dbc.Exec("INSERT INTO PlayerLoginsMaxId (PlaceHolder,MaxKeyId) VALUES (0,0)")
-			if err != nil {
-				log.Error("INSERTPlayerLoginsMaxId failed")
-				return
-			}
-		}
-	}
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS PlayerLogins(KeyId int(11),PRIMARY KEY (KeyId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
-	if err != nil {
-		log.Error("CREATE TABLE IF NOT EXISTS PlayerLogins failed")
-		return
-	}
-	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='PlayerLogins'", this.m_dbc.m_db_name)
-	if err != nil {
-		log.Error("SELECT information_schema failed")
-		return
-	}
-	columns := make(map[string]int32)
-	for rows.Next() {
-		var column_name string
-		var ordinal_position int32
-		err = rows.Scan(&column_name, &ordinal_position)
-		if err != nil {
-			log.Error("scan information_schema row failed")
-			return
-		}
-		if ordinal_position < 1 {
-			log.Error("col ordinal out of range")
-			continue
-		}
-		columns[column_name] = ordinal_position
-	}
-	_, hasPlayerAccount := columns["PlayerAccount"]
-	if !hasPlayerAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerLogins ADD COLUMN PlayerAccount varchar(45)")
-		if err != nil {
-			log.Error("ADD COLUMN PlayerAccount failed")
-			return
-		}
-	}
-	_, hasPlayerId := columns["PlayerId"]
-	if !hasPlayerId {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerLogins ADD COLUMN PlayerId int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN PlayerId failed")
-			return
-		}
-	}
-	_, hasPlayerName := columns["PlayerName"]
-	if !hasPlayerName {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerLogins ADD COLUMN PlayerName varchar(45)")
-		if err != nil {
-			log.Error("ADD COLUMN PlayerName failed")
-			return
-		}
-	}
-	_, hasLoginTime := columns["LoginTime"]
-	if !hasLoginTime {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerLogins ADD COLUMN LoginTime int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN LoginTime failed")
-			return
-		}
-	}
-	return
-}
-func (this *dbPlayerLoginTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT KeyId,PlayerAccount,PlayerId,PlayerName,LoginTime FROM PlayerLogins")
-	if err!=nil{
-		log.Error("prepare failed")
-		return
-	}
-	return
-}
-func (this *dbPlayerLoginTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO PlayerLogins (KeyId,PlayerAccount,PlayerId,PlayerName,LoginTime) VALUES (?,?,?,?,?)")
-	if err!=nil{
-		log.Error("prepare failed")
-		return
-	}
-	return
-}
-func (this *dbPlayerLoginTable) prepare_delete_stmt() (err error) {
-	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM PlayerLogins WHERE KeyId=?")
-	if err!=nil{
-		log.Error("prepare failed")
-		return
-	}
-	return
-}
-func (this *dbPlayerLoginTable) Init() (err error) {
-	err=this.check_create_table()
-	if err!=nil{
-		log.Error("check_create_table failed")
-		return
-	}
-	err=this.prepare_preload_select_stmt()
-	if err!=nil{
-		log.Error("prepare_preload_select_stmt failed")
-		return
-	}
-	err=this.prepare_save_insert_stmt()
-	if err!=nil{
-		log.Error("prepare_save_insert_stmt failed")
-		return
-	}
-	err=this.prepare_delete_stmt()
-	if err!=nil{
-		log.Error("prepare_save_insert_stmt failed")
-		return
-	}
-	return
-}
-func (this *dbPlayerLoginTable) Preload() (err error) {
-	r_max_id := this.m_dbc.QueryRow("SELECT MaxKeyId FROM PlayerLoginsMaxId WHERE PLACEHOLDER=0")
-	if r_max_id != nil {
-		err = r_max_id.Scan(&this.m_max_id)
-		if err != nil {
-			log.Error("scan max id failed")
-			return
-		}
-	}
-	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
-	if err != nil {
-		log.Error("SELECT")
-		return
-	}
-	var KeyId int32
-	var dPlayerAccount string
-	var dPlayerId int32
-	var dPlayerName string
-	var dLoginTime int32
-	for r.Next() {
-		err = r.Scan(&KeyId,&dPlayerAccount,&dPlayerId,&dPlayerName,&dLoginTime)
-		if err != nil {
-			log.Error("Scan err[%v]", err.Error())
-			return
-		}
-		if KeyId>this.m_max_id{
-			log.Error("max id ext")
-			this.m_max_id = KeyId
-			this.m_max_id_changed = true
-		}
-		row := new_dbPlayerLoginRow(this,KeyId)
-		row.m_PlayerAccount=dPlayerAccount
-		row.m_PlayerId=dPlayerId
-		row.m_PlayerName=dPlayerName
-		row.m_LoginTime=dLoginTime
-		row.m_PlayerAccount_changed=false
-		row.m_PlayerId_changed=false
-		row.m_PlayerName_changed=false
-		row.m_LoginTime_changed=false
-		row.m_valid = true
-		this.m_rows[KeyId]=row
-	}
-	return
-}
-func (this *dbPlayerLoginTable) GetPreloadedMaxId() (max_id int32) {
-	return this.m_preload_max_id
-}
-func (this *dbPlayerLoginTable) fetch_rows(rows map[int32]*dbPlayerLoginRow) (r map[int32]*dbPlayerLoginRow) {
-	this.m_lock.UnSafeLock("dbPlayerLoginTable.fetch_rows")
-	defer this.m_lock.UnSafeUnlock()
-	r = make(map[int32]*dbPlayerLoginRow)
-	for i, v := range rows {
-		r[i] = v
-	}
-	return r
-}
-func (this *dbPlayerLoginTable) fetch_new_rows() (new_rows map[int32]*dbPlayerLoginRow) {
-	this.m_lock.UnSafeLock("dbPlayerLoginTable.fetch_new_rows")
-	defer this.m_lock.UnSafeUnlock()
-	new_rows = make(map[int32]*dbPlayerLoginRow)
-	for i, v := range this.m_new_rows {
-		_, has := this.m_rows[i]
-		if has {
-			log.Error("rows already has new rows %v", i)
-			continue
-		}
-		this.m_rows[i] = v
-		new_rows[i] = v
-	}
-	for i, _ := range new_rows {
-		delete(this.m_new_rows, i)
-	}
-	return
-}
-func (this *dbPlayerLoginTable) save_rows(rows map[int32]*dbPlayerLoginRow, quick bool) {
-	for _, v := range rows {
-		if this.m_dbc.m_quit && !quick {
-			return
-		}
-		err, delay, _ := v.Save(false)
-		if err != nil {
-			log.Error("save failed %v", err)
-		}
-		if this.m_dbc.m_quit && !quick {
-			return
-		}
-		if delay&&!quick {
-			time.Sleep(time.Millisecond * 5)
-		}
-	}
-}
-func (this *dbPlayerLoginTable) Save(quick bool) (err error){
-	if this.m_max_id_changed {
-		max_id := atomic.LoadInt32(&this.m_max_id)
-		_, err := this.m_dbc.Exec("UPDATE PlayerLoginsMaxId SET MaxKeyId=?", max_id)
-		if err != nil {
-			log.Error("save max id failed %v", err)
-		}
-	}
-	removed_rows := this.fetch_rows(this.m_removed_rows)
-	for _, v := range removed_rows {
-		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetKeyId())
-		if err != nil {
-			log.Error("exec delete stmt failed %v", err)
-		}
-		v.m_valid = false
-		if !quick {
-			time.Sleep(time.Millisecond * 5)
-		}
-	}
-	this.m_removed_rows = make(map[int32]*dbPlayerLoginRow)
-	rows := this.fetch_rows(this.m_rows)
-	this.save_rows(rows, quick)
-	new_rows := this.fetch_new_rows()
-	this.save_rows(new_rows, quick)
-	return
-}
-func (this *dbPlayerLoginTable) AddRow() (row *dbPlayerLoginRow) {
-	this.m_lock.UnSafeLock("dbPlayerLoginTable.AddRow")
-	defer this.m_lock.UnSafeUnlock()
-	KeyId := atomic.AddInt32(&this.m_max_id, 1)
-	this.m_max_id_changed = true
-	row = new_dbPlayerLoginRow(this,KeyId)
-	row.m_new = true
-	row.m_loaded = true
-	row.m_valid = true
-	this.m_new_rows[KeyId] = row
-	atomic.AddInt32(&this.m_gc_n,1)
-	return row
-}
-func (this *dbPlayerLoginTable) RemoveRow(KeyId int32) {
-	this.m_lock.UnSafeLock("dbPlayerLoginTable.RemoveRow")
-	defer this.m_lock.UnSafeUnlock()
-	row := this.m_rows[KeyId]
-	if row != nil {
-		row.m_remove = true
-		delete(this.m_rows, KeyId)
-		rm_row := this.m_removed_rows[KeyId]
-		if rm_row != nil {
-			log.Error("rows and removed rows both has %v", KeyId)
-		}
-		this.m_removed_rows[KeyId] = row
-		_, has_new := this.m_new_rows[KeyId]
-		if has_new {
-			delete(this.m_new_rows, KeyId)
-			log.Error("rows and new_rows both has %v", KeyId)
-		}
-	} else {
-		row = this.m_removed_rows[KeyId]
-		if row == nil {
-			_, has_new := this.m_new_rows[KeyId]
-			if has_new {
-				delete(this.m_new_rows, KeyId)
-			} else {
-				log.Error("row not exist %v", KeyId)
-			}
-		} else {
-			log.Error("already removed %v", KeyId)
-			_, has_new := this.m_new_rows[KeyId]
-			if has_new {
-				delete(this.m_new_rows, KeyId)
-				log.Error("removed rows and new_rows both has %v", KeyId)
-			}
-		}
-	}
-}
-func (this *dbPlayerLoginTable) GetRow(KeyId int32) (row *dbPlayerLoginRow) {
-	this.m_lock.UnSafeRLock("dbPlayerLoginTable.GetRow")
-	defer this.m_lock.UnSafeRUnlock()
-	row = this.m_rows[KeyId]
-	if row == nil {
-		row = this.m_new_rows[KeyId]
-	}
-	return row
-}
 func (this *dbOtherServerPlayerRow)GetAccount( )(r string ){
 	this.m_lock.UnSafeRLock("dbOtherServerPlayerRow.GetdbOtherServerPlayerAccountColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -21524,11 +21452,10 @@ type DBC struct {
 	Guilds *dbGuildTable
 	GuildStages *dbGuildStageTable
 	ActivitysToDeletes *dbActivitysToDeleteTable
+	SysMails *dbSysMailTable
 	GooglePayRecords *dbGooglePayRecordTable
 	ApplePayRecords *dbApplePayRecordTable
 	FaceBPayRecords *dbFaceBPayRecordTable
-	ServerInfo *dbServerInfoTable
-	PlayerLogins *dbPlayerLoginTable
 	OtherServerPlayers *dbOtherServerPlayerTable
 }
 func (this *DBC)init_tables()(err error){
@@ -21586,6 +21513,12 @@ func (this *DBC)init_tables()(err error){
 		log.Error("init ActivitysToDeletes table failed")
 		return
 	}
+	this.SysMails = new_dbSysMailTable(this)
+	err = this.SysMails.Init()
+	if err != nil {
+		log.Error("init SysMails table failed")
+		return
+	}
 	this.GooglePayRecords = new_dbGooglePayRecordTable(this)
 	err = this.GooglePayRecords.Init()
 	if err != nil {
@@ -21602,18 +21535,6 @@ func (this *DBC)init_tables()(err error){
 	err = this.FaceBPayRecords.Init()
 	if err != nil {
 		log.Error("init FaceBPayRecords table failed")
-		return
-	}
-	this.ServerInfo = new_dbServerInfoTable(this)
-	err = this.ServerInfo.Init()
-	if err != nil {
-		log.Error("init ServerInfo table failed")
-		return
-	}
-	this.PlayerLogins = new_dbPlayerLoginTable(this)
-	err = this.PlayerLogins.Init()
-	if err != nil {
-		log.Error("init PlayerLogins table failed")
 		return
 	}
 	this.OtherServerPlayers = new_dbOtherServerPlayerTable(this)
@@ -21688,6 +21609,13 @@ func (this *DBC)Preload()(err error){
 	}else{
 		log.Info("preload ActivitysToDeletes table succeed !")
 	}
+	err = this.SysMails.Preload()
+	if err != nil {
+		log.Error("preload SysMails table failed")
+		return
+	}else{
+		log.Info("preload SysMails table succeed !")
+	}
 	err = this.GooglePayRecords.Preload()
 	if err != nil {
 		log.Error("preload GooglePayRecords table failed")
@@ -21708,20 +21636,6 @@ func (this *DBC)Preload()(err error){
 		return
 	}else{
 		log.Info("preload FaceBPayRecords table succeed !")
-	}
-	err = this.ServerInfo.Preload()
-	if err != nil {
-		log.Error("preload ServerInfo table failed")
-		return
-	}else{
-		log.Info("preload ServerInfo table succeed !")
-	}
-	err = this.PlayerLogins.Preload()
-	if err != nil {
-		log.Error("preload PlayerLogins table failed")
-		return
-	}else{
-		log.Info("preload PlayerLogins table succeed !")
 	}
 	err = this.OtherServerPlayers.Preload()
 	if err != nil {
@@ -21788,6 +21702,11 @@ func (this *DBC)Save(quick bool)(err error){
 		log.Error("save ActivitysToDeletes table failed")
 		return
 	}
+	err = this.SysMails.Save(quick)
+	if err != nil {
+		log.Error("save SysMails table failed")
+		return
+	}
 	err = this.GooglePayRecords.Save(quick)
 	if err != nil {
 		log.Error("save GooglePayRecords table failed")
@@ -21801,16 +21720,6 @@ func (this *DBC)Save(quick bool)(err error){
 	err = this.FaceBPayRecords.Save(quick)
 	if err != nil {
 		log.Error("save FaceBPayRecords table failed")
-		return
-	}
-	err = this.ServerInfo.Save(quick)
-	if err != nil {
-		log.Error("save ServerInfo table failed")
-		return
-	}
-	err = this.PlayerLogins.Save(quick)
-	if err != nil {
-		log.Error("save PlayerLogins table failed")
 		return
 	}
 	err = this.OtherServerPlayers.Save(quick)

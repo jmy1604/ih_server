@@ -918,6 +918,20 @@
 						{"Type":"int32","Index":6,"Name":"HP"},
 						{"Type":"int32","Index":7,"Name":"HpPercent"}
 					]
+				},
+				{
+					"ColumnName":"SysMail",
+					"DBColumnName":"SysMail",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"TableId"}
+					]
 				}
 			]
 		},
@@ -1423,6 +1437,55 @@
 			]
 		},
 		{
+			"TableName":"SysMail",
+			"DBTableName":"SysMail",
+			"SingleRow":false,
+			"AutoPrimaryKey":true,
+			"PrimaryKeyName":"Id",
+			"PrimaryKeyType":"int32",
+			"PrimaryKeySize":11,
+			"Columns":[
+				{
+					"ColumnName":"TableId",
+					"DBColumnName":"TableId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"0",
+					"Fields":[]
+				},
+				{
+					"ColumnName":"AttachedItems",
+					"DBColumnName":"AttachedItems",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"ItemList"}
+					]
+				},
+				{
+					"ColumnName":"SendTime",
+					"DBColumnName":"SendTime",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"0",
+					"Fields":[]
+				}
+			]
+		},
+		{
 			"TableName":"GooglePayRecord",
 			"DBTableName":"GooglePayRecord",
 			"SingleRow":false,
@@ -1584,94 +1647,6 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[]		
-				}
-			]
-		},
-		{
-			"TableName":"ServerInfo",
-			"DBTableName":"ServerInfo",
-			"SingleRow":true,
-			"AutoPrimaryKey":false,
-			"PrimaryKeyName":"KeyId",
-			"PrimaryKeyType":"int32",
-			"PrimaryKeySize":11,
-			"Columns":[
-				{
-					"ColumnName":"CreateUnix",
-					"DBColumnName":"CreateUnix",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"int32",					
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"ColumnName":"CurStartUnix",
-					"DBColumnName":"CurStartUnix",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"int32",					
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				}
-			]
-		},
-		{
-			"TableName":"PlayerLogin",
-			"DBTableName":"PlayerLogin",
-			"SingleRow":false,
-			"AutoPrimaryKey":true,
-			"PrimaryKeyName":"KeyId",
-			"PrimaryKeyType":"int32",
-			"PrimaryKeySize":11,
-			"Columns":[
-				{
-					"ColumnName":"PlayerAccount",
-					"DBColumnName":"PlayerAccount",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"string",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"ColumnName":"PlayerId",
-					"DBColumnName":"PlayerId",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"ColumnName":"PlayerName",
-					"DBColumnName":"PlayerName",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"string",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"ColumnName":"LoginTime",
-					"DBColumnName":"LoginTime",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
 				}
 			]
 		},

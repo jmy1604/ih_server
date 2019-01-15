@@ -381,6 +381,14 @@ func RealSendMail(sender *Player, receiver_id, mail_type, mail_subtype int32, ti
 	return mail_id
 }
 
+func (this *Player) SetSysMailSendTime(mail_id int32, send_time int32) bool {
+	if !this.db.Mails.HasIndex(mail_id) {
+		return false
+	}
+	this.db.Mails.SetSendUnix(mail_id, send_time)
+	return true
+}
+
 func (this *Player) CheckNewMail() int32 {
 	mails := this.get_and_clear_cache_new_mails()
 	if mails == nil {

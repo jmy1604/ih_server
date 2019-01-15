@@ -26,8 +26,6 @@ type HallServer struct {
 	rpc_client         *rpc.Client  // 连接到rpc服务
 	rpc_service        *rpc.Service // 接受rpc连接
 	redis_conn         *utils.RedisConn
-
-	server_info_row *dbServerInfoRow
 }
 
 var hall_server HallServer
