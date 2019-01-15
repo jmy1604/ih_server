@@ -709,7 +709,7 @@ func _select_server(unique_id, account string, server_id int32) (err_code int32,
 	hall_agent := hall_agent_manager.GetAgentByID(server_id)
 	if nil == hall_agent {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
-		log.Error("login_http_handler get hall_agent failed")
+		log.Error("login_http_handler account %v get hall_agent failed by server_id %v", account, server_id)
 		return
 	}
 
