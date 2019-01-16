@@ -289,6 +289,10 @@ func (this *Player) delete_role(role_id int32) (deleted bool, get_items map[int3
 	// 更新排行榜
 	this.DeleteRolePowerRank(role_id)
 
+	if this.db.ExpeditionRoles.HasIndex(role_id) {
+		this.db.ExpeditionRoles.Remove(role_id)
+	}
+
 	deleted = true
 	return
 }
