@@ -145,5 +145,7 @@ func gm_http_handler(w http.ResponseWriter, r *http.Request) {
 
 	if res >= 0 {
 		log.Debug("Gm cmd: %v", gm_cmd.String)
+	} else {
+		log.Debug("Gm cmd: %v execute err %v", gm_cmd.String, res)
 	}
 }
