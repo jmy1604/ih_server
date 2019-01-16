@@ -57,6 +57,8 @@ func (this *G2H_Proc) SysMail(args *rpc_common.GmSendSysMailCmd, result *rpc_com
 			result.Res = -1
 		}
 		row.SetTableId(args.MailTableID)
+		row.AttachedItems.SetItemList(args.AttachItems)
+		dbc.SysMailCommon.GetRow().SetCurrMailId(row.GetId())
 	} else {
 		res := RealSendMail(nil, args.PlayerId, MAIL_TYPE_SYSTEM, args.MailTableID, "", "", args.AttachItems, 0)
 		result.Res = res

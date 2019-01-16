@@ -109,6 +109,7 @@ enum E_ERR {
 	PLAYER_MAIL_PLAYER_IS_COOLDOWN			= -14005; // 个人邮件发送冷却中
 	PLAYER_MAIL_TITLE_TOO_LONG				= -14006; // 邮件标题太长
 	PLAYER_MAIL_CONTENT_TOO_LONG			= -14007; // 邮件内容太长
+	PLAYER_MAIL_SUBTYPE_UNKNOWN				= -14008; // 系统邮件子类型未知
 	
 	// 天赋
 	PLAYER_TALENT_NOT_FOUND					= -15000; // 没有该天赋

@@ -2154,26 +2154,22 @@ func (this* dbPlayerExpeditionLevelRoleData)clone_to(d *dbPlayerExpeditionLevelR
 	return
 }
 type dbPlayerSysMailData struct{
-	Id int32
-	TableId int32
+	CurrId int32
 }
 func (this* dbPlayerSysMailData)from_pb(pb *db.PlayerSysMail){
 	if pb == nil {
 		return
 	}
-	this.Id = pb.GetId()
-	this.TableId = pb.GetTableId()
+	this.CurrId = pb.GetCurrId()
 	return
 }
 func (this* dbPlayerSysMailData)to_pb()(pb *db.PlayerSysMail){
 	pb = &db.PlayerSysMail{}
-	pb.Id = proto.Int32(this.Id)
-	pb.TableId = proto.Int32(this.TableId)
+	pb.CurrId = proto.Int32(this.CurrId)
 	return
 }
 func (this* dbPlayerSysMailData)clone_to(d *dbPlayerSysMailData){
-	d.Id = this.Id
-	d.TableId = this.TableId
+	d.CurrId = this.CurrId
 	return
 }
 type dbBattleSaveDataData struct{
@@ -11608,36 +11604,28 @@ func (this *dbPlayerExpeditionLevelRoleColumn)SetHpPercent(id int32,v int32)(has
 }
 type dbPlayerSysMailColumn struct{
 	m_row *dbPlayerRow
-	m_data map[int32]*dbPlayerSysMailData
+	m_data *dbPlayerSysMailData
 	m_changed bool
 }
 func (this *dbPlayerSysMailColumn)load(data []byte)(err error){
 	if data == nil || len(data) == 0 {
+		this.m_data = &dbPlayerSysMailData{}
 		this.m_changed = false
 		return nil
 	}
-	pb := &db.PlayerSysMailList{}
+	pb := &db.PlayerSysMail{}
 	err = proto.Unmarshal(data, pb)
 	if err != nil {
 		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
 		return
 	}
-	for _, v := range pb.List {
-		d := &dbPlayerSysMailData{}
-		d.from_pb(v)
-		this.m_data[int32(d.Id)] = d
-	}
+	this.m_data = &dbPlayerSysMailData{}
+	this.m_data.from_pb(pb)
 	this.m_changed = false
 	return
 }
 func (this *dbPlayerSysMailColumn)save( )(data []byte,err error){
-	pb := &db.PlayerSysMailList{}
-	pb.List=make([]*db.PlayerSysMail,len(this.m_data))
-	i:=0
-	for _, v := range this.m_data {
-		pb.List[i] = v.to_pb()
-		i++
-	}
+	pb:=this.m_data.to_pb()
 	data, err = proto.Marshal(pb)
 	if err != nil {
 		log.Error("Marshal %v", this.m_row.GetPlayerId())
@@ -11646,114 +11634,33 @@ func (this *dbPlayerSysMailColumn)save( )(data []byte,err error){
 	this.m_changed = false
 	return
 }
-func (this *dbPlayerSysMailColumn)HasIndex(id int32)(has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.HasIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	_, has = this.m_data[id]
-	return
-}
-func (this *dbPlayerSysMailColumn)GetAllIndex()(list []int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.GetAllIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]int32, len(this.m_data))
-	i := 0
-	for k, _ := range this.m_data {
-		list[i] = k
-		i++
-	}
-	return
-}
-func (this *dbPlayerSysMailColumn)GetAll()(list []dbPlayerSysMailData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.GetAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]dbPlayerSysMailData, len(this.m_data))
-	i := 0
-	for _, v := range this.m_data {
-		v.clone_to(&list[i])
-		i++
-	}
-	return
-}
-func (this *dbPlayerSysMailColumn)Get(id int32)(v *dbPlayerSysMailData){
+func (this *dbPlayerSysMailColumn)Get( )(v *dbPlayerSysMailData ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.Get")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return nil
-	}
 	v=&dbPlayerSysMailData{}
-	d.clone_to(v)
+	this.m_data.clone_to(v)
 	return
 }
-func (this *dbPlayerSysMailColumn)Set(v dbPlayerSysMailData)(has bool){
+func (this *dbPlayerSysMailColumn)Set(v dbPlayerSysMailData ){
 	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.Set")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.Id)]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Id)
-		return false
-	}
-	v.clone_to(d)
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSysMailColumn)Add(v *dbPlayerSysMailData)(ok bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.Add")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.Id)]
-	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Id)
-		return false
-	}
-	d:=&dbPlayerSysMailData{}
-	v.clone_to(d)
-	this.m_data[int32(v.Id)]=d
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerSysMailColumn)Remove(id int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.Remove")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[id]
-	if has {
-		delete(this.m_data,id)
-	}
-	this.m_changed = true
+	this.m_data=&dbPlayerSysMailData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
 	return
 }
-func (this *dbPlayerSysMailColumn)Clear(){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.Clear")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=make(map[int32]*dbPlayerSysMailData)
-	this.m_changed = true
+func (this *dbPlayerSysMailColumn)GetCurrId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.GetCurrId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.CurrId
 	return
 }
-func (this *dbPlayerSysMailColumn)NumAll()(n int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.NumAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	return int32(len(this.m_data))
-}
-func (this *dbPlayerSysMailColumn)GetTableId(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSysMailColumn.GetTableId")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.TableId
-	return v,true
-}
-func (this *dbPlayerSysMailColumn)SetTableId(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.SetTableId")
+func (this *dbPlayerSysMailColumn)SetCurrId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerSysMailColumn.SetCurrId")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.TableId = v
+	this.m_data.CurrId = v
 	this.m_changed = true
-	return true
+	return
 }
 type dbPlayerRow struct {
 	m_table *dbPlayerTable
@@ -11843,7 +11750,7 @@ type dbPlayerRow struct {
 	ExpeditionLevelRole7s dbPlayerExpeditionLevelRoleColumn
 	ExpeditionLevelRole8s dbPlayerExpeditionLevelRoleColumn
 	ExpeditionLevelRole9s dbPlayerExpeditionLevelRoleColumn
-	SysMails dbPlayerSysMailColumn
+	SysMail dbPlayerSysMailColumn
 }
 func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this := &dbPlayerRow{}
@@ -11988,8 +11895,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.ExpeditionLevelRole8s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
 	this.ExpeditionLevelRole9s.m_row=this
 	this.ExpeditionLevelRole9s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
-	this.SysMails.m_row=this
-	this.SysMails.m_data=make(map[int32]*dbPlayerSysMailData)
+	this.SysMail.m_row=this
+	this.SysMail.m_data=&dbPlayerSysMailData{}
 	return this
 }
 func (this *dbPlayerRow) GetPlayerId() (r int32) {
@@ -12403,16 +12310,16 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dExpeditionLevelRole9s)
-		dSysMails,db_err:=this.SysMails.save()
+		dSysMail,db_err:=this.SysMail.save()
 		if db_err!=nil{
 			log.Error("insert save SysMail failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dSysMails)
+		db_args.Push(dSysMail)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionData.m_changed||this.ExpeditionRoles.m_changed||this.ExpeditionLevels.m_changed||this.ExpeditionLevelRole0s.m_changed||this.ExpeditionLevelRole1s.m_changed||this.ExpeditionLevelRole2s.m_changed||this.ExpeditionLevelRole3s.m_changed||this.ExpeditionLevelRole4s.m_changed||this.ExpeditionLevelRole5s.m_changed||this.ExpeditionLevelRole6s.m_changed||this.ExpeditionLevelRole7s.m_changed||this.ExpeditionLevelRole8s.m_changed||this.ExpeditionLevelRole9s.m_changed||this.SysMails.m_changed{
+		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionData.m_changed||this.ExpeditionRoles.m_changed||this.ExpeditionLevels.m_changed||this.ExpeditionLevelRole0s.m_changed||this.ExpeditionLevelRole1s.m_changed||this.ExpeditionLevelRole2s.m_changed||this.ExpeditionLevelRole3s.m_changed||this.ExpeditionLevelRole4s.m_changed||this.ExpeditionLevelRole5s.m_changed||this.ExpeditionLevelRole6s.m_changed||this.ExpeditionLevelRole7s.m_changed||this.ExpeditionLevelRole8s.m_changed||this.ExpeditionLevelRole9s.m_changed||this.SysMail.m_changed{
 			update_string = "UPDATE Players SET "
 			db_args:=new_db_args(74)
 			if this.m_UniqueId_changed{
@@ -13033,14 +12940,14 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dExpeditionLevelRole9s)
 			}
-			if this.SysMails.m_changed{
-				update_string+="SysMails=?,"
-				dSysMails,err:=this.SysMails.save()
+			if this.SysMail.m_changed{
+				update_string+="SysMail=?,"
+				dSysMail,err:=this.SysMail.save()
 				if err!=nil{
-					log.Error("insert save SysMail failed")
+					log.Error("update save SysMail failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dSysMails)
+				db_args.Push(dSysMail)
 			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE PlayerId=?"
@@ -13122,7 +13029,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.ExpeditionLevelRole7s.m_changed = false
 	this.ExpeditionLevelRole8s.m_changed = false
 	this.ExpeditionLevelRole9s.m_changed = false
-	this.SysMails.m_changed = false
+	this.SysMail.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -13798,18 +13705,18 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasSysMail := columns["SysMails"]
+	_, hasSysMail := columns["SysMail"]
 	if !hasSysMail {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN SysMails LONGBLOB")
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN SysMail LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN SysMails failed")
+			log.Error("ADD COLUMN SysMail failed")
 			return
 		}
 	}
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMails FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13817,7 +13724,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMails) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13934,10 +13841,10 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dExpeditionLevelRole7s []byte
 	var dExpeditionLevelRole8s []byte
 	var dExpeditionLevelRole9s []byte
-	var dSysMails []byte
+	var dSysMail []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionData,&dExpeditionRoles,&dExpeditionLevels,&dExpeditionLevelRole0s,&dExpeditionLevelRole1s,&dExpeditionLevelRole2s,&dExpeditionLevelRole3s,&dExpeditionLevelRole4s,&dExpeditionLevelRole5s,&dExpeditionLevelRole6s,&dExpeditionLevelRole7s,&dExpeditionLevelRole8s,&dExpeditionLevelRole9s,&dSysMails)
+		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionData,&dExpeditionRoles,&dExpeditionLevels,&dExpeditionLevelRole0s,&dExpeditionLevelRole1s,&dExpeditionLevelRole2s,&dExpeditionLevelRole3s,&dExpeditionLevelRole4s,&dExpeditionLevelRole5s,&dExpeditionLevelRole6s,&dExpeditionLevelRole7s,&dExpeditionLevelRole8s,&dExpeditionLevelRole9s,&dSysMail)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -14282,9 +14189,9 @@ func (this *dbPlayerTable) Preload() (err error) {
 			log.Error("ExpeditionLevelRole9s %v", PlayerId)
 			return
 		}
-		err = row.SysMails.load(dSysMails)
+		err = row.SysMail.load(dSysMail)
 		if err != nil {
-			log.Error("SysMails %v", PlayerId)
+			log.Error("SysMail %v", PlayerId)
 			return
 		}
 		row.m_UniqueId_changed=false
@@ -18789,6 +18696,219 @@ func (this *dbActivitysToDeleteTable) GetRow(Id int32) (row *dbActivitysToDelete
 	}
 	return row
 }
+func (this *dbSysMailCommonRow)GetCurrMailId( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbSysMailCommonRow.GetdbSysMailCommonCurrMailIdColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_CurrMailId)
+}
+func (this *dbSysMailCommonRow)SetCurrMailId(v int32){
+	this.m_lock.UnSafeLock("dbSysMailCommonRow.SetdbSysMailCommonCurrMailIdColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_CurrMailId=int32(v)
+	this.m_CurrMailId_changed=true
+	return
+}
+type dbSysMailCommonRow struct {
+	m_table *dbSysMailCommonTable
+	m_lock       *RWMutex
+	m_loaded  bool
+	m_new     bool
+	m_remove  bool
+	m_touch      int32
+	m_releasable bool
+	m_valid   bool
+	m_Id        int32
+	m_CurrMailId_changed bool
+	m_CurrMailId int32
+}
+func new_dbSysMailCommonRow(table *dbSysMailCommonTable, Id int32) (r *dbSysMailCommonRow) {
+	this := &dbSysMailCommonRow{}
+	this.m_table = table
+	this.m_Id = Id
+	this.m_lock = NewRWMutex()
+	this.m_CurrMailId_changed=true
+	return this
+}
+func (this *dbSysMailCommonRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbSysMailCommonRow.save_data")
+	defer this.m_lock.UnSafeUnlock()
+	if this.m_new {
+		db_args:=new_db_args(2)
+		db_args.Push(this.m_Id)
+		db_args.Push(this.m_CurrMailId)
+		args=db_args.GetArgs()
+		state = 1
+	} else {
+		if this.m_CurrMailId_changed{
+			update_string = "UPDATE SysMailCommon SET "
+			db_args:=new_db_args(2)
+			if this.m_CurrMailId_changed{
+				update_string+="CurrMailId=?,"
+				db_args.Push(this.m_CurrMailId)
+			}
+			update_string = strings.TrimRight(update_string, ", ")
+			update_string+=" WHERE Id=?"
+			db_args.Push(this.m_Id)
+			args=db_args.GetArgs()
+			state = 2
+		}
+	}
+	this.m_new = false
+	this.m_CurrMailId_changed = false
+	if release && this.m_loaded {
+		this.m_loaded = false
+		released = true
+	}
+	return nil,released,state,update_string,args
+}
+func (this *dbSysMailCommonRow) Save(release bool) (err error, d bool, released bool) {
+	err,released, state, update_string, args := this.save_data(release)
+	if err != nil {
+		log.Error("save data failed")
+		return err, false, false
+	}
+	if state == 0 {
+		d = false
+	} else if state == 1 {
+		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
+		if err != nil {
+			log.Error("INSERT SysMailCommon exec failed %v ", this.m_Id)
+			return err, false, released
+		}
+		d = true
+	} else if state == 2 {
+		_, err = this.m_table.m_dbc.Exec(update_string, args...)
+		if err != nil {
+			log.Error("UPDATE SysMailCommon exec failed %v", this.m_Id)
+			return err, false, released
+		}
+		d = true
+	}
+	return nil, d, released
+}
+type dbSysMailCommonTable struct{
+	m_dbc *DBC
+	m_lock *RWMutex
+	m_row *dbSysMailCommonRow
+	m_preload_select_stmt *sql.Stmt
+	m_save_insert_stmt *sql.Stmt
+}
+func new_dbSysMailCommonTable(dbc *DBC) (this *dbSysMailCommonTable) {
+	this = &dbSysMailCommonTable{}
+	this.m_dbc = dbc
+	this.m_lock = NewRWMutex()
+	return this
+}
+func (this *dbSysMailCommonTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS SysMailCommon(Id int(11),PRIMARY KEY (Id))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS SysMailCommon failed")
+		return
+	}
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='SysMailCommon'", this.m_dbc.m_db_name)
+	if err != nil {
+		log.Error("SELECT information_schema failed")
+		return
+	}
+	columns := make(map[string]int32)
+	for rows.Next() {
+		var column_name string
+		var ordinal_position int32
+		err = rows.Scan(&column_name, &ordinal_position)
+		if err != nil {
+			log.Error("scan information_schema row failed")
+			return
+		}
+		if ordinal_position < 1 {
+			log.Error("col ordinal out of range")
+			continue
+		}
+		columns[column_name] = ordinal_position
+	}
+	_, hasCurrMailId := columns["CurrMailId"]
+	if !hasCurrMailId {
+		_, err = this.m_dbc.Exec("ALTER TABLE SysMailCommon ADD COLUMN CurrMailId int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN CurrMailId failed")
+			return
+		}
+	}
+	return
+}
+func (this *dbSysMailCommonTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT CurrMailId FROM SysMailCommon WHERE Id=0")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbSysMailCommonTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO SysMailCommon (Id,CurrMailId) VALUES (?,?)")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbSysMailCommonTable) Init() (err error) {
+	err=this.check_create_table()
+	if err!=nil{
+		log.Error("check_create_table failed")
+		return
+	}
+	err=this.prepare_preload_select_stmt()
+	if err!=nil{
+		log.Error("prepare_preload_select_stmt failed")
+		return
+	}
+	err=this.prepare_save_insert_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	return
+}
+func (this *dbSysMailCommonTable) Preload() (err error) {
+	r := this.m_dbc.StmtQueryRow(this.m_preload_select_stmt)
+	var dCurrMailId int32
+	err = r.Scan(&dCurrMailId)
+	if err!=nil{
+		if err!=sql.ErrNoRows{
+			log.Error("Scan failed")
+			return
+		}
+	}else{
+		row := new_dbSysMailCommonRow(this,0)
+		row.m_CurrMailId=dCurrMailId
+		row.m_CurrMailId_changed=false
+		row.m_valid = true
+		row.m_loaded=true
+		this.m_row=row
+	}
+	if this.m_row == nil {
+		this.m_row = new_dbSysMailCommonRow(this, 0)
+		this.m_row.m_new = true
+		this.m_row.m_valid = true
+		err = this.Save(false)
+		if err != nil {
+			log.Error("save failed")
+			return
+		}
+		this.m_row.m_loaded = true
+	}
+	return
+}
+func (this *dbSysMailCommonTable) Save(quick bool) (err error) {
+	if this.m_row==nil{
+		return errors.New("row nil")
+	}
+	err, _, _ = this.m_row.Save(false)
+	return err
+}
+func (this *dbSysMailCommonTable) GetRow( ) (row *dbSysMailCommonRow) {
+	return this.m_row
+}
 func (this *dbSysMailRow)GetTableId( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbSysMailRow.GetdbSysMailTableIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -21548,6 +21668,7 @@ type DBC struct {
 	Guilds *dbGuildTable
 	GuildStages *dbGuildStageTable
 	ActivitysToDeletes *dbActivitysToDeleteTable
+	SysMailCommon *dbSysMailCommonTable
 	SysMails *dbSysMailTable
 	GooglePayRecords *dbGooglePayRecordTable
 	ApplePayRecords *dbApplePayRecordTable
@@ -21607,6 +21728,12 @@ func (this *DBC)init_tables()(err error){
 	err = this.ActivitysToDeletes.Init()
 	if err != nil {
 		log.Error("init ActivitysToDeletes table failed")
+		return
+	}
+	this.SysMailCommon = new_dbSysMailCommonTable(this)
+	err = this.SysMailCommon.Init()
+	if err != nil {
+		log.Error("init SysMailCommon table failed")
 		return
 	}
 	this.SysMails = new_dbSysMailTable(this)
@@ -21705,6 +21832,13 @@ func (this *DBC)Preload()(err error){
 	}else{
 		log.Info("preload ActivitysToDeletes table succeed !")
 	}
+	err = this.SysMailCommon.Preload()
+	if err != nil {
+		log.Error("preload SysMailCommon table failed")
+		return
+	}else{
+		log.Info("preload SysMailCommon table succeed !")
+	}
 	err = this.SysMails.Preload()
 	if err != nil {
 		log.Error("preload SysMails table failed")
@@ -21796,6 +21930,11 @@ func (this *DBC)Save(quick bool)(err error){
 	err = this.ActivitysToDeletes.Save(quick)
 	if err != nil {
 		log.Error("save ActivitysToDeletes table failed")
+		return
+	}
+	err = this.SysMailCommon.Save(quick)
+	if err != nil {
+		log.Error("save SysMailCommon table failed")
 		return
 	}
 	err = this.SysMails.Save(quick)

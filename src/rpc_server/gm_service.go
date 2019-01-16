@@ -124,7 +124,6 @@ func gm_http_handler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			res, resp_data = f(gm_cmd.Id, gm_cmd.Data)
 			if res < 0 {
-				res = -1
 				log.Error("Gm cmd %v %v execute failed %v", gm_cmd.Id, gm_cmd.String, res)
 			}
 		}

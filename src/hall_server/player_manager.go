@@ -414,6 +414,23 @@ func C2SHeartbeatHandler(p *Player, msg_data []byte) int32 {
 		p.check_and_send_tower_data()
 	}
 
+	// 检测系统邮件
+	self_sys_mail_id := p.db.SysMail.GetCurrId()
+	sys_mail_id := dbc.SysMailCommon.GetRow().GetCurrMailId()
+	if self_sys_mail_id < sys_mail_id {
+		for mail_id := self_sys_mail_id; mail_id <= sys_mail_id; mail_id++ {
+			mail := dbc.SysMails.GetRow(mail_id)
+			if mail == nil {
+				continue
+			}
+			res := RealSendMail(nil, p.Id, MAIL_TYPE_SYSTEM, mail.GetTableId(), "", "", mail.AttachedItems.Get().ItemList, 0)
+			if res < 0 {
+
+			}
+		}
+		p.db.SysMail.SetCurrId(sys_mail_id)
+	}
+
 	response := &msg_client_message.S2CHeartbeat{
 		SysTime: int32(time.Now().Unix()),
 	}
