@@ -2426,6 +2426,35 @@ func (this* dbGuildStageDamageLogData)clone_to(d *dbGuildStageDamageLogData){
 	d.Damage = this.Damage
 	return
 }
+type dbSysMailAttachedItemsData struct{
+	ItemList []int32
+}
+func (this* dbSysMailAttachedItemsData)from_pb(pb *db.SysMailAttachedItems){
+	if pb == nil {
+		this.ItemList = make([]int32,0)
+		return
+	}
+	this.ItemList = make([]int32,len(pb.GetItemList()))
+	for i, v := range pb.GetItemList() {
+		this.ItemList[i] = v
+	}
+	return
+}
+func (this* dbSysMailAttachedItemsData)to_pb()(pb *db.SysMailAttachedItems){
+	pb = &db.SysMailAttachedItems{}
+	pb.ItemList = make([]int32, len(this.ItemList))
+	for i, v := range this.ItemList {
+		pb.ItemList[i]=v
+	}
+	return
+}
+func (this* dbSysMailAttachedItemsData)clone_to(d *dbSysMailAttachedItemsData){
+	d.ItemList = make([]int32, len(this.ItemList))
+	for _ii, _vv := range this.ItemList {
+		d.ItemList[_ii]=_vv
+	}
+	return
+}
 
 func (this *dbGlobalRow)GetCurrentPlayerId( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGlobalRow.GetdbGlobalCurrentPlayerIdColumn")
@@ -18772,16 +18801,70 @@ func (this *dbSysMailRow)SetTableId(v int32){
 	this.m_TableId_changed=true
 	return
 }
-func (this *dbSysMailRow)GetAttachedItems( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbSysMailRow.GetdbSysMailAttachedItemsColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_AttachedItems)
+type dbSysMailAttachedItemsColumn struct{
+	m_row *dbSysMailRow
+	m_data *dbSysMailAttachedItemsData
+	m_changed bool
 }
-func (this *dbSysMailRow)SetAttachedItems(v int32){
-	this.m_lock.UnSafeLock("dbSysMailRow.SetdbSysMailAttachedItemsColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_AttachedItems=int32(v)
-	this.m_AttachedItems_changed=true
+func (this *dbSysMailAttachedItemsColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbSysMailAttachedItemsData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.SysMailAttachedItems{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetId())
+		return
+	}
+	this.m_data = &dbSysMailAttachedItemsData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbSysMailAttachedItemsColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbSysMailAttachedItemsColumn)Get( )(v *dbSysMailAttachedItemsData ){
+	this.m_row.m_lock.UnSafeRLock("dbSysMailAttachedItemsColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbSysMailAttachedItemsData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbSysMailAttachedItemsColumn)Set(v dbSysMailAttachedItemsData ){
+	this.m_row.m_lock.UnSafeLock("dbSysMailAttachedItemsColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbSysMailAttachedItemsData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbSysMailAttachedItemsColumn)GetItemList( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbSysMailAttachedItemsColumn.GetItemList")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]int32, len(this.m_data.ItemList))
+	for _ii, _vv := range this.m_data.ItemList {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbSysMailAttachedItemsColumn)SetItemList(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbSysMailAttachedItemsColumn.SetItemList")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.ItemList = make([]int32, len(v))
+	for _ii, _vv := range v {
+		this.m_data.ItemList[_ii]=_vv
+	}
+	this.m_changed = true
 	return
 }
 func (this *dbSysMailRow)GetSendTime( )(r int32 ){
@@ -18808,8 +18891,7 @@ type dbSysMailRow struct {
 	m_Id        int32
 	m_TableId_changed bool
 	m_TableId int32
-	m_AttachedItems_changed bool
-	m_AttachedItems int32
+	AttachedItems dbSysMailAttachedItemsColumn
 	m_SendTime_changed bool
 	m_SendTime int32
 }
@@ -18819,8 +18901,9 @@ func new_dbSysMailRow(table *dbSysMailTable, Id int32) (r *dbSysMailRow) {
 	this.m_Id = Id
 	this.m_lock = NewRWMutex()
 	this.m_TableId_changed=true
-	this.m_AttachedItems_changed=true
 	this.m_SendTime_changed=true
+	this.AttachedItems.m_row=this
+	this.AttachedItems.m_data=&dbSysMailAttachedItemsData{}
 	return this
 }
 func (this *dbSysMailRow) GetId() (r int32) {
@@ -18833,21 +18916,31 @@ func (this *dbSysMailRow) save_data(release bool) (err error, released bool, sta
 		db_args:=new_db_args(4)
 		db_args.Push(this.m_Id)
 		db_args.Push(this.m_TableId)
-		db_args.Push(this.m_AttachedItems)
+		dAttachedItems,db_err:=this.AttachedItems.save()
+		if db_err!=nil{
+			log.Error("insert save AttachedItems failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dAttachedItems)
 		db_args.Push(this.m_SendTime)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_TableId_changed||this.m_AttachedItems_changed||this.m_SendTime_changed{
+		if this.m_TableId_changed||this.AttachedItems.m_changed||this.m_SendTime_changed{
 			update_string = "UPDATE SysMails SET "
 			db_args:=new_db_args(4)
 			if this.m_TableId_changed{
 				update_string+="TableId=?,"
 				db_args.Push(this.m_TableId)
 			}
-			if this.m_AttachedItems_changed{
+			if this.AttachedItems.m_changed{
 				update_string+="AttachedItems=?,"
-				db_args.Push(this.m_AttachedItems)
+				dAttachedItems,err:=this.AttachedItems.save()
+				if err!=nil{
+					log.Error("update save AttachedItems failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dAttachedItems)
 			}
 			if this.m_SendTime_changed{
 				update_string+="SendTime=?,"
@@ -18862,7 +18955,7 @@ func (this *dbSysMailRow) save_data(release bool) (err error, released bool, sta
 	}
 	this.m_new = false
 	this.m_TableId_changed = false
-	this.m_AttachedItems_changed = false
+	this.AttachedItems.m_changed = false
 	this.m_SendTime_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
@@ -18996,7 +19089,7 @@ func (this *dbSysMailTable) check_create_table() (err error) {
 	}
 	_, hasAttachedItems := columns["AttachedItems"]
 	if !hasAttachedItems {
-		_, err = this.m_dbc.Exec("ALTER TABLE SysMails ADD COLUMN AttachedItems int(11) DEFAULT ")
+		_, err = this.m_dbc.Exec("ALTER TABLE SysMails ADD COLUMN AttachedItems LONGBLOB")
 		if err != nil {
 			log.Error("ADD COLUMN AttachedItems failed")
 			return
@@ -19075,7 +19168,7 @@ func (this *dbSysMailTable) Preload() (err error) {
 	}
 	var Id int32
 	var dTableId int32
-	var dAttachedItems int32
+	var dAttachedItems []byte
 	var dSendTime int32
 	for r.Next() {
 		err = r.Scan(&Id,&dTableId,&dAttachedItems,&dSendTime)
@@ -19090,10 +19183,13 @@ func (this *dbSysMailTable) Preload() (err error) {
 		}
 		row := new_dbSysMailRow(this,Id)
 		row.m_TableId=dTableId
-		row.m_AttachedItems=dAttachedItems
+		err = row.AttachedItems.load(dAttachedItems)
+		if err != nil {
+			log.Error("AttachedItems %v", Id)
+			return
+		}
 		row.m_SendTime=dSendTime
 		row.m_TableId_changed=false
-		row.m_AttachedItems_changed=false
 		row.m_SendTime_changed=false
 		row.m_valid = true
 		this.m_rows[Id]=row
