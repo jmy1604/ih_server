@@ -592,3 +592,7 @@ message GuildStageDamageLogList{
 	repeated GuildStageDamageLog List=1;
 }
 
+message SysMailAttachedItems{
+	repeated int32 ItemList=1;
+}
+

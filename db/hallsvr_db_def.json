@@ -1461,14 +1461,14 @@
 					"ColumnName":"AttachedItems",
 					"DBColumnName":"AttachedItems",
 					"InUse":true,
-					"Simple":true,
-					"SimpleType":"int32",
+					"Simple":false,
+					"SimpleType":"",
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":"",
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"ItemList"}
+						{"Type":"int32","Index":1,"Name":"ItemList","Repeated":true}
 					]
 				},
 				{
