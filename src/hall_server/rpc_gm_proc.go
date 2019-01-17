@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"ih_server/libs/log"
 	"ih_server/src/rpc_common"
+	"time"
 )
 
 // GM调用
@@ -58,6 +59,7 @@ func (this *G2H_Proc) SysMail(args *rpc_common.GmSendSysMailCmd, result *rpc_com
 		}
 		row.SetTableId(args.MailTableID)
 		row.AttachedItems.SetItemList(args.AttachItems)
+		row.SetSendTime(int32(time.Now().Unix()))
 		dbc.SysMailCommon.GetRow().SetCurrMailId(row.GetId())
 	} else {
 		res := RealSendMail(nil, args.PlayerId, MAIL_TYPE_SYSTEM, args.MailTableID, "", "", args.AttachItems, 0)
