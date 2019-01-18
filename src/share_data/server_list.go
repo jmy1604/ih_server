@@ -177,7 +177,7 @@ func (this *ServerList) RandomOne(client_os string) (info *HallServerInfo) {
 
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		if (s.ClientOS == CLIENT_OS_IOS && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
+		if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
 			if s.Weight <= 0 {
 				continue
 			}
@@ -202,7 +202,7 @@ func (this *ServerList) GetServers(client_os string) (servers []*HallServerInfo)
 
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		if (s.ClientOS == CLIENT_OS_IOS && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
+		if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
 			servers = append(servers, s)
 		}
 	}
@@ -216,7 +216,7 @@ func (this *ServerList) HasId(client_os string, server_id int32) bool {
 	var found bool
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		if (s.ClientOS == CLIENT_OS_IOS && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
+		if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
 			if s.Id == server_id {
 				found = true
 				break
