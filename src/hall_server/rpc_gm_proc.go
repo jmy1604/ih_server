@@ -57,13 +57,15 @@ func (this *G2H_Proc) SysMail(args *rpc_common.GmSendSysMailCmd, result *rpc_com
 			log.Error("@@@ G2H_Proc::SysMail add new db row failed")
 			result.Res = -1
 		}
-		row.SetTableId(args.MailTableID)
-		row.AttachedItems.SetItemList(args.AttachItems)
-		row.SetSendTime(int32(time.Now().Unix()))
-		dbc.SysMailCommon.GetRow().SetCurrMailId(row.GetId())
+		result.Res = mail_has_subtype(args.MailTableID)
+		if result.Res > 0 {
+			row.SetTableId(args.MailTableID)
+			row.AttachedItems.SetItemList(args.AttachItems)
+			row.SetSendTime(int32(time.Now().Unix()))
+			dbc.SysMailCommon.GetRow().SetCurrMailId(row.GetId())
+		}
 	} else {
-		res := RealSendMail(nil, args.PlayerId, MAIL_TYPE_SYSTEM, args.MailTableID, "", "", args.AttachItems, 0)
-		result.Res = res
+		result.Res = RealSendMail(nil, args.PlayerId, MAIL_TYPE_SYSTEM, args.MailTableID, "", "", args.AttachItems, 0)
 	}
 
 	log.Trace("@@@ G2H_Proc::SysMail %v", args)

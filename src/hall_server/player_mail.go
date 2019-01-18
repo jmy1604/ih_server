@@ -285,6 +285,24 @@ func SendMail(sender *Player, receiver_id, mail_type, mail_subtype int32, title 
 	return err
 }
 
+func mail_has_subtype(mail_subtype int32) int32 {
+	var found bool
+	arr := mail_table_mgr.Array
+	if arr != nil {
+		for i := 0; i < len(arr); i++ {
+			if arr[i].MailSubtype == mail_subtype {
+				found = true
+				break
+			}
+		}
+	}
+	if !found {
+		log.Error("System mail subtype %v not found", mail_subtype)
+		return int32(msg_client_message.E_ERR_PLAYER_MAIL_SUBTYPE_UNKNOWN)
+	}
+	return 1
+}
+
 func RealSendMail(sender *Player, receiver_id, mail_type, mail_subtype int32, title string, content string, items []int32, extra_value int32) int32 {
 	if int32(len(title)) > global_config.MailTitleBytes {
 		if sender != nil {
@@ -314,19 +332,9 @@ func RealSendMail(sender *Player, receiver_id, mail_type, mail_subtype int32, ti
 			return int32(msg_client_message.E_ERR_PLAYER_MAIL_PLAYER_IS_COOLDOWN)
 		}
 	} else if mail_type == MAIL_TYPE_SYSTEM {
-		var found bool
-		arr := mail_table_mgr.Array
-		if arr != nil {
-			for i := 0; i < len(arr); i++ {
-				if arr[i].MailSubtype == mail_subtype {
-					found = true
-					break
-				}
-			}
-		}
-		if !found {
-			log.Error("System mail subtype %v not found", mail_subtype)
-			return int32(msg_client_message.E_ERR_PLAYER_MAIL_SUBTYPE_UNKNOWN)
+		res := mail_has_subtype(mail_subtype)
+		if res < 0 {
+			return res
 		}
 	}
 
