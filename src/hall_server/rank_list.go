@@ -108,17 +108,17 @@ var root_rank_item = []utils.SkiplistNode{
 	&ArenaRankItem{},      // 1
 	&CampaignRankItem{},   // 2
 	&RolesPowerRankItem{}, // 3
-	nil, // 4
-	nil, // 5
-	nil, // 6
-	nil, // 7
-	nil, // 8
-	nil, // 9
-	nil, // 10
-	nil, // 11
-	nil, // 12
-	nil, // 13
-	nil, // 14
+	nil,                   // 4
+	nil,                   // 5
+	nil,                   // 6
+	nil,                   // 7
+	nil,                   // 8
+	nil,                   // 9
+	nil,                   // 10
+	nil,                   // 11
+	nil,                   // 12
+	nil,                   // 13
+	nil,                   // 14
 	//&TopPowerRankItem{}, // 15
 }
 
@@ -377,7 +377,7 @@ func (this *Player) get_rank_list_items(rank_type, start_rank, num int32) int32 
 		SelfValue2:         self_value2,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_RANK_LIST_RESPONSE), response)
-	log.Debug("Player[%v] get rank type[%v] list response: %v", this.Id, rank_type, response)
+	log.Debug("Player[%v] get rank type[%v] list response", this.Id, rank_type)
 	return 1
 }
 
