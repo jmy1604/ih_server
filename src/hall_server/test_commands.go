@@ -368,7 +368,6 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 	response.Rounds = rounds
 	response.HasNextWave = has_next_wave
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
-	Output_S2CBattleResult(p, response)
 	log.Debug("玩家[%v]挑战了关卡[%v]", p.Id, stage_id)
 	return 1
 }

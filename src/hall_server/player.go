@@ -892,7 +892,8 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		}
 	}
 
-	//Output_S2CBattleResult(this, response)
+	log.Trace("Player %v fight 2 player %v, fight type %v", this.Id, player_id, battle_type)
+
 	return 1
 }
 

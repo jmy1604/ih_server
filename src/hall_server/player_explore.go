@@ -1122,7 +1122,8 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 		this.explore_remove_task(id, is_story)
 	}
 
-	Output_S2CBattleResult(this, response)
+	log.Trace("Player %v fight explore %v, is story %v", this.Id, id, is_story)
+
 	return 1
 }
 

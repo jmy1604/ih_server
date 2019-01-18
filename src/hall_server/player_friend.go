@@ -985,7 +985,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 
 	this.battle_random_reward_notify(friend_boss_tdata.ChallengeDropID, n)
 
-	Output_S2CBattleResult(this, response)
+	log.Trace("Player %v fight friend %v boss", this.Id, friend_id)
 
 	return 1
 }

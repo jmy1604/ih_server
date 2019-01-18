@@ -420,7 +420,9 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_CAMPAIGN, false, campaign_id, 1)
 	}
 
-	Output_S2CBattleResult(this, response)
+	//Output_S2CBattleResult(this, response)
+
+	log.Trace("Player %v fight campaign stage %v", this.Id, campaign_id)
 	return 1
 }
 

@@ -445,7 +445,8 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 		guild_stage_manager.RankListReward(guild.GetId(), boss_id)
 	}
 
-	Output_S2CBattleResult(this, response)
+	//Output_S2CBattleResult(this, response)
+	log.Trace("Player %v guild stage fight, boss_id %v", this.Id, boss_id)
 
 	return 1
 }

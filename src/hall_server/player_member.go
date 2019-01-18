@@ -297,7 +297,7 @@ func (this *TeamMember) init_passive_data(skills []int32) {
 		if !this.add_passive_trigger(skills[i]) {
 			log.Warn("Team[%v] member[%v] add passive skill[%v] failed", this.team.side, this.pos, skills[i])
 		} else {
-			log.Debug("Team[%v] member[%v] add passive skill[%v]", this.team.side, this.pos, skills[i])
+			//log.Debug("Team[%v] member[%v] add passive skill[%v]", this.team.side, this.pos, skills[i])
 		}
 	}
 }
@@ -570,7 +570,7 @@ func (this *TeamMember) init_equip(equip_id int32) {
 		}
 	}
 	this.add_attrs(d.EquipAttr)
-	log.Debug("@@@@@@@@@@@@@@############## team[%v] member[%v] init equip [%v] skill[%v] attrs[%v]", this.team.side, this.pos, equip_id, d.EquipSkill, d.EquipAttr)
+	//log.Debug("@@@@@@@@@@@@@@############## team[%v] member[%v] init equip [%v] skill[%v] attrs[%v]", this.team.side, this.pos, equip_id, d.EquipSkill, d.EquipAttr)
 }
 
 func (this *TeamMember) init_equips(equips []int32) {

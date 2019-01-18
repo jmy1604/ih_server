@@ -312,7 +312,9 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ACTIVE_STAGE_WIN_NUM, false, 0, 1)
 	}
 
-	Output_S2CBattleResult(this, response)
+	//Output_S2CBattleResult(this, response)
+
+	log.Trace("Player %v fight active stage %v", this.Id, active_stage_id)
 
 	return 1
 }

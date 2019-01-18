@@ -174,7 +174,7 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 
 	this.send_tower_data(true)
 
-	Output_S2CBattleResult(this, response)
+	log.Trace("Player %v fight tower %v", this.Id, tower_id)
 
 	return 1
 }
