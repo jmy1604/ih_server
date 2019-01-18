@@ -423,10 +423,11 @@ func C2SHeartbeatHandler(p *Player, msg_data []byte) int32 {
 			if mail == nil {
 				continue
 			}
-			res := RealSendMail(nil, p.Id, MAIL_TYPE_SYSTEM, mail.GetTableId(), "", "", mail.AttachedItems.Get().ItemList, 0)
-			if res < 0 {
+			mid := RealSendMail(nil, p.Id, MAIL_TYPE_SYSTEM, mail.GetTableId(), "", "", mail.AttachedItems.Get().ItemList, 0)
+			if mid < 0 {
 
 			}
+			p.SetSysMailSendTime(mid, mail.GetSendTime())
 		}
 		p.db.SysMail.SetCurrId(sys_mail_id)
 	}
