@@ -369,6 +369,7 @@ message C2SLoginRequest {
 	string Password							= 2; // 密码
 	string Channel 							= 3; // 渠道    目前三种情况，跟服务器设置是否验证账号有关  1. 空表示不需要渠道   2. "guest"表示游客登陆   3. "facebook" 表示facebook账号登陆
 	string ClientOS							= 4; // 客户端系统    ios android
+	bool IsAppleVerifyUse				    = 5; // 是否苹果审核用
 }
 // 服务器信息
 message ServerInfo {

@@ -19,23 +19,25 @@ const (
 )
 
 type HallServerInfo struct {
-	Id       int32
-	Name     string
-	IP       string
-	Weight   int32
-	ClientOS string
+	Id        int32
+	Name      string
+	IP        string
+	Weight    int32
+	ClientOS  string
+	VerifyUse bool
 }
 
 type ServerList struct {
-	CommonIP       string
-	Servers        []*HallServerInfo
-	Data           string
-	TotalWeight    int32
-	TotalWeightIos int32
-	ConfigPath     string
-	MD5Str         string
-	LastTime       int32
-	Locker         sync.RWMutex
+	CommonIP          string
+	Servers           []*HallServerInfo
+	Data              string
+	TotalWeight       int32
+	TotalWeightIos    int32
+	IosVerifyServerId int32
+	ConfigPath        string
+	MD5Str            string
+	LastTime          int32
+	Locker            sync.RWMutex
 }
 
 func _get_md5(data []byte) string {
@@ -66,7 +68,11 @@ func (this *ServerList) _read_config(data []byte) bool {
 			}
 
 			if s.ClientOS == CLIENT_OS_IOS {
-				total_weight_ios += s.Weight
+				if !s.VerifyUse {
+					total_weight_ios += s.Weight
+				} else {
+					this.IosVerifyServerId = s.Id
+				}
 			} else {
 				total_weight += s.Weight
 			}
@@ -182,6 +188,10 @@ func (this *ServerList) RandomOne(client_os string) (info *HallServerInfo) {
 	}
 
 	return
+}
+
+func (this *ServerList) GetIosVerifyServerId() int32 {
+	return this.IosVerifyServerId
 }
 
 func (this *ServerList) GetServers(client_os string) (servers []*HallServerInfo) {

@@ -566,7 +566,7 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 	return 1
 }
 
-func login_handler(account, password, channel, client_os string) (err_code int32, resp_data []byte) {
+func login_handler(account, password, channel, client_os string, is_verify bool) (err_code int32, resp_data []byte) {
 	var err error
 	acc_row := dbc.Accounts.GetRow(account)
 	if config.VerifyAccount {
@@ -631,7 +631,11 @@ func login_handler(account, password, channel, client_os string) (err_code int32
 	// 选择默认服
 	var select_server_id int32
 	if client_os == share_data.CLIENT_OS_IOS {
-		select_server_id = acc_row.GetLastSelectIOSServerId()
+		if is_verify {
+			select_server_id = server_list.GetIosVerifyServerId()
+		} else {
+			select_server_id = acc_row.GetLastSelectIOSServerId()
+		}
 	} else {
 		select_server_id = acc_row.GetLastSelectServerId()
 	}
@@ -984,7 +988,7 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 
 	var err_code int32
 	var data []byte
-	err_code, data = login_handler(account, password, channel, client_os)
+	err_code, data = login_handler(account, password, channel, client_os, false)
 
 	if err_code < 0 {
 		response_error(err_code, w)
@@ -1191,7 +1195,7 @@ func client_http_handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		msg_id = int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE)
-		err_code, data = login_handler(login_msg.GetAcc(), login_msg.GetPassword(), login_msg.GetChannel(), login_msg.GetClientOS())
+		err_code, data = login_handler(login_msg.GetAcc(), login_msg.GetPassword(), login_msg.GetChannel(), login_msg.GetClientOS(), login_msg.GetIsAppleVerifyUse())
 	} else if msg.MsgCode == int32(msg_client_message_id.MSGID_C2S_SELECT_SERVER_REQUEST) {
 		var select_msg msg_client_message.C2SSelectServerRequest
 		err = proto.Unmarshal(msg.GetData(), &select_msg)

@@ -26,6 +26,14 @@
 			"IP":"30400",
 			"Weight": 0,
 			"ClientOS": "ios"
+		},
+		{
+			"Id":5,
+			"Name":"ios_verify_server",
+			"IP":"30500",
+			"Weight": 0,
+			"ClientOS": "ios",
+			"IsVerify": true
 		}
 	]
 }
