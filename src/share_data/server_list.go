@@ -79,9 +79,11 @@ func (this *ServerList) _read_config(data []byte) bool {
 		}
 	}
 
-	if total_weight <= 0 || total_weight_ios <= 0 {
-		log.Error("Server List Total Weight is invalid %v", total_weight)
-		return false
+	if this.IosVerifyServerId <= 0 {
+		if total_weight <= 0 && total_weight_ios <= 0 {
+			log.Error("Server List Total Weight is invalid %v", total_weight)
+			return false
+		}
 	}
 
 	this.TotalWeight = total_weight
