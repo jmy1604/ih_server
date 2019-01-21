@@ -132,26 +132,13 @@ func (this *Player) chat(channel int32, content []byte, evalue int32) int32 {
 	return 1
 }
 
-func (this *Player) pull_chat(channel int32) int32 {
-	chat_mgr := this.get_chat_mgr(channel)
-	if chat_mgr == nil {
-		log.Error("Player[%v] get chat mgr by channel %v failed", this.Id, channel)
-		return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
-	}
-	pull_msg_cooldown := get_chat_pull_msg_cooldown(channel)
-	if pull_msg_cooldown < 0 {
-		log.Error("Player[%v] pull chat with unknown channel %v", this.Id, channel)
-		return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
-	}
-
-	now_time := int32(time.Now().Unix())
-	pull_time, _ := this.db.Chats.GetLastPullTime(channel)
-	if now_time-pull_time < pull_msg_cooldown {
-		log.Error("Player[%v] pull channel[%v] chat msg is cooling down", this.Id, channel)
-		return int32(msg_client_message.E_ERR_CHAT_PULL_COOLING_DOWN)
-	}
-
+func (this *Player) _pull_chat(chat_mgr *ChatMgr, channel, now_time int32, empty_is_send bool) int32 {
 	msgs := chat_mgr.pull_chat(this)
+	if !empty_is_send {
+		if msgs == nil || len(msgs) == 0 {
+			return 0
+		}
+	}
 	if !this.db.Chats.HasIndex(channel) {
 		this.db.Chats.Add(&dbPlayerChatData{
 			Channel:      channel,
@@ -172,6 +159,29 @@ func (this *Player) pull_chat(channel int32) int32 {
 	return 1
 }
 
+func (this *Player) pull_chat(channel int32) int32 {
+	chat_mgr := this.get_chat_mgr(channel)
+	if chat_mgr == nil {
+		log.Error("Player[%v] get chat mgr by channel %v failed", this.Id, channel)
+		return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
+	}
+	pull_msg_cooldown := get_chat_pull_msg_cooldown(channel)
+	if pull_msg_cooldown < 0 {
+		log.Error("Player[%v] pull chat with unknown channel %v", this.Id, channel)
+		return int32(msg_client_message.E_ERR_CHAT_CHANNEL_CANT_GET)
+	}
+
+	now_time := int32(time.Now().Unix())
+	pull_time, _ := this.db.Chats.GetLastPullTime(channel)
+	if now_time-pull_time < pull_msg_cooldown {
+		log.Error("Player[%v] pull channel[%v] chat msg is cooling down", this.Id, channel)
+		//return int32(msg_client_message.E_ERR_CHAT_PULL_COOLING_DOWN)
+		return 0
+	}
+
+	return this._pull_chat(chat_mgr, channel, now_time, true)
+}
+
 func (this *Player) has_new_chat_msg(channel int32) bool {
 	chat_mgr := this.get_chat_mgr(channel)
 	if chat_mgr == nil {
@@ -180,6 +190,28 @@ func (this *Player) has_new_chat_msg(channel int32) bool {
 	}
 
 	return chat_mgr.has_new_msg(this)
+}
+
+func (this *Player) check_and_pull_chat() {
+	var channel_type_array []int32 = []int32{
+		CHAT_CHANNEL_WORLD, CHAT_CHANNEL_GUILD, CHAT_CHANNEL_RECRUIT, CHAT_CHANNEL_SYSTEM,
+	}
+	now_time := int32(time.Now().Unix())
+	for _, c := range channel_type_array {
+		chat_mgr := this.get_chat_mgr(c)
+		if chat_mgr == nil {
+			continue
+		}
+		pull_msg_cooldown := get_chat_pull_msg_cooldown(c)
+		if pull_msg_cooldown < 0 {
+			continue
+		}
+		pull_time, _ := this.db.Chats.GetLastPullTime(c)
+		if now_time-pull_time < pull_msg_cooldown {
+			continue
+		}
+		this._pull_chat(chat_mgr, c, now_time, false)
+	}
 }
 
 func C2SChatHandler(p *Player, msg_data []byte) int32 {

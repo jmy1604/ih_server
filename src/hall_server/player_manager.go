@@ -434,6 +434,9 @@ func C2SHeartbeatHandler(p *Player, msg_data []byte) int32 {
 		p.db.SysMail.SetCurrId(sys_mail_id)
 	}
 
+	// 聊天
+	p.check_and_pull_chat()
+
 	response := &msg_client_message.S2CHeartbeat{
 		SysTime: int32(time.Now().Unix()),
 	}
