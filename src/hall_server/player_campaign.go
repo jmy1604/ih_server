@@ -434,19 +434,19 @@ func (this *Player) set_hangup_campaign_id(campaign_id int32) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_CANT_FIGHT_THE_CAMPAIGN)
 		}
 	} else if campaign_id != hangup_id {
-		if !this.db.Campaigns.HasIndex(campaign_id) {
-			current_campaign_id := this.db.CampaignCommon.GetCurrentCampaignId()
-			//next_campaign_id := get_next_campaign_id(current_campaign_id)
-			if current_campaign_id != campaign_id {
-				return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
-			}
-
-			// 关卡完成就结算一次挂机收益
-			if hangup_id != 0 {
-				this.campaign_hangup_income_get(0, true)
-				this.campaign_hangup_income_get(1, true)
-			}
+		//if !this.db.Campaigns.HasIndex(campaign_id) {
+		current_campaign_id := this.db.CampaignCommon.GetCurrentCampaignId()
+		//next_campaign_id := get_next_campaign_id(current_campaign_id)
+		if current_campaign_id < campaign_id {
+			return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
 		}
+
+		// 关卡完成就结算一次挂机收益
+		if hangup_id != 0 {
+			this.campaign_hangup_income_get(0, true)
+			this.campaign_hangup_income_get(1, true)
+		}
+		//}
 	}
 
 	// 设置挂机开始时间

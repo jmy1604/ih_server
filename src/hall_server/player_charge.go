@@ -611,6 +611,7 @@ func _gzip_encode(data []byte) ([]byte, error) {
 }
 
 func _post_talking_data(account, pay_type, game_server, game_version, partner, order_id, os, iap_id, status string, level int32, currency_amount float64, currency_type string, virtual_currency_amount float64) {
+	now_time := time.Now()
 	pay := &TalkingData{
 		MsgId:                 "Charge",
 		GameVersion:           game_version,
@@ -625,7 +626,7 @@ func _post_talking_data(account, pay_type, game_server, game_version, partner, o
 		VirtualCurrencyAmount: virtual_currency_amount,
 		PaymentType:           pay_type,
 		Status:                status,
-		ChargeTime:            (time.Now().Unix())*1000 + time.Now().UnixNano()/(1000*1000),
+		ChargeTime:            (now_time.Unix())*1000 + now_time.UnixNano()/(1000*1000),
 	}
 	bytes, err := json.Marshal([]*TalkingData{pay})
 	if err != nil {
