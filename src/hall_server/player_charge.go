@@ -551,7 +551,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
-	if pay_item != nil {
+	if pay_item != nil && tmp_res.Status != 21007 {
 		_post_talking_data(this.Account, "apple pay", config.ServerName, config.InnerVersion, "apple", tmp_res.Receipt.TransactionId, "ios", "charge", "success", this.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 
