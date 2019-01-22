@@ -6,12 +6,12 @@ bash ./kill_all_server.sh
 sleep 1s
 
 cd ../bin
-nohup `pwd`/center_server &
+nohup `pwd`/center_server 1>/dev/null 2>/dev/null &
 sleep 1s
-nohup `pwd`/rpc_server &
+nohup `pwd`/rpc_server 1>/dev/null 2>/dev/null &
 sleep 1s
-nohup `pwd`/hall_server &
+nohup `pwd`/hall_server 1>/dev/null 2>/dev/null &
 sleep 1s 
-nohup `pwd`/hall_server -f `pwd`/../conf/hall_server2.json &
+nohup `pwd`/hall_server -f `pwd`/../conf/hall_server2.json 1>/dev/null 2>/dev/null &
 sleep 1s
-nohup `pwd`/login_server &
+nohup `pwd`/login_server 1>/dev/null 2>/dev/null &
