@@ -534,12 +534,14 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	}
 
 	// 发送到沙箱验证
+	var is_sandbox bool
 	if tmp_res.Status == 21007 {
 		res, tmp_res = this._send_apple_verify_url(global_config.ApplePaySandBoxUrl, data)
 		if res < 0 {
 			atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 			return res
 		}
+		is_sandbox = true
 	} else if 0 != tmp_res.Status {
 		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] apple pay verify Receipt check failed(%d) !", this.Id, tmp_res.Status)
@@ -551,7 +553,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
-	if pay_item != nil && tmp_res.Status != 21007 {
+	if pay_item != nil && !is_sandbox {
 		_post_talking_data(this.Account, "apple pay", config.ServerName, config.InnerVersion, "apple", tmp_res.Receipt.TransactionId, "ios", "charge", "success", this.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 

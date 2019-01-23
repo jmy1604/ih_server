@@ -128,7 +128,9 @@ func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *ms
 		}
 		if i >= len(player_list.player_list) {
 			player_list.player_list = append(player_list.player_list, info)
+			player_list_map_locker.Lock()
 			player_list_map[account] = player_list
+			player_list_map_locker.Unlock()
 		}
 	}
 
