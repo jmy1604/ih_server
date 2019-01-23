@@ -451,12 +451,12 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	uid := row.GetUniqueId()
 
 	var last_server_id int32
-	_, client_os := account_get_client_os(account)
-	if client_os == share_data.CLIENT_OS_IOS {
-		last_server_id = row.GetLastSelectIOSServerId()
-	} else {
-		last_server_id = row.GetLastSelectServerId()
-	}
+	//_, client_os := account_get_client_os(account)
+	//if client_os == share_data.CLIENT_OS_IOS {
+	//	last_server_id = row.GetLastSelectIOSServerId()
+	//} else {
+	last_server_id = row.GetLastSelectServerId()
+	//}
 
 	row = dbc.Accounts.AddRow(new_account)
 	if row == nil {
@@ -471,11 +471,11 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	row.SetRegisterTime(register_time)
 	row.SetUniqueId(uid)
 	row.SetOldAccount(account)
-	if client_os == share_data.CLIENT_OS_IOS {
-		row.SetLastSelectIOSServerId(last_server_id)
-	} else {
-		row.SetLastSelectServerId(last_server_id)
-	}
+	//if client_os == share_data.CLIENT_OS_IOS {
+	//	row.SetLastSelectIOSServerId(last_server_id)
+	//} else {
+	row.SetLastSelectServerId(last_server_id)
+	//}
 
 	//dbc.Accounts.RemoveRow(account) // 暂且不删除
 
@@ -642,7 +642,7 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 	// --------------------------------------------------------------------------------------------
 	// 选择默认服
 	var select_server_id int32
-	if client_os == share_data.CLIENT_OS_IOS {
+	/*if client_os == share_data.CLIENT_OS_IOS {
 		if is_verify {
 			select_server_id = server_list.GetIosVerifyServerId()
 		} else {
@@ -650,7 +650,8 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 		}
 	} else {
 		select_server_id = acc_row.GetLastSelectServerId()
-	}
+	}*/
+	select_server_id = acc_row.GetLastSelectServerId()
 	if select_server_id <= 0 {
 		server := server_list.RandomOne(client_os)
 		if server == nil {
@@ -659,11 +660,11 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 			return
 		}
 		select_server_id = server.Id
-		if client_os == share_data.CLIENT_OS_IOS {
-			acc_row.SetLastSelectIOSServerId(select_server_id)
-		} else {
-			acc_row.SetLastSelectServerId(select_server_id)
-		}
+		//if client_os == share_data.CLIENT_OS_IOS {
+		//	acc_row.SetLastSelectIOSServerId(select_server_id)
+		//} else {
+		acc_row.SetLastSelectServerId(select_server_id)
+		//}
 	}
 
 	var hall_ip, token string
@@ -758,12 +759,13 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	client_os := acc.get_client_os()
+	// 暂时不区分IOS或android
+	/*client_os := acc.get_client_os()
 	if !server_list.HasId(client_os, server_id) {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
 		log.Error("account %v select server id %v not found in client os %v", account, server_id, client_os)
 		return
-	}
+	}*/
 
 	// 暂时不判断状态
 	/*if acc.get_state() != 1 {
@@ -803,11 +805,13 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	if client_os == share_data.CLIENT_OS_IOS {
+	// 暂时不区分IOS或android
+	/*if client_os == share_data.CLIENT_OS_IOS {
 		row.SetLastSelectIOSServerId(server_id)
 	} else {
 		row.SetLastSelectServerId(server_id)
-	}
+	}*/
+	row.SetLastSelectServerId(server_id)
 
 	log.Trace("Account %v selected server %v", account, server_id)
 

@@ -67,15 +67,15 @@ func (this *ServerList) _read_config(data []byte) bool {
 				log.Trace("Server Id %v Weight %v", s.Id, s.Weight)
 			}
 
-			if s.ClientOS == CLIENT_OS_IOS {
-				if !s.VerifyUse {
-					total_weight_ios += s.Weight
-				} else {
-					this.IosVerifyServerId = s.Id
-				}
-			} else {
-				total_weight += s.Weight
-			}
+			//if s.ClientOS == CLIENT_OS_IOS {
+			//	if !s.VerifyUse {
+			//		total_weight_ios += s.Weight
+			//	} else {
+			//		this.IosVerifyServerId = s.Id
+			//	}
+			//} else {
+			total_weight += s.Weight
+			//}
 		}
 	}
 
@@ -177,16 +177,16 @@ func (this *ServerList) RandomOne(client_os string) (info *HallServerInfo) {
 
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
-			if s.Weight <= 0 {
-				continue
-			}
-			if r < s.Weight {
-				info = s
-				break
-			}
-			r -= s.Weight
+		//if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
+		if s.Weight <= 0 {
+			continue
 		}
+		if r < s.Weight {
+			info = s
+			break
+		}
+		r -= s.Weight
+		//}
 	}
 
 	return
@@ -202,9 +202,9 @@ func (this *ServerList) GetServers(client_os string) (servers []*HallServerInfo)
 
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
-			servers = append(servers, s)
-		}
+		//if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
+		servers = append(servers, s)
+		//}
 	}
 	return
 }
@@ -216,12 +216,12 @@ func (this *ServerList) HasId(client_os string, server_id int32) bool {
 	var found bool
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
-			if s.Id == server_id {
-				found = true
-				break
-			}
+		//if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
+		if s.Id == server_id {
+			found = true
+			break
 		}
+		//}
 	}
 	return found
 }
