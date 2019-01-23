@@ -344,7 +344,7 @@ func (this *Player) OnCreate() {
 		PlayerLevel: this.db.Info.GetLvl(),
 		PlayerHead:  this.db.Info.GetHead(),
 	}
-	share_data.AddAccountPlayerInfo(hall_server.redis_conn, this.Account, info)
+	share_data.AddUidPlayerInfo(hall_server.redis_conn, this.UniqueId, info)
 	return
 }
 
@@ -921,7 +921,7 @@ func (this *Player) change_head(new_head int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_CHANGE_HEAD_RESPONSE), response)
 
-	share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, &msg_client_message.AccountPlayerInfo{
+	share_data.SaveUidPlayerInfo(hall_server.redis_conn, this.UniqueId, &msg_client_message.AccountPlayerInfo{
 		ServerId:    config.ServerId,
 		PlayerName:  this.db.GetName(),
 		PlayerLevel: this.db.Info.GetLvl(),

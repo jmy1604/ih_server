@@ -39,7 +39,7 @@ func (this *HallServer) Init() (ok bool) {
 	if !this.redis_conn.Connect(config.RedisServerIP) {
 		return
 	}
-	if !share_data.LoadAccountsPlayerList(this.redis_conn) {
+	if !share_data.LoadUidsPlayerList(this.redis_conn) {
 		return
 	}
 

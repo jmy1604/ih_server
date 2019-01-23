@@ -535,7 +535,7 @@ func C2SPlayerChangeNameHandler(p *Player, msg_data []byte) int32 {
 		NewName: req.GetNewName(),
 	})
 
-	share_data.SaveAccountPlayerInfo(hall_server.redis_conn, p.Account, &msg_client_message.AccountPlayerInfo{
+	share_data.SaveUidPlayerInfo(hall_server.redis_conn, p.UniqueId, &msg_client_message.AccountPlayerInfo{
 		ServerId:    config.ServerId,
 		PlayerName:  req.GetNewName(),
 		PlayerLevel: p.db.Info.GetLvl(),
@@ -565,9 +565,9 @@ func C2SRedPointStatesHandler(p *Player, msg_data []byte) int32 {
 }
 
 func (this *Player) send_account_player_list() int32 {
-	share_data.LoadAccountPlayerList(hall_server.redis_conn, this.Account)
-	if share_data.GetAccountPlayer(this.Account, config.ServerId) == nil {
-		share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, &msg_client_message.AccountPlayerInfo{
+	share_data.LoadUidPlayerList(hall_server.redis_conn, this.UniqueId)
+	if share_data.GetUidPlayer(this.UniqueId, config.ServerId) == nil {
+		share_data.SaveUidPlayerInfo(hall_server.redis_conn, this.UniqueId, &msg_client_message.AccountPlayerInfo{
 			ServerId:    config.ServerId,
 			PlayerName:  this.db.GetName(),
 			PlayerLevel: this.db.Info.GetLvl(),
@@ -575,7 +575,7 @@ func (this *Player) send_account_player_list() int32 {
 		})
 	}
 	response := &msg_client_message.S2CAccountPlayerListResponse{
-		InfoList: share_data.GetAccountPlayerList(this.Account),
+		InfoList: share_data.GetUidPlayerList(this.UniqueId),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACCOUNT_PLAYER_LIST_RESPONSE), response)
 	log.Debug("Account[%v] player list %v", this.Account, response)

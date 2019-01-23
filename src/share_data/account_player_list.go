@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	ACCOUNT_PLAYER_LIST_KEY = "ih:share_data:account_player_list"
+	UID_PLAYER_LIST_KEY = "ih:share_data:uid_player_list"
 )
 
 type PlayerList struct {
@@ -29,18 +29,18 @@ func (this *PlayerList) GetList() []*msg_client_message.AccountPlayerInfo {
 var player_list_map map[string]*PlayerList
 var player_list_map_locker *sync.RWMutex
 
-func AccountPlayerListInit() {
+func UidPlayerListInit() {
 	player_list_map = make(map[string]*PlayerList)
 	player_list_map_locker = &sync.RWMutex{}
 }
 
-func LoadAccountsPlayerList(redis_conn *utils.RedisConn) bool {
-	AccountPlayerListInit()
+func LoadUidsPlayerList(redis_conn *utils.RedisConn) bool {
+	UidPlayerListInit()
 
 	var values map[string]string
-	values, err := redis.StringMap(redis_conn.Do("HGETALL", ACCOUNT_PLAYER_LIST_KEY))
+	values, err := redis.StringMap(redis_conn.Do("HGETALL", UID_PLAYER_LIST_KEY))
 	if err != nil {
-		log.Error("redis get hashset %v all data err %v", ACCOUNT_PLAYER_LIST_KEY, err.Error())
+		log.Error("redis get hashset %v all data err %v", UID_PLAYER_LIST_KEY, err.Error())
 		return false
 	}
 	var msg msg_client_message.S2CAccountPlayerListResponse
@@ -61,17 +61,17 @@ func LoadAccountsPlayerList(redis_conn *utils.RedisConn) bool {
 	return true
 }
 
-func LoadAccountPlayerList(redis_conn *utils.RedisConn, account string) bool {
-	data, err := redis.Bytes(redis_conn.Do("HGET", ACCOUNT_PLAYER_LIST_KEY, account))
+func LoadUidPlayerList(redis_conn *utils.RedisConn, uid string) bool {
+	data, err := redis.Bytes(redis_conn.Do("HGET", UID_PLAYER_LIST_KEY, uid))
 	if err != nil {
-		log.Error("redis get hashset %v with key %v err %v", ACCOUNT_PLAYER_LIST_KEY, account, err.Error())
+		log.Error("redis get hashset %v with key %v err %v", UID_PLAYER_LIST_KEY, uid, err.Error())
 		return false
 	}
 
 	var msg msg_client_message.S2CAccountPlayerListResponse
 	err = proto.Unmarshal(data, &msg)
 	if err != nil {
-		log.Error("account %v S2CAccountPlayerListResponse data unmarshal err %v", account, err.Error())
+		log.Error("uid %v S2CAccountPlayerListResponse data unmarshal err %v", uid, err.Error())
 		return false
 	}
 
@@ -80,56 +80,57 @@ func LoadAccountPlayerList(redis_conn *utils.RedisConn, account string) bool {
 		player_list:        msg.InfoList,
 		player_list_locker: &sync.RWMutex{},
 	}
-	player_list_map[account] = pl
+	player_list_map[uid] = pl
 	player_list_map_locker.Unlock()
 
 	return true
 }
 
-func AddAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *msg_client_message.AccountPlayerInfo) {
+func AddUidPlayerInfo(redis_conn *utils.RedisConn, uid string, info *msg_client_message.AccountPlayerInfo) {
 	player_list_map_locker.RLock()
-	pl := player_list_map[account]
+	pl := player_list_map[uid]
 	player_list_map_locker.RUnlock()
 	if pl == nil {
-		LoadAccountPlayerList(redis_conn, account)
+		LoadUidPlayerList(redis_conn, uid)
 	}
-	SaveAccountPlayerInfo(redis_conn, account, info)
+	SaveUidPlayerInfo(redis_conn, uid, info)
 }
 
-func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *msg_client_message.AccountPlayerInfo) {
+func SaveUidPlayerInfo(redis_conn *utils.RedisConn, uid string, info *msg_client_message.AccountPlayerInfo) {
 	player_list_map_locker.RLock()
-	player_list := player_list_map[account]
+	player_list := player_list_map[uid]
 	player_list_map_locker.RUnlock()
 
 	if player_list == nil {
 		player_list_map_locker.Lock()
-		player_list = player_list_map[account]
+		player_list = player_list_map[uid]
 		// double check
 		if player_list == nil {
 			player_list = &PlayerList{
 				player_list_locker: &sync.RWMutex{},
 			}
-			player_list_map[account] = player_list
+			player_list_map[uid] = player_list
 		}
 		player_list_map_locker.Unlock()
 	}
 
 	i := 0
 	for ; i < len(player_list.player_list); i++ {
-		if player_list.player_list[i] == nil {
+		p := player_list.player_list[i]
+		if p == nil {
 			continue
 		}
-		if player_list.player_list[i].GetServerId() == info.GetServerId() {
-			player_list.player_list[i].PlayerName = info.GetPlayerName()
-			player_list.player_list[i].PlayerLevel = info.GetPlayerLevel()
-			player_list.player_list[i].PlayerHead = info.GetPlayerHead()
+		if p.GetServerId() == info.GetServerId() {
+			p.PlayerName = info.GetPlayerName()
+			p.PlayerLevel = info.GetPlayerLevel()
+			p.PlayerHead = info.GetPlayerHead()
 			break
 		}
 	}
 	if i >= len(player_list.player_list) {
 		player_list.player_list = append(player_list.player_list, info)
 		player_list_map_locker.Lock()
-		player_list_map[account] = player_list
+		player_list_map[uid] = player_list
 		player_list_map_locker.Unlock()
 	}
 
@@ -137,28 +138,28 @@ func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *ms
 	msg.InfoList = player_list.player_list
 	data, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Error("redis marshal account %v info err %v", account, err.Error())
+		log.Error("redis marshal account %v info err %v", uid, err.Error())
 		return
 	}
-	err = redis_conn.Post("HSET", ACCOUNT_PLAYER_LIST_KEY, account, data)
+	err = redis_conn.Post("HSET", UID_PLAYER_LIST_KEY, uid, data)
 	if err != nil {
-		log.Error("redis set hashset %v key %v data %v err %v", ACCOUNT_PLAYER_LIST_KEY, account, data, err.Error())
+		log.Error("redis set hashset %v key %v data %v err %v", UID_PLAYER_LIST_KEY, uid, data, err.Error())
 		return
 	}
 }
 
-func GetAccountPlayerList(account string) []*msg_client_message.AccountPlayerInfo {
+func GetUidPlayerList(uid string) []*msg_client_message.AccountPlayerInfo {
 	player_list_map_locker.RLock()
 	defer player_list_map_locker.RUnlock()
-	pl := player_list_map[account]
+	pl := player_list_map[uid]
 	if pl == nil {
 		return nil
 	}
 	return pl.GetList()
 }
 
-func GetAccountPlayer(account string, server_id int32) *msg_client_message.AccountPlayerInfo {
-	player_list := GetAccountPlayerList(account)
+func GetUidPlayer(uid string, server_id int32) *msg_client_message.AccountPlayerInfo {
+	player_list := GetUidPlayerList(uid)
 	if player_list == nil {
 		return nil
 	}

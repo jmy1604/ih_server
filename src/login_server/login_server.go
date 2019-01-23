@@ -57,7 +57,7 @@ func (this *LoginServer) Init() (ok bool) {
 	this.acc2c_wait = make(map[string]*WaitCenterInfo)
 	this.acc2c_wait_lock = &sync.RWMutex{}
 	this.redis_conn = &utils.RedisConn{}
-	share_data.AccountPlayerListInit()
+	share_data.UidPlayerListInit()
 	account_mgr_init()
 
 	this.initialized = true
@@ -634,7 +634,7 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 		now_time := time.Now()
 		last_time := acc_row.GetLastGetAccountPlayerListTime()
 		if int32(now_time.Unix())-last_time >= 5*60 {
-			share_data.LoadAccountPlayerList(server.redis_conn, account)
+			share_data.LoadUidPlayerList(server.redis_conn, acc_row.GetUniqueId())
 			acc_row.SetLastGetAccountPlayerListTime(int32(now_time.Unix()))
 		}
 	}
@@ -700,7 +700,7 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 		}
 	}
 
-	response.InfoList = share_data.GetAccountPlayerList(account)
+	response.InfoList = share_data.GetUidPlayerList(acc_row.GetUniqueId())
 	response.LastServerId = select_server_id
 	if channel == "guest" {
 		response.BoundAccount = acc_row.GetBindNewAccount()
