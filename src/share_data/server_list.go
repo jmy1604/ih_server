@@ -28,11 +28,11 @@ type HallServerInfo struct {
 }
 
 type ServerList struct {
-	CommonIP          string
-	Servers           []*HallServerInfo
-	Data              string
-	TotalWeight       int32
-	TotalWeightIos    int32
+	CommonIP    string
+	Servers     []*HallServerInfo
+	Data        string
+	TotalWeight int32
+	//TotalWeightIos    int32
 	IosVerifyServerId int32
 	ConfigPath        string
 	MD5Str            string
@@ -56,7 +56,7 @@ func (this *ServerList) _read_config(data []byte) bool {
 	}
 
 	var total_weight int32
-	var total_weight_ios int32
+	//var total_weight_ios int32
 	if this.Servers != nil {
 		for i := 0; i < len(this.Servers); i++ {
 			s := this.Servers[i]
@@ -79,15 +79,15 @@ func (this *ServerList) _read_config(data []byte) bool {
 		}
 	}
 
-	if this.IosVerifyServerId <= 0 {
-		if total_weight <= 0 && total_weight_ios <= 0 {
-			log.Error("Server List Total Weight is invalid %v", total_weight)
-			return false
-		}
+	//if this.IosVerifyServerId <= 0 {
+	if total_weight <= 0 /*&& total_weight_ios <= 0*/ {
+		log.Error("Server List Total Weight is invalid %v", total_weight)
+		return false
 	}
+	//}
 
 	this.TotalWeight = total_weight
-	this.TotalWeightIos = total_weight_ios
+	//this.TotalWeightIos = total_weight_ios
 	this.Data = string(data)
 	this.MD5Str = _get_md5(data)
 
@@ -127,7 +127,7 @@ func (this *ServerList) RereadConfig() bool {
 
 	this.Servers = nil
 	this.TotalWeight = 0
-	this.TotalWeightIos = 0
+	//this.TotalWeightIos = 0
 
 	if !this._read_config(data) {
 		return false
@@ -163,11 +163,11 @@ func (this *ServerList) RandomOne(client_os string) (info *HallServerInfo) {
 	defer this.Locker.RUnlock()
 
 	var total_weight int32
-	if client_os == CLIENT_OS_IOS {
-		total_weight = this.TotalWeightIos
-	} else {
-		total_weight = this.TotalWeight
-	}
+	//if client_os == CLIENT_OS_IOS {
+	//	total_weight = this.TotalWeightIos
+	//} else {
+	total_weight = this.TotalWeight
+	//}
 
 	now_time := time.Now()
 	rand.Seed(now_time.Unix() + now_time.UnixNano())

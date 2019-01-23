@@ -653,17 +653,20 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 	}*/
 	select_server_id = acc_row.GetLastSelectServerId()
 	if select_server_id <= 0 {
-		server := server_list.RandomOne(client_os)
-		if server == nil {
-			err_code = int32(msg_client_message.E_ERR_INTERNAL)
-			log.Error("Server List random null !!!")
-			return
+		select_server_id = acc_row.GetLastSelectIOSServerId()
+		if select_server_id <= 0 {
+			server := server_list.RandomOne(client_os)
+			if server == nil {
+				err_code = int32(msg_client_message.E_ERR_INTERNAL)
+				log.Error("Server List random null !!!")
+				return
+			}
+			select_server_id = server.Id
+			//if client_os == share_data.CLIENT_OS_IOS {
+			//	acc_row.SetLastSelectIOSServerId(select_server_id)
+			//} else {
+			acc_row.SetLastSelectServerId(select_server_id)
 		}
-		select_server_id = server.Id
-		//if client_os == share_data.CLIENT_OS_IOS {
-		//	acc_row.SetLastSelectIOSServerId(select_server_id)
-		//} else {
-		acc_row.SetLastSelectServerId(select_server_id)
 		//}
 	}
 
