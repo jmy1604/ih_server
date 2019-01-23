@@ -449,7 +449,14 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	row.SetBindNewAccount(new_account)
 	register_time := row.GetRegisterTime()
 	uid := row.GetUniqueId()
-	last_server_id := row.GetLastSelectServerId()
+
+	var last_server_id int32
+	_, client_os := account_get_client_os(account)
+	if client_os == share_data.CLIENT_OS_IOS {
+		last_server_id = row.GetLastSelectIOSServerId()
+	} else {
+		last_server_id = row.GetLastSelectServerId()
+	}
 
 	row = dbc.Accounts.AddRow(new_account)
 	if row == nil {
@@ -463,13 +470,13 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	}
 	row.SetRegisterTime(register_time)
 	row.SetUniqueId(uid)
-	b, client_os := account_get_client_os(account)
-	if b && client_os == share_data.CLIENT_OS_IOS {
+	row.SetOldAccount(account)
+	if client_os == share_data.CLIENT_OS_IOS {
 		row.SetLastSelectIOSServerId(last_server_id)
 	} else {
 		row.SetLastSelectServerId(last_server_id)
 	}
-	row.SetOldAccount(account)
+
 	//dbc.Accounts.RemoveRow(account) // 暂且不删除
 
 	hall_agent := hall_agent_manager.GetAgentByID(server_id)
