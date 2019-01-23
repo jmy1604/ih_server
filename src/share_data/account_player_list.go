@@ -86,6 +86,16 @@ func LoadAccountPlayerList(redis_conn *utils.RedisConn, account string) bool {
 	return true
 }
 
+func AddAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *msg_client_message.AccountPlayerInfo) {
+	player_list_map_locker.RLock()
+	pl := player_list_map[account]
+	player_list_map_locker.RUnlock()
+	if pl == nil {
+		LoadAccountPlayerList(redis_conn, account)
+	}
+	SaveAccountPlayerInfo(redis_conn, account, info)
+}
+
 func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *msg_client_message.AccountPlayerInfo) {
 	player_list_map_locker.RLock()
 	player_list := player_list_map[account]

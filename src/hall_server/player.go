@@ -344,7 +344,7 @@ func (this *Player) OnCreate() {
 		PlayerLevel: this.db.Info.GetLvl(),
 		PlayerHead:  this.db.Info.GetHead(),
 	}
-	share_data.SaveAccountPlayerInfo(hall_server.redis_conn, this.Account, info)
+	share_data.AddAccountPlayerInfo(hall_server.redis_conn, this.Account, info)
 	return
 }
 
@@ -942,7 +942,7 @@ func output_report(rr *msg_client_message.BattleReportItem) {
 			for n := 0; n < len(rr.SummonNpcs); n++ {
 				rrs := rr.SummonNpcs[n]
 				if rrs != nil {
-					log.Debug("					 summon npc: Side[%v], Pos[%v], Id[%v], TableId[%v], HP[%v], MaxHP[%v], Energy[%v]", rrs.Side, rrs.Pos, rrs.Id, rrs.TableId, rrs.HP, rrs.MaxHP, rrs.Energy)
+					log.Debug("					 summon npc: Side[%v], Pos[%v], IdId[%v], TableId[%v], HP[%v], MaxHP[%v], Energy[%v]", rrs.Side, rrs.Pos, rrs.Id, rrs.TableId, rrs.HP, rrs.MaxHP, rrs.Energy)
 				}
 			}
 		}
