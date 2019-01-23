@@ -802,6 +802,8 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		row.SetLastSelectServerId(server_id)
 	}
 
+	log.Trace("Account %v selected server %v", account, server_id)
+
 	return
 }
 
