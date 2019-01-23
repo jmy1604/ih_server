@@ -310,6 +310,7 @@ func (this *Player) add_vip_exp(add_exp int32) (level, exp int32) {
 		this.b_base_prop_chg = true
 		// 更新任务
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_REACH_VIP_N_LEVEL, true, level, 1)
+		log.Trace("Player[%v] Vip level up to %v", this.Id, level)
 	}
 
 	if exp != this.get_resource(ITEM_RESOURCE_ID_VIP_EXP) {

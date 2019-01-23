@@ -557,7 +557,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 		_post_talking_data(this.Account, "apple pay", config.ServerName, config.InnerVersion, "apple", tmp_res.Receipt.TransactionId, "ios", "charge", "success", this.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 
-	log.Info("Player[%v] apple pay bunder_id[%v] verify success", this.Id, bundle_id)
+	log.Info("Player[%v] apple pay bunder_id[%v] verify success, purchase data %v", this.Id, bundle_id, string(purchase_data))
 
 	return 1
 }

@@ -104,34 +104,33 @@ func SaveAccountPlayerInfo(redis_conn *utils.RedisConn, account string, info *ms
 	if player_list == nil {
 		player_list_map_locker.Lock()
 		player_list = player_list_map[account]
-		if player_list != nil {
-			return
+		// double check
+		if player_list == nil {
+			player_list = &PlayerList{
+				player_list_locker: &sync.RWMutex{},
+			}
+			player_list_map[account] = player_list
 		}
-		player_list = &PlayerList{
-			player_list:        []*msg_client_message.AccountPlayerInfo{info},
-			player_list_locker: &sync.RWMutex{},
+		player_list_map_locker.Unlock()
+	}
+
+	i := 0
+	for ; i < len(player_list.player_list); i++ {
+		if player_list.player_list[i] == nil {
+			continue
 		}
+		if player_list.player_list[i].GetServerId() == info.GetServerId() {
+			player_list.player_list[i].PlayerName = info.GetPlayerName()
+			player_list.player_list[i].PlayerLevel = info.GetPlayerLevel()
+			player_list.player_list[i].PlayerHead = info.GetPlayerHead()
+			break
+		}
+	}
+	if i >= len(player_list.player_list) {
+		player_list.player_list = append(player_list.player_list, info)
+		player_list_map_locker.Lock()
 		player_list_map[account] = player_list
 		player_list_map_locker.Unlock()
-	} else {
-		i := 0
-		for ; i < len(player_list.player_list); i++ {
-			if player_list.player_list[i] == nil {
-				continue
-			}
-			if player_list.player_list[i].GetServerId() == info.GetServerId() {
-				player_list.player_list[i].PlayerName = info.GetPlayerName()
-				player_list.player_list[i].PlayerLevel = info.GetPlayerLevel()
-				player_list.player_list[i].PlayerHead = info.GetPlayerHead()
-				break
-			}
-		}
-		if i >= len(player_list.player_list) {
-			player_list.player_list = append(player_list.player_list, info)
-			player_list_map_locker.Lock()
-			player_list_map[account] = player_list
-			player_list_map_locker.Unlock()
-		}
 	}
 
 	var msg msg_client_message.S2CAccountPlayerListResponse
