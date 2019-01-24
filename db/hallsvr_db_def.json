@@ -1508,17 +1508,17 @@
 			]
 		},
 		{
-			"TableName":"GooglePayRecord",
-			"DBTableName":"GooglePayRecord",
+			"TableName":"GooglePay",
+			"DBTableName":"GooglePay",
 			"SingleRow":false,
-			"AutoPrimaryKey":true,
-			"PrimaryKeyName":"KeyId",
-			"PrimaryKeyType":"int32",
-			"PrimaryKeySize":11,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"OrderId",
+			"PrimaryKeyType":"string",
+			"PrimaryKeySize":32,
 			"Columns":[
 				{
-					"ColumnName":"Sn",
-					"DBColumnName":"Sn",
+					"ColumnName":"OrderId",
+					"DBColumnName":"OrderId",
 					"InUse":true,
 					"Simple":true,
 					"SimpleType":"string",					
@@ -1528,8 +1528,8 @@
 					"Fields":[]		
 				},
 				{
-					"ColumnName":"Bid",
-					"DBColumnName":"Bid",
+					"ColumnName":"BundleId",
+					"DBColumnName":"BundleId",
 					"InUse":true,
 					"Simple":true,
 					"SimpleType":"string",					
@@ -1543,11 +1543,22 @@
 					"DBColumnName":"PlayerId",
 					"InUse":true,
 					"Simple":true,
-					"SimpleType":"int32",					
+					"SimpleType":"int32",
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[]		
+					"Fields":[]
+				},
+				{
+					"ColumnName":"Account",
+					"DBColumnName":"Account",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":false,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[]
 				},
 				{
 					"ColumnName":"PayTime",
@@ -1559,12 +1570,23 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[]		
+				},
+				{
+					"ColumnName":"PayTimeStr",
+					"DBColumnName":"PayTimeStr",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":false,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[]
 				}
 			]
 		},
 		{
-			"TableName":"ApplePayRecord",
-			"DBTableName":"ApplePayRecord",
+			"TableName":"ApplePay",
+			"DBTableName":"ApplePay",
 			"SingleRow":false,
 			"AutoPrimaryKey":true,
 			"PrimaryKeyName":"KeyId",
@@ -1572,19 +1594,19 @@
 			"PrimaryKeySize":11,
 			"Columns":[
 				{
-					"ColumnName":"Sn",
-					"DBColumnName":"Sn",
+					"ColumnName":"OrderId",
+					"DBColumnName":"OrderId",
 					"InUse":true,
 					"Simple":true,
-					"SimpleType":"string",					
+					"SimpleType":"string",				
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[]
 				},
 				{
-					"ColumnName":"Bid",
-					"DBColumnName":"Bid",
+					"ColumnName":"BundleId",
+					"DBColumnName":"BundleId",
 					"InUse":true,
 					"Simple":true,
 					"SimpleType":"string",					
@@ -1605,66 +1627,33 @@
 					"Fields":[]		
 				},
 				{
-					"ColumnName":"PayTime",
-					"DBColumnName":"PayTime",
+					"ColumnName":"Account",
+					"DBColumnName":"Account",
 					"InUse":true,
 					"Simple":true,
-					"SimpleType":"int32",					
+					"SimpleType":"string",
 					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]		
-				}
-			]
-		},
-		{
-			"TableName":"FaceBPayRecord",
-			"DBTableName":"FaceBPayRecord",
-			"SingleRow":false,
-			"AutoPrimaryKey":true,
-			"PrimaryKeyName":"KeyId",
-			"PrimaryKeyType":"int32",
-			"PrimaryKeySize":11,
-			"Columns":[
-				{
-					"ColumnName":"Sn",
-					"DBColumnName":"Sn",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"string",					
-					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[]
 				},
 				{
-					"ColumnName":"Bid",
-					"DBColumnName":"Bid",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"string",					
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]		
-				},
-				{
-					"ColumnName":"PlayerId",
-					"DBColumnName":"PlayerId",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"int32",					
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]		
-				},
-				{
 					"ColumnName":"PayTime",
 					"DBColumnName":"PayTime",
 					"InUse":true,
 					"Simple":true,
 					"SimpleType":"int32",					
+					"Preload":false,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[]		
+				},
+				{
+					"ColumnName":"PayTimeStr",
+					"DBColumnName":"PayTimeStr",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",					
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,

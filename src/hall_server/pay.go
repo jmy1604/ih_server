@@ -146,35 +146,6 @@ func (this *PayMgr) init() bool {
 	return true
 }
 
-/*
-func (this *PayMgr) load_bid_info() bool {
-	this.bid2infos = make(map[string]*XmlPayBidItem)
-	content, err := ioutil.ReadFile("../game_data/payConfig.xml")
-	if nil != err {
-		log.Error("PayMgr load_bid_info failed(%s) !", err.Error())
-		return false
-	}
-
-	tmp_cfg := &XmlPayBidConfig{}
-	err = json.Unmarshal(content, tmp_cfg)
-	if nil != err {
-		log.Error("PayMgr load_bid_info failed(%s) !", err.Error())
-		return false
-	}
-
-	for idx := int32(0); idx < int32(len(tmp_cfg.Items)); idx++ {
-		tmp_item := &tmp_cfg.Items[idx]
-		if nil == tmp_item {
-			log.Error("PayMgr load_bid_info tmp_item[%d] nil", idx)
-			continue
-		}
-
-		this.bid2infos[tmp_item.OrderName] = tmp_item
-	}
-
-	return true
-}
-*/
 func (this *PayMgr) load_google_pay_pub() bool {
 	path := server_config.GetGameDataPathFile("googlepay.key")
 	content, err := ioutil.ReadFile(path)
@@ -201,7 +172,7 @@ func (this *PayMgr) load_google_pay_pub() bool {
 }
 
 func (this *PayMgr) load_google_pay_db() bool {
-	this.google_payed_sns = make(map[string]int32)
+	/*this.google_payed_sns = make(map[string]int32)
 	pre_max_id := dbc.GooglePayRecords.GetPreloadedMaxId()
 	for idx := int32(0); idx < pre_max_id; idx++ {
 		tmp_row := dbc.GooglePayRecords.GetRow(idx)
@@ -211,13 +182,13 @@ func (this *PayMgr) load_google_pay_db() bool {
 		}
 
 		this.google_payed_sns[tmp_row.GetSn()] = idx
-	}
+	}*/
 
 	return true
 }
 
 func (this *PayMgr) load_faceb_pay_db() bool {
-	this.faceb_payed_sns = make(map[string]int32)
+	/*this.faceb_payed_sns = make(map[string]int32)
 	pre_max_id := dbc.FaceBPayRecords.GetPreloadedMaxId()
 	for idx := int32(0); idx < pre_max_id; idx++ {
 		tmp_row := dbc.FaceBPayRecords.GetRow(idx)
@@ -227,13 +198,13 @@ func (this *PayMgr) load_faceb_pay_db() bool {
 		}
 
 		this.faceb_payed_sns[tmp_row.GetSn()] = idx
-	}
+	}*/
 
 	return true
 }
 
 func (this *PayMgr) load_apple_pay_db() bool {
-	this.apple_payed_sns = make(map[string]int32)
+	/*this.apple_payed_sns = make(map[string]int32)
 	pre_max_id := dbc.ApplePayRecords.GetPreloadedMaxId()
 	for idx := int32(0); idx < pre_max_id; idx++ {
 		tmp_row := dbc.ApplePayRecords.GetRow(idx)
@@ -243,7 +214,7 @@ func (this *PayMgr) load_apple_pay_db() bool {
 		}
 
 		this.apple_payed_sns[tmp_row.GetSn()] = idx
-	}
+	}*/
 
 	return true
 }
@@ -330,7 +301,7 @@ func google_pay_order_verify(p *Player, item_id int32, order_data []byte) int32 
 		return int32(msg_client_message.E_ERR_CHARGE_ORDER_VERIFY_FAILED)
 	}
 
-	new_row := dbc.GooglePayRecords.AddRow()
+	/*new_row := dbc.GooglePayRecords.AddRow()
 	if nil == new_row {
 		log.Error("google_pay_order_verify failed to add_row pid[%d] order_name[%s] !", p.Id, tmp_info.OrderName)
 		return -1
@@ -340,7 +311,7 @@ func google_pay_order_verify(p *Player, item_id int32, order_data []byte) int32 
 	new_row.SetPlayerId(p.Id)
 	new_row.SetSn(tmp_info.Sn)
 	new_row.SetBid(tmp_info.OrderName)
-	new_row.SetPayTime(int32(time.Now().Unix()))
+	new_row.SetPayTime(int32(time.Now().Unix()))*/
 
 	//p.AddDiamond(bid_info.RewardGem, "Pay", "PayMgr")
 	/*res := p.buy_item(item_id, 1, true)
@@ -386,7 +357,7 @@ func apple_pay_verify(p *Player, order_data []byte) bool { //ordername, receipt 
 		return false
 	}
 
-	ordername := tmp_order.OrderName
+	//ordername := tmp_order.OrderName
 	receipt := tmp_order.Receipt
 
 	/*bid_info := pay_mgr.bid2infos[ordername]
@@ -436,7 +407,7 @@ func apple_pay_verify(p *Player, order_data []byte) bool { //ordername, receipt 
 		return false
 	}
 
-	new_row := dbc.ApplePayRecords.AddRow()
+	/*new_row := dbc.ApplePayRecords.AddRow()
 	if nil == new_row {
 		log.Error("apple_pay_verify failed to add_row pid[%d] order_name[%s] !", p.Id, ordername)
 		return false
@@ -446,7 +417,7 @@ func apple_pay_verify(p *Player, order_data []byte) bool { //ordername, receipt 
 	new_row.SetPlayerId(p.Id)
 	new_row.SetSn(receipt)
 	new_row.SetBid(ordername)
-	new_row.SetPayTime(int32(time.Now().Unix()))
+	new_row.SetPayTime(int32(time.Now().Unix()))*/
 
 	//p.AddDiamond(bid_info.RewardGem, "Pay", "PayMgr")
 

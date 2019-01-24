@@ -130,7 +130,6 @@ type RedisPayInfo struct {
 
 func google_pay_save(order_id, bundle_id, account string, player_id int32) {
 	var pay RedisPayInfo
-	//pay.OrderId = order_id
 	pay.BundleId = bundle_id
 	pay.Account = account
 	pay.PlayerId = player_id
@@ -150,6 +149,14 @@ func google_pay_save(order_id, bundle_id, account string, player_id int32) {
 		return
 	}
 
+	row := dbc.GooglePays.AddRow()
+	row.SetOrderId(order_id)
+	row.SetBundleId(bundle_id)
+	row.SetAccount(account)
+	row.SetPlayerId(player_id)
+	row.SetPayTime(int32(now_time.Unix()))
+	row.SetPayTimeStr(now_time.String())
+
 	log.Info("save google pay: player_id(%v), order_id(%v), bundle_id(%v)", player_id, order_id, bundle_id)
 }
 
@@ -167,7 +174,6 @@ func check_google_order_exist(order_id string) bool {
 
 func apple_pay_save(order_id, bundle_id, account string, player_id int32) {
 	var pay RedisPayInfo
-	//pay.OrderId = order_id
 	pay.BundleId = bundle_id
 	pay.Account = account
 	pay.PlayerId = player_id
@@ -184,6 +190,15 @@ func apple_pay_save(order_id, bundle_id, account string, player_id int32) {
 		log.Error("redis设置集合[%v]数据失败[%v]", APPLE_PAY_REDIS_KEY, err.Error())
 		return
 	}
+
+	row := dbc.ApplePays.AddRow()
+	row.SetOrderId(order_id)
+	row.SetBundleId(bundle_id)
+	row.SetAccount(account)
+	row.SetPlayerId(player_id)
+	row.SetPayTime(int32(now_time.Unix()))
+	row.SetPayTimeStr(now_time.String())
+
 	log.Info("save apple pay: player_id(%v), order_id(%v), bundle_id(%v)", player_id, order_id, bundle_id)
 }
 
