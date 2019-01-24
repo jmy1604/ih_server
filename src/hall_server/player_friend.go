@@ -239,6 +239,9 @@ func (this *Player) _format_friends_info(friend_ids []int32) (friends_info []*ms
 	} else {
 		now_time := int32(time.Now().Unix())
 		for i := 0; i < len(friend_ids); i++ {
+			if friend_ids[i] <= 0 {
+				continue
+			}
 			p := player_mgr.GetPlayerById(friend_ids[i])
 			if p == nil {
 				continue
@@ -255,6 +258,9 @@ func _format_players_info(player_ids []int32) (players_info []*msg_client_messag
 		players_info = make([]*msg_client_message.PlayerInfo, 0)
 	} else {
 		for i := 0; i < len(player_ids); i++ {
+			if player_ids[i] <= 0 {
+				continue
+			}
 			p := player_mgr.GetPlayerById(player_ids[i])
 			if p == nil {
 				continue
@@ -422,11 +428,15 @@ func (this *Player) friend_add_ids(player_ids []int32) {
 
 // 同意加为好友
 func (this *Player) agree_friend_ask(player_ids []int32) int32 {
-	for i := 0; i < len(player_ids); i++ {
-		if this.db.Friends.NumAll() >= global_config.FriendMaxNum {
-			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_NUM_MAX)
-		}
+	if player_ids == nil || len(player_ids) == 0 {
+		return -1
+	}
 
+	if this.db.Friends.NumAll()+int32(len(player_ids)) >= global_config.FriendMaxNum {
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_NUM_MAX)
+	}
+
+	for i := 0; i < len(player_ids); i++ {
 		p := player_mgr.GetPlayerById(player_ids[i])
 		if p == nil {
 			log.Error("Player[%v] not found on agree friend ask", player_ids[i])
@@ -439,9 +449,13 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 	}
 
 	for i := 0; i < len(player_ids); i++ {
-
 		p := player_mgr.GetPlayerById(player_ids[i])
 		if p == nil {
+			player_ids[i] = 0
+			continue
+		}
+		if p.db.Friends.NumAll() >= global_config.FriendMaxNum {
+			player_ids[i] = 0
 			continue
 		}
 		p.db.Friends.Add(&dbPlayerFriendData{
