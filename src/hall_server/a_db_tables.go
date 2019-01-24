@@ -19447,18 +19447,6 @@ func (this *dbSysMailTable) GetRow(Id int32) (row *dbSysMailRow) {
 	}
 	return row
 }
-func (this *dbGooglePayRow)GetOrderId( )(r string ){
-	this.m_lock.UnSafeRLock("dbGooglePayRow.GetdbGooglePayOrderIdColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_OrderId)
-}
-func (this *dbGooglePayRow)SetOrderId(v string){
-	this.m_lock.UnSafeLock("dbGooglePayRow.SetdbGooglePayOrderIdColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_OrderId=string(v)
-	this.m_OrderId_changed=true
-	return
-}
 func (this *dbGooglePayRow)GetBundleId( )(r string ){
 	this.m_lock.UnSafeRLock("dbGooglePayRow.GetdbGooglePayBundleIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -19528,9 +19516,7 @@ type dbGooglePayRow struct {
 	m_touch      int32
 	m_releasable bool
 	m_valid   bool
-	m_KeyId        int32
-	m_OrderId_changed bool
-	m_OrderId string
+	m_OrderId        string
 	m_BundleId_changed bool
 	m_BundleId string
 	m_PlayerId_changed bool
@@ -19542,12 +19528,11 @@ type dbGooglePayRow struct {
 	m_PayTimeStr_changed bool
 	m_PayTimeStr string
 }
-func new_dbGooglePayRow(table *dbGooglePayTable, KeyId int32) (r *dbGooglePayRow) {
+func new_dbGooglePayRow(table *dbGooglePayTable, OrderId string) (r *dbGooglePayRow) {
 	this := &dbGooglePayRow{}
 	this.m_table = table
-	this.m_KeyId = KeyId
+	this.m_OrderId = OrderId
 	this.m_lock = NewRWMutex()
-	this.m_OrderId_changed=true
 	this.m_BundleId_changed=true
 	this.m_PlayerId_changed=true
 	this.m_Account_changed=true
@@ -19555,8 +19540,8 @@ func new_dbGooglePayRow(table *dbGooglePayTable, KeyId int32) (r *dbGooglePayRow
 	this.m_PayTimeStr_changed=true
 	return this
 }
-func (this *dbGooglePayRow) GetKeyId() (r int32) {
-	return this.m_KeyId
+func (this *dbGooglePayRow) GetOrderId() (r string) {
+	return this.m_OrderId
 }
 func (this *dbGooglePayRow) Load() (err error) {
 	this.m_table.GC()
@@ -19570,7 +19555,7 @@ func (this *dbGooglePayRow) Load() (err error) {
 	var dAccount string
 	var dPayTime int32
 	var dPayTimeStr string
-	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_KeyId)
+	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_OrderId)
 	err = r.Scan(&dBundleId,&dPlayerId,&dAccount,&dPayTime,&dPayTimeStr)
 	if err != nil {
 		log.Error("Scan err[%v]", err.Error())
@@ -19595,8 +19580,7 @@ func (this *dbGooglePayRow) save_data(release bool) (err error, released bool, s
 	this.m_lock.UnSafeLock("dbGooglePayRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(7)
-		db_args.Push(this.m_KeyId)
+		db_args:=new_db_args(6)
 		db_args.Push(this.m_OrderId)
 		db_args.Push(this.m_BundleId)
 		db_args.Push(this.m_PlayerId)
@@ -19606,13 +19590,9 @@ func (this *dbGooglePayRow) save_data(release bool) (err error, released bool, s
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_OrderId_changed||this.m_BundleId_changed||this.m_PlayerId_changed||this.m_Account_changed||this.m_PayTime_changed||this.m_PayTimeStr_changed{
+		if this.m_BundleId_changed||this.m_PlayerId_changed||this.m_Account_changed||this.m_PayTime_changed||this.m_PayTimeStr_changed{
 			update_string = "UPDATE GooglePays SET "
-			db_args:=new_db_args(7)
-			if this.m_OrderId_changed{
-				update_string+="OrderId=?,"
-				db_args.Push(this.m_OrderId)
-			}
+			db_args:=new_db_args(6)
 			if this.m_BundleId_changed{
 				update_string+="BundleId=?,"
 				db_args.Push(this.m_BundleId)
@@ -19634,14 +19614,13 @@ func (this *dbGooglePayRow) save_data(release bool) (err error, released bool, s
 				db_args.Push(this.m_PayTimeStr)
 			}
 			update_string = strings.TrimRight(update_string, ", ")
-			update_string+=" WHERE KeyId=?"
-			db_args.Push(this.m_KeyId)
+			update_string+=" WHERE OrderId=?"
+			db_args.Push(this.m_OrderId)
 			args=db_args.GetArgs()
 			state = 2
 		}
 	}
 	this.m_new = false
-	this.m_OrderId_changed = false
 	this.m_BundleId_changed = false
 	this.m_PlayerId_changed = false
 	this.m_Account_changed = false
@@ -19665,14 +19644,14 @@ func (this *dbGooglePayRow) Save(release bool) (err error, d bool, released bool
 	} else if state == 1 {
 		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
 		if err != nil {
-			log.Error("INSERT GooglePays exec failed %v ", this.m_KeyId)
+			log.Error("INSERT GooglePays exec failed %v ", this.m_OrderId)
 			return err, false, released
 		}
 		d = true
 	} else if state == 2 {
 		_, err = this.m_table.m_dbc.Exec(update_string, args...)
 		if err != nil {
-			log.Error("UPDATE GooglePays exec failed %v", this.m_KeyId)
+			log.Error("UPDATE GooglePays exec failed %v", this.m_OrderId)
 			return err, false, released
 		}
 		d = true
@@ -19700,9 +19679,9 @@ func (this *dbGooglePayRowSort) Swap(i int, j int) {
 type dbGooglePayTable struct{
 	m_dbc *DBC
 	m_lock *RWMutex
-	m_rows map[int32]*dbGooglePayRow
-	m_new_rows map[int32]*dbGooglePayRow
-	m_removed_rows map[int32]*dbGooglePayRow
+	m_rows map[string]*dbGooglePayRow
+	m_new_rows map[string]*dbGooglePayRow
+	m_removed_rows map[string]*dbGooglePayRow
 	m_gc_n int32
 	m_gcing int32
 	m_pool_size int32
@@ -19711,41 +19690,18 @@ type dbGooglePayTable struct{
 	m_load_select_stmt *sql.Stmt
 	m_save_insert_stmt *sql.Stmt
 	m_delete_stmt *sql.Stmt
-	m_max_id int32
-	m_max_id_changed bool
 }
 func new_dbGooglePayTable(dbc *DBC) (this *dbGooglePayTable) {
 	this = &dbGooglePayTable{}
 	this.m_dbc = dbc
 	this.m_lock = NewRWMutex()
-	this.m_rows = make(map[int32]*dbGooglePayRow)
-	this.m_new_rows = make(map[int32]*dbGooglePayRow)
-	this.m_removed_rows = make(map[int32]*dbGooglePayRow)
+	this.m_rows = make(map[string]*dbGooglePayRow)
+	this.m_new_rows = make(map[string]*dbGooglePayRow)
+	this.m_removed_rows = make(map[string]*dbGooglePayRow)
 	return this
 }
 func (this *dbGooglePayTable) check_create_table() (err error) {
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS GooglePaysMaxId(PlaceHolder int(11),MaxKeyId int(11),PRIMARY KEY (PlaceHolder))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
-	if err != nil {
-		log.Error("CREATE TABLE IF NOT EXISTS GooglePaysMaxId failed")
-		return
-	}
-	r := this.m_dbc.QueryRow("SELECT Count(*) FROM GooglePaysMaxId WHERE PlaceHolder=0")
-	if r != nil {
-		var count int32
-		err = r.Scan(&count)
-		if err != nil {
-			log.Error("scan count failed")
-			return
-		}
-		if count == 0 {
-		_, err = this.m_dbc.Exec("INSERT INTO GooglePaysMaxId (PlaceHolder,MaxKeyId) VALUES (0,0)")
-			if err != nil {
-				log.Error("INSERTGooglePaysMaxId failed")
-				return
-			}
-		}
-	}
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS GooglePays(KeyId int(11),PRIMARY KEY (KeyId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS GooglePays(OrderId varchar(32),PRIMARY KEY (OrderId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
 	if err != nil {
 		log.Error("CREATE TABLE IF NOT EXISTS GooglePays failed")
 		return
@@ -19769,14 +19725,6 @@ func (this *dbGooglePayTable) check_create_table() (err error) {
 			continue
 		}
 		columns[column_name] = ordinal_position
-	}
-	_, hasOrderId := columns["OrderId"]
-	if !hasOrderId {
-		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN OrderId varchar(45)")
-		if err != nil {
-			log.Error("ADD COLUMN OrderId failed")
-			return
-		}
 	}
 	_, hasBundleId := columns["BundleId"]
 	if !hasBundleId {
@@ -19821,7 +19769,7 @@ func (this *dbGooglePayTable) check_create_table() (err error) {
 	return
 }
 func (this *dbGooglePayTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT KeyId,OrderId FROM GooglePays")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT OrderId FROM GooglePays")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -19829,7 +19777,7 @@ func (this *dbGooglePayTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbGooglePayTable) prepare_load_select_stmt() (err error) {
-	this.m_load_select_stmt,err=this.m_dbc.StmtPrepare("SELECT BundleId,PlayerId,Account,PayTime,PayTimeStr FROM GooglePays WHERE KeyId=?")
+	this.m_load_select_stmt,err=this.m_dbc.StmtPrepare("SELECT BundleId,PlayerId,Account,PayTime,PayTimeStr FROM GooglePays WHERE OrderId=?")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -19837,7 +19785,7 @@ func (this *dbGooglePayTable) prepare_load_select_stmt() (err error) {
 	return
 }
 func (this *dbGooglePayTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO GooglePays (KeyId,OrderId,BundleId,PlayerId,Account,PayTime,PayTimeStr) VALUES (?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO GooglePays (OrderId,BundleId,PlayerId,Account,PayTime,PayTimeStr) VALUES (?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -19845,7 +19793,7 @@ func (this *dbGooglePayTable) prepare_save_insert_stmt()(err error){
 	return
 }
 func (this *dbGooglePayTable) prepare_delete_stmt() (err error) {
-	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM GooglePays WHERE KeyId=?")
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM GooglePays WHERE OrderId=?")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -19881,56 +19829,40 @@ func (this *dbGooglePayTable) Init() (err error) {
 	return
 }
 func (this *dbGooglePayTable) Preload() (err error) {
-	r_max_id := this.m_dbc.QueryRow("SELECT MaxKeyId FROM GooglePaysMaxId WHERE PLACEHOLDER=0")
-	if r_max_id != nil {
-		err = r_max_id.Scan(&this.m_max_id)
-		if err != nil {
-			log.Error("scan max id failed")
-			return
-		}
-	}
 	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
 	if err != nil {
 		log.Error("SELECT")
 		return
 	}
-	var KeyId int32
-	var dOrderId string
+	var OrderId string
 	for r.Next() {
-		err = r.Scan(&KeyId,&dOrderId)
+		err = r.Scan(&OrderId)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
 		}
-		if KeyId>this.m_max_id{
-			log.Error("max id ext")
-			this.m_max_id = KeyId
-			this.m_max_id_changed = true
-		}
-		row := new_dbGooglePayRow(this,KeyId)
-		row.m_OrderId=dOrderId
-		row.m_OrderId_changed=false
+		row := new_dbGooglePayRow(this,OrderId)
 		row.m_valid = true
-		this.m_rows[KeyId]=row
+		this.m_rows[OrderId]=row
 	}
 	return
 }
 func (this *dbGooglePayTable) GetPreloadedMaxId() (max_id int32) {
 	return this.m_preload_max_id
 }
-func (this *dbGooglePayTable) fetch_rows(rows map[int32]*dbGooglePayRow) (r map[int32]*dbGooglePayRow) {
+func (this *dbGooglePayTable) fetch_rows(rows map[string]*dbGooglePayRow) (r map[string]*dbGooglePayRow) {
 	this.m_lock.UnSafeLock("dbGooglePayTable.fetch_rows")
 	defer this.m_lock.UnSafeUnlock()
-	r = make(map[int32]*dbGooglePayRow)
+	r = make(map[string]*dbGooglePayRow)
 	for i, v := range rows {
 		r[i] = v
 	}
 	return r
 }
-func (this *dbGooglePayTable) fetch_new_rows() (new_rows map[int32]*dbGooglePayRow) {
+func (this *dbGooglePayTable) fetch_new_rows() (new_rows map[string]*dbGooglePayRow) {
 	this.m_lock.UnSafeLock("dbGooglePayTable.fetch_new_rows")
 	defer this.m_lock.UnSafeUnlock()
-	new_rows = make(map[int32]*dbGooglePayRow)
+	new_rows = make(map[string]*dbGooglePayRow)
 	for i, v := range this.m_new_rows {
 		_, has := this.m_rows[i]
 		if has {
@@ -19945,7 +19877,7 @@ func (this *dbGooglePayTable) fetch_new_rows() (new_rows map[int32]*dbGooglePayR
 	}
 	return
 }
-func (this *dbGooglePayTable) save_rows(rows map[int32]*dbGooglePayRow, quick bool) {
+func (this *dbGooglePayTable) save_rows(rows map[string]*dbGooglePayRow, quick bool) {
 	for _, v := range rows {
 		if this.m_dbc.m_quit && !quick {
 			return
@@ -19963,16 +19895,9 @@ func (this *dbGooglePayTable) save_rows(rows map[int32]*dbGooglePayRow, quick bo
 	}
 }
 func (this *dbGooglePayTable) Save(quick bool) (err error){
-	if this.m_max_id_changed {
-		max_id := atomic.LoadInt32(&this.m_max_id)
-		_, err := this.m_dbc.Exec("UPDATE GooglePaysMaxId SET MaxKeyId=?", max_id)
-		if err != nil {
-			log.Error("save max id failed %v", err)
-		}
-	}
 	removed_rows := this.fetch_rows(this.m_removed_rows)
 	for _, v := range removed_rows {
-		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetKeyId())
+		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetOrderId())
 		if err != nil {
 			log.Error("exec delete stmt failed %v", err)
 		}
@@ -19981,69 +19906,72 @@ func (this *dbGooglePayTable) Save(quick bool) (err error){
 			time.Sleep(time.Millisecond * 5)
 		}
 	}
-	this.m_removed_rows = make(map[int32]*dbGooglePayRow)
+	this.m_removed_rows = make(map[string]*dbGooglePayRow)
 	rows := this.fetch_rows(this.m_rows)
 	this.save_rows(rows, quick)
 	new_rows := this.fetch_new_rows()
 	this.save_rows(new_rows, quick)
 	return
 }
-func (this *dbGooglePayTable) AddRow() (row *dbGooglePayRow) {
+func (this *dbGooglePayTable) AddRow(OrderId string) (row *dbGooglePayRow) {
 	this.GC()
 	this.m_lock.UnSafeLock("dbGooglePayTable.AddRow")
 	defer this.m_lock.UnSafeUnlock()
-	KeyId := atomic.AddInt32(&this.m_max_id, 1)
-	this.m_max_id_changed = true
-	row = new_dbGooglePayRow(this,KeyId)
+	row = new_dbGooglePayRow(this,OrderId)
 	row.m_new = true
 	row.m_loaded = true
 	row.m_valid = true
-	this.m_new_rows[KeyId] = row
+	_, has := this.m_new_rows[OrderId]
+	if has{
+		log.Error("已经存在 %v", OrderId)
+		return nil
+	}
+	this.m_new_rows[OrderId] = row
 	atomic.AddInt32(&this.m_gc_n,1)
 	return row
 }
-func (this *dbGooglePayTable) RemoveRow(KeyId int32) {
+func (this *dbGooglePayTable) RemoveRow(OrderId string) {
 	this.m_lock.UnSafeLock("dbGooglePayTable.RemoveRow")
 	defer this.m_lock.UnSafeUnlock()
-	row := this.m_rows[KeyId]
+	row := this.m_rows[OrderId]
 	if row != nil {
 		row.m_remove = true
-		delete(this.m_rows, KeyId)
-		rm_row := this.m_removed_rows[KeyId]
+		delete(this.m_rows, OrderId)
+		rm_row := this.m_removed_rows[OrderId]
 		if rm_row != nil {
-			log.Error("rows and removed rows both has %v", KeyId)
+			log.Error("rows and removed rows both has %v", OrderId)
 		}
-		this.m_removed_rows[KeyId] = row
-		_, has_new := this.m_new_rows[KeyId]
+		this.m_removed_rows[OrderId] = row
+		_, has_new := this.m_new_rows[OrderId]
 		if has_new {
-			delete(this.m_new_rows, KeyId)
-			log.Error("rows and new_rows both has %v", KeyId)
+			delete(this.m_new_rows, OrderId)
+			log.Error("rows and new_rows both has %v", OrderId)
 		}
 	} else {
-		row = this.m_removed_rows[KeyId]
+		row = this.m_removed_rows[OrderId]
 		if row == nil {
-			_, has_new := this.m_new_rows[KeyId]
+			_, has_new := this.m_new_rows[OrderId]
 			if has_new {
-				delete(this.m_new_rows, KeyId)
+				delete(this.m_new_rows, OrderId)
 			} else {
-				log.Error("row not exist %v", KeyId)
+				log.Error("row not exist %v", OrderId)
 			}
 		} else {
-			log.Error("already removed %v", KeyId)
-			_, has_new := this.m_new_rows[KeyId]
+			log.Error("already removed %v", OrderId)
+			_, has_new := this.m_new_rows[OrderId]
 			if has_new {
-				delete(this.m_new_rows, KeyId)
-				log.Error("removed rows and new_rows both has %v", KeyId)
+				delete(this.m_new_rows, OrderId)
+				log.Error("removed rows and new_rows both has %v", OrderId)
 			}
 		}
 	}
 }
-func (this *dbGooglePayTable) GetRow(KeyId int32) (row *dbGooglePayRow) {
+func (this *dbGooglePayTable) GetRow(OrderId string) (row *dbGooglePayRow) {
 	this.m_lock.UnSafeRLock("dbGooglePayTable.GetRow")
 	defer this.m_lock.UnSafeRUnlock()
-	row = this.m_rows[KeyId]
+	row = this.m_rows[OrderId]
 	if row == nil {
-		row = this.m_new_rows[KeyId]
+		row = this.m_new_rows[OrderId]
 	}
 	return row
 }
@@ -20086,18 +20014,6 @@ func (this *dbGooglePayTable) GC() {
 			}
 		}
 	}
-	return
-}
-func (this *dbApplePayRow)GetOrderId( )(r string ){
-	this.m_lock.UnSafeRLock("dbApplePayRow.GetdbApplePayOrderIdColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_OrderId)
-}
-func (this *dbApplePayRow)SetOrderId(v string){
-	this.m_lock.UnSafeLock("dbApplePayRow.SetdbApplePayOrderIdColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_OrderId=string(v)
-	this.m_OrderId_changed=true
 	return
 }
 func (this *dbApplePayRow)GetBundleId( )(r string ){
@@ -20169,9 +20085,7 @@ type dbApplePayRow struct {
 	m_touch      int32
 	m_releasable bool
 	m_valid   bool
-	m_KeyId        int32
-	m_OrderId_changed bool
-	m_OrderId string
+	m_OrderId        string
 	m_BundleId_changed bool
 	m_BundleId string
 	m_PlayerId_changed bool
@@ -20183,12 +20097,11 @@ type dbApplePayRow struct {
 	m_PayTimeStr_changed bool
 	m_PayTimeStr string
 }
-func new_dbApplePayRow(table *dbApplePayTable, KeyId int32) (r *dbApplePayRow) {
+func new_dbApplePayRow(table *dbApplePayTable, OrderId string) (r *dbApplePayRow) {
 	this := &dbApplePayRow{}
 	this.m_table = table
-	this.m_KeyId = KeyId
+	this.m_OrderId = OrderId
 	this.m_lock = NewRWMutex()
-	this.m_OrderId_changed=true
 	this.m_BundleId_changed=true
 	this.m_PlayerId_changed=true
 	this.m_Account_changed=true
@@ -20196,8 +20109,8 @@ func new_dbApplePayRow(table *dbApplePayTable, KeyId int32) (r *dbApplePayRow) {
 	this.m_PayTimeStr_changed=true
 	return this
 }
-func (this *dbApplePayRow) GetKeyId() (r int32) {
-	return this.m_KeyId
+func (this *dbApplePayRow) GetOrderId() (r string) {
+	return this.m_OrderId
 }
 func (this *dbApplePayRow) Load() (err error) {
 	this.m_table.GC()
@@ -20211,7 +20124,7 @@ func (this *dbApplePayRow) Load() (err error) {
 	var dAccount string
 	var dPayTime int32
 	var dPayTimeStr string
-	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_KeyId)
+	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_OrderId)
 	err = r.Scan(&dBundleId,&dPlayerId,&dAccount,&dPayTime,&dPayTimeStr)
 	if err != nil {
 		log.Error("Scan err[%v]", err.Error())
@@ -20236,8 +20149,7 @@ func (this *dbApplePayRow) save_data(release bool) (err error, released bool, st
 	this.m_lock.UnSafeLock("dbApplePayRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(7)
-		db_args.Push(this.m_KeyId)
+		db_args:=new_db_args(6)
 		db_args.Push(this.m_OrderId)
 		db_args.Push(this.m_BundleId)
 		db_args.Push(this.m_PlayerId)
@@ -20247,13 +20159,9 @@ func (this *dbApplePayRow) save_data(release bool) (err error, released bool, st
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_OrderId_changed||this.m_BundleId_changed||this.m_PlayerId_changed||this.m_Account_changed||this.m_PayTime_changed||this.m_PayTimeStr_changed{
+		if this.m_BundleId_changed||this.m_PlayerId_changed||this.m_Account_changed||this.m_PayTime_changed||this.m_PayTimeStr_changed{
 			update_string = "UPDATE ApplePays SET "
-			db_args:=new_db_args(7)
-			if this.m_OrderId_changed{
-				update_string+="OrderId=?,"
-				db_args.Push(this.m_OrderId)
-			}
+			db_args:=new_db_args(6)
 			if this.m_BundleId_changed{
 				update_string+="BundleId=?,"
 				db_args.Push(this.m_BundleId)
@@ -20275,14 +20183,13 @@ func (this *dbApplePayRow) save_data(release bool) (err error, released bool, st
 				db_args.Push(this.m_PayTimeStr)
 			}
 			update_string = strings.TrimRight(update_string, ", ")
-			update_string+=" WHERE KeyId=?"
-			db_args.Push(this.m_KeyId)
+			update_string+=" WHERE OrderId=?"
+			db_args.Push(this.m_OrderId)
 			args=db_args.GetArgs()
 			state = 2
 		}
 	}
 	this.m_new = false
-	this.m_OrderId_changed = false
 	this.m_BundleId_changed = false
 	this.m_PlayerId_changed = false
 	this.m_Account_changed = false
@@ -20306,14 +20213,14 @@ func (this *dbApplePayRow) Save(release bool) (err error, d bool, released bool)
 	} else if state == 1 {
 		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
 		if err != nil {
-			log.Error("INSERT ApplePays exec failed %v ", this.m_KeyId)
+			log.Error("INSERT ApplePays exec failed %v ", this.m_OrderId)
 			return err, false, released
 		}
 		d = true
 	} else if state == 2 {
 		_, err = this.m_table.m_dbc.Exec(update_string, args...)
 		if err != nil {
-			log.Error("UPDATE ApplePays exec failed %v", this.m_KeyId)
+			log.Error("UPDATE ApplePays exec failed %v", this.m_OrderId)
 			return err, false, released
 		}
 		d = true
@@ -20341,9 +20248,9 @@ func (this *dbApplePayRowSort) Swap(i int, j int) {
 type dbApplePayTable struct{
 	m_dbc *DBC
 	m_lock *RWMutex
-	m_rows map[int32]*dbApplePayRow
-	m_new_rows map[int32]*dbApplePayRow
-	m_removed_rows map[int32]*dbApplePayRow
+	m_rows map[string]*dbApplePayRow
+	m_new_rows map[string]*dbApplePayRow
+	m_removed_rows map[string]*dbApplePayRow
 	m_gc_n int32
 	m_gcing int32
 	m_pool_size int32
@@ -20352,41 +20259,18 @@ type dbApplePayTable struct{
 	m_load_select_stmt *sql.Stmt
 	m_save_insert_stmt *sql.Stmt
 	m_delete_stmt *sql.Stmt
-	m_max_id int32
-	m_max_id_changed bool
 }
 func new_dbApplePayTable(dbc *DBC) (this *dbApplePayTable) {
 	this = &dbApplePayTable{}
 	this.m_dbc = dbc
 	this.m_lock = NewRWMutex()
-	this.m_rows = make(map[int32]*dbApplePayRow)
-	this.m_new_rows = make(map[int32]*dbApplePayRow)
-	this.m_removed_rows = make(map[int32]*dbApplePayRow)
+	this.m_rows = make(map[string]*dbApplePayRow)
+	this.m_new_rows = make(map[string]*dbApplePayRow)
+	this.m_removed_rows = make(map[string]*dbApplePayRow)
 	return this
 }
 func (this *dbApplePayTable) check_create_table() (err error) {
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS ApplePaysMaxId(PlaceHolder int(11),MaxKeyId int(11),PRIMARY KEY (PlaceHolder))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
-	if err != nil {
-		log.Error("CREATE TABLE IF NOT EXISTS ApplePaysMaxId failed")
-		return
-	}
-	r := this.m_dbc.QueryRow("SELECT Count(*) FROM ApplePaysMaxId WHERE PlaceHolder=0")
-	if r != nil {
-		var count int32
-		err = r.Scan(&count)
-		if err != nil {
-			log.Error("scan count failed")
-			return
-		}
-		if count == 0 {
-		_, err = this.m_dbc.Exec("INSERT INTO ApplePaysMaxId (PlaceHolder,MaxKeyId) VALUES (0,0)")
-			if err != nil {
-				log.Error("INSERTApplePaysMaxId failed")
-				return
-			}
-		}
-	}
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS ApplePays(KeyId int(11),PRIMARY KEY (KeyId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS ApplePays(OrderId varchar(32),PRIMARY KEY (OrderId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
 	if err != nil {
 		log.Error("CREATE TABLE IF NOT EXISTS ApplePays failed")
 		return
@@ -20410,14 +20294,6 @@ func (this *dbApplePayTable) check_create_table() (err error) {
 			continue
 		}
 		columns[column_name] = ordinal_position
-	}
-	_, hasOrderId := columns["OrderId"]
-	if !hasOrderId {
-		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN OrderId varchar(45)")
-		if err != nil {
-			log.Error("ADD COLUMN OrderId failed")
-			return
-		}
 	}
 	_, hasBundleId := columns["BundleId"]
 	if !hasBundleId {
@@ -20462,7 +20338,7 @@ func (this *dbApplePayTable) check_create_table() (err error) {
 	return
 }
 func (this *dbApplePayTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT KeyId,OrderId FROM ApplePays")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT OrderId FROM ApplePays")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -20470,7 +20346,7 @@ func (this *dbApplePayTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbApplePayTable) prepare_load_select_stmt() (err error) {
-	this.m_load_select_stmt,err=this.m_dbc.StmtPrepare("SELECT BundleId,PlayerId,Account,PayTime,PayTimeStr FROM ApplePays WHERE KeyId=?")
+	this.m_load_select_stmt,err=this.m_dbc.StmtPrepare("SELECT BundleId,PlayerId,Account,PayTime,PayTimeStr FROM ApplePays WHERE OrderId=?")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -20478,7 +20354,7 @@ func (this *dbApplePayTable) prepare_load_select_stmt() (err error) {
 	return
 }
 func (this *dbApplePayTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO ApplePays (KeyId,OrderId,BundleId,PlayerId,Account,PayTime,PayTimeStr) VALUES (?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO ApplePays (OrderId,BundleId,PlayerId,Account,PayTime,PayTimeStr) VALUES (?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -20486,7 +20362,7 @@ func (this *dbApplePayTable) prepare_save_insert_stmt()(err error){
 	return
 }
 func (this *dbApplePayTable) prepare_delete_stmt() (err error) {
-	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM ApplePays WHERE KeyId=?")
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM ApplePays WHERE OrderId=?")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -20522,56 +20398,40 @@ func (this *dbApplePayTable) Init() (err error) {
 	return
 }
 func (this *dbApplePayTable) Preload() (err error) {
-	r_max_id := this.m_dbc.QueryRow("SELECT MaxKeyId FROM ApplePaysMaxId WHERE PLACEHOLDER=0")
-	if r_max_id != nil {
-		err = r_max_id.Scan(&this.m_max_id)
-		if err != nil {
-			log.Error("scan max id failed")
-			return
-		}
-	}
 	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
 	if err != nil {
 		log.Error("SELECT")
 		return
 	}
-	var KeyId int32
-	var dOrderId string
+	var OrderId string
 	for r.Next() {
-		err = r.Scan(&KeyId,&dOrderId)
+		err = r.Scan(&OrderId)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
 		}
-		if KeyId>this.m_max_id{
-			log.Error("max id ext")
-			this.m_max_id = KeyId
-			this.m_max_id_changed = true
-		}
-		row := new_dbApplePayRow(this,KeyId)
-		row.m_OrderId=dOrderId
-		row.m_OrderId_changed=false
+		row := new_dbApplePayRow(this,OrderId)
 		row.m_valid = true
-		this.m_rows[KeyId]=row
+		this.m_rows[OrderId]=row
 	}
 	return
 }
 func (this *dbApplePayTable) GetPreloadedMaxId() (max_id int32) {
 	return this.m_preload_max_id
 }
-func (this *dbApplePayTable) fetch_rows(rows map[int32]*dbApplePayRow) (r map[int32]*dbApplePayRow) {
+func (this *dbApplePayTable) fetch_rows(rows map[string]*dbApplePayRow) (r map[string]*dbApplePayRow) {
 	this.m_lock.UnSafeLock("dbApplePayTable.fetch_rows")
 	defer this.m_lock.UnSafeUnlock()
-	r = make(map[int32]*dbApplePayRow)
+	r = make(map[string]*dbApplePayRow)
 	for i, v := range rows {
 		r[i] = v
 	}
 	return r
 }
-func (this *dbApplePayTable) fetch_new_rows() (new_rows map[int32]*dbApplePayRow) {
+func (this *dbApplePayTable) fetch_new_rows() (new_rows map[string]*dbApplePayRow) {
 	this.m_lock.UnSafeLock("dbApplePayTable.fetch_new_rows")
 	defer this.m_lock.UnSafeUnlock()
-	new_rows = make(map[int32]*dbApplePayRow)
+	new_rows = make(map[string]*dbApplePayRow)
 	for i, v := range this.m_new_rows {
 		_, has := this.m_rows[i]
 		if has {
@@ -20586,7 +20446,7 @@ func (this *dbApplePayTable) fetch_new_rows() (new_rows map[int32]*dbApplePayRow
 	}
 	return
 }
-func (this *dbApplePayTable) save_rows(rows map[int32]*dbApplePayRow, quick bool) {
+func (this *dbApplePayTable) save_rows(rows map[string]*dbApplePayRow, quick bool) {
 	for _, v := range rows {
 		if this.m_dbc.m_quit && !quick {
 			return
@@ -20604,16 +20464,9 @@ func (this *dbApplePayTable) save_rows(rows map[int32]*dbApplePayRow, quick bool
 	}
 }
 func (this *dbApplePayTable) Save(quick bool) (err error){
-	if this.m_max_id_changed {
-		max_id := atomic.LoadInt32(&this.m_max_id)
-		_, err := this.m_dbc.Exec("UPDATE ApplePaysMaxId SET MaxKeyId=?", max_id)
-		if err != nil {
-			log.Error("save max id failed %v", err)
-		}
-	}
 	removed_rows := this.fetch_rows(this.m_removed_rows)
 	for _, v := range removed_rows {
-		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetKeyId())
+		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetOrderId())
 		if err != nil {
 			log.Error("exec delete stmt failed %v", err)
 		}
@@ -20622,69 +20475,72 @@ func (this *dbApplePayTable) Save(quick bool) (err error){
 			time.Sleep(time.Millisecond * 5)
 		}
 	}
-	this.m_removed_rows = make(map[int32]*dbApplePayRow)
+	this.m_removed_rows = make(map[string]*dbApplePayRow)
 	rows := this.fetch_rows(this.m_rows)
 	this.save_rows(rows, quick)
 	new_rows := this.fetch_new_rows()
 	this.save_rows(new_rows, quick)
 	return
 }
-func (this *dbApplePayTable) AddRow() (row *dbApplePayRow) {
+func (this *dbApplePayTable) AddRow(OrderId string) (row *dbApplePayRow) {
 	this.GC()
 	this.m_lock.UnSafeLock("dbApplePayTable.AddRow")
 	defer this.m_lock.UnSafeUnlock()
-	KeyId := atomic.AddInt32(&this.m_max_id, 1)
-	this.m_max_id_changed = true
-	row = new_dbApplePayRow(this,KeyId)
+	row = new_dbApplePayRow(this,OrderId)
 	row.m_new = true
 	row.m_loaded = true
 	row.m_valid = true
-	this.m_new_rows[KeyId] = row
+	_, has := this.m_new_rows[OrderId]
+	if has{
+		log.Error("已经存在 %v", OrderId)
+		return nil
+	}
+	this.m_new_rows[OrderId] = row
 	atomic.AddInt32(&this.m_gc_n,1)
 	return row
 }
-func (this *dbApplePayTable) RemoveRow(KeyId int32) {
+func (this *dbApplePayTable) RemoveRow(OrderId string) {
 	this.m_lock.UnSafeLock("dbApplePayTable.RemoveRow")
 	defer this.m_lock.UnSafeUnlock()
-	row := this.m_rows[KeyId]
+	row := this.m_rows[OrderId]
 	if row != nil {
 		row.m_remove = true
-		delete(this.m_rows, KeyId)
-		rm_row := this.m_removed_rows[KeyId]
+		delete(this.m_rows, OrderId)
+		rm_row := this.m_removed_rows[OrderId]
 		if rm_row != nil {
-			log.Error("rows and removed rows both has %v", KeyId)
+			log.Error("rows and removed rows both has %v", OrderId)
 		}
-		this.m_removed_rows[KeyId] = row
-		_, has_new := this.m_new_rows[KeyId]
+		this.m_removed_rows[OrderId] = row
+		_, has_new := this.m_new_rows[OrderId]
 		if has_new {
-			delete(this.m_new_rows, KeyId)
-			log.Error("rows and new_rows both has %v", KeyId)
+			delete(this.m_new_rows, OrderId)
+			log.Error("rows and new_rows both has %v", OrderId)
 		}
 	} else {
-		row = this.m_removed_rows[KeyId]
+		row = this.m_removed_rows[OrderId]
 		if row == nil {
-			_, has_new := this.m_new_rows[KeyId]
+			_, has_new := this.m_new_rows[OrderId]
 			if has_new {
-				delete(this.m_new_rows, KeyId)
+				delete(this.m_new_rows, OrderId)
 			} else {
-				log.Error("row not exist %v", KeyId)
+				log.Error("row not exist %v", OrderId)
 			}
 		} else {
-			log.Error("already removed %v", KeyId)
-			_, has_new := this.m_new_rows[KeyId]
+			log.Error("already removed %v", OrderId)
+			_, has_new := this.m_new_rows[OrderId]
 			if has_new {
-				delete(this.m_new_rows, KeyId)
-				log.Error("removed rows and new_rows both has %v", KeyId)
+				delete(this.m_new_rows, OrderId)
+				log.Error("removed rows and new_rows both has %v", OrderId)
 			}
 		}
 	}
 }
-func (this *dbApplePayTable) GetRow(KeyId int32) (row *dbApplePayRow) {
+func (this *dbApplePayTable) GetRow(OrderId string) (row *dbApplePayRow) {
 	this.m_lock.UnSafeRLock("dbApplePayTable.GetRow")
 	defer this.m_lock.UnSafeRUnlock()
-	row = this.m_rows[KeyId]
+	row = this.m_rows[OrderId]
 	if row == nil {
-		row = this.m_new_rows[KeyId]
+		row = this.m_new_rows[OrderId]
 	}
 	return row
 }

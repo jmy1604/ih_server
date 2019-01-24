@@ -1517,17 +1517,6 @@
 			"PrimaryKeySize":32,
 			"Columns":[
 				{
-					"ColumnName":"OrderId",
-					"DBColumnName":"OrderId",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"string",					
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]		
-				},
-				{
 					"ColumnName":"BundleId",
 					"DBColumnName":"BundleId",
 					"InUse":true,
@@ -1588,22 +1577,11 @@
 			"TableName":"ApplePay",
 			"DBTableName":"ApplePay",
 			"SingleRow":false,
-			"AutoPrimaryKey":true,
-			"PrimaryKeyName":"KeyId",
-			"PrimaryKeyType":"int32",
-			"PrimaryKeySize":11,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"OrderId",
+			"PrimaryKeyType":"string",
+			"PrimaryKeySize":32,
 			"Columns":[
-				{
-					"ColumnName":"OrderId",
-					"DBColumnName":"OrderId",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"string",				
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
 				{
 					"ColumnName":"BundleId",
 					"DBColumnName":"BundleId",

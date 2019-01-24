@@ -149,13 +149,15 @@ func google_pay_save(order_id, bundle_id, account string, player_id int32) {
 		return
 	}
 
-	row := dbc.GooglePays.AddRow()
-	row.SetOrderId(order_id)
-	row.SetBundleId(bundle_id)
-	row.SetAccount(account)
-	row.SetPlayerId(player_id)
-	row.SetPayTime(int32(now_time.Unix()))
-	row.SetPayTimeStr(now_time.String())
+	row := dbc.GooglePays.GetRow(order_id)
+	if row == nil {
+		row = dbc.GooglePays.AddRow(order_id)
+		row.SetBundleId(bundle_id)
+		row.SetAccount(account)
+		row.SetPlayerId(player_id)
+		row.SetPayTime(int32(now_time.Unix()))
+		row.SetPayTimeStr(now_time.String())
+	}
 
 	log.Info("save google pay: player_id(%v), order_id(%v), bundle_id(%v)", player_id, order_id, bundle_id)
 }
@@ -191,13 +193,15 @@ func apple_pay_save(order_id, bundle_id, account string, player_id int32) {
 		return
 	}
 
-	row := dbc.ApplePays.AddRow()
-	row.SetOrderId(order_id)
-	row.SetBundleId(bundle_id)
-	row.SetAccount(account)
-	row.SetPlayerId(player_id)
-	row.SetPayTime(int32(now_time.Unix()))
-	row.SetPayTimeStr(now_time.String())
+	row := dbc.ApplePays.GetRow(order_id)
+	if row == nil {
+		row = dbc.ApplePays.AddRow(order_id)
+		row.SetBundleId(bundle_id)
+		row.SetAccount(account)
+		row.SetPlayerId(player_id)
+		row.SetPayTime(int32(now_time.Unix()))
+		row.SetPayTimeStr(now_time.String())
+	}
 
 	log.Info("save apple pay: player_id(%v), order_id(%v), bundle_id(%v)", player_id, order_id, bundle_id)
 }

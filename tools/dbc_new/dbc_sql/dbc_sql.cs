@@ -3248,7 +3248,7 @@ namespace DBCompiler_sql
 					code.AppendLine("\tthis.GC()");
 					if (!table.AutoPrimaryKey)
 					{
-						code.AppendLine("\tthis.GCRow(" + table.PrimaryKeyName + ")");
+						//code.AppendLine("\tthis.GCRow(" + table.PrimaryKeyName + ")");
 					}
                 }
                 code.AppendLine("\tthis.m_lock.UnSafeLock(\"" + table_name + ".AddRow\")");
