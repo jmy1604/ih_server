@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"ih_server/libs/log"
+	"ih_server/proto/gen_go/client_message"
 	"ih_server/src/rpc_common"
 	"time"
 )
@@ -69,5 +70,49 @@ func (this *G2H_Proc) SysMail(args *rpc_common.GmSendSysMailCmd, result *rpc_com
 	}
 
 	log.Trace("@@@ G2H_Proc::SysMail %v", args)
+	return nil
+}
+
+func (this *G2H_Proc) PlayerInfo(args *rpc_common.GmPlayerInfoCmd, result *rpc_common.GmPlayerInfoResponse) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+
+	p := player_mgr.GetPlayerById(args.Id)
+	if p == nil {
+		result.Id = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		return nil
+	}
+
+	result.Id = args.Id
+	result.Account = p.db.GetAccount()
+	result.UniqueId = p.db.GetUniqueId()
+	result.Level = p.db.Info.GetLvl()
+	result.VipLevel = p.db.Info.GetVipLvl()
+	result.Gold = p.db.Info.GetGold()
+	result.Diamond = p.db.Info.GetDiamond()
+	result.GuildId = p.db.Guild.GetId()
+	if result.GuildId > 0 {
+		guild := guild_manager.GetGuild(result.GuildId)
+		result.GuildName = guild.GetName()
+		result.GuildLevel = guild.GetLevel()
+	}
+	result.UnlockCampaignId = p.db.CampaignCommon.GetCurrentCampaignId()
+	result.HungupCampaignId = p.db.CampaignCommon.GetHangupCampaignId()
+	result.ArenaScore = p.db.Arena.GetScore()
+	talents := p.db.Talents.GetAllIndex()
+	if talents != nil {
+		for i := 0; i < len(talents); i++ {
+			lvl, _ := p.db.Talents.GetLevel(talents[i])
+			result.TalentList = append(result.TalentList, []int32{talents[i], lvl}...)
+		}
+	}
+	result.TowerId = p.db.TowerCommon.GetCurrId()
+	result.SignIn = p.db.Sign.GetSignedIndex()
+
+	log.Trace("@@@ G2H_Proc::PlayerInfo %v", args)
+
 	return nil
 }

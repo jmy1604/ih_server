@@ -1035,7 +1035,7 @@ func (this *RpcServer) init_proc_service() bool {
 	// 注册用户自定义RPC数据类型
 	rpc_common.RegisterRpcUserType()
 
-	if this.rpc_service.Listen(rpc_config.ListenIP) != nil {
+	if this.rpc_service.Listen(config.ListenIP) != nil {
 		return false
 	}
 	return true

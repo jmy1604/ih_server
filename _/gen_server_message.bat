@@ -25,17 +25,17 @@ cd ../_
 if errorlevel 1 goto exit
 
 cd ../proto
-protoc.exe --go_out=./gen_go/db_center/ db_center.proto
-cd ../_
-if errorlevel 1 goto exit
-
-cd ../proto
 protoc.exe --go_out=./gen_go/db_hall/ db_hallsvr.proto
 cd ../_
 if errorlevel 1 goto exit
 
 cd ../proto
 protoc.exe --go_out=./gen_go/db_login/ db_loginsvr.proto
+cd ../_
+if errorlevel 1 goto exit
+
+cd ../proto
+protoc.exe --go_out=./gen_go/db_rpc/ db_rpcsvr.proto
 cd ../_
 if errorlevel 1 goto exit
 

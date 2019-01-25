@@ -1,10 +1,11 @@
 package rpc_common
 
 const (
-	GM_CMD_TEST        = iota
-	GM_CMD_ANOUNCEMENT = 1
-	GM_CMD_ADD_ITEMS   = 2
-	GM_CMD_SYS_MAIL    = 3
+	GM_CMD_TEST        = iota // 测试
+	GM_CMD_ANOUNCEMENT = 1    // 公告
+	GM_CMD_ADD_ITEMS   = 2    // 增加物品
+	GM_CMD_SYS_MAIL    = 3    // 系统邮件
+	GM_CMD_PLAYER_INFO = 4    // 查询玩家重要信息
 )
 
 const (
@@ -12,6 +13,7 @@ const (
 	GM_CMD_ANOUNCEMENT_STRING = "anounce"
 	GM_CMD_ADD_ITEMS_STRING   = "add_items"
 	GM_CMD_SYS_MAIL_STRING    = "sys_mail"
+	GM_CMD_PLAYER_INFO_STRING = "player_info"
 )
 
 // 通用GM命令结构
@@ -58,4 +60,29 @@ type GmSendSysMailCmd struct {
 	PlayerId      int32   `json:"PlayerId"`
 	MailTableID   int32   `json:"MailTableID"`
 	AttachItems   []int32 `json"AttachItems"`
+}
+
+// 查询玩家重要信息
+type GmPlayerInfoCmd struct {
+	Id int32
+}
+
+// 查询玩家重要信息结果
+type GmPlayerInfoResponse struct {
+	Id               int32
+	Account          string
+	UniqueId         string
+	Level            int32
+	VipLevel         int32
+	Gold             int32
+	Diamond          int32
+	GuildId          int32
+	GuildName        string
+	GuildLevel       int32
+	UnlockCampaignId int32
+	HungupCampaignId int32
+	ArenaScore       int32
+	TalentList       []int32
+	TowerId          int32
+	SignIn           int32
 }

@@ -133,6 +133,12 @@ type RpcServerConfig struct {
 	RedisServerIP    string
 	GmIP             string
 	GmServerUseHttps bool
+	MYSQL_NAME       string
+	MYSQL_IP         string
+	MYSQL_ACCOUNT    string
+	MYSQL_PWD        string
+	DBCST_MIN        int
+	DBCST_MAX        int
 }
 
 func (this *RpcServerConfig) GetType() int32 {

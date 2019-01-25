@@ -1,1 +1,0 @@
-dbc.exe "go" "dbsvr_db_def.json" "proto_prefix.txt" "..\proto\db_dbsvr.proto" "code_prefix_dbsvr.txt" "..\src\db_server\a_db_tables.go"

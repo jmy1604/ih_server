@@ -27,7 +27,7 @@ func (this *GmService) StartHttp() bool {
 	var err error
 	this.reg_http_mux()
 
-	this.login_http_listener, err = net.Listen("tcp", rpc_config.GmIP)
+	this.login_http_listener, err = net.Listen("tcp", config.GmIP)
 	if nil != err {
 		log.Error("Listen gm http server error %v", err.Error())
 		return false
@@ -51,7 +51,7 @@ func (this *GmService) StartHttps(crt_file, key_file string) bool {
 	this.reg_http_mux()
 
 	this.login_http_server = http.Server{
-		Addr:        rpc_config.GmIP,
+		Addr:        config.GmIP,
 		Handler:     &LoginHttpHandle{},
 		ReadTimeout: 6 * time.Second,
 		TLSConfig: &tls.Config{

@@ -1,17 +1,16 @@
 package main
 
 import (
-	"3p/code.google.com.protobuf/proto"
-	_ "3p/mysql"
+	_ "ih_server/third_party/mysql"
 	"bytes"
 	"database/sql"
 	"errors"
 	"fmt"
-	"libs/log"
+	"ih_server/libs/log"
 	"math/rand"
 	"os"
 	"os/exec"
-	"public_message/gen_go/db_dbsvr"
+	_ "ih_server/proto/gen_go/db_rpc"
 	"sort"
 	"strings"
 	"sync/atomic"

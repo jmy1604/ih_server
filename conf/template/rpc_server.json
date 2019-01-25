@@ -4,5 +4,14 @@
 	"MaxConnections" : 100,
 	"RedisServerIP" : "127.0.0.1:6379",
 	"GmIP": "192.168.0.250:39000",
-	"GmServerUseHttps": false
+	"GmServerUseHttps": false,
+	
+	"MYSQL_IP":"127.0.0.1:3306",
+	"MYSQL_ACCOUNT":"root",
+	"MYSQL_PWD":"",
+	"MYSQL_NAME":"ih_admin",
+	"DBCST_MIN":300,
+	"DBCST_MAX":350,
+	"DBPM_MIN":0,
+	"DBPM_MAX":10000
 }

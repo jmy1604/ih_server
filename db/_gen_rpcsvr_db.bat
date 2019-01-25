@@ -1,0 +1,1 @@
+dbc.exe "go" "rpcsvr_db_def.json" "proto_prefix.txt" "..\proto\db_rpcsvr.proto" "code_prefix_rpcsvr.txt" "..\src\rpc_server\a_db_tables.go"

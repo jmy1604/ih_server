@@ -11,6 +11,7 @@ var gm_handles = map[int32]gm_handle{
 	rpc_common.GM_CMD_TEST:        gm_test,
 	rpc_common.GM_CMD_ANOUNCEMENT: gm_anouncement,
 	rpc_common.GM_CMD_SYS_MAIL:    gm_mail,
+	rpc_common.GM_CMD_PLAYER_INFO: gm_player_info,
 }
 
 func gm_test(id int32, data []byte) (int32, []byte) {
@@ -128,4 +129,45 @@ func gm_mail(id int32, data []byte) (int32, []byte) {
 	}
 
 	return result.Res, data
+}
+
+func gm_player_info(id int32, data []byte) (int32, []byte) {
+	if id != rpc_common.GM_CMD_PLAYER_INFO {
+		log.Error("gm player info cmd id %v not correct", id)
+		return -1, nil
+	}
+
+	var err error
+	var args rpc_common.GmPlayerInfoCmd
+	err = json.Unmarshal(data, &args)
+	if err != nil {
+		log.Error("gm cmd GmPlayerInfoCmd unmarshal failed")
+		return -1, nil
+	}
+
+	rpc_client := GetRpcClientByPlayerId(args.Id)
+	if rpc_client == nil {
+		log.Error("gm get rpc client by player id %v failed", args.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST), nil
+	}
+
+	var result rpc_common.GmPlayerInfoResponse
+	err = rpc_client.Call("G2H_Proc.PlayerInfo", &args, &result)
+	if err != nil {
+		log.Error("gm rpc call G2H_Proc.PlayerInfo err %v", err.Error())
+		return -1, nil
+	}
+
+	data, err = json.Marshal(&result)
+	if err != nil {
+		log.Error("marshal gm cmd response GmPlayerInfoResponse err %v", err.Error())
+		return -1, nil
+	}
+
+	if result.Id < 0 {
+		log.Error("gm get player %v info return %v", args.Id, result.Id)
+		return result.Id, nil
+	}
+
+	return 1, data
 }
