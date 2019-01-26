@@ -336,3 +336,17 @@ type H2R_RankDeleteResult struct {
 	RankType int32
 	Param    int32
 }
+
+// 充值记录
+type H2R_ChargeSave struct {
+	Channel    int32
+	OrderId    string
+	BundleId   string
+	Account    string
+	PlayerId   int32
+	PayTime    int32
+	PayTimeStr string
+}
+
+type H2R_ChargeSaveResult struct {
+}

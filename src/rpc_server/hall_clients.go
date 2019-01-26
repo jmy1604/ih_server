@@ -16,12 +16,11 @@ func get_server_id_by_player_id(player_id int32) int32 {
 	return (player_id >> 20) & 0xffff
 }
 
-// 通过玩家ID对应大厅的rpc客户端
-func GetRpcClientByPlayerId(player_id int32) *rpc.Client {
-	server_id := get_server_id_by_player_id(player_id)
+// 通过ServerId对应rpc客户端
+func GetRpcClientByServerId(server_id int32) *rpc.Client {
 	server_info := server_list.GetById(server_id)
 	if server_info == nil {
-		log.Error("get server info by server_id[%v] from player_id[%v] failed", server_id, player_id)
+		log.Error("get server info by server_id[%v] from failed", server_id)
 		return nil
 	}
 	r := server.hall_rpc_clients[server_id]
@@ -30,4 +29,10 @@ func GetRpcClientByPlayerId(player_id int32) *rpc.Client {
 		return nil
 	}
 	return r.rpc_client
+}
+
+// 通过玩家ID对应大厅的rpc客户端
+func GetRpcClientByPlayerId(player_id int32) *rpc.Client {
+	server_id := get_server_id_by_player_id(player_id)
+	return GetRpcClientByServerId(server_id)
 }

@@ -1,19 +1,21 @@
 package rpc_common
 
 const (
-	GM_CMD_TEST        = iota // 测试
-	GM_CMD_ANOUNCEMENT = 1    // 公告
-	GM_CMD_ADD_ITEMS   = 2    // 增加物品
-	GM_CMD_SYS_MAIL    = 3    // 系统邮件
-	GM_CMD_PLAYER_INFO = 4    // 查询玩家重要信息
+	GM_CMD_TEST              = iota // 测试
+	GM_CMD_ANOUNCEMENT       = 1    // 公告
+	GM_CMD_ADD_ITEMS         = 2    // 增加物品
+	GM_CMD_SYS_MAIL          = 3    // 系统邮件
+	GM_CMD_PLAYER_INFO       = 4    // 查询玩家信息
+	GM_CMD_ONLINE_PLAYER_NUM = 5    // 在线人数查询
 )
 
 const (
-	GM_CMD_TEST_STRING        = "test"
-	GM_CMD_ANOUNCEMENT_STRING = "anounce"
-	GM_CMD_ADD_ITEMS_STRING   = "add_items"
-	GM_CMD_SYS_MAIL_STRING    = "sys_mail"
-	GM_CMD_PLAYER_INFO_STRING = "player_info"
+	GM_CMD_TEST_STRING              = "test"
+	GM_CMD_ANOUNCEMENT_STRING       = "anounce"
+	GM_CMD_ADD_ITEMS_STRING         = "add_items"
+	GM_CMD_SYS_MAIL_STRING          = "sys_mail"
+	GM_CMD_PLAYER_INFO_STRING       = "player_info"
+	GM_CMD_ONLINE_PLAYER_NUM_STRING = "online_player_num"
 )
 
 // 通用GM命令结构
@@ -62,12 +64,12 @@ type GmSendSysMailCmd struct {
 	AttachItems   []int32 `json"AttachItems"`
 }
 
-// 查询玩家重要信息
+// 查询玩家信息
 type GmPlayerInfoCmd struct {
 	Id int32
 }
 
-// 查询玩家重要信息结果
+// 查询玩家信息结果
 type GmPlayerInfoResponse struct {
 	Id               int32
 	Account          string
@@ -85,4 +87,14 @@ type GmPlayerInfoResponse struct {
 	TalentList       []int32
 	TowerId          int32
 	SignIn           int32
+}
+
+// 查询在线人数
+type GmOnlinePlayerNumCmd struct {
+	ServerId int32
+}
+
+// 查询在线人数结果
+type GmOnlinePlayerNumResponse struct {
+	PlayerNum []int32
 }

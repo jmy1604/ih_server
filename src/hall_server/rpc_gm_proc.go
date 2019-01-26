@@ -112,7 +112,21 @@ func (this *G2H_Proc) PlayerInfo(args *rpc_common.GmPlayerInfoCmd, result *rpc_c
 	result.TowerId = p.db.TowerCommon.GetCurrId()
 	result.SignIn = p.db.Sign.GetSignedIndex()
 
-	log.Trace("@@@ G2H_Proc::PlayerInfo %v", args)
+	log.Trace("@@@ G2H_Proc::PlayerInfo %v %v", args, result)
+
+	return nil
+}
+
+func (this *G2H_Proc) OnlinePlayerNum(args *rpc_common.GmOnlinePlayerNumCmd, result *rpc_common.GmOnlinePlayerNumResponse) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+
+	result.PlayerNum = []int32{conn_timer_wheel.GetCurrPlayerNum()}
+
+	log.Trace("@@@ G2H_Proc::OnlinePlayerNum")
 
 	return nil
 }

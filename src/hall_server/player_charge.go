@@ -128,11 +128,11 @@ type RedisPayInfo struct {
 	PayTimeStr string
 }
 
-func google_pay_save(order_id, bundle_id, account string, player_id int32) {
+func google_pay_save(order_id, bundle_id, account string, player *Player) {
 	var pay RedisPayInfo
 	pay.BundleId = bundle_id
 	pay.Account = account
-	pay.PlayerId = player_id
+	pay.PlayerId = player.Id
 	now_time := time.Now()
 	pay.PayTime = int32(now_time.Unix())
 	pay.PayTimeStr = now_time.String()
@@ -154,12 +154,14 @@ func google_pay_save(order_id, bundle_id, account string, player_id int32) {
 		row = dbc.GooglePays.AddRow(order_id)
 		row.SetBundleId(bundle_id)
 		row.SetAccount(account)
-		row.SetPlayerId(player_id)
+		row.SetPlayerId(player.Id)
 		row.SetPayTime(int32(now_time.Unix()))
 		row.SetPayTimeStr(now_time.String())
 	}
 
-	log.Info("save google pay: player_id(%v), order_id(%v), bundle_id(%v)", player_id, order_id, bundle_id)
+	player.rpc_charge_save(1, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), now_time.String())
+
+	log.Info("save google pay: player_id(%v), order_id(%v), bundle_id(%v)", player.Id, order_id, bundle_id)
 }
 
 func check_google_order_exist(order_id string) bool {
@@ -174,11 +176,11 @@ func check_google_order_exist(order_id string) bool {
 	return true
 }
 
-func apple_pay_save(order_id, bundle_id, account string, player_id int32) {
+func apple_pay_save(order_id, bundle_id, account string, player *Player) {
 	var pay RedisPayInfo
 	pay.BundleId = bundle_id
 	pay.Account = account
-	pay.PlayerId = player_id
+	pay.PlayerId = player.Id
 	now_time := time.Now()
 	pay.PayTime = int32(now_time.Unix())
 	pay.PayTimeStr = now_time.String()
@@ -198,12 +200,14 @@ func apple_pay_save(order_id, bundle_id, account string, player_id int32) {
 		row = dbc.ApplePays.AddRow(order_id)
 		row.SetBundleId(bundle_id)
 		row.SetAccount(account)
-		row.SetPlayerId(player_id)
+		row.SetPlayerId(player.Id)
 		row.SetPayTime(int32(now_time.Unix()))
 		row.SetPayTimeStr(now_time.String())
 	}
 
-	log.Info("save apple pay: player_id(%v), order_id(%v), bundle_id(%v)", player_id, order_id, bundle_id)
+	player.rpc_charge_save(2, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), now_time.String())
+
+	log.Info("save apple pay: player_id(%v), order_id(%v), bundle_id(%v)", player.Id, order_id, bundle_id)
 }
 
 func check_apple_order_exist(order_id string) bool {
@@ -454,7 +458,7 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_SIGNATURE_INVALID)
 	}
 
-	google_pay_save(data.OrderId, bundle_id, this.Account, this.Id)
+	google_pay_save(data.OrderId, bundle_id, this.Account, this)
 
 	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 
@@ -567,7 +571,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 		return int32(msg_client_message.E_ERR_CHARGE_APPLE_PAY_VERIFY_NO_PASS)
 	}
 
-	apple_pay_save(tmp_res.Receipt.TransactionId, bundle_id, this.Account, this.Id)
+	apple_pay_save(tmp_res.Receipt.TransactionId, bundle_id, this.Account, this)
 
 	atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 

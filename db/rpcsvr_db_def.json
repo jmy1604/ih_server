@@ -6,14 +6,25 @@
 	],
 	"Tables":[
 		{
-			"TableName":"PlayerImportantData",
-			"DBTableName":"PlayerImportantData",
+			"TableName":"ApplePay",
+			"DBTableName":"ApplePay",
 			"SingleRow":false,
 			"AutoPrimaryKey":false,
-			"PrimaryKeyName":"PlayerId",
-			"PrimaryKeyType":"int32",
-			"PrimaryKeySize":11,
+			"PrimaryKeyName":"OrderId",
+			"PrimaryKeyType":"string",
+			"PrimaryKeySize":32,
 			"Columns":[
+				{
+					"DBColumnName":"BundleId",
+					"InUse":true,
+					"ColumnName":"BundleId",
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":false,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[]
+				},
 				{
 					"DBColumnName":"Account",
 					"InUse":true,
@@ -26,9 +37,53 @@
 					"Fields":[]
 				},
 				{
-					"DBColumnName":"UniqueId",
+					"DBColumnName":"PlayerId",
 					"InUse":true,
-					"ColumnName":"UniqueId",
+					"ColumnName":"PlayerId",
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":false,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[]
+				},
+				{
+					"DBColumnName":"PayTime",
+					"InUse":true,
+					"ColumnName":"PayTime",
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":false,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[]
+				},
+				{
+					"DBColumnName":"PayTimeStr",
+					"InUse":true,
+					"ColumnName":"PayTimeStr",
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":false,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[]
+				}
+			]
+		},
+		{
+			"TableName":"GooglePay",
+			"DBTableName":"GooglePay",
+			"SingleRow":false,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"OrderId",
+			"PrimaryKeyType":"string",
+			"PrimaryKeySize":32,
+			"Columns":[
+				{
+					"DBColumnName":"BundleId",
+					"InUse":true,
+					"ColumnName":"BundleId",
 					"Simple":true,
 					"SimpleType":"string",
 					"Preload":false,
@@ -37,9 +92,9 @@
 					"Fields":[]
 				},
 				{
-					"DBColumnName":"Name",
+					"DBColumnName":"Account",
 					"InUse":true,
-					"ColumnName":"Name",
+					"ColumnName":"Account",
 					"Simple":true,
 					"SimpleType":"string",
 					"Preload":false,
@@ -48,9 +103,9 @@
 					"Fields":[]
 				},
 				{
-					"DBColumnName":"Level",
+					"DBColumnName":"PlayerId",
 					"InUse":true,
-					"ColumnName":"Level",
+					"ColumnName":"PlayerId",
 					"Simple":true,
 					"SimpleType":"int32",
 					"Preload":false,
@@ -59,9 +114,9 @@
 					"Fields":[]
 				},
 				{
-					"DBColumnName":"VipLevel",
+					"DBColumnName":"PayTime",
 					"InUse":true,
-					"ColumnName":"VipLevel",
+					"ColumnName":"PayTime",
 					"Simple":true,
 					"SimpleType":"int32",
 					"Preload":false,
@@ -70,110 +125,11 @@
 					"Fields":[]
 				},
 				{
-					"DBColumnName":"Gold",
+					"DBColumnName":"PayTimeStr",
 					"InUse":true,
-					"ColumnName":"Gold",
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"DBColumnName":"Diamond",
-					"InUse":true,
-					"ColumnName":"Diamond",
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"DBColumnName":"GuildId",
-					"InUse":true,
-					"ColumnName":"GuildId",
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"DBColumnName":"GuildName",
-					"InUse":true,
-					"ColumnName":"GuildName",
+					"ColumnName":"PayTimeStr",
 					"Simple":true,
 					"SimpleType":"string",
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"DBColumnName":"PassedCampaignId",
-					"InUse":true,
-					"ColumnName":"PassedCampaignId",
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"DBColumnName":"HungupCampaignId",
-					"InUse":true,
-					"ColumnName":"HungupCampaignId",
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"DBColumnName":"ArenaScore",
-					"InUse":true,
-					"ColumnName":"ArenaScore",
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"DBColumnName":"TalentPoint",
-					"InUse":true,
-					"ColumnName":"TalentPoint",
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"DBColumnName":"TowerId",
-					"InUse":true,
-					"ColumnName":"TowerId",
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":false,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[]
-				},
-				{
-					"DBColumnName":"SignIn",
-					"InUse":true,
-					"ColumnName":"SignIn",
-					"Simple":true,
-					"SimpleType":"int32",
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,

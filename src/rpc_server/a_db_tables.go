@@ -243,188 +243,68 @@ const DBC_VERSION = 1
 const DBC_SUB_VERSION = 0
 
 
-func (this *dbPlayerImportantDataRow)GetAccount( )(r string ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataAccountColumn")
+func (this *dbApplePayRow)GetBundleId( )(r string ){
+	this.m_lock.UnSafeRLock("dbApplePayRow.GetdbApplePayBundleIdColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_BundleId)
+}
+func (this *dbApplePayRow)SetBundleId(v string){
+	this.m_lock.UnSafeLock("dbApplePayRow.SetdbApplePayBundleIdColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_BundleId=string(v)
+	this.m_BundleId_changed=true
+	return
+}
+func (this *dbApplePayRow)GetAccount( )(r string ){
+	this.m_lock.UnSafeRLock("dbApplePayRow.GetdbApplePayAccountColumn")
 	defer this.m_lock.UnSafeRUnlock()
 	return string(this.m_Account)
 }
-func (this *dbPlayerImportantDataRow)SetAccount(v string){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataAccountColumn")
+func (this *dbApplePayRow)SetAccount(v string){
+	this.m_lock.UnSafeLock("dbApplePayRow.SetdbApplePayAccountColumn")
 	defer this.m_lock.UnSafeUnlock()
 	this.m_Account=string(v)
 	this.m_Account_changed=true
 	return
 }
-func (this *dbPlayerImportantDataRow)GetUniqueId( )(r string ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataUniqueIdColumn")
+func (this *dbApplePayRow)GetPlayerId( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbApplePayRow.GetdbApplePayPlayerIdColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_UniqueId)
+	return int32(this.m_PlayerId)
 }
-func (this *dbPlayerImportantDataRow)SetUniqueId(v string){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataUniqueIdColumn")
+func (this *dbApplePayRow)SetPlayerId(v int32){
+	this.m_lock.UnSafeLock("dbApplePayRow.SetdbApplePayPlayerIdColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_UniqueId=string(v)
-	this.m_UniqueId_changed=true
+	this.m_PlayerId=int32(v)
+	this.m_PlayerId_changed=true
 	return
 }
-func (this *dbPlayerImportantDataRow)GetName( )(r string ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataNameColumn")
+func (this *dbApplePayRow)GetPayTime( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbApplePayRow.GetdbApplePayPayTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_Name)
+	return int32(this.m_PayTime)
 }
-func (this *dbPlayerImportantDataRow)SetName(v string){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataNameColumn")
+func (this *dbApplePayRow)SetPayTime(v int32){
+	this.m_lock.UnSafeLock("dbApplePayRow.SetdbApplePayPayTimeColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Name=string(v)
-	this.m_Name_changed=true
+	this.m_PayTime=int32(v)
+	this.m_PayTime_changed=true
 	return
 }
-func (this *dbPlayerImportantDataRow)GetLevel( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataLevelColumn")
+func (this *dbApplePayRow)GetPayTimeStr( )(r string ){
+	this.m_lock.UnSafeRLock("dbApplePayRow.GetdbApplePayPayTimeStrColumn")
 	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Level)
+	return string(this.m_PayTimeStr)
 }
-func (this *dbPlayerImportantDataRow)SetLevel(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataLevelColumn")
+func (this *dbApplePayRow)SetPayTimeStr(v string){
+	this.m_lock.UnSafeLock("dbApplePayRow.SetdbApplePayPayTimeStrColumn")
 	defer this.m_lock.UnSafeUnlock()
-	this.m_Level=int32(v)
-	this.m_Level_changed=true
+	this.m_PayTimeStr=string(v)
+	this.m_PayTimeStr_changed=true
 	return
 }
-func (this *dbPlayerImportantDataRow)GetVipLevel( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataVipLevelColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_VipLevel)
-}
-func (this *dbPlayerImportantDataRow)SetVipLevel(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataVipLevelColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_VipLevel=int32(v)
-	this.m_VipLevel_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetGold( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataGoldColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Gold)
-}
-func (this *dbPlayerImportantDataRow)SetGold(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataGoldColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_Gold=int32(v)
-	this.m_Gold_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetDiamond( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataDiamondColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_Diamond)
-}
-func (this *dbPlayerImportantDataRow)SetDiamond(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataDiamondColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_Diamond=int32(v)
-	this.m_Diamond_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetGuildId( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataGuildIdColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_GuildId)
-}
-func (this *dbPlayerImportantDataRow)SetGuildId(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataGuildIdColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_GuildId=int32(v)
-	this.m_GuildId_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetGuildName( )(r string ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataGuildNameColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return string(this.m_GuildName)
-}
-func (this *dbPlayerImportantDataRow)SetGuildName(v string){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataGuildNameColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_GuildName=string(v)
-	this.m_GuildName_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetPassedCampaignId( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataPassedCampaignIdColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_PassedCampaignId)
-}
-func (this *dbPlayerImportantDataRow)SetPassedCampaignId(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataPassedCampaignIdColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_PassedCampaignId=int32(v)
-	this.m_PassedCampaignId_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetHungupCampaignId( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataHungupCampaignIdColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_HungupCampaignId)
-}
-func (this *dbPlayerImportantDataRow)SetHungupCampaignId(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataHungupCampaignIdColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_HungupCampaignId=int32(v)
-	this.m_HungupCampaignId_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetArenaScore( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataArenaScoreColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_ArenaScore)
-}
-func (this *dbPlayerImportantDataRow)SetArenaScore(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataArenaScoreColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_ArenaScore=int32(v)
-	this.m_ArenaScore_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetTalentPoint( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataTalentPointColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_TalentPoint)
-}
-func (this *dbPlayerImportantDataRow)SetTalentPoint(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataTalentPointColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_TalentPoint=int32(v)
-	this.m_TalentPoint_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetTowerId( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataTowerIdColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_TowerId)
-}
-func (this *dbPlayerImportantDataRow)SetTowerId(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataTowerIdColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_TowerId=int32(v)
-	this.m_TowerId_changed=true
-	return
-}
-func (this *dbPlayerImportantDataRow)GetSignIn( )(r int32 ){
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataRow.GetdbPlayerImportantDataSignInColumn")
-	defer this.m_lock.UnSafeRUnlock()
-	return int32(this.m_SignIn)
-}
-func (this *dbPlayerImportantDataRow)SetSignIn(v int32){
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.SetdbPlayerImportantDataSignInColumn")
-	defer this.m_lock.UnSafeUnlock()
-	this.m_SignIn=int32(v)
-	this.m_SignIn_changed=true
-	return
-}
-type dbPlayerImportantDataRow struct {
-	m_table *dbPlayerImportantDataTable
+type dbApplePayRow struct {
+	m_table *dbApplePayTable
 	m_lock       *RWMutex
 	m_loaded  bool
 	m_new     bool
@@ -432,236 +312,116 @@ type dbPlayerImportantDataRow struct {
 	m_touch      int32
 	m_releasable bool
 	m_valid   bool
-	m_PlayerId        int32
+	m_OrderId        string
+	m_BundleId_changed bool
+	m_BundleId string
 	m_Account_changed bool
 	m_Account string
-	m_UniqueId_changed bool
-	m_UniqueId string
-	m_Name_changed bool
-	m_Name string
-	m_Level_changed bool
-	m_Level int32
-	m_VipLevel_changed bool
-	m_VipLevel int32
-	m_Gold_changed bool
-	m_Gold int32
-	m_Diamond_changed bool
-	m_Diamond int32
-	m_GuildId_changed bool
-	m_GuildId int32
-	m_GuildName_changed bool
-	m_GuildName string
-	m_PassedCampaignId_changed bool
-	m_PassedCampaignId int32
-	m_HungupCampaignId_changed bool
-	m_HungupCampaignId int32
-	m_ArenaScore_changed bool
-	m_ArenaScore int32
-	m_TalentPoint_changed bool
-	m_TalentPoint int32
-	m_TowerId_changed bool
-	m_TowerId int32
-	m_SignIn_changed bool
-	m_SignIn int32
+	m_PlayerId_changed bool
+	m_PlayerId int32
+	m_PayTime_changed bool
+	m_PayTime int32
+	m_PayTimeStr_changed bool
+	m_PayTimeStr string
 }
-func new_dbPlayerImportantDataRow(table *dbPlayerImportantDataTable, PlayerId int32) (r *dbPlayerImportantDataRow) {
-	this := &dbPlayerImportantDataRow{}
+func new_dbApplePayRow(table *dbApplePayTable, OrderId string) (r *dbApplePayRow) {
+	this := &dbApplePayRow{}
 	this.m_table = table
-	this.m_PlayerId = PlayerId
+	this.m_OrderId = OrderId
 	this.m_lock = NewRWMutex()
+	this.m_BundleId_changed=true
 	this.m_Account_changed=true
-	this.m_UniqueId_changed=true
-	this.m_Name_changed=true
-	this.m_Level_changed=true
-	this.m_VipLevel_changed=true
-	this.m_Gold_changed=true
-	this.m_Diamond_changed=true
-	this.m_GuildId_changed=true
-	this.m_GuildName_changed=true
-	this.m_PassedCampaignId_changed=true
-	this.m_HungupCampaignId_changed=true
-	this.m_ArenaScore_changed=true
-	this.m_TalentPoint_changed=true
-	this.m_TowerId_changed=true
-	this.m_SignIn_changed=true
+	this.m_PlayerId_changed=true
+	this.m_PayTime_changed=true
+	this.m_PayTimeStr_changed=true
 	return this
 }
-func (this *dbPlayerImportantDataRow) GetPlayerId() (r int32) {
-	return this.m_PlayerId
+func (this *dbApplePayRow) GetOrderId() (r string) {
+	return this.m_OrderId
 }
-func (this *dbPlayerImportantDataRow) Load() (err error) {
+func (this *dbApplePayRow) Load() (err error) {
 	this.m_table.GC()
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.Load")
+	this.m_lock.UnSafeLock("dbApplePayRow.Load")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_loaded {
 		return
 	}
+	var dBundleId string
 	var dAccount string
-	var dUniqueId string
-	var dName string
-	var dLevel int32
-	var dVipLevel int32
-	var dGold int32
-	var dDiamond int32
-	var dGuildId int32
-	var dGuildName string
-	var dPassedCampaignId int32
-	var dHungupCampaignId int32
-	var dArenaScore int32
-	var dTalentPoint int32
-	var dTowerId int32
-	var dSignIn int32
-	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_PlayerId)
-	err = r.Scan(&dAccount,&dUniqueId,&dName,&dLevel,&dVipLevel,&dGold,&dDiamond,&dGuildId,&dGuildName,&dPassedCampaignId,&dHungupCampaignId,&dArenaScore,&dTalentPoint,&dTowerId,&dSignIn)
+	var dPlayerId int32
+	var dPayTime int32
+	var dPayTimeStr string
+	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_OrderId)
+	err = r.Scan(&dBundleId,&dAccount,&dPlayerId,&dPayTime,&dPayTimeStr)
 	if err != nil {
 		log.Error("Scan err[%v]", err.Error())
 		return
 	}
+		this.m_BundleId=dBundleId
 		this.m_Account=dAccount
-		this.m_UniqueId=dUniqueId
-		this.m_Name=dName
-		this.m_Level=dLevel
-		this.m_VipLevel=dVipLevel
-		this.m_Gold=dGold
-		this.m_Diamond=dDiamond
-		this.m_GuildId=dGuildId
-		this.m_GuildName=dGuildName
-		this.m_PassedCampaignId=dPassedCampaignId
-		this.m_HungupCampaignId=dHungupCampaignId
-		this.m_ArenaScore=dArenaScore
-		this.m_TalentPoint=dTalentPoint
-		this.m_TowerId=dTowerId
-		this.m_SignIn=dSignIn
+		this.m_PlayerId=dPlayerId
+		this.m_PayTime=dPayTime
+		this.m_PayTimeStr=dPayTimeStr
 	this.m_loaded=true
+	this.m_BundleId_changed=false
 	this.m_Account_changed=false
-	this.m_UniqueId_changed=false
-	this.m_Name_changed=false
-	this.m_Level_changed=false
-	this.m_VipLevel_changed=false
-	this.m_Gold_changed=false
-	this.m_Diamond_changed=false
-	this.m_GuildId_changed=false
-	this.m_GuildName_changed=false
-	this.m_PassedCampaignId_changed=false
-	this.m_HungupCampaignId_changed=false
-	this.m_ArenaScore_changed=false
-	this.m_TalentPoint_changed=false
-	this.m_TowerId_changed=false
-	this.m_SignIn_changed=false
+	this.m_PlayerId_changed=false
+	this.m_PayTime_changed=false
+	this.m_PayTimeStr_changed=false
 	this.Touch(false)
 	atomic.AddInt32(&this.m_table.m_gc_n,1)
 	return
 }
-func (this *dbPlayerImportantDataRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
-	this.m_lock.UnSafeLock("dbPlayerImportantDataRow.save_data")
+func (this *dbApplePayRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbApplePayRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(16)
-		db_args.Push(this.m_PlayerId)
+		db_args:=new_db_args(6)
+		db_args.Push(this.m_OrderId)
+		db_args.Push(this.m_BundleId)
 		db_args.Push(this.m_Account)
-		db_args.Push(this.m_UniqueId)
-		db_args.Push(this.m_Name)
-		db_args.Push(this.m_Level)
-		db_args.Push(this.m_VipLevel)
-		db_args.Push(this.m_Gold)
-		db_args.Push(this.m_Diamond)
-		db_args.Push(this.m_GuildId)
-		db_args.Push(this.m_GuildName)
-		db_args.Push(this.m_PassedCampaignId)
-		db_args.Push(this.m_HungupCampaignId)
-		db_args.Push(this.m_ArenaScore)
-		db_args.Push(this.m_TalentPoint)
-		db_args.Push(this.m_TowerId)
-		db_args.Push(this.m_SignIn)
+		db_args.Push(this.m_PlayerId)
+		db_args.Push(this.m_PayTime)
+		db_args.Push(this.m_PayTimeStr)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_UniqueId_changed||this.m_Name_changed||this.m_Level_changed||this.m_VipLevel_changed||this.m_Gold_changed||this.m_Diamond_changed||this.m_GuildId_changed||this.m_GuildName_changed||this.m_PassedCampaignId_changed||this.m_HungupCampaignId_changed||this.m_ArenaScore_changed||this.m_TalentPoint_changed||this.m_TowerId_changed||this.m_SignIn_changed{
-			update_string = "UPDATE PlayerImportantDatas SET "
-			db_args:=new_db_args(16)
+		if this.m_BundleId_changed||this.m_Account_changed||this.m_PlayerId_changed||this.m_PayTime_changed||this.m_PayTimeStr_changed{
+			update_string = "UPDATE ApplePays SET "
+			db_args:=new_db_args(6)
+			if this.m_BundleId_changed{
+				update_string+="BundleId=?,"
+				db_args.Push(this.m_BundleId)
+			}
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
 			}
-			if this.m_UniqueId_changed{
-				update_string+="UniqueId=?,"
-				db_args.Push(this.m_UniqueId)
+			if this.m_PlayerId_changed{
+				update_string+="PlayerId=?,"
+				db_args.Push(this.m_PlayerId)
 			}
-			if this.m_Name_changed{
-				update_string+="Name=?,"
-				db_args.Push(this.m_Name)
+			if this.m_PayTime_changed{
+				update_string+="PayTime=?,"
+				db_args.Push(this.m_PayTime)
 			}
-			if this.m_Level_changed{
-				update_string+="Level=?,"
-				db_args.Push(this.m_Level)
-			}
-			if this.m_VipLevel_changed{
-				update_string+="VipLevel=?,"
-				db_args.Push(this.m_VipLevel)
-			}
-			if this.m_Gold_changed{
-				update_string+="Gold=?,"
-				db_args.Push(this.m_Gold)
-			}
-			if this.m_Diamond_changed{
-				update_string+="Diamond=?,"
-				db_args.Push(this.m_Diamond)
-			}
-			if this.m_GuildId_changed{
-				update_string+="GuildId=?,"
-				db_args.Push(this.m_GuildId)
-			}
-			if this.m_GuildName_changed{
-				update_string+="GuildName=?,"
-				db_args.Push(this.m_GuildName)
-			}
-			if this.m_PassedCampaignId_changed{
-				update_string+="PassedCampaignId=?,"
-				db_args.Push(this.m_PassedCampaignId)
-			}
-			if this.m_HungupCampaignId_changed{
-				update_string+="HungupCampaignId=?,"
-				db_args.Push(this.m_HungupCampaignId)
-			}
-			if this.m_ArenaScore_changed{
-				update_string+="ArenaScore=?,"
-				db_args.Push(this.m_ArenaScore)
-			}
-			if this.m_TalentPoint_changed{
-				update_string+="TalentPoint=?,"
-				db_args.Push(this.m_TalentPoint)
-			}
-			if this.m_TowerId_changed{
-				update_string+="TowerId=?,"
-				db_args.Push(this.m_TowerId)
-			}
-			if this.m_SignIn_changed{
-				update_string+="SignIn=?,"
-				db_args.Push(this.m_SignIn)
+			if this.m_PayTimeStr_changed{
+				update_string+="PayTimeStr=?,"
+				db_args.Push(this.m_PayTimeStr)
 			}
 			update_string = strings.TrimRight(update_string, ", ")
-			update_string+=" WHERE PlayerId=?"
-			db_args.Push(this.m_PlayerId)
+			update_string+=" WHERE OrderId=?"
+			db_args.Push(this.m_OrderId)
 			args=db_args.GetArgs()
 			state = 2
 		}
 	}
 	this.m_new = false
+	this.m_BundleId_changed = false
 	this.m_Account_changed = false
-	this.m_UniqueId_changed = false
-	this.m_Name_changed = false
-	this.m_Level_changed = false
-	this.m_VipLevel_changed = false
-	this.m_Gold_changed = false
-	this.m_Diamond_changed = false
-	this.m_GuildId_changed = false
-	this.m_GuildName_changed = false
-	this.m_PassedCampaignId_changed = false
-	this.m_HungupCampaignId_changed = false
-	this.m_ArenaScore_changed = false
-	this.m_TalentPoint_changed = false
-	this.m_TowerId_changed = false
-	this.m_SignIn_changed = false
+	this.m_PlayerId_changed = false
+	this.m_PayTime_changed = false
+	this.m_PayTimeStr_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -669,7 +429,7 @@ func (this *dbPlayerImportantDataRow) save_data(release bool) (err error, releas
 	}
 	return nil,released,state,update_string,args
 }
-func (this *dbPlayerImportantDataRow) Save(release bool) (err error, d bool, released bool) {
+func (this *dbApplePayRow) Save(release bool) (err error, d bool, released bool) {
 	err,released, state, update_string, args := this.save_data(release)
 	if err != nil {
 		log.Error("save data failed")
@@ -680,44 +440,44 @@ func (this *dbPlayerImportantDataRow) Save(release bool) (err error, d bool, rel
 	} else if state == 1 {
 		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
 		if err != nil {
-			log.Error("INSERT PlayerImportantDatas exec failed %v ", this.m_PlayerId)
+			log.Error("INSERT ApplePays exec failed %v ", this.m_OrderId)
 			return err, false, released
 		}
 		d = true
 	} else if state == 2 {
 		_, err = this.m_table.m_dbc.Exec(update_string, args...)
 		if err != nil {
-			log.Error("UPDATE PlayerImportantDatas exec failed %v", this.m_PlayerId)
+			log.Error("UPDATE ApplePays exec failed %v", this.m_OrderId)
 			return err, false, released
 		}
 		d = true
 	}
 	return nil, d, released
 }
-func (this *dbPlayerImportantDataRow) Touch(releasable bool) {
+func (this *dbApplePayRow) Touch(releasable bool) {
 	this.m_touch = int32(time.Now().Unix())
 	this.m_releasable = releasable
 }
-type dbPlayerImportantDataRowSort struct {
-	rows []*dbPlayerImportantDataRow
+type dbApplePayRowSort struct {
+	rows []*dbApplePayRow
 }
-func (this *dbPlayerImportantDataRowSort) Len() (length int) {
+func (this *dbApplePayRowSort) Len() (length int) {
 	return len(this.rows)
 }
-func (this *dbPlayerImportantDataRowSort) Less(i int, j int) (less bool) {
+func (this *dbApplePayRowSort) Less(i int, j int) (less bool) {
 	return this.rows[i].m_touch < this.rows[j].m_touch
 }
-func (this *dbPlayerImportantDataRowSort) Swap(i int, j int) {
+func (this *dbApplePayRowSort) Swap(i int, j int) {
 	temp := this.rows[i]
 	this.rows[i] = this.rows[j]
 	this.rows[j] = temp
 }
-type dbPlayerImportantDataTable struct{
+type dbApplePayTable struct{
 	m_dbc *DBC
 	m_lock *RWMutex
-	m_rows map[int32]*dbPlayerImportantDataRow
-	m_new_rows map[int32]*dbPlayerImportantDataRow
-	m_removed_rows map[int32]*dbPlayerImportantDataRow
+	m_rows map[string]*dbApplePayRow
+	m_new_rows map[string]*dbApplePayRow
+	m_removed_rows map[string]*dbApplePayRow
 	m_gc_n int32
 	m_gcing int32
 	m_pool_size int32
@@ -727,22 +487,22 @@ type dbPlayerImportantDataTable struct{
 	m_save_insert_stmt *sql.Stmt
 	m_delete_stmt *sql.Stmt
 }
-func new_dbPlayerImportantDataTable(dbc *DBC) (this *dbPlayerImportantDataTable) {
-	this = &dbPlayerImportantDataTable{}
+func new_dbApplePayTable(dbc *DBC) (this *dbApplePayTable) {
+	this = &dbApplePayTable{}
 	this.m_dbc = dbc
 	this.m_lock = NewRWMutex()
-	this.m_rows = make(map[int32]*dbPlayerImportantDataRow)
-	this.m_new_rows = make(map[int32]*dbPlayerImportantDataRow)
-	this.m_removed_rows = make(map[int32]*dbPlayerImportantDataRow)
+	this.m_rows = make(map[string]*dbApplePayRow)
+	this.m_new_rows = make(map[string]*dbApplePayRow)
+	this.m_removed_rows = make(map[string]*dbApplePayRow)
 	return this
 }
-func (this *dbPlayerImportantDataTable) check_create_table() (err error) {
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS PlayerImportantDatas(PlayerId int(11),PRIMARY KEY (PlayerId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+func (this *dbApplePayTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS ApplePays(OrderId varchar(32),PRIMARY KEY (OrderId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
 	if err != nil {
-		log.Error("CREATE TABLE IF NOT EXISTS PlayerImportantDatas failed")
+		log.Error("CREATE TABLE IF NOT EXISTS ApplePays failed")
 		return
 	}
-	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='PlayerImportantDatas'", this.m_dbc.m_db_name)
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='ApplePays'", this.m_dbc.m_db_name)
 	if err != nil {
 		log.Error("SELECT information_schema failed")
 		return
@@ -762,161 +522,81 @@ func (this *dbPlayerImportantDataTable) check_create_table() (err error) {
 		}
 		columns[column_name] = ordinal_position
 	}
+	_, hasBundleId := columns["BundleId"]
+	if !hasBundleId {
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN BundleId varchar(45)")
+		if err != nil {
+			log.Error("ADD COLUMN BundleId failed")
+			return
+		}
+	}
 	_, hasAccount := columns["Account"]
 	if !hasAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN Account varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN Account varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Account failed")
 			return
 		}
 	}
-	_, hasUniqueId := columns["UniqueId"]
-	if !hasUniqueId {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN UniqueId varchar(45)")
+	_, hasPlayerId := columns["PlayerId"]
+	if !hasPlayerId {
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN PlayerId int(11)")
 		if err != nil {
-			log.Error("ADD COLUMN UniqueId failed")
+			log.Error("ADD COLUMN PlayerId failed")
 			return
 		}
 	}
-	_, hasName := columns["Name"]
-	if !hasName {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN Name varchar(45)")
+	_, hasPayTime := columns["PayTime"]
+	if !hasPayTime {
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN PayTime int(11)")
 		if err != nil {
-			log.Error("ADD COLUMN Name failed")
+			log.Error("ADD COLUMN PayTime failed")
 			return
 		}
 	}
-	_, hasLevel := columns["Level"]
-	if !hasLevel {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN Level int(11)")
+	_, hasPayTimeStr := columns["PayTimeStr"]
+	if !hasPayTimeStr {
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN PayTimeStr varchar(45)")
 		if err != nil {
-			log.Error("ADD COLUMN Level failed")
-			return
-		}
-	}
-	_, hasVipLevel := columns["VipLevel"]
-	if !hasVipLevel {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN VipLevel int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN VipLevel failed")
-			return
-		}
-	}
-	_, hasGold := columns["Gold"]
-	if !hasGold {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN Gold int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN Gold failed")
-			return
-		}
-	}
-	_, hasDiamond := columns["Diamond"]
-	if !hasDiamond {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN Diamond int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN Diamond failed")
-			return
-		}
-	}
-	_, hasGuildId := columns["GuildId"]
-	if !hasGuildId {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN GuildId int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN GuildId failed")
-			return
-		}
-	}
-	_, hasGuildName := columns["GuildName"]
-	if !hasGuildName {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN GuildName varchar(45)")
-		if err != nil {
-			log.Error("ADD COLUMN GuildName failed")
-			return
-		}
-	}
-	_, hasPassedCampaignId := columns["PassedCampaignId"]
-	if !hasPassedCampaignId {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN PassedCampaignId int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN PassedCampaignId failed")
-			return
-		}
-	}
-	_, hasHungupCampaignId := columns["HungupCampaignId"]
-	if !hasHungupCampaignId {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN HungupCampaignId int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN HungupCampaignId failed")
-			return
-		}
-	}
-	_, hasArenaScore := columns["ArenaScore"]
-	if !hasArenaScore {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN ArenaScore int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN ArenaScore failed")
-			return
-		}
-	}
-	_, hasTalentPoint := columns["TalentPoint"]
-	if !hasTalentPoint {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN TalentPoint int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN TalentPoint failed")
-			return
-		}
-	}
-	_, hasTowerId := columns["TowerId"]
-	if !hasTowerId {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN TowerId int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN TowerId failed")
-			return
-		}
-	}
-	_, hasSignIn := columns["SignIn"]
-	if !hasSignIn {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerImportantDatas ADD COLUMN SignIn int(11)")
-		if err != nil {
-			log.Error("ADD COLUMN SignIn failed")
+			log.Error("ADD COLUMN PayTimeStr failed")
 			return
 		}
 	}
 	return
 }
-func (this *dbPlayerImportantDataTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId FROM PlayerImportantDatas")
+func (this *dbApplePayTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT OrderId FROM ApplePays")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
 	}
 	return
 }
-func (this *dbPlayerImportantDataTable) prepare_load_select_stmt() (err error) {
-	this.m_load_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Account,UniqueId,Name,Level,VipLevel,Gold,Diamond,GuildId,GuildName,PassedCampaignId,HungupCampaignId,ArenaScore,TalentPoint,TowerId,SignIn FROM PlayerImportantDatas WHERE PlayerId=?")
+func (this *dbApplePayTable) prepare_load_select_stmt() (err error) {
+	this.m_load_select_stmt,err=this.m_dbc.StmtPrepare("SELECT BundleId,Account,PlayerId,PayTime,PayTimeStr FROM ApplePays WHERE OrderId=?")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
 	}
 	return
 }
-func (this *dbPlayerImportantDataTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO PlayerImportantDatas (PlayerId,Account,UniqueId,Name,Level,VipLevel,Gold,Diamond,GuildId,GuildName,PassedCampaignId,HungupCampaignId,ArenaScore,TalentPoint,TowerId,SignIn) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+func (this *dbApplePayTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO ApplePays (OrderId,BundleId,Account,PlayerId,PayTime,PayTimeStr) VALUES (?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
 	}
 	return
 }
-func (this *dbPlayerImportantDataTable) prepare_delete_stmt() (err error) {
-	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM PlayerImportantDatas WHERE PlayerId=?")
+func (this *dbApplePayTable) prepare_delete_stmt() (err error) {
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM ApplePays WHERE OrderId=?")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
 	}
 	return
 }
-func (this *dbPlayerImportantDataTable) Init() (err error) {
+func (this *dbApplePayTable) Init() (err error) {
 	err=this.check_create_table()
 	if err!=nil{
 		log.Error("check_create_table failed")
@@ -944,45 +624,41 @@ func (this *dbPlayerImportantDataTable) Init() (err error) {
 	}
 	return
 }
-func (this *dbPlayerImportantDataTable) Preload() (err error) {
+func (this *dbApplePayTable) Preload() (err error) {
 	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
 	if err != nil {
 		log.Error("SELECT")
 		return
 	}
-	var PlayerId int32
-		this.m_preload_max_id = 0
+	var OrderId string
 	for r.Next() {
-		err = r.Scan(&PlayerId)
+		err = r.Scan(&OrderId)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
 		}
-		if PlayerId>this.m_preload_max_id{
-			this.m_preload_max_id =PlayerId
-		}
-		row := new_dbPlayerImportantDataRow(this,PlayerId)
+		row := new_dbApplePayRow(this,OrderId)
 		row.m_valid = true
-		this.m_rows[PlayerId]=row
+		this.m_rows[OrderId]=row
 	}
 	return
 }
-func (this *dbPlayerImportantDataTable) GetPreloadedMaxId() (max_id int32) {
+func (this *dbApplePayTable) GetPreloadedMaxId() (max_id int32) {
 	return this.m_preload_max_id
 }
-func (this *dbPlayerImportantDataTable) fetch_rows(rows map[int32]*dbPlayerImportantDataRow) (r map[int32]*dbPlayerImportantDataRow) {
-	this.m_lock.UnSafeLock("dbPlayerImportantDataTable.fetch_rows")
+func (this *dbApplePayTable) fetch_rows(rows map[string]*dbApplePayRow) (r map[string]*dbApplePayRow) {
+	this.m_lock.UnSafeLock("dbApplePayTable.fetch_rows")
 	defer this.m_lock.UnSafeUnlock()
-	r = make(map[int32]*dbPlayerImportantDataRow)
+	r = make(map[string]*dbApplePayRow)
 	for i, v := range rows {
 		r[i] = v
 	}
 	return r
 }
-func (this *dbPlayerImportantDataTable) fetch_new_rows() (new_rows map[int32]*dbPlayerImportantDataRow) {
-	this.m_lock.UnSafeLock("dbPlayerImportantDataTable.fetch_new_rows")
+func (this *dbApplePayTable) fetch_new_rows() (new_rows map[string]*dbApplePayRow) {
+	this.m_lock.UnSafeLock("dbApplePayTable.fetch_new_rows")
 	defer this.m_lock.UnSafeUnlock()
-	new_rows = make(map[int32]*dbPlayerImportantDataRow)
+	new_rows = make(map[string]*dbApplePayRow)
 	for i, v := range this.m_new_rows {
 		_, has := this.m_rows[i]
 		if has {
@@ -997,7 +673,7 @@ func (this *dbPlayerImportantDataTable) fetch_new_rows() (new_rows map[int32]*db
 	}
 	return
 }
-func (this *dbPlayerImportantDataTable) save_rows(rows map[int32]*dbPlayerImportantDataRow, quick bool) {
+func (this *dbApplePayTable) save_rows(rows map[string]*dbApplePayRow, quick bool) {
 	for _, v := range rows {
 		if this.m_dbc.m_quit && !quick {
 			return
@@ -1014,10 +690,10 @@ func (this *dbPlayerImportantDataTable) save_rows(rows map[int32]*dbPlayerImport
 		}
 	}
 }
-func (this *dbPlayerImportantDataTable) Save(quick bool) (err error){
+func (this *dbApplePayTable) Save(quick bool) (err error){
 	removed_rows := this.fetch_rows(this.m_removed_rows)
 	for _, v := range removed_rows {
-		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetPlayerId())
+		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetOrderId())
 		if err != nil {
 			log.Error("exec delete stmt failed %v", err)
 		}
@@ -1026,79 +702,79 @@ func (this *dbPlayerImportantDataTable) Save(quick bool) (err error){
 			time.Sleep(time.Millisecond * 5)
 		}
 	}
-	this.m_removed_rows = make(map[int32]*dbPlayerImportantDataRow)
+	this.m_removed_rows = make(map[string]*dbApplePayRow)
 	rows := this.fetch_rows(this.m_rows)
 	this.save_rows(rows, quick)
 	new_rows := this.fetch_new_rows()
 	this.save_rows(new_rows, quick)
 	return
 }
-func (this *dbPlayerImportantDataTable) AddRow(PlayerId int32) (row *dbPlayerImportantDataRow) {
+func (this *dbApplePayTable) AddRow(OrderId string) (row *dbApplePayRow) {
 	this.GC()
-	this.m_lock.UnSafeLock("dbPlayerImportantDataTable.AddRow")
+	this.m_lock.UnSafeLock("dbApplePayTable.AddRow")
 	defer this.m_lock.UnSafeUnlock()
-	row = new_dbPlayerImportantDataRow(this,PlayerId)
+	row = new_dbApplePayRow(this,OrderId)
 	row.m_new = true
 	row.m_loaded = true
 	row.m_valid = true
-	_, has := this.m_new_rows[PlayerId]
+	_, has := this.m_new_rows[OrderId]
 	if has{
-		log.Error("已经存在 %v", PlayerId)
+		log.Error("已经存在 %v", OrderId)
 		return nil
 	}
-	this.m_new_rows[PlayerId] = row
+	this.m_new_rows[OrderId] = row
 	atomic.AddInt32(&this.m_gc_n,1)
 	return row
 }
-func (this *dbPlayerImportantDataTable) RemoveRow(PlayerId int32) {
-	this.m_lock.UnSafeLock("dbPlayerImportantDataTable.RemoveRow")
+func (this *dbApplePayTable) RemoveRow(OrderId string) {
+	this.m_lock.UnSafeLock("dbApplePayTable.RemoveRow")
 	defer this.m_lock.UnSafeUnlock()
-	row := this.m_rows[PlayerId]
+	row := this.m_rows[OrderId]
 	if row != nil {
 		row.m_remove = true
-		delete(this.m_rows, PlayerId)
-		rm_row := this.m_removed_rows[PlayerId]
+		delete(this.m_rows, OrderId)
+		rm_row := this.m_removed_rows[OrderId]
 		if rm_row != nil {
-			log.Error("rows and removed rows both has %v", PlayerId)
+			log.Error("rows and removed rows both has %v", OrderId)
 		}
-		this.m_removed_rows[PlayerId] = row
-		_, has_new := this.m_new_rows[PlayerId]
+		this.m_removed_rows[OrderId] = row
+		_, has_new := this.m_new_rows[OrderId]
 		if has_new {
-			delete(this.m_new_rows, PlayerId)
-			log.Error("rows and new_rows both has %v", PlayerId)
+			delete(this.m_new_rows, OrderId)
+			log.Error("rows and new_rows both has %v", OrderId)
 		}
 	} else {
-		row = this.m_removed_rows[PlayerId]
+		row = this.m_removed_rows[OrderId]
 		if row == nil {
-			_, has_new := this.m_new_rows[PlayerId]
+			_, has_new := this.m_new_rows[OrderId]
 			if has_new {
-				delete(this.m_new_rows, PlayerId)
+				delete(this.m_new_rows, OrderId)
 			} else {
-				log.Error("row not exist %v", PlayerId)
+				log.Error("row not exist %v", OrderId)
 			}
 		} else {
-			log.Error("already removed %v", PlayerId)
-			_, has_new := this.m_new_rows[PlayerId]
+			log.Error("already removed %v", OrderId)
+			_, has_new := this.m_new_rows[OrderId]
 			if has_new {
-				delete(this.m_new_rows, PlayerId)
-				log.Error("removed rows and new_rows both has %v", PlayerId)
+				delete(this.m_new_rows, OrderId)
+				log.Error("removed rows and new_rows both has %v", OrderId)
 			}
 		}
 	}
 }
-func (this *dbPlayerImportantDataTable) GetRow(PlayerId int32) (row *dbPlayerImportantDataRow) {
-	this.m_lock.UnSafeRLock("dbPlayerImportantDataTable.GetRow")
+func (this *dbApplePayTable) GetRow(OrderId string) (row *dbApplePayRow) {
+	this.m_lock.UnSafeRLock("dbApplePayTable.GetRow")
 	defer this.m_lock.UnSafeRUnlock()
-	row = this.m_rows[PlayerId]
+	row = this.m_rows[OrderId]
 	if row == nil {
-		row = this.m_new_rows[PlayerId]
+		row = this.m_new_rows[OrderId]
 	}
 	return row
 }
-func (this *dbPlayerImportantDataTable) SetPoolSize(n int32) {
+func (this *dbApplePayTable) SetPoolSize(n int32) {
 	this.m_pool_size = n
 }
-func (this *dbPlayerImportantDataTable) GC() {
+func (this *dbApplePayTable) GC() {
 	if this.m_pool_size<=0{
 		return
 	}
@@ -1111,9 +787,578 @@ func (this *dbPlayerImportantDataTable) GC() {
 		return
 	}
 	max := (n - this.m_pool_size) / 2
-	arr := dbPlayerImportantDataRowSort{}
+	arr := dbApplePayRowSort{}
 	rows := this.fetch_rows(this.m_rows)
-	arr.rows = make([]*dbPlayerImportantDataRow, len(rows))
+	arr.rows = make([]*dbApplePayRow, len(rows))
+	index := 0
+	for _, v := range rows {
+		arr.rows[index] = v
+		index++
+	}
+	sort.Sort(&arr)
+	count := int32(0)
+	for _, v := range arr.rows {
+		err, _, released := v.Save(true)
+		if err != nil {
+			log.Error("release failed %v", err)
+			continue
+		}
+		if released {
+			count++
+			if count > max {
+				return
+			}
+		}
+	}
+	return
+}
+func (this *dbGooglePayRow)GetBundleId( )(r string ){
+	this.m_lock.UnSafeRLock("dbGooglePayRow.GetdbGooglePayBundleIdColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_BundleId)
+}
+func (this *dbGooglePayRow)SetBundleId(v string){
+	this.m_lock.UnSafeLock("dbGooglePayRow.SetdbGooglePayBundleIdColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_BundleId=string(v)
+	this.m_BundleId_changed=true
+	return
+}
+func (this *dbGooglePayRow)GetAccount( )(r string ){
+	this.m_lock.UnSafeRLock("dbGooglePayRow.GetdbGooglePayAccountColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_Account)
+}
+func (this *dbGooglePayRow)SetAccount(v string){
+	this.m_lock.UnSafeLock("dbGooglePayRow.SetdbGooglePayAccountColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_Account=string(v)
+	this.m_Account_changed=true
+	return
+}
+func (this *dbGooglePayRow)GetPlayerId( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbGooglePayRow.GetdbGooglePayPlayerIdColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_PlayerId)
+}
+func (this *dbGooglePayRow)SetPlayerId(v int32){
+	this.m_lock.UnSafeLock("dbGooglePayRow.SetdbGooglePayPlayerIdColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_PlayerId=int32(v)
+	this.m_PlayerId_changed=true
+	return
+}
+func (this *dbGooglePayRow)GetPayTime( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbGooglePayRow.GetdbGooglePayPayTimeColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_PayTime)
+}
+func (this *dbGooglePayRow)SetPayTime(v int32){
+	this.m_lock.UnSafeLock("dbGooglePayRow.SetdbGooglePayPayTimeColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_PayTime=int32(v)
+	this.m_PayTime_changed=true
+	return
+}
+func (this *dbGooglePayRow)GetPayTimeStr( )(r string ){
+	this.m_lock.UnSafeRLock("dbGooglePayRow.GetdbGooglePayPayTimeStrColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_PayTimeStr)
+}
+func (this *dbGooglePayRow)SetPayTimeStr(v string){
+	this.m_lock.UnSafeLock("dbGooglePayRow.SetdbGooglePayPayTimeStrColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_PayTimeStr=string(v)
+	this.m_PayTimeStr_changed=true
+	return
+}
+type dbGooglePayRow struct {
+	m_table *dbGooglePayTable
+	m_lock       *RWMutex
+	m_loaded  bool
+	m_new     bool
+	m_remove  bool
+	m_touch      int32
+	m_releasable bool
+	m_valid   bool
+	m_OrderId        string
+	m_BundleId_changed bool
+	m_BundleId string
+	m_Account_changed bool
+	m_Account string
+	m_PlayerId_changed bool
+	m_PlayerId int32
+	m_PayTime_changed bool
+	m_PayTime int32
+	m_PayTimeStr_changed bool
+	m_PayTimeStr string
+}
+func new_dbGooglePayRow(table *dbGooglePayTable, OrderId string) (r *dbGooglePayRow) {
+	this := &dbGooglePayRow{}
+	this.m_table = table
+	this.m_OrderId = OrderId
+	this.m_lock = NewRWMutex()
+	this.m_BundleId_changed=true
+	this.m_Account_changed=true
+	this.m_PlayerId_changed=true
+	this.m_PayTime_changed=true
+	this.m_PayTimeStr_changed=true
+	return this
+}
+func (this *dbGooglePayRow) GetOrderId() (r string) {
+	return this.m_OrderId
+}
+func (this *dbGooglePayRow) Load() (err error) {
+	this.m_table.GC()
+	this.m_lock.UnSafeLock("dbGooglePayRow.Load")
+	defer this.m_lock.UnSafeUnlock()
+	if this.m_loaded {
+		return
+	}
+	var dBundleId string
+	var dAccount string
+	var dPlayerId int32
+	var dPayTime int32
+	var dPayTimeStr string
+	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_OrderId)
+	err = r.Scan(&dBundleId,&dAccount,&dPlayerId,&dPayTime,&dPayTimeStr)
+	if err != nil {
+		log.Error("Scan err[%v]", err.Error())
+		return
+	}
+		this.m_BundleId=dBundleId
+		this.m_Account=dAccount
+		this.m_PlayerId=dPlayerId
+		this.m_PayTime=dPayTime
+		this.m_PayTimeStr=dPayTimeStr
+	this.m_loaded=true
+	this.m_BundleId_changed=false
+	this.m_Account_changed=false
+	this.m_PlayerId_changed=false
+	this.m_PayTime_changed=false
+	this.m_PayTimeStr_changed=false
+	this.Touch(false)
+	atomic.AddInt32(&this.m_table.m_gc_n,1)
+	return
+}
+func (this *dbGooglePayRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbGooglePayRow.save_data")
+	defer this.m_lock.UnSafeUnlock()
+	if this.m_new {
+		db_args:=new_db_args(6)
+		db_args.Push(this.m_OrderId)
+		db_args.Push(this.m_BundleId)
+		db_args.Push(this.m_Account)
+		db_args.Push(this.m_PlayerId)
+		db_args.Push(this.m_PayTime)
+		db_args.Push(this.m_PayTimeStr)
+		args=db_args.GetArgs()
+		state = 1
+	} else {
+		if this.m_BundleId_changed||this.m_Account_changed||this.m_PlayerId_changed||this.m_PayTime_changed||this.m_PayTimeStr_changed{
+			update_string = "UPDATE GooglePays SET "
+			db_args:=new_db_args(6)
+			if this.m_BundleId_changed{
+				update_string+="BundleId=?,"
+				db_args.Push(this.m_BundleId)
+			}
+			if this.m_Account_changed{
+				update_string+="Account=?,"
+				db_args.Push(this.m_Account)
+			}
+			if this.m_PlayerId_changed{
+				update_string+="PlayerId=?,"
+				db_args.Push(this.m_PlayerId)
+			}
+			if this.m_PayTime_changed{
+				update_string+="PayTime=?,"
+				db_args.Push(this.m_PayTime)
+			}
+			if this.m_PayTimeStr_changed{
+				update_string+="PayTimeStr=?,"
+				db_args.Push(this.m_PayTimeStr)
+			}
+			update_string = strings.TrimRight(update_string, ", ")
+			update_string+=" WHERE OrderId=?"
+			db_args.Push(this.m_OrderId)
+			args=db_args.GetArgs()
+			state = 2
+		}
+	}
+	this.m_new = false
+	this.m_BundleId_changed = false
+	this.m_Account_changed = false
+	this.m_PlayerId_changed = false
+	this.m_PayTime_changed = false
+	this.m_PayTimeStr_changed = false
+	if release && this.m_loaded {
+		atomic.AddInt32(&this.m_table.m_gc_n, -1)
+		this.m_loaded = false
+		released = true
+	}
+	return nil,released,state,update_string,args
+}
+func (this *dbGooglePayRow) Save(release bool) (err error, d bool, released bool) {
+	err,released, state, update_string, args := this.save_data(release)
+	if err != nil {
+		log.Error("save data failed")
+		return err, false, false
+	}
+	if state == 0 {
+		d = false
+	} else if state == 1 {
+		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
+		if err != nil {
+			log.Error("INSERT GooglePays exec failed %v ", this.m_OrderId)
+			return err, false, released
+		}
+		d = true
+	} else if state == 2 {
+		_, err = this.m_table.m_dbc.Exec(update_string, args...)
+		if err != nil {
+			log.Error("UPDATE GooglePays exec failed %v", this.m_OrderId)
+			return err, false, released
+		}
+		d = true
+	}
+	return nil, d, released
+}
+func (this *dbGooglePayRow) Touch(releasable bool) {
+	this.m_touch = int32(time.Now().Unix())
+	this.m_releasable = releasable
+}
+type dbGooglePayRowSort struct {
+	rows []*dbGooglePayRow
+}
+func (this *dbGooglePayRowSort) Len() (length int) {
+	return len(this.rows)
+}
+func (this *dbGooglePayRowSort) Less(i int, j int) (less bool) {
+	return this.rows[i].m_touch < this.rows[j].m_touch
+}
+func (this *dbGooglePayRowSort) Swap(i int, j int) {
+	temp := this.rows[i]
+	this.rows[i] = this.rows[j]
+	this.rows[j] = temp
+}
+type dbGooglePayTable struct{
+	m_dbc *DBC
+	m_lock *RWMutex
+	m_rows map[string]*dbGooglePayRow
+	m_new_rows map[string]*dbGooglePayRow
+	m_removed_rows map[string]*dbGooglePayRow
+	m_gc_n int32
+	m_gcing int32
+	m_pool_size int32
+	m_preload_select_stmt *sql.Stmt
+	m_preload_max_id int32
+	m_load_select_stmt *sql.Stmt
+	m_save_insert_stmt *sql.Stmt
+	m_delete_stmt *sql.Stmt
+}
+func new_dbGooglePayTable(dbc *DBC) (this *dbGooglePayTable) {
+	this = &dbGooglePayTable{}
+	this.m_dbc = dbc
+	this.m_lock = NewRWMutex()
+	this.m_rows = make(map[string]*dbGooglePayRow)
+	this.m_new_rows = make(map[string]*dbGooglePayRow)
+	this.m_removed_rows = make(map[string]*dbGooglePayRow)
+	return this
+}
+func (this *dbGooglePayTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS GooglePays(OrderId varchar(32),PRIMARY KEY (OrderId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS GooglePays failed")
+		return
+	}
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='GooglePays'", this.m_dbc.m_db_name)
+	if err != nil {
+		log.Error("SELECT information_schema failed")
+		return
+	}
+	columns := make(map[string]int32)
+	for rows.Next() {
+		var column_name string
+		var ordinal_position int32
+		err = rows.Scan(&column_name, &ordinal_position)
+		if err != nil {
+			log.Error("scan information_schema row failed")
+			return
+		}
+		if ordinal_position < 1 {
+			log.Error("col ordinal out of range")
+			continue
+		}
+		columns[column_name] = ordinal_position
+	}
+	_, hasBundleId := columns["BundleId"]
+	if !hasBundleId {
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN BundleId varchar(45)")
+		if err != nil {
+			log.Error("ADD COLUMN BundleId failed")
+			return
+		}
+	}
+	_, hasAccount := columns["Account"]
+	if !hasAccount {
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN Account varchar(45)")
+		if err != nil {
+			log.Error("ADD COLUMN Account failed")
+			return
+		}
+	}
+	_, hasPlayerId := columns["PlayerId"]
+	if !hasPlayerId {
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN PlayerId int(11)")
+		if err != nil {
+			log.Error("ADD COLUMN PlayerId failed")
+			return
+		}
+	}
+	_, hasPayTime := columns["PayTime"]
+	if !hasPayTime {
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN PayTime int(11)")
+		if err != nil {
+			log.Error("ADD COLUMN PayTime failed")
+			return
+		}
+	}
+	_, hasPayTimeStr := columns["PayTimeStr"]
+	if !hasPayTimeStr {
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN PayTimeStr varchar(45)")
+		if err != nil {
+			log.Error("ADD COLUMN PayTimeStr failed")
+			return
+		}
+	}
+	return
+}
+func (this *dbGooglePayTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT OrderId FROM GooglePays")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbGooglePayTable) prepare_load_select_stmt() (err error) {
+	this.m_load_select_stmt,err=this.m_dbc.StmtPrepare("SELECT BundleId,Account,PlayerId,PayTime,PayTimeStr FROM GooglePays WHERE OrderId=?")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbGooglePayTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO GooglePays (OrderId,BundleId,Account,PlayerId,PayTime,PayTimeStr) VALUES (?,?,?,?,?,?)")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbGooglePayTable) prepare_delete_stmt() (err error) {
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM GooglePays WHERE OrderId=?")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbGooglePayTable) Init() (err error) {
+	err=this.check_create_table()
+	if err!=nil{
+		log.Error("check_create_table failed")
+		return
+	}
+	err=this.prepare_preload_select_stmt()
+	if err!=nil{
+		log.Error("prepare_preload_select_stmt failed")
+		return
+	}
+	err=this.prepare_load_select_stmt()
+	if err!=nil{
+		log.Error("prepare_load_select_stmt failed")
+		return
+	}
+	err=this.prepare_save_insert_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	err=this.prepare_delete_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	return
+}
+func (this *dbGooglePayTable) Preload() (err error) {
+	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
+	if err != nil {
+		log.Error("SELECT")
+		return
+	}
+	var OrderId string
+	for r.Next() {
+		err = r.Scan(&OrderId)
+		if err != nil {
+			log.Error("Scan err[%v]", err.Error())
+			return
+		}
+		row := new_dbGooglePayRow(this,OrderId)
+		row.m_valid = true
+		this.m_rows[OrderId]=row
+	}
+	return
+}
+func (this *dbGooglePayTable) GetPreloadedMaxId() (max_id int32) {
+	return this.m_preload_max_id
+}
+func (this *dbGooglePayTable) fetch_rows(rows map[string]*dbGooglePayRow) (r map[string]*dbGooglePayRow) {
+	this.m_lock.UnSafeLock("dbGooglePayTable.fetch_rows")
+	defer this.m_lock.UnSafeUnlock()
+	r = make(map[string]*dbGooglePayRow)
+	for i, v := range rows {
+		r[i] = v
+	}
+	return r
+}
+func (this *dbGooglePayTable) fetch_new_rows() (new_rows map[string]*dbGooglePayRow) {
+	this.m_lock.UnSafeLock("dbGooglePayTable.fetch_new_rows")
+	defer this.m_lock.UnSafeUnlock()
+	new_rows = make(map[string]*dbGooglePayRow)
+	for i, v := range this.m_new_rows {
+		_, has := this.m_rows[i]
+		if has {
+			log.Error("rows already has new rows %v", i)
+			continue
+		}
+		this.m_rows[i] = v
+		new_rows[i] = v
+	}
+	for i, _ := range new_rows {
+		delete(this.m_new_rows, i)
+	}
+	return
+}
+func (this *dbGooglePayTable) save_rows(rows map[string]*dbGooglePayRow, quick bool) {
+	for _, v := range rows {
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		err, delay, _ := v.Save(false)
+		if err != nil {
+			log.Error("save failed %v", err)
+		}
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		if delay&&!quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+}
+func (this *dbGooglePayTable) Save(quick bool) (err error){
+	removed_rows := this.fetch_rows(this.m_removed_rows)
+	for _, v := range removed_rows {
+		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetOrderId())
+		if err != nil {
+			log.Error("exec delete stmt failed %v", err)
+		}
+		v.m_valid = false
+		if !quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+	this.m_removed_rows = make(map[string]*dbGooglePayRow)
+	rows := this.fetch_rows(this.m_rows)
+	this.save_rows(rows, quick)
+	new_rows := this.fetch_new_rows()
+	this.save_rows(new_rows, quick)
+	return
+}
+func (this *dbGooglePayTable) AddRow(OrderId string) (row *dbGooglePayRow) {
+	this.GC()
+	this.m_lock.UnSafeLock("dbGooglePayTable.AddRow")
+	defer this.m_lock.UnSafeUnlock()
+	row = new_dbGooglePayRow(this,OrderId)
+	row.m_new = true
+	row.m_loaded = true
+	row.m_valid = true
+	_, has := this.m_new_rows[OrderId]
+	if has{
+		log.Error("已经存在 %v", OrderId)
+		return nil
+	}
+	this.m_new_rows[OrderId] = row
+	atomic.AddInt32(&this.m_gc_n,1)
+	return row
+}
+func (this *dbGooglePayTable) RemoveRow(OrderId string) {
+	this.m_lock.UnSafeLock("dbGooglePayTable.RemoveRow")
+	defer this.m_lock.UnSafeUnlock()
+	row := this.m_rows[OrderId]
+	if row != nil {
+		row.m_remove = true
+		delete(this.m_rows, OrderId)
+		rm_row := this.m_removed_rows[OrderId]
+		if rm_row != nil {
+			log.Error("rows and removed rows both has %v", OrderId)
+		}
+		this.m_removed_rows[OrderId] = row
+		_, has_new := this.m_new_rows[OrderId]
+		if has_new {
+			delete(this.m_new_rows, OrderId)
+			log.Error("rows and new_rows both has %v", OrderId)
+		}
+	} else {
+		row = this.m_removed_rows[OrderId]
+		if row == nil {
+			_, has_new := this.m_new_rows[OrderId]
+			if has_new {
+				delete(this.m_new_rows, OrderId)
+			} else {
+				log.Error("row not exist %v", OrderId)
+			}
+		} else {
+			log.Error("already removed %v", OrderId)
+			_, has_new := this.m_new_rows[OrderId]
+			if has_new {
+				delete(this.m_new_rows, OrderId)
+				log.Error("removed rows and new_rows both has %v", OrderId)
+			}
+		}
+	}
+}
+func (this *dbGooglePayTable) GetRow(OrderId string) (row *dbGooglePayRow) {
+	this.m_lock.UnSafeRLock("dbGooglePayTable.GetRow")
+	defer this.m_lock.UnSafeRUnlock()
+	row = this.m_rows[OrderId]
+	if row == nil {
+		row = this.m_new_rows[OrderId]
+	}
+	return row
+}
+func (this *dbGooglePayTable) SetPoolSize(n int32) {
+	this.m_pool_size = n
+}
+func (this *dbGooglePayTable) GC() {
+	if this.m_pool_size<=0{
+		return
+	}
+	if !atomic.CompareAndSwapInt32(&this.m_gcing, 0, 1) {
+		return
+	}
+	defer atomic.StoreInt32(&this.m_gcing, 0)
+	n := atomic.LoadInt32(&this.m_gc_n)
+	if float32(n) < float32(this.m_pool_size)*1.2 {
+		return
+	}
+	max := (n - this.m_pool_size) / 2
+	arr := dbGooglePayRowSort{}
+	rows := this.fetch_rows(this.m_rows)
+	arr.rows = make([]*dbGooglePayRow, len(rows))
 	index := 0
 	for _, v := range rows {
 		arr.rows[index] = v
@@ -1150,24 +1395,38 @@ type DBC struct {
 	m_db_addr			string
 	m_db_account			string
 	m_db_password		string
-	PlayerImportantDatas *dbPlayerImportantDataTable
+	ApplePays *dbApplePayTable
+	GooglePays *dbGooglePayTable
 }
 func (this *DBC)init_tables()(err error){
-	this.PlayerImportantDatas = new_dbPlayerImportantDataTable(this)
-	err = this.PlayerImportantDatas.Init()
+	this.ApplePays = new_dbApplePayTable(this)
+	err = this.ApplePays.Init()
 	if err != nil {
-		log.Error("init PlayerImportantDatas table failed")
+		log.Error("init ApplePays table failed")
+		return
+	}
+	this.GooglePays = new_dbGooglePayTable(this)
+	err = this.GooglePays.Init()
+	if err != nil {
+		log.Error("init GooglePays table failed")
 		return
 	}
 	return
 }
 func (this *DBC)Preload()(err error){
-	err = this.PlayerImportantDatas.Preload()
+	err = this.ApplePays.Preload()
 	if err != nil {
-		log.Error("preload PlayerImportantDatas table failed")
+		log.Error("preload ApplePays table failed")
 		return
 	}else{
-		log.Info("preload PlayerImportantDatas table succeed !")
+		log.Info("preload ApplePays table succeed !")
+	}
+	err = this.GooglePays.Preload()
+	if err != nil {
+		log.Error("preload GooglePays table failed")
+		return
+	}else{
+		log.Info("preload GooglePays table succeed !")
 	}
 	err = this.on_preload()
 	if err != nil {
@@ -1182,9 +1441,14 @@ func (this *DBC)Preload()(err error){
 	return
 }
 func (this *DBC)Save(quick bool)(err error){
-	err = this.PlayerImportantDatas.Save(quick)
+	err = this.ApplePays.Save(quick)
 	if err != nil {
-		log.Error("save PlayerImportantDatas table failed")
+		log.Error("save ApplePays table failed")
+		return
+	}
+	err = this.GooglePays.Save(quick)
+	if err != nil {
+		log.Error("save GooglePays table failed")
 		return
 	}
 	return

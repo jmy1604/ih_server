@@ -140,6 +140,7 @@ func gm_http_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(200)
 	w.Write(data)
 
 	if res >= 0 {

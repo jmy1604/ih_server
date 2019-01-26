@@ -2,6 +2,7 @@ package main
 
 import (
 	"ih_server/libs/log"
+	"sync/atomic"
 	"time"
 )
 
@@ -164,13 +165,18 @@ func (this *ConnTimerWheel) Run() {
 		}
 
 		curr_num := int32(len(this.players))
-		if this.last_players_num != curr_num {
-			this.last_players_num = curr_num
+		last_num := atomic.LoadInt32(&this.last_players_num)
+		if atomic.CompareAndSwapInt32(&this.last_players_num, last_num, curr_num) {
+			//this.last_players_num = curr_num
 			log.Trace("{@} Server Players Num: %v", curr_num)
 		}
 
 		time.Sleep(time.Second * 1)
 	}
+}
+
+func (this *ConnTimerWheel) GetCurrPlayerNum() int32 {
+	return atomic.LoadInt32(&this.last_players_num)
 }
 
 var conn_timer_wheel ConnTimerWheel

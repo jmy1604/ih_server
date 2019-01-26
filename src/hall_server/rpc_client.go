@@ -737,3 +737,28 @@ func (p *Player) rpc_anouncement(msg_type int32, msg_param int32, msg_text strin
 
 	return
 }
+
+// 充值记录
+func (p *Player) rpc_charge_save(channel int32, order_id, bundle_id, account string, player_id, pay_time int32, pay_time_str string) (result *rpc_common.H2R_ChargeSaveResult) {
+	rpc_client := get_rpc_client()
+	if rpc_client == nil {
+		return nil
+	}
+
+	var args = rpc_common.H2R_ChargeSave{
+		Channel:    channel,
+		OrderId:    order_id,
+		BundleId:   bundle_id,
+		Account:    account,
+		PlayerId:   player_id,
+		PayTime:    pay_time,
+		PayTimeStr: pay_time_str,
+	}
+
+	result = &rpc_common.H2R_ChargeSaveResult{}
+	err := rpc_client.Call("H2R_GlobalProc.ChargeSave", args, result)
+	if err != nil {
+		log.Error("RPC ### Player[%v] charge save err[%v]", p.Id, err.Error())
+	}
+	return
+}

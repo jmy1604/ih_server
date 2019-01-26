@@ -1012,6 +1012,47 @@ func (this *H2H_GlobalProc) Anouncement(args *rpc_common.H2H_Anouncement, result
 	return nil
 }
 
+// 全局调用
+type H2R_GlobalProc struct {
+}
+
+func (this *H2R_GlobalProc) ChargeSave(args *rpc_common.H2R_ChargeSave, result *rpc_common.H2R_ChargeSaveResult) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Error(err)
+		}
+	}()
+
+	if args.Channel == 1 {
+		row := dbc.GooglePays.GetRow(args.OrderId)
+		if row == nil {
+			row = dbc.GooglePays.AddRow(args.OrderId)
+			row.SetBundleId(args.BundleId)
+			row.SetAccount(args.Account)
+			row.SetPlayerId(args.PlayerId)
+			row.SetPayTime(args.PayTime)
+			row.SetPayTimeStr(args.PayTimeStr)
+		}
+	} else if args.Channel == 2 {
+		row := dbc.ApplePays.GetRow(args.OrderId)
+		if row == nil {
+			row = dbc.ApplePays.AddRow(args.OrderId)
+			row.SetBundleId(args.BundleId)
+			row.SetAccount(args.Account)
+			row.SetPlayerId(args.PlayerId)
+			row.SetPayTime(args.PayTime)
+			row.SetPayTimeStr(args.PayTimeStr)
+		}
+	} else {
+		err_str := fmt.Sprintf("@@@ H2R_GlobalProc::ChargeSave Player[%v,%v], Unknown Channel %v", args.Account, args.PlayerId, args.Channel)
+		return errors.New(err_str)
+	}
+
+	log.Trace("@@@ Charge Save %v", args)
+
+	return nil
+}
+
 var ranking_list_proc *H2R_RankingListProc
 
 // 初始化
@@ -1022,13 +1063,15 @@ func (this *RpcServer) init_proc_service() bool {
 		return false
 	}
 
-	// 监听RPC调用注册
 	if !this.rpc_service.Register(&H2R_ListenRPCProc{}) {
 		return false
 	}
 
-	// 世界聊天调用注册
 	if !this.rpc_service.Register(&H2H_GlobalProc{}) {
+		return false
+	}
+
+	if !this.rpc_service.Register(&H2R_GlobalProc{}) {
 		return false
 	}
 

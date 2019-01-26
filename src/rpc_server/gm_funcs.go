@@ -141,7 +141,7 @@ func gm_player_info(id int32, data []byte) (int32, []byte) {
 	var args rpc_common.GmPlayerInfoCmd
 	err = json.Unmarshal(data, &args)
 	if err != nil {
-		log.Error("gm cmd GmPlayerInfoCmd unmarshal failed")
+		log.Error("gm cmd GmPlayerInfoCmd unmarshal err %v", err.Error())
 		return -1, nil
 	}
 
@@ -167,6 +167,64 @@ func gm_player_info(id int32, data []byte) (int32, []byte) {
 	if result.Id < 0 {
 		log.Error("gm get player %v info return %v", args.Id, result.Id)
 		return result.Id, nil
+	}
+
+	return 1, data
+}
+
+func gm_online_player_num(id int32, data []byte) (int32, []byte) {
+	if id != rpc_common.GM_CMD_ONLINE_PLAYER_NUM {
+		log.Error("gm online player num cmd id %v not correct", id)
+		return -1, nil
+	}
+
+	var err error
+	var args rpc_common.GmOnlinePlayerNumCmd
+	err = json.Unmarshal(data, &args)
+	if err != nil {
+		log.Error("gm cmd GmOnlinePlayerNumCmd unmarshal err %v", err.Error())
+		return -1, nil
+	}
+
+	var server_ids []int32
+	if args.ServerId > 0 {
+		server_ids = []int32{args.ServerId}
+	} else {
+		ss := server_list.Servers
+		for i := 0; i < len(ss); i++ {
+			server_ids = append(server_ids, ss[i].Id)
+		}
+	}
+
+	var player_num []int32
+	var result rpc_common.GmOnlinePlayerNumResponse
+	for i := 0; i < len(server_ids); i++ {
+		sid := server_ids[i]
+		player_num = append(player_num, sid)
+
+		rpc_client := GetRpcClientByServerId(sid)
+		if rpc_client == nil {
+			player_num = append(player_num, -1)
+			log.Error("gm get rpc client by server id %v failed", sid)
+			continue
+		}
+
+		args.ServerId = sid
+		err = rpc_client.Call("G2H_Proc.OnlinePlayerNum", &args, &result)
+		if err != nil {
+			player_num = append(player_num, -1)
+			log.Error("gm rpc call G2H_Proc.OnlinePlayerNum err %v", err.Error())
+			continue
+		}
+
+		player_num = append(player_num, result.PlayerNum[0])
+	}
+
+	result.PlayerNum = player_num
+	data, err = json.Marshal(&result)
+	if err != nil {
+		log.Error("marshal gm cmd response GmOnlinePlayerNumResponse err %v", err.Error())
+		return -1, nil
 	}
 
 	return 1, data
