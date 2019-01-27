@@ -424,7 +424,7 @@ func (this *Player) send_role_attrs(role_id int32) int32 {
 		return -1
 	}
 
-	power := this.roles_power[role_id]
+	power := this.get_role_power(role_id)
 	response := &msg_client_message.S2CRoleAttrsResponse{
 		RoleId: role_id,
 		Attrs:  m.attrs,
@@ -1206,6 +1206,9 @@ func (this *Player) role_one_key_unequip(role_id int32) int32 {
 }
 
 func (this *Player) set_role_power(role_id, pow int32) {
+	this.roles_power_locker.Lock()
+	defer this.roles_power_locker.Unlock()
+
 	if this.roles_power == nil {
 		this.roles_power = make(map[int32]int32)
 	}
@@ -1213,6 +1216,9 @@ func (this *Player) set_role_power(role_id, pow int32) {
 }
 
 func (this *Player) get_role_power(role_id int32) (power int32) {
+	this.roles_power_locker.RLock()
+	defer this.roles_power_locker.RUnlock()
+
 	if this.roles_power == nil {
 		return
 	}

@@ -6,6 +6,7 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
 	"math/rand"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -140,17 +141,58 @@ func (this *BattleCommonData) Recycle() {
 }
 
 type BattleTeam struct {
-	player       *Player
-	team_type    int32
-	curr_attack  int32             // 当前进攻的索引
-	side         int32             // 0 左边 1 右边
-	temp_curr_id int32             // 临时ID，用于标识召唤的角色
-	members      []*TeamMember     // 成员
-	common_data  *BattleCommonData // 每回合战报
-	friend       *Player           // 用于好友BOSS
-	guild        *dbGuildRow       // 用于公会副本
-	first_hand   int32             // 先手值
-	is_sweeping  bool              // 是否正在扫荡
+	player            *Player
+	team_type         int32
+	curr_attack       int32             // 当前进攻的索引
+	side              int32             // 0 左边 1 右边
+	temp_curr_id      int32             // 临时ID，用于标识召唤的角色
+	members           []*TeamMember     // 成员
+	common_data       *BattleCommonData // 每回合战报
+	friend            *Player           // 用于好友BOSS
+	guild             *dbGuildRow       // 用于公会副本
+	first_hand        int32             // 先手值
+	first_hand_locker sync.RWMutex      // 先手值锁
+	is_sweeping       bool              // 是否正在扫荡
+}
+
+// 先手值
+func (this *BattleTeam) get_first_hand() int32 {
+	this.first_hand_locker.RLock()
+	defer this.first_hand_locker.RUnlock()
+	return this.first_hand
+}
+
+func (this *BattleTeam) clear_first_hand() {
+	this.first_hand_locker.Lock()
+	defer this.first_hand_locker.Unlock()
+	this.first_hand = 0
+}
+
+func (this *BattleTeam) calc_first_hand(p *Player) {
+	if p == nil {
+		return
+	}
+
+	this.first_hand_locker.Lock()
+	defer this.first_hand_locker.Unlock()
+
+	this.first_hand = 0
+	ids := p.db.Talents.GetAllIndex()
+	if ids == nil {
+		return
+	}
+
+	for i := 0; i < len(ids); i++ {
+		id := ids[i]
+		lvl, _ := p.db.Talents.GetLevel(id)
+		t := talent_table_mgr.GetByIdLevel(id, lvl)
+		if t == nil {
+			log.Error("Player[%v] talent[%v] level[%v] data not found", p.Id, id, lvl)
+			continue
+		}
+		this.first_hand += t.TeamSpeedBonus
+		log.Debug("@@@@@ team[%v] add talent[%v] level[%v] first hand %v, total first hand %v", this.side, id, lvl, t.TeamSpeedBonus, this.first_hand)
+	}
 }
 
 // 利用玩家初始化
@@ -191,7 +233,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 
 	this.player = p
 	this.team_type = team_id
-	this.first_hand = 0
+	this.clear_first_hand()
 
 	if this.members == nil {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
@@ -211,7 +253,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 		}
 		this.members[i] = m
 	}
-	p.calc_first_hand(this)
+	this.calc_first_hand(p)
 	this.curr_attack = 0
 	this.side = side
 	this.temp_curr_id = p.db.Global.GetCurrentRoleId() + 1
@@ -719,7 +761,7 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 	var self_index, target_index int32
 	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM || target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
-		if this.first_hand >= target_team.first_hand {
+		if this.get_first_hand() >= target_team.get_first_hand() {
 			self_index, target_index = this._fight_pair(self_index, target_index, target_team)
 		} else {
 			target_index, self_index = target_team._fight_pair(target_index, self_index, this)

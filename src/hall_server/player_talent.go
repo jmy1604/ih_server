@@ -177,30 +177,6 @@ func (this *Player) add_talent_attr(member *TeamMember) {
 	}
 }
 
-func (this *Player) calc_first_hand(team *BattleTeam) {
-	if team == nil {
-		return
-	}
-
-	team.first_hand = 0
-	ids := this.db.Talents.GetAllIndex()
-	if ids == nil {
-		return
-	}
-
-	for i := 0; i < len(ids); i++ {
-		id := ids[i]
-		lvl, _ := this.db.Talents.GetLevel(id)
-		t := talent_table_mgr.GetByIdLevel(id, lvl)
-		if t == nil {
-			log.Error("Player[%v] talent[%v] level[%v] data not found", this.Id, id, lvl)
-			continue
-		}
-		team.first_hand += t.TeamSpeedBonus
-		log.Debug("@@@@@ team[%v] add talent[%v] level[%v] first hand %v, total first hand %v", team.side, id, lvl, t.TeamSpeedBonus, team.first_hand)
-	}
-}
-
 func C2STalentListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STalentListRequest
 	err := proto.Unmarshal(msg_data, &req)

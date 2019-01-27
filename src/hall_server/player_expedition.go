@@ -520,8 +520,8 @@ func (this *Player) expedition_fight() int32 {
 		TargetMemberCures:   members_cure[this.expedition_enemy_team.side],
 		BattleType:          10,
 		BattleParam:         0,
-		MySpeedBonus:        this.expedition_team.first_hand,
-		TargetSpeedBonus:    this.expedition_enemy_team.first_hand,
+		MySpeedBonus:        this.expedition_team.get_first_hand(),
+		TargetSpeedBonus:    this.expedition_enemy_team.get_first_hand(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

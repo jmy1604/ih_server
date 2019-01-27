@@ -91,58 +91,58 @@ type Player struct {
 	total_msg_data_len int32
 	b_base_prop_chg    bool
 
-	used_drop_ids          map[int32]int32                       // 抽卡掉落ID统计
-	team_member_mgr        map[int32]*TeamMember                 // 成员map
-	tmp_teams              map[int32][]int32                     // 临时阵容，缓存爬塔活动等进攻阵容ID
-	attack_team            *BattleTeam                           // PVP进攻阵型
-	campaign_team          *BattleTeam                           // PVE战役进攻阵容
-	tower_team             *BattleTeam                           // PVE爬塔进攻阵容
-	active_stage_team      *BattleTeam                           // PVE活动进攻阵容
-	friend_boss_team       *BattleTeam                           // PVE好友BOSS进攻阵容
-	explore_team           *BattleTeam                           // PVE探索任务进攻阵容
-	guild_stage_team       *BattleTeam                           // PVE公会副本进攻阵容
-	expedition_team        *BattleTeam                           // PVE远征阵型
-	expedition_enemy_team  *BattleTeam                           // PVE远征对方阵型
-	fighing_friend_boss    int32                                 // 是否好友BOSS正在被挑战
-	defense_team           *BattleTeam                           // PVP防守阵型
-	use_defense            int32                                 // 是否正在使用防守阵型
-	target_stage_team      *BattleTeam                           // PVE关卡防守阵型
-	stage_id               int32                                 // 关卡ID
-	stage_wave             int32                                 // 当前关卡怪物第几波
-	roles_power            map[int32]int32                       // 角色战力
-	roles_power_max_data   map[int32][]*table_config.XmlItemItem // 角色战力最高的装备
-	battle_record_list     []int32                               // 战斗录像，按时间排序
-	battle_record_count    int32                                 // 录像数
-	roles_id_change_info   IdChangeInfo                          // 角色增删更新
-	items_changed_info     map[int32]int32                       // 物品增删更新
-	tmp_cache_items        map[int32]int32                       // 用于临时缓存物品
-	is_handbook_adds       bool                                  // 是否新增角色图鉴
-	states_changed         map[int32]int32                       // 提示状态变化
-	receive_mail_locker    *sync.Mutex                           // 接收邮件锁
-	new_mail_list_locker   *sync.Mutex                           // 新邮件列表锁
-	new_mail_ids           []int32                               // 新邮件ID列表
-	tmp_left_slot_equip_id int32                                 // 左槽升级临时保存
-	already_upgrade        bool                                  // 一键合成
-	friend_ask_add         []int32                               // 增加的好友申请
-	friend_ask_add_locker  *sync.Mutex                           // 好友申请锁
-	friend_add             []int32                               // 增加的好友
-	friend_add_locker      *sync.Mutex                           // 好友锁
-	assist_role_id         int32                                 // 助战好友角色ID
-	assist_role_pos        int32                                 // 助战角色位置
-	assist_friend          *Player                               // 助战好友
-	assist_member          *TeamMember                           // 助战成员
-	world_chat_data        PlayerChatData                        // 世界聊天缓存数据
-	guild_chat_data        PlayerChatData                        // 公会聊天缓存
-	recruit_chat_data      PlayerChatData                        // 招募聊天缓存
-	system_chat_data       PlayerChatData                        // 系统公告缓存
-	anouncement_data       PlayerAnouncementData                 // 公告缓存数据
-	inited                 bool                                  // 是否已初始化
-	is_login               int32                                 // 是否在线
-	sweep_num              int32                                 // 扫荡次数
-	curr_sweep             int32                                 // 已扫荡次数
-	role_power_ranklist    *utils.ShortRankList                  // 角色战力排行
-	join_guild_locker      *sync.Mutex                           // 加入公会锁
-	is_paying              int32                                 // 是否正在支付
+	used_drop_ids          map[int32]int32       // 抽卡掉落ID统计
+	team_member_mgr        map[int32]*TeamMember // 成员map
+	tmp_teams              map[int32][]int32     // 临时阵容，缓存爬塔活动等进攻阵容ID
+	attack_team            *BattleTeam           // PVP进攻阵型
+	campaign_team          *BattleTeam           // PVE战役进攻阵容
+	tower_team             *BattleTeam           // PVE爬塔进攻阵容
+	active_stage_team      *BattleTeam           // PVE活动进攻阵容
+	friend_boss_team       *BattleTeam           // PVE好友BOSS进攻阵容
+	explore_team           *BattleTeam           // PVE探索任务进攻阵容
+	guild_stage_team       *BattleTeam           // PVE公会副本进攻阵容
+	expedition_team        *BattleTeam           // PVE远征阵型
+	expedition_enemy_team  *BattleTeam           // PVE远征对方阵型
+	fighing_friend_boss    int32                 // 是否好友BOSS正在被挑战
+	defense_team           *BattleTeam           // PVP防守阵型
+	use_defense            int32                 // 是否正在使用防守阵型
+	target_stage_team      *BattleTeam           // PVE关卡防守阵型
+	stage_id               int32                 // 关卡ID
+	stage_wave             int32                 // 当前关卡怪物第几波
+	roles_power            map[int32]int32       // 角色战力
+	roles_power_locker     sync.RWMutex          // 角色战力锁
+	battle_record_list     []int32               // 战斗录像，按时间排序
+	battle_record_count    int32                 // 录像数
+	roles_id_change_info   IdChangeInfo          // 角色增删更新
+	items_changed_info     map[int32]int32       // 物品增删更新
+	tmp_cache_items        map[int32]int32       // 用于临时缓存物品
+	is_handbook_adds       bool                  // 是否新增角色图鉴
+	states_changed         map[int32]int32       // 提示状态变化
+	receive_mail_locker    *sync.Mutex           // 接收邮件锁
+	new_mail_list_locker   *sync.Mutex           // 新邮件列表锁
+	new_mail_ids           []int32               // 新邮件ID列表
+	tmp_left_slot_equip_id int32                 // 左槽升级临时保存
+	already_upgrade        bool                  // 一键合成
+	friend_ask_add         []int32               // 增加的好友申请
+	friend_ask_add_locker  *sync.Mutex           // 好友申请锁
+	friend_add             []int32               // 增加的好友
+	friend_add_locker      *sync.Mutex           // 好友锁
+	assist_role_id         int32                 // 助战好友角色ID
+	assist_role_pos        int32                 // 助战角色位置
+	assist_friend          *Player               // 助战好友
+	assist_member          *TeamMember           // 助战成员
+	world_chat_data        PlayerChatData        // 世界聊天缓存数据
+	guild_chat_data        PlayerChatData        // 公会聊天缓存
+	recruit_chat_data      PlayerChatData        // 招募聊天缓存
+	system_chat_data       PlayerChatData        // 系统公告缓存
+	anouncement_data       PlayerAnouncementData // 公告缓存数据
+	inited                 bool                  // 是否已初始化
+	is_login               int32                 // 是否在线
+	sweep_num              int32                 // 扫荡次数
+	curr_sweep             int32                 // 已扫荡次数
+	role_power_ranklist    *utils.ShortRankList  // 角色战力排行
+	join_guild_locker      *sync.Mutex           // 加入公会锁
+	is_paying              int32                 // 是否正在支付
 }
 
 func (this *Player) _init() {
@@ -354,7 +354,6 @@ func (this *Player) OnInit() {
 	}
 	this.team_member_mgr = make(map[int32]*TeamMember)
 	this.roles_power = make(map[int32]int32)
-	this.roles_power_max_data = make(map[int32][]*table_config.XmlItemItem)
 	this.init_battle_record_list()
 	this.inited = true
 }
@@ -858,8 +857,8 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		TargetMemberCures:   members_cure[target_team.side],
 		BattleType:          battle_type,
 		BattleParam:         player_id,
-		MySpeedBonus:        this.attack_team.first_hand,
-		TargetSpeedBonus:    target_team.first_hand,
+		MySpeedBonus:        this.attack_team.get_first_hand(),
+		TargetSpeedBonus:    target_team.get_first_hand(),
 	}
 	d := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

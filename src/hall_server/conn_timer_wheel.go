@@ -166,8 +166,8 @@ func (this *ConnTimerWheel) Run() {
 
 		curr_num := int32(len(this.players))
 		last_num := atomic.LoadInt32(&this.last_players_num)
-		if atomic.CompareAndSwapInt32(&this.last_players_num, last_num, curr_num) {
-			//this.last_players_num = curr_num
+		if curr_num != last_num {
+			atomic.StoreInt32(&this.last_players_num, curr_num)
 			log.Trace("{@} Server Players Num: %v", curr_num)
 		}
 
