@@ -1569,7 +1569,7 @@ func (this *Player) guild_ask_donate(item_id int32) int32 {
 	this.guild_check_donate_refresh()
 
 	ask_time := this.db.Guild.GetLastAskDonateTime()
-	if GetRemainSeconds(ask_time, global_config.GuildAskDonateExistSeconds) > 1 {
+	if GetRemainSeconds(ask_time, global_config.GuildAskDonateCDSecs) > 1 {
 		log.Error("Player[%v] ask donate is cooling down", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_ALREADY_ASKED_DONATE)
 	}
