@@ -1093,7 +1093,7 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 		all_item := this.db.Items.GetAllIndex()
 		for _, item_id := range all_item {
 			item := item_table_mgr.Get(item_id)
-			if item == nil || item.EquipType < 1 || item.EquipType >= EQUIP_TYPE_LEFT_SLOT {
+			if item == nil || item.EquipType < 1 || item.EquipType == EQUIP_TYPE_LEFT_SLOT {
 				continue
 			}
 			equiped_item := item_table_mgr.Get(equips[item.EquipType])
