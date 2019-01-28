@@ -386,7 +386,7 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 		return -1, nil
 	}
 
-	if len(new_password) > 32 {
+	if new_channel != "facebook" && len(new_password) > 32 {
 		log.Error("Account[%v] password[%v] length %v too long", new_account, new_password, len(new_password))
 		return -1, nil
 	}
