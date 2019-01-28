@@ -398,7 +398,9 @@ func RealSendMail(sender *Player, receiver_id, mail_type, mail_subtype int32, ti
 	}
 
 	if sender != nil {
-		log.Debug("Player[%v] send mail[%v] type[%v] title[%v] content[%v]", sender.Id, mail_id, mail_type, title, content)
+		log.Trace("Player[%v] send mail[%v] type[%v] title[%v] content[%v] to player %v", sender.Id, mail_id, mail_type, title, content, receiver_id)
+	} else {
+		log.Trace("System send mail[%v] type[%v] subtype[%v] to player %v", mail_id, mail_type, mail_subtype, receiver_id)
 	}
 
 	return mail_id
