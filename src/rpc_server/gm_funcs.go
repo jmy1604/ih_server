@@ -13,6 +13,7 @@ var gm_handles = map[int32]gm_handle{
 	rpc_common.GM_CMD_SYS_MAIL:          gm_mail,
 	rpc_common.GM_CMD_PLAYER_INFO:       gm_player_info,
 	rpc_common.GM_CMD_ONLINE_PLAYER_NUM: gm_online_player_num,
+	rpc_common.GM_CMD_MONTH_CARD_SEND:   gm_month_card_send,
 }
 
 func gm_test(id int32, data []byte) (int32, []byte) {
@@ -40,13 +41,14 @@ func gm_test(id int32, data []byte) (int32, []byte) {
 		}
 	}
 
-	data, err = json.Marshal(&result)
+	var result_data []byte
+	result_data, err = json.Marshal(&result)
 	if err != nil {
 		log.Error("marshal gm cmd response GmTestResponse err %v", err.Error())
 		return -1, nil
 	}
 
-	return result.Res, data
+	return result.Res, result_data
 }
 
 func gm_anouncement(id int32, data []byte) (int32, []byte) {
@@ -74,13 +76,14 @@ func gm_anouncement(id int32, data []byte) (int32, []byte) {
 		}
 	}
 
-	data, err = json.Marshal(&result)
+	var result_data []byte
+	result_data, err = json.Marshal(&result)
 	if err != nil {
 		log.Error("marshal gm cmd response GmAnouncementResponse err %v", err.Error())
 		return -1, nil
 	}
 
-	return result.Res, data
+	return result.Res, result_data
 }
 
 func gm_mail(id int32, data []byte) (int32, []byte) {
@@ -123,13 +126,14 @@ func gm_mail(id int32, data []byte) (int32, []byte) {
 		}
 	}
 
-	data, err = json.Marshal(&result)
+	var result_data []byte
+	result_data, err = json.Marshal(&result)
 	if err != nil {
 		log.Error("marshal gm cmd response GmSendSysMailResponse err %v", err.Error())
 		return -1, nil
 	}
 
-	return result.Res, data
+	return result.Res, result_data
 }
 
 func gm_player_info(id int32, data []byte) (int32, []byte) {
@@ -159,7 +163,8 @@ func gm_player_info(id int32, data []byte) (int32, []byte) {
 		return -1, nil
 	}
 
-	data, err = json.Marshal(&result)
+	var result_data []byte
+	result_data, err = json.Marshal(&result)
 	if err != nil {
 		log.Error("marshal gm cmd response GmPlayerInfoResponse err %v", err.Error())
 		return -1, nil
@@ -170,7 +175,7 @@ func gm_player_info(id int32, data []byte) (int32, []byte) {
 		return result.Id, nil
 	}
 
-	return 1, data
+	return 1, result_data
 }
 
 func gm_online_player_num(id int32, data []byte) (int32, []byte) {
@@ -222,11 +227,49 @@ func gm_online_player_num(id int32, data []byte) (int32, []byte) {
 	}
 
 	result.PlayerNum = player_num
-	data, err = json.Marshal(&result)
+	var result_data []byte
+	result_data, err = json.Marshal(&result)
 	if err != nil {
 		log.Error("marshal gm cmd response GmOnlinePlayerNumResponse err %v", err.Error())
 		return -1, nil
 	}
 
-	return 1, data
+	return 1, result_data
+}
+
+func gm_month_card_send(id int32, data []byte) (int32, []byte) {
+	if id != rpc_common.GM_CMD_MONTH_CARD_SEND {
+		log.Error("gm month card send cmd id %v not correct", id)
+		return -1, nil
+	}
+
+	var err error
+	var args rpc_common.GmMonthCardSendCmd
+	err = json.Unmarshal(data, &args)
+	if err != nil {
+		log.Error("gm cmd GmMonthCardSendCmd unmarshal err %v", err.Error())
+		return -1, nil
+	}
+
+	rpc_client := GetRpcClientByPlayerId(args.PlayerId)
+	if rpc_client == nil {
+		log.Error("gm get rpc client by player id %v failed", args.PlayerId)
+		return -1, nil
+	}
+
+	var result rpc_common.GmCommonResponse
+	err = rpc_client.Call("G2H_Proc.MonthCardSend", &args, &result)
+	if err != nil {
+		log.Error("gm rpc call G2H_Proc.MonthCardSend err %v", err.Error())
+		return -1, nil
+	}
+
+	var result_data []byte
+	result_data, err = json.Marshal(&result)
+	if err != nil {
+		log.Error("marshal gm cmd response GmCommonResponse err %v", err.Error())
+		return -1, nil
+	}
+
+	return result.Res, result_data
 }

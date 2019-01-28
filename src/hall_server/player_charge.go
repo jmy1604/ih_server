@@ -320,7 +320,8 @@ func (this *Player) charge(channel, id int32) int32 {
 	if pay_item == nil {
 		return -1
 	}
-	return this.charge_with_bundle_id(channel, pay_item.BundleId, nil, nil, 0)
+	res, _ := this._charge_with_bundle_id(channel, pay_item.BundleId, nil, nil, 0)
+	return res
 }
 
 type GooglePurchaseInfo struct {
@@ -746,10 +747,10 @@ func (this *Player) _charge_with_bundle_id(channel int32, bundle_id string, purc
 			return err_code, false
 		}
 	} else if channel == 0 {
-		if config.DisableTestCommand {
+		/*if config.DisableTestCommand {
 			log.Error("Player[%v] cant use test command to charge", this.Id)
 			return -1, false
-		}
+		}*/
 	} else {
 		log.Error("Player[%v] charge channel[%v] invalid", this.Id, channel)
 		return int32(msg_client_message.E_ERR_CHARGE_CHANNEL_INVALID), false
@@ -793,6 +794,11 @@ func (this *Player) _charge_with_bundle_id(channel int32, bundle_id string, purc
 }
 
 func (this *Player) charge_with_bundle_id(channel int32, bundle_id string, purchase_data []byte, extra_data []byte, index int32) int32 {
+	if channel <= 0 {
+		log.Error("Player %v charge bundle id %v with channel %v invalid", this.Id, bundle_id, channel)
+		return -1
+	}
+
 	res, is_first := this._charge_with_bundle_id(channel, bundle_id, purchase_data, extra_data, index)
 	if res < 0 {
 		return res

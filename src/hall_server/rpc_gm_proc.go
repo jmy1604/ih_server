@@ -130,3 +130,50 @@ func (this *G2H_Proc) OnlinePlayerNum(args *rpc_common.GmOnlinePlayerNumCmd, res
 
 	return nil
 }
+
+func (this *G2H_Proc) MonthCardSend(args *rpc_common.GmMonthCardSendCmd, result *rpc_common.GmCommonResponse) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+
+	cards := pay_table_mgr.GetMonthCards()
+	if cards == nil || len(cards) == 0 {
+		log.Error("month cards is empty")
+		result.Res = -1
+		return nil
+	}
+
+	var found bool
+	for i := 0; i < len(cards); i++ {
+		if cards[i].BundleId == args.BundleId {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		log.Error("Not found month card with bundle id %v", args.BundleId)
+		result.Res = -1
+		return nil
+	}
+
+	p := player_mgr.GetPlayerById(args.PlayerId)
+	if p == nil {
+		log.Error("Month card send cant found player %v", args.PlayerId)
+		result.Res = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		return nil
+	}
+
+	res, _ := p._charge_with_bundle_id(0, args.BundleId, nil, nil, -1)
+	if res < 0 {
+		log.Error("Month card send with error %v", res)
+		result.Res = res
+		return nil
+	}
+
+	log.Trace("@@@ G2H_Proc::MonthCardSend %v", args)
+
+	return nil
+}

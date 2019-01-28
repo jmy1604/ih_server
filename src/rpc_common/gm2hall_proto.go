@@ -7,6 +7,7 @@ const (
 	GM_CMD_SYS_MAIL          = 3    // 系统邮件
 	GM_CMD_PLAYER_INFO       = 4    // 查询玩家信息
 	GM_CMD_ONLINE_PLAYER_NUM = 5    // 在线人数查询
+	GM_CMD_MONTH_CARD_SEND   = 6    // 月卡发送
 )
 
 const (
@@ -16,6 +17,7 @@ const (
 	GM_CMD_SYS_MAIL_STRING          = "sys_mail"
 	GM_CMD_PLAYER_INFO_STRING       = "player_info"
 	GM_CMD_ONLINE_PLAYER_NUM_STRING = "online_player_num"
+	GM_CMD_MONTH_CARD_SEND_STRING   = "month_card_send"
 )
 
 // 通用GM命令结构
@@ -97,4 +99,10 @@ type GmOnlinePlayerNumCmd struct {
 // 查询在线人数结果
 type GmOnlinePlayerNumResponse struct {
 	PlayerNum []int32
+}
+
+// 发送月卡
+type GmMonthCardSendCmd struct {
+	PlayerId int32
+	BundleId string
 }
