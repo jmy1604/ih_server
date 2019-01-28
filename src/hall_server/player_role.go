@@ -1118,8 +1118,8 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 		}
 
 		for i := 0; i < len(equips); i++ {
-			if i >= EQUIP_TYPE_LEFT_SLOT {
-				break
+			if i == EQUIP_TYPE_LEFT_SLOT {
+				continue
 			}
 			if equips[i] > 0 {
 				if i < len(role_equips) && role_equips[i] > 0 {
