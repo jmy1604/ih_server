@@ -1462,7 +1462,7 @@ func (this *Player) send_guild_donate_list(guild *dbGuildRow) {
 			item_num, _ := guild.AskDonates.GetItemNum(player_id)
 			ask_time, _ := guild.AskDonates.GetAskTime(player_id)
 			name, level, head := GetPlayerBaseInfo(player_id)
-			remain_exist_seconds := GetRemainSeconds(ask_time, global_config.GuildAskDonateExistSeconds)
+			remain_exist_seconds := GetRemainSeconds(ask_time, global_config.GuildAskDonateCDSecs)
 			donate_item := &msg_client_message.GuildAskDonateInfo{
 				PlayerId:           player_id,
 				PlayerName:         name,
@@ -1496,7 +1496,7 @@ func guild_check_donate_list(guild *dbGuildRow) (changed bool) {
 	for _, player_id := range all_ids {
 		ask_time, _ := guild.AskDonates.GetAskTime(player_id)
 		// 超时就删除
-		if GetRemainSeconds(ask_time, global_config.GuildAskDonateExistSeconds) <= 1 {
+		if GetRemainSeconds(ask_time, global_config.GuildAskDonateCDSecs) <= 1 {
 
 			// 通知被捐赠者
 			player := player_mgr.GetPlayerById(player_id)
@@ -1528,7 +1528,9 @@ func (this *Player) guild_check_donate_refresh() bool {
 	}
 	last_refresh_time := this.db.Guild.GetLastDonateTime()
 	if !utils.CheckDayTimeArrival(last_refresh_time, global_config.GuildDonateRefreshTime) {
-		return false
+		if GetRemainSeconds(last_refresh_time, global_config.GuildAskDonateExistSeconds) > 1 {
+			return false
+		}
 	}
 	this.db.Guild.SetLastDonateTime(int32(time.Now().Unix()))
 	this.db.Guild.SetDonateNum(0)
@@ -1618,6 +1620,7 @@ func (this *Player) guild_donate(player_id int32) int32 {
 	}
 
 	guild_check_donate_list(guild)
+	this.guild_check_donate_refresh()
 
 	if !guild.AskDonates.HasIndex(player_id) {
 		log.Error("Player[%v] no ask donate, player[%v] cant donate", player_id, this.Id)
