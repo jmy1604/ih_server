@@ -733,7 +733,8 @@
 						{"Type":"int32","Index":4,"Name":"SignTime"},
 						{"Type":"int32","Index":5,"Name":"Position"},
 						{"Type":"int32","Index":6,"Name":"DonateNum"},
-						{"Type":"int32","Index":7,"Name":"LastAskDonateTime"}
+						{"Type":"int32","Index":7,"Name":"LastAskDonateTime"},
+						{"Type":"int32","Index":8,"Name":"LastDonateTime"}
 					]
 				},
 				{

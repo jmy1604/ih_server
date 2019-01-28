@@ -538,7 +538,7 @@ func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_clien
 	dismiss_remain_seconds = _guild_get_dismiss_remain_seconds(guild)
 	sign_remain_seconds = utils.GetRemainSeconds2NextDayTime(this.db.Guild.GetSignTime(), global_config.GuildSignRefreshTime)
 	ask_donate_remain_seconds = GetRemainSeconds(this.db.Guild.GetLastAskDonateTime(), global_config.GuildAskDonateCDSecs)
-	donate_reset_remain_seconds = utils.GetRemainSeconds2NextDayTime(guild.GetLastDonateRefreshTime(), global_config.GuildDonateRefreshTime)
+	donate_reset_remain_seconds = utils.GetRemainSeconds2NextDayTime( /*guild.GetLastDonateRefreshTime()*/ this.db.Guild.GetLastDonateTime(), global_config.GuildDonateRefreshTime)
 	president_id := guild.GetPresident()
 	var president_name string
 	president := player_mgr.GetPlayerById(president_id)
@@ -1526,10 +1526,11 @@ func (this *Player) guild_check_donate_refresh() bool {
 	if guild == nil {
 		return false
 	}
-	last_refresh_time := guild.GetLastDonateRefreshTime()
+	last_refresh_time := this.db.Guild.GetLastDonateTime()
 	if !utils.CheckDayTimeArrival(last_refresh_time, global_config.GuildDonateRefreshTime) {
 		return false
 	}
+	this.db.Guild.SetLastDonateTime(int32(time.Now().Unix()))
 	this.db.Guild.SetDonateNum(0)
 	this.send_guild_data()
 	return true
@@ -1566,6 +1567,12 @@ func (this *Player) guild_ask_donate(item_id int32) int32 {
 
 	guild_check_donate_list(guild)
 	this.guild_check_donate_refresh()
+
+	ask_time, o := guild.AskDonates.GetAskTime(this.Id)
+	if o && GetRemainSeconds(ask_time, global_config.GuildAskDonateExistSeconds) > 1 {
+		log.Error("Player[%v] ask donate is cooling down", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_ALREADY_ASKED_DONATE)
+	}
 
 	if guild.AskDonates.HasIndex(this.Id) {
 		log.Error("Player[%v] already asked donate", this.Id)

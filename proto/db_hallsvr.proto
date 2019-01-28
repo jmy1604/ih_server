@@ -414,6 +414,7 @@ message PlayerGuild{
 	optional int32 Position=5;
 	optional int32 DonateNum=6;
 	optional int32 LastAskDonateTime=7;
+	optional int32 LastDonateTime=8;
 }
 
 message PlayerGuildStage{
