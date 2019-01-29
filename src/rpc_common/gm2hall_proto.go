@@ -8,6 +8,7 @@ const (
 	GM_CMD_PLAYER_INFO       = 4    // 查询玩家信息
 	GM_CMD_ONLINE_PLAYER_NUM = 5    // 在线人数查询
 	GM_CMD_MONTH_CARD_SEND   = 6    // 月卡发送
+	GM_CMD_BAN_PLAYER        = 7    // 封号
 )
 
 const (
@@ -18,6 +19,7 @@ const (
 	GM_CMD_PLAYER_INFO_STRING       = "player_info"
 	GM_CMD_ONLINE_PLAYER_NUM_STRING = "online_player_num"
 	GM_CMD_MONTH_CARD_SEND_STRING   = "month_card_send"
+	GM_CMD_BAN_PLAYER_STRING        = "ban_player"
 )
 
 // 通用GM命令结构
@@ -105,4 +107,25 @@ type GmOnlinePlayerNumResponse struct {
 type GmMonthCardSendCmd struct {
 	PlayerId int32
 	BundleId string
+}
+
+// 封号
+type GmBanPlayerCmd struct {
+	PlayerId      int32
+	PlayerAccount string
+}
+
+// 获得玩家唯一ID
+type GmGetPlayerUniqueIdCmd struct {
+	PlayerId int32
+}
+
+// 获得玩家唯一ID结果
+type GmGetPlayerUniqueIdResponse struct {
+	PlayerUniqueId string
+}
+
+// 通过唯一ID封号
+type GmBanPlayerByUniqueIdCmd struct {
+	PlayerUniqueId string
 }

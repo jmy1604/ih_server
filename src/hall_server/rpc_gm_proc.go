@@ -140,7 +140,7 @@ func (this *G2H_Proc) MonthCardSend(args *rpc_common.GmMonthCardSendCmd, result 
 
 	cards := pay_table_mgr.GetMonthCards()
 	if cards == nil || len(cards) == 0 {
-		log.Error("month cards is empty")
+		log.Error("@@@ month cards is empty")
 		result.Res = -1
 		return nil
 	}
@@ -154,26 +154,78 @@ func (this *G2H_Proc) MonthCardSend(args *rpc_common.GmMonthCardSendCmd, result 
 	}
 
 	if !found {
-		log.Error("Not found month card with bundle id %v", args.BundleId)
+		log.Error("@@@ Not found month card with bundle id %v", args.BundleId)
 		result.Res = -1
 		return nil
 	}
 
 	p := player_mgr.GetPlayerById(args.PlayerId)
 	if p == nil {
-		log.Error("Month card send cant found player %v", args.PlayerId)
+		log.Error("@@@ Month card send cant found player %v", args.PlayerId)
 		result.Res = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 		return nil
 	}
 
 	res, _ := p._charge_with_bundle_id(0, args.BundleId, nil, nil, -1)
 	if res < 0 {
-		log.Error("Month card send with error %v", res)
+		log.Error("@@@ Month card send with error %v", res)
 		result.Res = res
 		return nil
 	}
 
 	log.Trace("@@@ G2H_Proc::MonthCardSend %v", args)
+
+	return nil
+}
+
+func (this *G2H_Proc) GetPlayerUniqueId(args *rpc_common.GmGetPlayerUniqueIdCmd, result *rpc_common.GmGetPlayerUniqueIdResponse) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+
+	if args.PlayerId > 0 {
+		p := player_mgr.GetPlayerById(args.PlayerId)
+		if p == nil {
+			result.PlayerUniqueId = "Cant found player"
+			log.Error("@@@ Get player %v cant found", args.PlayerId)
+			return nil
+		}
+
+		result.PlayerUniqueId = p.db.GetUniqueId()
+	}
+
+	log.Trace("@@@ G2H_Proc::GetPlayerUniqueId %v", args)
+
+	return nil
+}
+
+func (this *G2H_Proc) BanPlayer(args *rpc_common.GmBanPlayerByUniqueIdCmd, result *rpc_common.GmCommonResponse) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+
+	p := player_mgr.GetPlayerByUid(args.PlayerUniqueId)
+	if p == nil {
+		result.Res = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		log.Error("@@@ Player cant get by unique id %v", args.PlayerUniqueId)
+		return nil
+	}
+
+	row := dbc.BanPlayers.GetRow(args.PlayerUniqueId)
+	if row == nil {
+		row = dbc.BanPlayers.AddRow(args.PlayerUniqueId)
+		row.SetAccount(p.db.GetAccount())
+		row.SetPlayerId(p.db.GetPlayerId())
+		now_time := time.Now()
+		row.SetStartTime(int32(now_time.Unix()))
+		row.SetStartTimeStr(now_time.String())
+	}
+
+	log.Trace("@@@ G2H_Proc::BanPlayer %v", args)
 
 	return nil
 }

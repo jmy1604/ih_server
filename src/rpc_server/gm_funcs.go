@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"ih_server/libs/log"
+	"ih_server/libs/rpc"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/src/rpc_common"
 )
@@ -14,6 +15,7 @@ var gm_handles = map[int32]gm_handle{
 	rpc_common.GM_CMD_PLAYER_INFO:       gm_player_info,
 	rpc_common.GM_CMD_ONLINE_PLAYER_NUM: gm_online_player_num,
 	rpc_common.GM_CMD_MONTH_CARD_SEND:   gm_month_card_send,
+	rpc_common.GM_CMD_BAN_PLAYER:        gm_ban_player,
 }
 
 func gm_test(id int32, data []byte) (int32, []byte) {
@@ -272,4 +274,69 @@ func gm_month_card_send(id int32, data []byte) (int32, []byte) {
 	}
 
 	return result.Res, result_data
+}
+
+func gm_ban_player(id int32, data []byte) (int32, []byte) {
+	if id != rpc_common.GM_CMD_BAN_PLAYER {
+		log.Error("gm ban player cmd id %v not correct", id)
+		return -1, nil
+	}
+
+	var err error
+	var args rpc_common.GmBanPlayerCmd
+	err = json.Unmarshal(data, &args)
+	if err != nil {
+		log.Error("gm cmd GmBanPlayerCmd unmarshal err %v", err.Error())
+		return -1, nil
+	}
+
+	var rpc_client *rpc.Client
+	if args.PlayerId > 0 {
+		rpc_client = GetRpcClientByPlayerId(args.PlayerId)
+		if rpc_client == nil {
+			log.Error("gm get rpc client by player id %v failed", args.PlayerId)
+			return -1, nil
+		}
+	} else if args.PlayerAccount != "" {
+
+	} else {
+		log.Error("Not get player id or player account by GmBanPlayerCmd")
+		return -1, nil
+	}
+
+	if rpc_client == nil {
+		log.Error("Cant found rpc client by player_id %v and player_account %v", args.PlayerId, args.PlayerAccount)
+		return -1, nil
+	}
+
+	var get_args = rpc_common.GmGetPlayerUniqueIdCmd{
+		PlayerId: args.PlayerId,
+	}
+	var get_res rpc_common.GmGetPlayerUniqueIdResponse
+	err = rpc_client.Call("G2H_Proc.GetPlayerUniqueId", &get_args, &get_res)
+	if err != nil {
+		log.Error("gm rpc call G2H.BanPlayer err %v", err.Error())
+		return -1, nil
+	}
+
+	if get_res.PlayerUniqueId == "Cant found player" {
+		log.Error("Get gm cmd response cant found player with GmGetPlayerUniqueIdCmd", err.Error())
+		return -1, nil
+	}
+
+	var ban_args = rpc_common.GmBanPlayerByUniqueIdCmd{
+		PlayerUniqueId: get_res.PlayerUniqueId,
+	}
+	var result rpc_common.GmCommonResponse
+	for _, r := range server.hall_rpc_clients {
+		if r.rpc_client != nil {
+			err = r.rpc_client.Call("G2H_Proc.BanPlayer", &ban_args, &result)
+			if err != nil {
+				log.Error("gm rpc call G2H_Proc.BanPlayer err %v", err.Error())
+				continue
+			}
+		}
+	}
+
+	return 1, nil
 }

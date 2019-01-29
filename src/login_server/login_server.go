@@ -404,6 +404,12 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 		return
 	}
 
+	/*if dbc.BanPlayers.GetRow(row.GetUniqueId()) != nil {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED)
+		log.Error("Account %v has been banned, cant login", account)
+		return
+	}*/
+
 	if row.GetPassword() != password {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_PASSWORD_INVALID)
 		log.Error("Account %v password %v invalid, cant bind new account", account, password)
@@ -623,21 +629,25 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 		}
 	}
 
-	if acc_row != nil {
-		if acc_row.GetUniqueId() == "" {
-			uid := _generate_account_uuid(account)
-			if uid != "" {
-				acc_row.SetUniqueId(uid)
-			}
-		}
-
-		now_time := time.Now()
-		last_time := acc_row.GetLastGetAccountPlayerListTime()
-		if int32(now_time.Unix())-last_time >= 5*60 {
-			share_data.LoadUidPlayerList(server.redis_conn, acc_row.GetUniqueId())
-			acc_row.SetLastGetAccountPlayerListTime(int32(now_time.Unix()))
+	if acc_row.GetUniqueId() == "" {
+		uid := _generate_account_uuid(account)
+		if uid != "" {
+			acc_row.SetUniqueId(uid)
 		}
 	}
+
+	now_time := time.Now()
+	last_time := acc_row.GetLastGetAccountPlayerListTime()
+	if int32(now_time.Unix())-last_time >= 5*60 {
+		share_data.LoadUidPlayerList(server.redis_conn, acc_row.GetUniqueId())
+		acc_row.SetLastGetAccountPlayerListTime(int32(now_time.Unix()))
+	}
+
+	/*if dbc.BanPlayers.GetRow(acc_row.GetUniqueId()) != nil {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED)
+		log.Error("Account %v has been banned, cant login", account)
+		return
+	}*/
 
 	// --------------------------------------------------------------------------------------------
 	// 选择默认服
@@ -755,6 +765,12 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
+	/*if dbc.BanPlayers.GetRow(row.GetUniqueId()) != nil {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED)
+		log.Error("Account %v has been banned, cant login", account)
+		return
+	}*/
+
 	acc := account_info_get(account, false)
 	if acc == nil {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
@@ -828,6 +844,12 @@ func set_password_handler(account, password, new_password string) (err_code int3
 		log.Error("set_password_handler account[%v] not found", account)
 		return
 	}
+
+	/*if dbc.BanPlayers.GetRow(row.GetUniqueId()) != nil {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED)
+		log.Error("Account %v has been banned, cant login", account)
+		return
+	}*/
 
 	if row.GetPassword() != password {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_PASSWORD_INVALID)
