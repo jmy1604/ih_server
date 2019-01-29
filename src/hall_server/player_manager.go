@@ -336,7 +336,8 @@ func C2SEnterGameRequestHandler(msg_data []byte) (int32, *Player) {
 		return int32(msg_client_message.E_ERR_PLAYER_TOKEN_ERROR), p
 	}
 
-	if dbc.BanPlayers.GetRow(uid) != nil {
+	row := dbc.BanPlayers.GetRow(uid)
+	if row != nil && row.GetStartTime() > 0 {
 		log.Error("Player unique id %v be banned", uid)
 		return int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED), p
 	}

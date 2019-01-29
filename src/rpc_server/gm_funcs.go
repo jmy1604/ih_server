@@ -326,6 +326,7 @@ func gm_ban_player(id int32, data []byte) (int32, []byte) {
 
 	var ban_args = rpc_common.GmBanPlayerByUniqueIdCmd{
 		PlayerUniqueId: get_res.PlayerUniqueId,
+		BanOrFree:      args.BanOrFree,
 	}
 	var result rpc_common.GmCommonResponse
 	for _, r := range server.hall_rpc_clients {

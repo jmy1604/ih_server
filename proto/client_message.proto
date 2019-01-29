@@ -37,6 +37,7 @@ enum E_ERR {
 	ACCOUNT_NEW_BIND_ALREADY_EXISTS			= -105; // 新绑定账号已存在
 	ACCOUNT_NAME_MUST_DIFFRENT_TO_OLD		= -106; // 游客新绑定账号不能跟原来相同
 	ACCOUNT_ALREADY_BIND				    = -107; // 账号已绑定过
+	ACCOUNT_BE_BANNED						= -108; // 账号被封禁
 	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败

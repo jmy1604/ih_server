@@ -113,6 +113,7 @@ type GmMonthCardSendCmd struct {
 type GmBanPlayerCmd struct {
 	PlayerId      int32
 	PlayerAccount string
+	BanOrFree     int32
 }
 
 // 获得玩家唯一ID
@@ -128,4 +129,5 @@ type GmGetPlayerUniqueIdResponse struct {
 // 通过唯一ID封号
 type GmBanPlayerByUniqueIdCmd struct {
 	PlayerUniqueId string
+	BanOrFree      int32
 }

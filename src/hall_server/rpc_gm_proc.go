@@ -216,13 +216,20 @@ func (this *G2H_Proc) BanPlayer(args *rpc_common.GmBanPlayerByUniqueIdCmd, resul
 	}
 
 	row := dbc.BanPlayers.GetRow(args.PlayerUniqueId)
-	if row == nil {
-		row = dbc.BanPlayers.AddRow(args.PlayerUniqueId)
-		row.SetAccount(p.db.GetAccount())
-		row.SetPlayerId(p.db.GetPlayerId())
+	if args.BanOrFree > 0 {
 		now_time := time.Now()
+		if row == nil {
+			row = dbc.BanPlayers.AddRow(args.PlayerUniqueId)
+			row.SetAccount(p.db.GetAccount())
+			row.SetPlayerId(p.db.GetPlayerId())
+		}
 		row.SetStartTime(int32(now_time.Unix()))
 		row.SetStartTimeStr(now_time.String())
+	} else {
+		if row != nil {
+			row.SetStartTime(0)
+			row.SetStartTimeStr("")
+		}
 	}
 
 	log.Trace("@@@ G2H_Proc::BanPlayer %v", args)
