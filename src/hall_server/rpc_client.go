@@ -756,7 +756,7 @@ func (p *Player) rpc_charge_save(channel int32, order_id, bundle_id, account str
 	}
 
 	result = &rpc_common.H2R_ChargeSaveResult{}
-	err := rpc_client.Call("H2R_GlobalProc.ChargeSave", args, result)
+	err := rpc_client.Call("H2R_GlobalProc.ChargeSave", &args, result)
 	if err != nil {
 		log.Error("RPC ### Player[%v] charge save err[%v]", p.Id, err.Error())
 	}
