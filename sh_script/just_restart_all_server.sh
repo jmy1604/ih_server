@@ -5,6 +5,8 @@ bash ./kill_all_server.sh
 
 sleep 1s
 
+ulimit -c unlimited
+
 cd ../bin
 nohup env GOTRACEBACK=crash `pwd`/center_server 1>/dev/null 2>>cs_err.log &
 sleep 1s
