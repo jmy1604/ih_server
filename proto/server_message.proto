@@ -138,6 +138,8 @@ message H2LAccountLogoutNotify {
 message H2LAccountBan {
 	string UniqueId			= 1;
 	int32 BanOrFree			= 2;
+	string Account			= 3;
+	int32 PlayerId			= 4;
 }
 
 /*************************************** end ********************************************/

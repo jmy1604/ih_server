@@ -238,6 +238,8 @@ func (this *G2H_Proc) BanPlayer(args *rpc_common.GmBanPlayerByUniqueIdCmd, resul
 	login_conn_mgr.Send(uint16(msg_server_message.MSGID_H2L_ACCOUNT_BAN), &msg_server_message.H2LAccountBan{
 		UniqueId:  args.PlayerUniqueId,
 		BanOrFree: args.BanOrFree,
+		Account:   p.db.GetAccount(),
+		PlayerId:  p.db.GetPlayerId(),
 	})
 
 	log.Trace("@@@ G2H_Proc::BanPlayer %v", args)

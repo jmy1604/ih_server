@@ -146,6 +146,30 @@
 			"PrimaryKeySize":64,
 			"Columns":[
 				{
+					"ColumnName":"Account",
+					"DBColumnName":"Account",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",			
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[]
+				},
+				{
+					"ColumnName":"PlayerId",
+					"DBColumnName":"PlayerId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
 					"ColumnName":"StartTime",
 					"DBColumnName":"StartTime",
 					"InUse":true,

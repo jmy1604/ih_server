@@ -899,6 +899,30 @@ func (this *dbAccountTable) GetRow(AccountId string) (row *dbAccountRow) {
 	}
 	return row
 }
+func (this *dbBanPlayerRow)GetAccount( )(r string ){
+	this.m_lock.UnSafeRLock("dbBanPlayerRow.GetdbBanPlayerAccountColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_Account)
+}
+func (this *dbBanPlayerRow)SetAccount(v string){
+	this.m_lock.UnSafeLock("dbBanPlayerRow.SetdbBanPlayerAccountColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_Account=string(v)
+	this.m_Account_changed=true
+	return
+}
+func (this *dbBanPlayerRow)GetPlayerId( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbBanPlayerRow.GetdbBanPlayerPlayerIdColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_PlayerId)
+}
+func (this *dbBanPlayerRow)SetPlayerId(v int32){
+	this.m_lock.UnSafeLock("dbBanPlayerRow.SetdbBanPlayerPlayerIdColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_PlayerId=int32(v)
+	this.m_PlayerId_changed=true
+	return
+}
 func (this *dbBanPlayerRow)GetStartTime( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbBanPlayerRow.GetdbBanPlayerStartTimeColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -945,6 +969,10 @@ type dbBanPlayerRow struct {
 	m_releasable bool
 	m_valid   bool
 	m_UniqueId        string
+	m_Account_changed bool
+	m_Account string
+	m_PlayerId_changed bool
+	m_PlayerId int32
 	m_StartTime_changed bool
 	m_StartTime int32
 	m_StartTimeStr_changed bool
@@ -957,6 +985,8 @@ func new_dbBanPlayerRow(table *dbBanPlayerTable, UniqueId string) (r *dbBanPlaye
 	this.m_table = table
 	this.m_UniqueId = UniqueId
 	this.m_lock = NewRWMutex()
+	this.m_Account_changed=true
+	this.m_PlayerId_changed=true
 	this.m_StartTime_changed=true
 	this.m_StartTimeStr_changed=true
 	this.m_Duration_changed=true
@@ -969,17 +999,27 @@ func (this *dbBanPlayerRow) save_data(release bool) (err error, released bool, s
 	this.m_lock.UnSafeLock("dbBanPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(4)
+		db_args:=new_db_args(6)
 		db_args.Push(this.m_UniqueId)
+		db_args.Push(this.m_Account)
+		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_StartTime)
 		db_args.Push(this.m_StartTimeStr)
 		db_args.Push(this.m_Duration)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_StartTime_changed||this.m_StartTimeStr_changed||this.m_Duration_changed{
+		if this.m_Account_changed||this.m_PlayerId_changed||this.m_StartTime_changed||this.m_StartTimeStr_changed||this.m_Duration_changed{
 			update_string = "UPDATE BanPlayers SET "
-			db_args:=new_db_args(4)
+			db_args:=new_db_args(6)
+			if this.m_Account_changed{
+				update_string+="Account=?,"
+				db_args.Push(this.m_Account)
+			}
+			if this.m_PlayerId_changed{
+				update_string+="PlayerId=?,"
+				db_args.Push(this.m_PlayerId)
+			}
 			if this.m_StartTime_changed{
 				update_string+="StartTime=?,"
 				db_args.Push(this.m_StartTime)
@@ -1000,6 +1040,8 @@ func (this *dbBanPlayerRow) save_data(release bool) (err error, released bool, s
 		}
 	}
 	this.m_new = false
+	this.m_Account_changed = false
+	this.m_PlayerId_changed = false
 	this.m_StartTime_changed = false
 	this.m_StartTimeStr_changed = false
 	this.m_Duration_changed = false
@@ -1102,6 +1144,22 @@ func (this *dbBanPlayerTable) check_create_table() (err error) {
 		}
 		columns[column_name] = ordinal_position
 	}
+	_, hasAccount := columns["Account"]
+	if !hasAccount {
+		_, err = this.m_dbc.Exec("ALTER TABLE BanPlayers ADD COLUMN Account varchar(45) DEFAULT ''")
+		if err != nil {
+			log.Error("ADD COLUMN Account failed")
+			return
+		}
+	}
+	_, hasPlayerId := columns["PlayerId"]
+	if !hasPlayerId {
+		_, err = this.m_dbc.Exec("ALTER TABLE BanPlayers ADD COLUMN PlayerId int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN PlayerId failed")
+			return
+		}
+	}
 	_, hasStartTime := columns["StartTime"]
 	if !hasStartTime {
 		_, err = this.m_dbc.Exec("ALTER TABLE BanPlayers ADD COLUMN StartTime int(11) DEFAULT 0")
@@ -1129,7 +1187,7 @@ func (this *dbBanPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbBanPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT UniqueId,StartTime,StartTimeStr,Duration FROM BanPlayers")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT UniqueId,Account,PlayerId,StartTime,StartTimeStr,Duration FROM BanPlayers")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -1137,7 +1195,7 @@ func (this *dbBanPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbBanPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO BanPlayers (UniqueId,StartTime,StartTimeStr,Duration) VALUES (?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO BanPlayers (UniqueId,Account,PlayerId,StartTime,StartTimeStr,Duration) VALUES (?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -1182,19 +1240,25 @@ func (this *dbBanPlayerTable) Preload() (err error) {
 		return
 	}
 	var UniqueId string
+	var dAccount string
+	var dPlayerId int32
 	var dStartTime int32
 	var dStartTimeStr string
 	var dDuration int32
 	for r.Next() {
-		err = r.Scan(&UniqueId,&dStartTime,&dStartTimeStr,&dDuration)
+		err = r.Scan(&UniqueId,&dAccount,&dPlayerId,&dStartTime,&dStartTimeStr,&dDuration)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		row := new_dbBanPlayerRow(this,UniqueId)
+		row.m_Account=dAccount
+		row.m_PlayerId=dPlayerId
 		row.m_StartTime=dStartTime
 		row.m_StartTimeStr=dStartTimeStr
 		row.m_Duration=dDuration
+		row.m_Account_changed=false
+		row.m_PlayerId_changed=false
 		row.m_StartTime_changed=false
 		row.m_StartTimeStr_changed=false
 		row.m_Duration_changed=false
