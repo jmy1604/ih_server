@@ -838,6 +838,24 @@ func tower_ranklist_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func set_tower_id_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var tower_id int
+	var err error
+	tower_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("爬塔ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	p.db.TowerCommon.SetCurrId(int32(tower_id))
+	return p.send_tower_data(true)
+}
+
 func battle_recordlist_cmd(p *Player, args []string) int32 {
 	return p.GetBattleRecordList()
 }
@@ -2403,6 +2421,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"tower_records_info":       tower_records_info_cmd,
 	"tower_record_data":        tower_record_data_cmd,
 	"tower_ranklist":           tower_ranklist_cmd,
+	"set_tower_id":             set_tower_id_cmd,
 	"battle_recordlist":        battle_recordlist_cmd,
 	"battle_record":            battle_record_cmd,
 	"test_stw":                 test_stw_cmd,
