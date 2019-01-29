@@ -341,3 +341,20 @@ func gm_ban_player(id int32, data []byte) (int32, []byte) {
 
 	return 1, nil
 }
+
+func gm_ban_list(id int32, data []byte) (int32, []byte) {
+	if id != rpc_common.GM_CMD_BAN_LIST {
+		log.Error("gm ban list cmd id %v not correct", id)
+		return -1, nil
+	}
+
+	var err error
+	var args rpc_common.GmBanListCmd
+	err = json.Unmarshal(data, &args)
+	if err != nil {
+		log.Error("gm cmd GmBanListCmd unmarshal err %v", err.Error())
+		return -1, nil
+	}
+
+	return 1, nil
+}

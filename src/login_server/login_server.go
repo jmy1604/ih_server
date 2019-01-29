@@ -404,11 +404,12 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 		return
 	}
 
-	/*if dbc.BanPlayers.GetRow(row.GetUniqueId()) != nil {
+	ban_row := dbc.BanPlayers.GetRow(row.GetUniqueId())
+	if ban_row != nil && ban_row.GetStartTime() > 0 {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED)
 		log.Error("Account %v has been banned, cant login", account)
 		return
-	}*/
+	}
 
 	if row.GetPassword() != password {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_PASSWORD_INVALID)
@@ -643,11 +644,12 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 		acc_row.SetLastGetAccountPlayerListTime(int32(now_time.Unix()))
 	}
 
-	/*if dbc.BanPlayers.GetRow(acc_row.GetUniqueId()) != nil {
+	ban_row := dbc.BanPlayers.GetRow(acc_row.GetUniqueId())
+	if ban_row != nil && ban_row.GetStartTime() > 0 {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED)
 		log.Error("Account %v has been banned, cant login", account)
 		return
-	}*/
+	}
 
 	// --------------------------------------------------------------------------------------------
 	// 选择默认服
@@ -765,11 +767,12 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	/*if dbc.BanPlayers.GetRow(row.GetUniqueId()) != nil {
+	ban_row := dbc.BanPlayers.GetRow(row.GetUniqueId())
+	if ban_row != nil && ban_row.GetStartTime() > 0 {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED)
 		log.Error("Account %v has been banned, cant login", account)
 		return
-	}*/
+	}
 
 	acc := account_info_get(account, false)
 	if acc == nil {
@@ -845,11 +848,12 @@ func set_password_handler(account, password, new_password string) (err_code int3
 		return
 	}
 
-	/*if dbc.BanPlayers.GetRow(row.GetUniqueId()) != nil {
+	ban_row := dbc.BanPlayers.GetRow(row.GetUniqueId())
+	if ban_row != nil && ban_row.GetStartTime() > 0 {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED)
 		log.Error("Account %v has been banned, cant login", account)
 		return
-	}*/
+	}
 
 	if row.GetPassword() != password {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_PASSWORD_INVALID)

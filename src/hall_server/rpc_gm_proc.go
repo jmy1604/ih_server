@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
+	"ih_server/proto/gen_go/server_message"
 	"ih_server/src/rpc_common"
 	"time"
 )
@@ -233,6 +234,11 @@ func (this *G2H_Proc) BanPlayer(args *rpc_common.GmBanPlayerByUniqueIdCmd, resul
 			row.SetStartTimeStr("")
 		}
 	}
+
+	login_conn_mgr.Send(uint16(msg_server_message.MSGID_H2L_ACCOUNT_BAN), &msg_server_message.H2LAccountBan{
+		UniqueId:  args.PlayerUniqueId,
+		BanOrFree: args.BanOrFree,
+	})
 
 	log.Trace("@@@ G2H_Proc::BanPlayer %v", args)
 

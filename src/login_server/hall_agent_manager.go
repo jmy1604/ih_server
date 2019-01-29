@@ -400,6 +400,7 @@ func (this *HallAgentManager) init_message_handle() {
 	this.net.SetPid2P(hall_agent_msgid2msg)
 	this.SetMessageHandler(uint16(msg_server_message.MSGID_H2L_HALL_SERVER_REGISTER), H2LHallServerRegisterHandler)
 	this.SetMessageHandler(uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY), H2LAccountLogoutNotifyHandler)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_H2L_ACCOUNT_BAN), H2LAccountBanHandler)
 }
 
 func hall_agent_msgid2msg(msg_id uint16) proto.Message {
@@ -407,6 +408,8 @@ func hall_agent_msgid2msg(msg_id uint16) proto.Message {
 		return &msg_server_message.H2LHallServerRegister{}
 	} else if msg_id == uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY) {
 		return &msg_server_message.H2LAccountLogoutNotify{}
+	} else if msg_id == uint16(msg_server_message.MSGID_H2L_ACCOUNT_BAN) {
+		return &msg_server_message.H2LAccountBan{}
 	} else {
 		log.Error("Cant found proto message by msg_id[%v]", msg_id)
 	}
@@ -455,4 +458,31 @@ func H2LAccountLogoutNotifyHandler(conn *server_conn.ServerConn, m proto.Message
 	account_logout(req.GetAccount())
 
 	log.Trace("Account %v log out notify", req.GetAccount())
+}
+
+func H2LAccountBanHandler(conn *server_conn.ServerConn, m proto.Message) {
+	req := m.(*msg_server_message.H2LAccountBan)
+	if req == nil {
+		log.Error("H2LAccountBanHandler msg invalid")
+		return
+	}
+
+	uid := req.GetUniqueId()
+	ban := req.GetBanOrFree()
+	row := dbc.BanPlayers.GetRow(uid)
+	if ban > 0 {
+		if row == nil {
+			row = dbc.BanPlayers.AddRow(uid)
+		}
+		now_time := time.Now()
+		row.SetStartTime(int32(now_time.Unix()))
+		row.SetStartTimeStr(now_time.String())
+	} else {
+		if row != nil {
+			row.SetStartTime(0)
+			row.SetStartTimeStr("")
+		}
+	}
+
+	log.Trace("Unique id %v ban %v", uid, ban)
 }

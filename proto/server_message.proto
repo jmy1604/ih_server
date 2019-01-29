@@ -14,15 +14,16 @@ enum MSGID {
 	H2L_HALL_SERVER_UNREGISTER	= 21001;
 	L2H_DISCONNECT_NOTIFY		= 21002;
 	L2H_SYNC_ACCOUNT_TOKEN		= 21003;
-	L2H_BIND_NEW_ACCOUNT_REQUEST= 22000;
-	H2L_BIND_NEW_ACCOUNT_RESPONSE = 22001;
-	H2L_ACCOUNT_LOGOUT_NOTIFY	= 23000;
+	L2H_BIND_NEW_ACCOUNT_REQUEST= 21100;
+	H2L_BIND_NEW_ACCOUNT_RESPONSE = 21101;
+	H2L_ACCOUNT_LOGOUT_NOTIFY	= 21200;
+	H2L_ACCOUNT_BAN				= 21300;
 	
-	L2C_LOGIN_SERVER_REGISTER	= 21004;
-	L2C_LOGIN_SERVER_UNREGISTER	= 21005;
-	L2C_GET_PLAYER_ACC_INFO		= 21006;
+	L2C_LOGIN_SERVER_REGISTER	= 22004;
+	L2C_LOGIN_SERVER_UNREGISTER	= 22005;
+	L2C_GET_PLAYER_ACC_INFO		= 22006;
 	
-	C2L_PLAYER_ACC_INFO			= 21007;
+	C2L_PLAYER_ACC_INFO			= 23007;
 }
 
 /**************************** common message struct define ******************************/
@@ -133,6 +134,12 @@ message H2LAccountLogoutNotify {
 	string Account 			= 1;
 }
 
+// hall->login 封号
+message H2LAccountBan {
+	string UniqueId			= 1;
+	int32 BanOrFree			= 2;
+}
+
 /*************************************** end ********************************************/
 
 /**************************** login_server and center server ****************************/
@@ -175,59 +182,6 @@ message SetPlayerOnOffline {
 	int32 PlayerId 			= 1; // 玩家Id
 	int32 TongId 			= 2; // 帮会Id
 	int32 OnOffLine 		= 3; // 1位上线 0为下线
-}
-
-/*************************************** end ********************************************/
-
-
-/************************************** Gm相关 *****************************************/
-
-// center->hall gm命令
-message C2HGmCommand {
-	string Command 			= 1; // gm命令字串
-	int32 SessionId 		= 2; // 会话Id
-}
-
-// hall->center 返回执行结果
-message H2CGmResult {
-	int32 SessionId 		= 1; // 会话Id
-	string Result 			= 2; // 执行结果
-}
-
-// center->hall 查询物品某个玩家的物品
-message C2HItemQuery {
-	int32 PlayerId 			= 1; // 玩家Id
-	int32 SessionId 		= 2; // 会话Id
-}
-
-message IdNum {
-	int32 Id 				= 1; // 道具Id
-	int32 Num 				= 2; // 道具数目
-}
-
-// hall->center 回复物品查询结果
-message H2CItemQuery {
-	int32 SessionId 		= 1; // 会话Id
-	repeated IdNum Items 	= 2; // 道具列表
-}
-
-// hall->center 获取当前服务器奖励信息
-message H2CGetServerReward {
-	
-}
-
-// center->hall 增加全服奖励信息
-message C2HAddServerReward {
-	int32 RewardId 			= 1; // 奖励Id
-	string Channel 			= 2; // 奖励渠道
-	int32 EndUnix 			= 3; // 结束时间
-	repeated IdNum Items 	= 4; // 奖励物品信息
-	string Content 			= 5; // 奖励邮件内容
-}
-
-// center->hall 同步当前全服奖励信息
-message C2HSyncServerReward {
-	repeated C2HAddServerReward Rewards = 1; // 奖励
 }
 
 /*************************************** end ********************************************/

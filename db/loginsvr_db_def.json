@@ -135,6 +135,53 @@
 					"Fields":[]
 				}
 			]
+		},
+		{
+			"TableName":"BanPlayer",
+			"DBTableName":"BanPlayer",
+			"SingleRow":false,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"UniqueId",
+			"PrimaryKeyType":"string",
+			"PrimaryKeySize":64,
+			"Columns":[
+				{
+					"ColumnName":"StartTime",
+					"DBColumnName":"StartTime",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
+					"ColumnName":"StartTimeStr",
+					"DBColumnName":"StartTimeStr",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",			
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[]
+				},
+				{
+					"ColumnName":"Duration",
+					"DBColumnName":"Duration",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				}
+			]
 		}
 	]
 }
