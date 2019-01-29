@@ -623,8 +623,15 @@ func C2SGuideDataSaveHandler(p *Player, msg_data []byte) int32 {
 }
 
 func (p *Player) reconnect() int32 {
-	new_token := share_data.GenerateAccessToken(p.UniqueId)
-	login_token_mgr.SetToken(p.UniqueId, new_token, p.Id)
+	uid := p.db.GetUniqueId()
+	row := dbc.BanPlayers.GetRow(uid)
+	if row != nil && row.GetStartTime() > 0 {
+		log.Error("Player unique id %v be banned", uid)
+		return int32(msg_client_message.E_ERR_ACCOUNT_BE_BANNED)
+	}
+
+	new_token := share_data.GenerateAccessToken(uid)
+	login_token_mgr.SetToken(uid, new_token, p.Id)
 	conn_timer_wheel.Remove(p.Id)
 	atomic.StoreInt32(&p.is_login, 1)
 

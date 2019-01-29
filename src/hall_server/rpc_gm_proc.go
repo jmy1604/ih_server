@@ -215,6 +215,8 @@ func (this *G2H_Proc) BanPlayer(args *rpc_common.GmBanPlayerByUniqueIdCmd, resul
 		return nil
 	}
 
+	p.OnLogout(true)
+
 	row := dbc.BanPlayers.GetRow(args.PlayerUniqueId)
 	if args.BanOrFree > 0 {
 		now_time := time.Now()
