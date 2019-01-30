@@ -135,7 +135,7 @@ func google_pay_save(order_id, bundle_id, account string, player *Player) {
 	pay.PlayerId = player.Id
 	now_time := time.Now()
 	pay.PayTime = int32(now_time.Unix())
-	pay.PayTimeStr = now_time.String()
+	pay.PayTimeStr = now_time.Format("2006-01-02 15:04:05")
 
 	// serialize to redis
 	bytes, err := json.Marshal(&pay)
@@ -183,7 +183,7 @@ func apple_pay_save(order_id, bundle_id, account string, player *Player) {
 	pay.PlayerId = player.Id
 	now_time := time.Now()
 	pay.PayTime = int32(now_time.Unix())
-	pay.PayTimeStr = now_time.String()
+	pay.PayTimeStr = now_time.Format("2006-01-02 15:04:05")
 	bytes, err := json.Marshal(&pay)
 	if err != nil {
 		log.Error("##### Serialize RedisPayInfo[%v] error[%v]", pay, err.Error())

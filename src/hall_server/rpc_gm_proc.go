@@ -227,7 +227,7 @@ func (this *G2H_Proc) BanPlayer(args *rpc_common.GmBanPlayerByUniqueIdCmd, resul
 			row.SetPlayerId(p.db.GetPlayerId())
 		}
 		row.SetStartTime(int32(now_time.Unix()))
-		row.SetStartTimeStr(now_time.String())
+		row.SetStartTimeStr(now_time.Format("2006-01-02 15:04:05"))
 	} else {
 		if row != nil {
 			row.SetStartTime(0)

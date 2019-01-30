@@ -150,7 +150,7 @@ func (this *Player) active_stage_challenge_num_purchase(typ, num int32) int32 {
 
 	this.db.ActiveStages.IncbyCanChallengeNum(typ, num)
 	purchased_num = this.db.ActiveStages.IncbyPurchasedNum(typ, num)
-	this.add_resource(ITEM_RESOURCE_ID_DIAMOND, -global_config.ActiveStageChallengeNumPrice)
+	this.add_resource(ITEM_RESOURCE_ID_DIAMOND, -global_config.ActiveStageChallengeNumPrice*num)
 
 	response := &msg_client_message.S2CActiveStageBuyChallengeNumResponse{
 		StageType:    typ,

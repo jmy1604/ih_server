@@ -474,9 +474,11 @@ func H2LAccountBanHandler(conn *server_conn.ServerConn, m proto.Message) {
 		if row == nil {
 			row = dbc.BanPlayers.AddRow(uid)
 		}
+		row.SetAccount(req.GetAccount())
+		row.SetPlayerId(req.GetPlayerId())
 		now_time := time.Now()
 		row.SetStartTime(int32(now_time.Unix()))
-		row.SetStartTimeStr(now_time.String())
+		row.SetStartTimeStr(now_time.Format("2006-01-02 15:04:05"))
 	} else {
 		if row != nil {
 			row.SetStartTime(0)
