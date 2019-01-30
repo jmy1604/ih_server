@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	RANK_LIST_TYPE_NONE              = iota
-	RANK_LIST_TYPE_ARENA             = 1
-	RANK_LIST_TYPE_CAMPAIGN          = 2
-	RANK_LIST_TYPE_ROLE_POWER        = 3
-	RANK_LIST_TYPE_TOP_DEFENSE_TOWER = 15 // 最高防守阵型战力
-	RANK_LIST_TYPE_MAX               = 16
+	RANK_LIST_TYPE_NONE       = iota
+	RANK_LIST_TYPE_ARENA      = 1 // 竞技场积分
+	RANK_LIST_TYPE_CAMPAIGN   = 2 // 战役通关
+	RANK_LIST_TYPE_ROLE_POWER = 3 // 角色战力
+	RANK_LIST_TYPE_TOWER      = 4 // 爬塔
+	RANK_LIST_TYPE_MAX        = 16
 )
 
 type RankList struct {
@@ -108,7 +108,7 @@ var root_rank_item = []utils.SkiplistNode{
 	&ArenaRankItem{},      // 1
 	&CampaignRankItem{},   // 2
 	&RolesPowerRankItem{}, // 3
-	nil,                   // 4
+	&TowerRankItem{},      // 4
 	nil,                   // 5
 	nil,                   // 6
 	nil,                   // 7

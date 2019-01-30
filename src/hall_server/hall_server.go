@@ -69,8 +69,6 @@ func (this *HallServer) Init() (ok bool) {
 	anouncement_mgr.Init()
 	// 录像
 	battle_record_mgr.Init()
-	// 爬塔排行榜
-	tower_ranking_list.LoadDB()
 	// 公会
 	guild_manager.Init()
 	// 公会副本

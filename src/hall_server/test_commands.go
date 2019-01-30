@@ -833,7 +833,7 @@ func tower_record_data_cmd(p *Player, args []string) int32 {
 }
 
 func tower_ranklist_cmd(p *Player, args []string) int32 {
-	rank_list := tower_ranking_list.player_list[:tower_ranking_list.player_num]
+	rank_list := get_tower_rank_list()
 	log.Debug("TowerRankList: %v", rank_list)
 	return 1
 }

@@ -2,10 +2,12 @@ package main
 
 import (
 	"ih_server/libs/log"
+	"ih_server/libs/utils"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -150,8 +152,10 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 
 	if is_win {
 		this.db.TowerCommon.SetCurrId(tower_id)
+		serial_id := atomic.AddInt32(&tower_rank_serial_id, 1)
+		this.db.TowerCommon.SetRankSerialId(serial_id)
 		// 名次
-		tower_ranking_list.Update(this.Id, tower_id)
+		this.tower_update_rank(tower_id, serial_id)
 		// 奖励
 		this.send_stage_reward(stage.RewardList, 3, 0)
 		// 录像
@@ -227,10 +231,126 @@ func (this *Player) get_tower_record_data(tower_fight_id int32) int32 {
 
 	return 1
 }
+func (this *Player) tower_update_rank(tower_id, serial_id int32) {
+	var data = TowerRankItem{
+		SerialId: serial_id,
+		TowerId:  tower_id,
+		PlayerId: this.Id,
+	}
+	rank_list_mgr.UpdateItem(RANK_LIST_TYPE_TOWER, &data)
+}
+
+func (this *Player) load_tower_db_data() {
+	tower_id := this.db.TowerCommon.GetCurrId()
+	if tower_id <= 0 {
+		return
+	}
+
+	sid := this.db.TowerCommon.GetRankSerialId()
+	if sid <= 0 {
+		tower_rank_serial_id += 1
+		sid = tower_rank_serial_id
+		this.db.TowerCommon.SetRankSerialId(sid)
+	}
+	if tower_rank_serial_id < sid {
+		tower_rank_serial_id = sid
+	}
+	this.tower_update_rank(tower_id, sid)
+}
 
 const (
 	TOWER_RANKING_LIST_MAX = 50
 )
+
+// 战力排行榜序号
+var tower_rank_serial_id int32
+
+type TowerRankItem struct {
+	SerialId int32
+	TowerId  int32
+	PlayerId int32
+}
+
+func (this *TowerRankItem) Less(value interface{}) bool {
+	item := value.(*TowerRankItem)
+	if item == nil {
+		return false
+	}
+	if this.TowerId < item.TowerId {
+		return true
+	} else if this.TowerId == item.TowerId {
+		if this.SerialId > item.SerialId {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *TowerRankItem) Greater(value interface{}) bool {
+	item := value.(*TowerRankItem)
+	if item == nil {
+		return false
+	}
+	if this.TowerId > item.TowerId {
+		return true
+	} else if this.TowerId == item.TowerId {
+		if this.SerialId < item.SerialId {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *TowerRankItem) KeyEqual(value interface{}) bool {
+	item := value.(*TowerRankItem)
+	if item == nil {
+		return false
+	}
+	if item == nil {
+		return false
+	}
+	if this.PlayerId == item.PlayerId {
+		return true
+	}
+	return false
+}
+
+func (this *TowerRankItem) GetKey() interface{} {
+	return this.PlayerId
+}
+
+func (this *TowerRankItem) GetValue() interface{} {
+	return this.TowerId
+}
+
+func (this *TowerRankItem) SetValue(value interface{}) {
+	this.TowerId = value.(int32)
+	this.SerialId = atomic.AddInt32(&tower_rank_serial_id, 1)
+}
+
+func (this *TowerRankItem) New() utils.SkiplistNode {
+	return &TowerRankItem{}
+}
+
+func (this *TowerRankItem) Assign(node utils.SkiplistNode) {
+	n := node.(*TowerRankItem)
+	if n == nil {
+		return
+	}
+	this.PlayerId = n.PlayerId
+	this.TowerId = n.TowerId
+	this.SerialId = n.SerialId
+}
+
+func (this *TowerRankItem) CopyDataTo(node interface{}) {
+	n := node.(*TowerRankItem)
+	if n == nil {
+		return
+	}
+	n.PlayerId = this.PlayerId
+	n.TowerId = this.TowerId
+	n.SerialId = this.SerialId
+}
 
 type TowerRankingList struct {
 	player_list []int32
@@ -239,6 +359,7 @@ type TowerRankingList struct {
 	locker      *sync.RWMutex
 }
 
+/*
 var tower_ranking_list TowerRankingList
 
 func (this *TowerRankingList) LoadDB() {
@@ -370,7 +491,7 @@ func (this *TowerRankingList) GetMsgs() (ranking_list []*msg_client_message.Towe
 	log.Debug("Tower Rank list %v", ranking_list)
 	return
 }
-
+*/
 func C2STowerRecordsInfoHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STowerRecordsInfoRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -404,6 +525,37 @@ func C2STowerDataHandler(p *Player, msg_data []byte) int32 {
 	return p.send_tower_data(true)
 }
 
+func get_tower_rank_list() (ranking_list []*msg_client_message.TowerRankInfo) {
+	items, _, _ := rank_list_mgr.GetItemsByRange(RANK_LIST_TYPE_TOWER, 0, 1, TOWER_RANKING_LIST_MAX)
+	if items == nil {
+		return
+	}
+
+	for i := int32(0); i < int32(len(items)); i++ {
+		item := (items[i]).(*TowerRankItem)
+		if item == nil {
+			continue
+		}
+
+		p := player_mgr.GetPlayerById(item.PlayerId)
+		if p == nil {
+			log.Error("Player[%v] on tower rankling list not found", item.PlayerId)
+			return
+		}
+
+		ranking_list = append(ranking_list, &msg_client_message.TowerRankInfo{
+			PlayerId:    item.PlayerId,
+			PlayerName:  p.db.GetName(),
+			TowerId:     p.db.TowerCommon.GetCurrId(),
+			PlayerLevel: p.db.Info.GetLvl(),
+			PlayerHead:  p.db.Info.GetHead(),
+		})
+	}
+
+	log.Debug("Tower Rank list %v", ranking_list)
+	return
+}
+
 func C2STowerRankingListHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STowerRankingListRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -413,7 +565,7 @@ func C2STowerRankingListHandler(p *Player, msg_data []byte) int32 {
 	}
 
 	response := &msg_client_message.S2CTowerRankingListResponse{
-		Ranks: tower_ranking_list.GetMsgs(),
+		Ranks: get_tower_rank_list(),
 	}
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_TOWER_RANKING_LIST_RESPONSE), response)
 	return 1
