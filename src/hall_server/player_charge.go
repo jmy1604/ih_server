@@ -159,7 +159,7 @@ func google_pay_save(order_id, bundle_id, account string, player *Player) {
 		row.SetPayTimeStr(now_time.String())
 	}*/
 
-	player.rpc_charge_save(1, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), now_time.String())
+	player.rpc_charge_save(1, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), pay.PayTimeStr)
 
 	log.Info("save google pay: player_id(%v), order_id(%v), bundle_id(%v)", player.Id, order_id, bundle_id)
 }
@@ -205,7 +205,7 @@ func apple_pay_save(order_id, bundle_id, account string, player *Player) {
 		row.SetPayTimeStr(now_time.String())
 	}*/
 
-	player.rpc_charge_save(2, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), now_time.String())
+	player.rpc_charge_save(2, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), pay.PayTimeStr)
 
 	log.Info("save apple pay: player_id(%v), order_id(%v), bundle_id(%v)", player.Id, order_id, bundle_id)
 }
