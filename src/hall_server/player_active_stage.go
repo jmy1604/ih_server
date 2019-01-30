@@ -125,8 +125,12 @@ func (this *Player) send_active_stage_data(typ int32) int32 {
 }
 
 func (this *Player) active_stage_challenge_num_purchase(typ, num int32) int32 {
+	if num <= 0 {
+		return -1
+	}
+
 	diamond := this.get_resource(ITEM_RESOURCE_ID_DIAMOND)
-	if diamond < global_config.ActiveStageChallengeNumPrice {
+	if diamond < global_config.ActiveStageChallengeNumPrice*num {
 		log.Error("Player[%v] buy active stage challenge num failed, diamond %v not enough, need %v", this.Id, diamond, global_config.ActiveStageChallengeNumPrice)
 		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
 	}
