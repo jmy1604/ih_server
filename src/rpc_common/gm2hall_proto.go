@@ -131,5 +131,6 @@ type GmGetPlayerUniqueIdResponse struct {
 // 通过唯一ID封号
 type GmBanPlayerByUniqueIdCmd struct {
 	PlayerUniqueId string
+	PlayerId       int32
 	BanOrFree      int32
 }
