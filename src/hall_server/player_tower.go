@@ -261,7 +261,7 @@ const (
 	TOWER_RANKING_LIST_MAX = 50
 )
 
-// 战力排行榜序号
+// 爬塔排行榜序号
 var tower_rank_serial_id int32
 
 type TowerRankItem struct {
