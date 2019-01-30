@@ -133,18 +133,3 @@ type GmBanPlayerByUniqueIdCmd struct {
 	PlayerUniqueId string
 	BanOrFree      int32
 }
-
-// 封号玩家列表
-type GmBanListCmd struct {
-}
-
-type BanPlayer struct {
-	UniqueId string
-	Account  string
-	BanTime  string
-}
-
-// 封号玩家列表结果
-type GmBanListResponse struct {
-	BanPlayers []*BanPlayer
-}
