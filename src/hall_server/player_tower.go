@@ -6,7 +6,6 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -350,13 +349,6 @@ func (this *TowerRankItem) CopyDataTo(node interface{}) {
 	n.PlayerId = this.PlayerId
 	n.TowerId = this.TowerId
 	n.SerialId = this.SerialId
-}
-
-type TowerRankingList struct {
-	player_list []int32
-	player_num  int32
-	player_map  map[int32]int32
-	locker      *sync.RWMutex
 }
 
 func C2STowerRecordsInfoHandler(p *Player, msg_data []byte) int32 {
