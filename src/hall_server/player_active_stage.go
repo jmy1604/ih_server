@@ -129,17 +129,6 @@ func (this *Player) active_stage_challenge_num_purchase(typ, num int32) int32 {
 		return -1
 	}
 
-	diamond := this.get_resource(ITEM_RESOURCE_ID_DIAMOND)
-	if diamond < global_config.ActiveStageChallengeNumPrice*num {
-		log.Error("Player[%v] buy active stage challenge num failed, diamond %v not enough, need %v", this.Id, diamond, global_config.ActiveStageChallengeNumPrice)
-		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
-	}
-
-	if num == 0 {
-		log.Error("Player[%v] active stage challenge num cant buy with 0", this.Id)
-		return -1
-	}
-
 	purchased_num, o := this.db.ActiveStages.GetPurchasedNum(typ)
 	if !o {
 		log.Error("Player[%v] purchase active stage challenge num with type %v invalid", this.Id, typ)
@@ -150,6 +139,17 @@ func (this *Player) active_stage_challenge_num_purchase(typ, num int32) int32 {
 	if purchase_num-purchased_num < num {
 		log.Error("Player[%v] left purchase num %v for active stage type %v not enough", this.Id, purchased_num-purchase_num, typ)
 		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_PURCHASE_NUM_OUT)
+	}
+
+	diamond := this.get_resource(ITEM_RESOURCE_ID_DIAMOND)
+	if diamond < global_config.ActiveStageChallengeNumPrice*num {
+		log.Error("Player[%v] buy active stage challenge num failed, diamond %v not enough, need %v", this.Id, diamond, global_config.ActiveStageChallengeNumPrice)
+		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
+	}
+
+	if num == 0 {
+		log.Error("Player[%v] active stage challenge num cant buy with 0", this.Id)
+		return -1
 	}
 
 	this.db.ActiveStages.IncbyCanChallengeNum(typ, num)
