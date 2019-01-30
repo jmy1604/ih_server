@@ -125,7 +125,7 @@ func (this *Player) send_active_stage_data(typ int32) int32 {
 }
 
 func (this *Player) active_stage_challenge_num_purchase(typ, num int32) int32 {
-	if num <= 0 || num > 10000 {
+	if num <= 0 {
 		return -1
 	}
 
