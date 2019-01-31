@@ -607,11 +607,19 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 			}
 			if acc_row == nil {
 				acc_row = dbc.Accounts.AddRow(account)
+				if acc_row == nil {
+					log.Error("Account %v add row with channel facebook failed")
+					return -1, nil
+				}
 				acc_row.SetChannel("facebook")
 			}
 		} else if channel == "guest" {
 			if acc_row == nil {
 				acc_row = dbc.Accounts.AddRow(account)
+				if acc_row == nil {
+					log.Error("Account %v add row with channel guest failed")
+					return -1, nil
+				}
 				acc_row.SetChannel("guest")
 			} else {
 				if acc_row.GetPassword() != password {
@@ -627,6 +635,10 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 	} else {
 		if acc_row == nil {
 			acc_row = dbc.Accounts.AddRow(account)
+			if acc_row == nil {
+				log.Error("Account %v add row without verify failed")
+				return -1, nil
+			}
 		}
 	}
 
