@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/exec"
 	_ "ih_server/proto/gen_go/db_rpc"
-	"sort"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -339,39 +338,6 @@ func new_dbApplePayRow(table *dbApplePayTable, OrderId string) (r *dbApplePayRow
 func (this *dbApplePayRow) GetOrderId() (r string) {
 	return this.m_OrderId
 }
-func (this *dbApplePayRow) Load() (err error) {
-	this.m_table.GC()
-	this.m_lock.UnSafeLock("dbApplePayRow.Load")
-	defer this.m_lock.UnSafeUnlock()
-	if this.m_loaded {
-		return
-	}
-	var dBundleId string
-	var dAccount string
-	var dPlayerId int32
-	var dPayTime int32
-	var dPayTimeStr string
-	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_OrderId)
-	err = r.Scan(&dBundleId,&dAccount,&dPlayerId,&dPayTime,&dPayTimeStr)
-	if err != nil {
-		log.Error("Scan err[%v]", err.Error())
-		return
-	}
-		this.m_BundleId=dBundleId
-		this.m_Account=dAccount
-		this.m_PlayerId=dPlayerId
-		this.m_PayTime=dPayTime
-		this.m_PayTimeStr=dPayTimeStr
-	this.m_loaded=true
-	this.m_BundleId_changed=false
-	this.m_Account_changed=false
-	this.m_PlayerId_changed=false
-	this.m_PayTime_changed=false
-	this.m_PayTimeStr_changed=false
-	this.Touch(false)
-	atomic.AddInt32(&this.m_table.m_gc_n,1)
-	return
-}
 func (this *dbApplePayRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
 	this.m_lock.UnSafeLock("dbApplePayRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
@@ -483,7 +449,6 @@ type dbApplePayTable struct{
 	m_pool_size int32
 	m_preload_select_stmt *sql.Stmt
 	m_preload_max_id int32
-	m_load_select_stmt *sql.Stmt
 	m_save_insert_stmt *sql.Stmt
 	m_delete_stmt *sql.Stmt
 }
@@ -565,15 +530,7 @@ func (this *dbApplePayTable) check_create_table() (err error) {
 	return
 }
 func (this *dbApplePayTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT OrderId FROM ApplePays")
-	if err!=nil{
-		log.Error("prepare failed")
-		return
-	}
-	return
-}
-func (this *dbApplePayTable) prepare_load_select_stmt() (err error) {
-	this.m_load_select_stmt,err=this.m_dbc.StmtPrepare("SELECT BundleId,Account,PlayerId,PayTime,PayTimeStr FROM ApplePays WHERE OrderId=?")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT OrderId,BundleId,Account,PlayerId,PayTime,PayTimeStr FROM ApplePays")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -607,11 +564,6 @@ func (this *dbApplePayTable) Init() (err error) {
 		log.Error("prepare_preload_select_stmt failed")
 		return
 	}
-	err=this.prepare_load_select_stmt()
-	if err!=nil{
-		log.Error("prepare_load_select_stmt failed")
-		return
-	}
 	err=this.prepare_save_insert_stmt()
 	if err!=nil{
 		log.Error("prepare_save_insert_stmt failed")
@@ -631,13 +583,28 @@ func (this *dbApplePayTable) Preload() (err error) {
 		return
 	}
 	var OrderId string
+	var dBundleId string
+	var dAccount string
+	var dPlayerId int32
+	var dPayTime int32
+	var dPayTimeStr string
 	for r.Next() {
-		err = r.Scan(&OrderId)
+		err = r.Scan(&OrderId,&dBundleId,&dAccount,&dPlayerId,&dPayTime,&dPayTimeStr)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		row := new_dbApplePayRow(this,OrderId)
+		row.m_BundleId=dBundleId
+		row.m_Account=dAccount
+		row.m_PlayerId=dPlayerId
+		row.m_PayTime=dPayTime
+		row.m_PayTimeStr=dPayTimeStr
+		row.m_BundleId_changed=false
+		row.m_Account_changed=false
+		row.m_PlayerId_changed=false
+		row.m_PayTime_changed=false
+		row.m_PayTimeStr_changed=false
 		row.m_valid = true
 		this.m_rows[OrderId]=row
 	}
@@ -710,7 +677,6 @@ func (this *dbApplePayTable) Save(quick bool) (err error){
 	return
 }
 func (this *dbApplePayTable) AddRow(OrderId string) (row *dbApplePayRow) {
-	this.GC()
 	this.m_lock.UnSafeLock("dbApplePayTable.AddRow")
 	defer this.m_lock.UnSafeUnlock()
 	row = new_dbApplePayRow(this,OrderId)
@@ -770,47 +736,6 @@ func (this *dbApplePayTable) GetRow(OrderId string) (row *dbApplePayRow) {
 		row = this.m_new_rows[OrderId]
 	}
 	return row
-}
-func (this *dbApplePayTable) SetPoolSize(n int32) {
-	this.m_pool_size = n
-}
-func (this *dbApplePayTable) GC() {
-	if this.m_pool_size<=0{
-		return
-	}
-	if !atomic.CompareAndSwapInt32(&this.m_gcing, 0, 1) {
-		return
-	}
-	defer atomic.StoreInt32(&this.m_gcing, 0)
-	n := atomic.LoadInt32(&this.m_gc_n)
-	if float32(n) < float32(this.m_pool_size)*1.2 {
-		return
-	}
-	max := (n - this.m_pool_size) / 2
-	arr := dbApplePayRowSort{}
-	rows := this.fetch_rows(this.m_rows)
-	arr.rows = make([]*dbApplePayRow, len(rows))
-	index := 0
-	for _, v := range rows {
-		arr.rows[index] = v
-		index++
-	}
-	sort.Sort(&arr)
-	count := int32(0)
-	for _, v := range arr.rows {
-		err, _, released := v.Save(true)
-		if err != nil {
-			log.Error("release failed %v", err)
-			continue
-		}
-		if released {
-			count++
-			if count > max {
-				return
-			}
-		}
-	}
-	return
 }
 func (this *dbGooglePayRow)GetBundleId( )(r string ){
 	this.m_lock.UnSafeRLock("dbGooglePayRow.GetdbGooglePayBundleIdColumn")
@@ -907,39 +832,6 @@ func new_dbGooglePayRow(table *dbGooglePayTable, OrderId string) (r *dbGooglePay
 }
 func (this *dbGooglePayRow) GetOrderId() (r string) {
 	return this.m_OrderId
-}
-func (this *dbGooglePayRow) Load() (err error) {
-	this.m_table.GC()
-	this.m_lock.UnSafeLock("dbGooglePayRow.Load")
-	defer this.m_lock.UnSafeUnlock()
-	if this.m_loaded {
-		return
-	}
-	var dBundleId string
-	var dAccount string
-	var dPlayerId int32
-	var dPayTime int32
-	var dPayTimeStr string
-	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_OrderId)
-	err = r.Scan(&dBundleId,&dAccount,&dPlayerId,&dPayTime,&dPayTimeStr)
-	if err != nil {
-		log.Error("Scan err[%v]", err.Error())
-		return
-	}
-		this.m_BundleId=dBundleId
-		this.m_Account=dAccount
-		this.m_PlayerId=dPlayerId
-		this.m_PayTime=dPayTime
-		this.m_PayTimeStr=dPayTimeStr
-	this.m_loaded=true
-	this.m_BundleId_changed=false
-	this.m_Account_changed=false
-	this.m_PlayerId_changed=false
-	this.m_PayTime_changed=false
-	this.m_PayTimeStr_changed=false
-	this.Touch(false)
-	atomic.AddInt32(&this.m_table.m_gc_n,1)
-	return
 }
 func (this *dbGooglePayRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
 	this.m_lock.UnSafeLock("dbGooglePayRow.save_data")
@@ -1052,7 +944,6 @@ type dbGooglePayTable struct{
 	m_pool_size int32
 	m_preload_select_stmt *sql.Stmt
 	m_preload_max_id int32
-	m_load_select_stmt *sql.Stmt
 	m_save_insert_stmt *sql.Stmt
 	m_delete_stmt *sql.Stmt
 }
@@ -1134,15 +1025,7 @@ func (this *dbGooglePayTable) check_create_table() (err error) {
 	return
 }
 func (this *dbGooglePayTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT OrderId FROM GooglePays")
-	if err!=nil{
-		log.Error("prepare failed")
-		return
-	}
-	return
-}
-func (this *dbGooglePayTable) prepare_load_select_stmt() (err error) {
-	this.m_load_select_stmt,err=this.m_dbc.StmtPrepare("SELECT BundleId,Account,PlayerId,PayTime,PayTimeStr FROM GooglePays WHERE OrderId=?")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT OrderId,BundleId,Account,PlayerId,PayTime,PayTimeStr FROM GooglePays")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -1176,11 +1059,6 @@ func (this *dbGooglePayTable) Init() (err error) {
 		log.Error("prepare_preload_select_stmt failed")
 		return
 	}
-	err=this.prepare_load_select_stmt()
-	if err!=nil{
-		log.Error("prepare_load_select_stmt failed")
-		return
-	}
 	err=this.prepare_save_insert_stmt()
 	if err!=nil{
 		log.Error("prepare_save_insert_stmt failed")
@@ -1200,13 +1078,28 @@ func (this *dbGooglePayTable) Preload() (err error) {
 		return
 	}
 	var OrderId string
+	var dBundleId string
+	var dAccount string
+	var dPlayerId int32
+	var dPayTime int32
+	var dPayTimeStr string
 	for r.Next() {
-		err = r.Scan(&OrderId)
+		err = r.Scan(&OrderId,&dBundleId,&dAccount,&dPlayerId,&dPayTime,&dPayTimeStr)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		row := new_dbGooglePayRow(this,OrderId)
+		row.m_BundleId=dBundleId
+		row.m_Account=dAccount
+		row.m_PlayerId=dPlayerId
+		row.m_PayTime=dPayTime
+		row.m_PayTimeStr=dPayTimeStr
+		row.m_BundleId_changed=false
+		row.m_Account_changed=false
+		row.m_PlayerId_changed=false
+		row.m_PayTime_changed=false
+		row.m_PayTimeStr_changed=false
 		row.m_valid = true
 		this.m_rows[OrderId]=row
 	}
@@ -1279,7 +1172,6 @@ func (this *dbGooglePayTable) Save(quick bool) (err error){
 	return
 }
 func (this *dbGooglePayTable) AddRow(OrderId string) (row *dbGooglePayRow) {
-	this.GC()
 	this.m_lock.UnSafeLock("dbGooglePayTable.AddRow")
 	defer this.m_lock.UnSafeUnlock()
 	row = new_dbGooglePayRow(this,OrderId)
@@ -1339,47 +1231,6 @@ func (this *dbGooglePayTable) GetRow(OrderId string) (row *dbGooglePayRow) {
 		row = this.m_new_rows[OrderId]
 	}
 	return row
-}
-func (this *dbGooglePayTable) SetPoolSize(n int32) {
-	this.m_pool_size = n
-}
-func (this *dbGooglePayTable) GC() {
-	if this.m_pool_size<=0{
-		return
-	}
-	if !atomic.CompareAndSwapInt32(&this.m_gcing, 0, 1) {
-		return
-	}
-	defer atomic.StoreInt32(&this.m_gcing, 0)
-	n := atomic.LoadInt32(&this.m_gc_n)
-	if float32(n) < float32(this.m_pool_size)*1.2 {
-		return
-	}
-	max := (n - this.m_pool_size) / 2
-	arr := dbGooglePayRowSort{}
-	rows := this.fetch_rows(this.m_rows)
-	arr.rows = make([]*dbGooglePayRow, len(rows))
-	index := 0
-	for _, v := range rows {
-		arr.rows[index] = v
-		index++
-	}
-	sort.Sort(&arr)
-	count := int32(0)
-	for _, v := range arr.rows {
-		err, _, released := v.Save(true)
-		if err != nil {
-			log.Error("release failed %v", err)
-			continue
-		}
-		if released {
-			count++
-			if count > max {
-				return
-			}
-		}
-	}
-	return
 }
 
 type DBC struct {
