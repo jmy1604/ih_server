@@ -559,7 +559,7 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 	correct_secs = rt % campaign.RandomDropSec
 	// 随机掉落
 	rand.Seed(time.Now().Unix())
-	var tmp_cache_items = make(map[int32]int32)
+	this.tmp_cache_items = make(map[int32]int32)
 	n := rt / campaign.RandomDropSec
 	for k := 0; k < int(n); k++ {
 		for i := 0; i < len(campaign.RandomDropIDList)/2; i++ {
@@ -582,13 +582,13 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 			for i := 0; i < len(cache); i++ {
 				n, _ := this.db.CampaignRandomIncomes.GetItemNum(cache[i])
 
-				d := tmp_cache_items[cache[i]]
-				tmp_cache_items[cache[i]] = d + n
+				d := this.tmp_cache_items[cache[i]]
+				this.tmp_cache_items[cache[i]] = d + n
 			}
 			this.db.CampaignRandomIncomes.Clear()
 		}
 
-		for k, v := range tmp_cache_items {
+		for k, v := range this.tmp_cache_items {
 			if this.add_resource(k, v) {
 				incomes = append(incomes, &msg_client_message.ItemInfo{
 					Id:    k,
@@ -598,7 +598,7 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 			}
 		}
 	} else {
-		for k, v := range tmp_cache_items {
+		for k, v := range this.tmp_cache_items {
 			this.campaign_cache_random_income(k, v)
 		}
 
@@ -606,7 +606,7 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 			has_income = true
 		}
 	}
-	tmp_cache_items = nil
+	this.tmp_cache_items = nil
 	return
 }
 
