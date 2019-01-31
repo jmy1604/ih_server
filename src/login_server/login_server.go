@@ -353,6 +353,10 @@ func register_handler(account, password string, is_guest bool) (err_code int32, 
 	}
 
 	row := dbc.Accounts.AddRow(account)
+	if row == nil {
+		err_code = -1
+		return
+	}
 	row.SetUniqueId(uid)
 	row.SetPassword(password)
 	row.SetRegisterTime(int32(time.Now().Unix()))
