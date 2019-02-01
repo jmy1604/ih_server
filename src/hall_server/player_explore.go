@@ -123,7 +123,7 @@ func (this *Player) _explore_gen_task_data(etask *table_config.XmlSearchTaskItem
 		nameid4task = etask.TaskNameList[r]
 	}
 	if etask.RandomReward > 0 {
-		o, item := this.drop_item_by_id(etask.RandomReward, false, nil)
+		o, item := this.drop_item_by_id(etask.RandomReward, false, nil, nil)
 		if !o {
 			log.Error("Player[%v] get explore task %v reward by drop id failed", this.Id, etask.Id)
 			return

@@ -11,16 +11,16 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-func (this *Player) drop_item_by_id(id int32, add bool, used_drop_ids map[int32]int32) (bool, *msg_client_message.ItemInfo) {
+func (this *Player) drop_item_by_id(id int32, add bool, used_drop_ids map[int32]int32, tmp_cache_items map[int32]int32) (bool, *msg_client_message.ItemInfo) {
 	drop_lib := drop_table_mgr.Map[id]
 	if nil == drop_lib {
 		return false, nil
 	}
-	item := this.drop_item(drop_lib, add, used_drop_ids)
+	item := this.drop_item(drop_lib, add, used_drop_ids, tmp_cache_items)
 	return true, item
 }
 
-func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, used_drop_ids map[int32]int32) (item *msg_client_message.ItemInfo) {
+func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, used_drop_ids map[int32]int32, tmp_cache_items map[int32]int32) (item *msg_client_message.ItemInfo) {
 	get_same := false
 	check_cnt := drop_lib.TotalCount
 	rand_val := rand.Int31n(drop_lib.TotalWeight)
@@ -72,8 +72,8 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, use
 			}
 
 			item = &msg_client_message.ItemInfo{Id: tmp_item.DropItemID, Value: num}
-			if this.tmp_cache_items != nil {
-				this.tmp_cache_items[tmp_item.DropItemID] += item.Value
+			if tmp_cache_items != nil {
+				tmp_cache_items[tmp_item.DropItemID] += item.Value
 			}
 			break
 		}
@@ -179,7 +179,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 		did := drop_id[2*i]
 		dn := drop_id[2*i+1]
 		for j := 0; j < int(dn); j++ {
-			o, item := this.drop_item_by_id(did, true, nil)
+			o, item := this.drop_item_by_id(did, true, nil, nil)
 			if !o {
 				log.Error("Player[%v] draw type[%v] with drop_id[%v] failed", this.Id, draw_type, did)
 				return -1

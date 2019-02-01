@@ -564,7 +564,7 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 	items := make(map[int32]int32)
 	i := int32(0)
 	for i < fusion_num {
-		o, item := this.drop_item_by_id(piece.ComposeDropID, true, nil)
+		o, item := this.drop_item_by_id(piece.ComposeDropID, true, nil, nil)
 		if !o || item == nil {
 			log.Error("Player[%v] fusion item with piece[%v] and drop_id[%v] failed", this.Id, piece_id, piece.ComposeDropID)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
@@ -715,7 +715,7 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 
 	var new_items map[int32]int32
 	if item.EquipType == EQUIP_TYPE_LEFT_SLOT || item.EquipType == EQUIP_TYPE_RELIC {
-		o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, false, nil)
+		o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, false, nil, nil)
 		if !o {
 			log.Error("Player[%v] upgrade item[%v] failed, drop error", this.Id, item_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
@@ -734,7 +734,7 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 		new_items[new_item.GetId()] += new_item.GetValue()
 	} else {
 		for i := int32(0); i < item_num; i++ {
-			o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, true, nil)
+			o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, true, nil, nil)
 			if !o {
 				log.Error("Player[%v] upgrade item[%v] failed, drop error", this.Id, item_id)
 				return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)

@@ -458,7 +458,7 @@ func (this *Player) lock_role(role_id int32, is_lock bool) int32 {
 	return 1
 }
 
-func (this *Player) _levelup_role(role_id, lvl int32) int32 {
+func (this *Player) _levelup_role(role_id, lvl int32, tmp_cache_items map[int32]int32) int32 {
 	if len(levelup_table_mgr.Array) <= int(lvl) {
 		log.Error("Player[%v] is already max level[%v]", this.Id, lvl)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_IS_MAX)
@@ -479,11 +479,11 @@ func (this *Player) _levelup_role(role_id, lvl int32) int32 {
 				log.Error("Player[%v] levelup role[%v] cost resource[%v] not enough, need[%v] now[%v]", this.Id, role_id, resource_id, resource_num, now_num)
 				return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
 			}
-			num := this.tmp_cache_items[resource_id]
+			num := tmp_cache_items[resource_id]
 			if num == 0 {
-				this.tmp_cache_items[resource_id] = resource_num
+				tmp_cache_items[resource_id] = resource_num
 			} else {
-				this.tmp_cache_items[resource_id] = num + resource_num
+				tmp_cache_items[resource_id] = num + resource_num
 			}
 		}
 	}
@@ -514,20 +514,21 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_IS_MAX)
 	}
 
-	if this.tmp_cache_items == nil || len(this.tmp_cache_items) > 0 {
-		this.tmp_cache_items = make(map[int32]int32)
-	}
+	//if this.tmp_cache_items == nil || len(this.tmp_cache_items) > 0 {
+	//	this.tmp_cache_items = make(map[int32]int32)
+	//}
+	var tmp_cache_items = make(map[int32]int32)
 	res := int32(0)
 	for i := int32(0); i < up_num; i++ {
-		res = this._levelup_role(role_id, lvl+i)
+		res = this._levelup_role(role_id, lvl+i, tmp_cache_items)
 		if res < 0 {
 			return res
 		}
 	}
-	for id, num := range this.tmp_cache_items {
+	for id, num := range tmp_cache_items {
 		this.add_resource(id, -num)
 	}
-	this.tmp_cache_items = nil
+	//this.tmp_cache_items = nil
 
 	this.db.Roles.SetLevel(role_id, lvl+up_num)
 	this.roles_id_change_info.id_update(role_id)
@@ -676,7 +677,7 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 	}
 	log.Debug("Player[%v] will decompose roles %v", this.Id, role_ids)
 	var num int32
-	this.tmp_cache_items = nil
+	var tmp_cache_items map[int32]int32
 	for i := 0; i < len(role_ids); i++ {
 		role_id := role_ids[i]
 		_, o := this.db.Roles.GetLevel(role_id)
@@ -712,23 +713,23 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 			item_id := card_data.DecomposeRes[2*n]
 			item_num := card_data.DecomposeRes[2*n+1]
 			this.add_resource(item_id, item_num)
-			if this.tmp_cache_items == nil {
-				this.tmp_cache_items = make(map[int32]int32)
+			if tmp_cache_items == nil {
+				tmp_cache_items = make(map[int32]int32)
 			}
-			this.tmp_cache_items[item_id] += item_num
+			tmp_cache_items[item_id] += item_num
 		}
 
 		items_map := this._return_role_resource(role_id)
 		if items_map != nil {
 			for k, v := range items_map {
-				this.tmp_cache_items[k] += v
+				tmp_cache_items[k] += v
 			}
 		}
 
 		deleted, tmp_items := this.delete_role(role_id)
 		if deleted {
 			for k, v := range tmp_items {
-				this.tmp_cache_items[k] += v
+				tmp_cache_items[k] += v
 			}
 		}
 		num += 1
@@ -736,11 +737,11 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 
 	response := &msg_client_message.S2CRoleDecomposeResponse{
 		RoleIds:  role_ids,
-		GetItems: Map2ItemInfos(this.tmp_cache_items),
+		GetItems: Map2ItemInfos(tmp_cache_items),
 	}
-	if this.tmp_cache_items != nil {
-		this.tmp_cache_items = nil
-	}
+	//if this.tmp_cache_items != nil {
+	//	this.tmp_cache_items = nil
+	//}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_DECOMPOSE_RESPONSE), response)
 
 	this.check_and_send_roles_change()
@@ -924,7 +925,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 
 	var item *msg_client_message.ItemInfo
 	var o bool
-	if o, item = this.drop_item_by_id(fusion.ResultDropID, false, nil); !o {
+	if o, item = this.drop_item_by_id(fusion.ResultDropID, false, nil, nil); !o {
 		log.Error("Player[%v] fusion[%v] drop new card failed", this.Id, fusion_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_FUSION_FAILED)
 	}
@@ -1009,7 +1010,7 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 	}
 
 	left_drop_id := global_config.LeftSlotDropId
-	b, left_item := this.drop_item_by_id(left_drop_id, false, nil)
+	b, left_item := this.drop_item_by_id(left_drop_id, false, nil, nil)
 	if !b {
 		log.Error("Player[%v] left slot drop with id[%v] failed for role[%v]", this.Id, left_drop_id, role_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEFT_SLOT_DROP_FAILED)

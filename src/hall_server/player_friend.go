@@ -672,7 +672,7 @@ func (this *Player) friend_search_boss() int32 {
 	r := rand.Int31n(10000)
 	if r >= friend_boss_tdata.SearchBossChance {
 		// 掉落
-		o, item := this.drop_item_by_id(friend_boss_tdata.SearchItemDropID, true, nil)
+		o, item := this.drop_item_by_id(friend_boss_tdata.SearchItemDropID, true, nil, nil)
 		if !o {
 			log.Error("Player[%v] search friend boss to drop item with id %v failed", this.Id, friend_boss_tdata.SearchItemDropID)
 			return -1
@@ -793,7 +793,7 @@ func (this *Player) battle_random_reward_notify(drop_id, drop_num int32) {
 	var fake_items []int32
 	if drop_num < 1 {
 		for i := 0; i < 2; i++ {
-			o, item := this.drop_item_by_id(drop_id, false, nil)
+			o, item := this.drop_item_by_id(drop_id, false, nil, nil)
 			if !o {
 				log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, drop_id)
 			}
@@ -806,7 +806,7 @@ func (this *Player) battle_random_reward_notify(drop_id, drop_num int32) {
 		drop_num = 1
 	}
 	for i := int32(0); i < drop_num; i++ {
-		o, item := this.drop_item_by_id(drop_id, false, nil)
+		o, item := this.drop_item_by_id(drop_id, false, nil, nil)
 		if !o {
 			log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, drop_id)
 		}

@@ -559,21 +559,21 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 	correct_secs = rt % campaign.RandomDropSec
 	// 随机掉落
 	rand.Seed(time.Now().Unix())
-	this.tmp_cache_items = make(map[int32]int32)
+	var tmp_cache_items = make(map[int32]int32)
 	n := rt / campaign.RandomDropSec
 	for k := 0; k < int(n); k++ {
 		for i := 0; i < len(campaign.RandomDropIDList)/2; i++ {
 			group_id := campaign.RandomDropIDList[2*i]
 			count := campaign.RandomDropIDList[2*i+1]
 			for j := 0; j < int(count); j++ {
-				if o, _ := this.drop_item_by_id(group_id, false, nil); !o {
+				if o, _ := this.drop_item_by_id(group_id, false, nil, tmp_cache_items); !o {
 					continue
 				}
 			}
 		}
 	}
 
-	log.Debug("now_time: %v   last_time: %v   rt: %v   n: %v   tmp_cache_items: %v", now_time, last_time, rt, n, this.tmp_cache_items)
+	log.Debug("now_time: %v   last_time: %v   rt: %v   n: %v   tmp_cache_items: %v", now_time, last_time, rt, n, tmp_cache_items)
 
 	if !is_cache {
 		// 缓存的收益
@@ -582,13 +582,13 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 			for i := 0; i < len(cache); i++ {
 				n, _ := this.db.CampaignRandomIncomes.GetItemNum(cache[i])
 
-				d := this.tmp_cache_items[cache[i]]
-				this.tmp_cache_items[cache[i]] = d + n
+				d := tmp_cache_items[cache[i]]
+				tmp_cache_items[cache[i]] = d + n
 			}
 			this.db.CampaignRandomIncomes.Clear()
 		}
 
-		for k, v := range this.tmp_cache_items {
+		for k, v := range tmp_cache_items {
 			if this.add_resource(k, v) {
 				incomes = append(incomes, &msg_client_message.ItemInfo{
 					Id:    k,
@@ -598,7 +598,7 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 			}
 		}
 	} else {
-		for k, v := range this.tmp_cache_items {
+		for k, v := range tmp_cache_items {
 			this.campaign_cache_random_income(k, v)
 		}
 
@@ -606,7 +606,7 @@ func (this *Player) campaign_get_random_income(campaign *table_config.XmlCampaig
 			has_income = true
 		}
 	}
-	this.tmp_cache_items = nil
+
 	return
 }
 
@@ -764,7 +764,7 @@ func (this *Player) campaign_accel_get_income() int32 {
 			group_id := campaign.RandomDropIDList[2*i]
 			count := campaign.RandomDropIDList[2*i+1]
 			for j := 0; j < int(count); j++ {
-				if o, item := this.drop_item_by_id(group_id, false, nil); o && item != nil {
+				if o, item := this.drop_item_by_id(group_id, false, nil, nil); o && item != nil {
 					this.add_resource(item.GetId(), item.GetValue())
 					incomes[item.GetId()] += item.GetValue()
 				}
