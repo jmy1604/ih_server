@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "ih_server/third_party/mysql"
+	_ "github.com/go-sql-driver/mysql"
 	"bytes"
 	"database/sql"
 	"errors"

@@ -3,6 +3,67 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "eVH6ttDfEiYTzPMf4UO0W6mrpTk=",
+			"origin": "github.com/ethereum/go-ethereum/vendor/github.com/btcsuite/btcd/btcec",
+			"path": "github.com/btcsuite/btcd/btcec",
+			"revision": "9e9fc87e70accf2b81be8772ab2ab0c914e95666",
+			"revisionTime": "2018-12-23T16:31:32Z"
+		},
+		{
+			"checksumSHA1": "tGs8ukhCVOoZqYTLCYnahEmF+ww=",
+			"path": "github.com/ethereum/go-ethereum/common",
+			"revision": "9e9fc87e70accf2b81be8772ab2ab0c914e95666",
+			"revisionTime": "2018-12-23T16:31:32Z"
+		},
+		{
+			"checksumSHA1": "FJjasgwA8Zd6+S99QDdfeNgmJwo=",
+			"path": "github.com/ethereum/go-ethereum/common/hexutil",
+			"revision": "9e9fc87e70accf2b81be8772ab2ab0c914e95666",
+			"revisionTime": "2018-12-23T16:31:32Z"
+		},
+		{
+			"checksumSHA1": "xllqAyODayQg/R7rFfYM0hA6nQo=",
+			"path": "github.com/ethereum/go-ethereum/common/math",
+			"revision": "9e9fc87e70accf2b81be8772ab2ab0c914e95666",
+			"revisionTime": "2018-12-23T16:31:32Z"
+		},
+		{
+			"checksumSHA1": "bDn+xKWwDbDzoopVlvF95Tc4/A0=",
+			"path": "github.com/ethereum/go-ethereum/crypto",
+			"revision": "9e9fc87e70accf2b81be8772ab2ab0c914e95666",
+			"revisionTime": "2018-12-23T16:31:32Z"
+		},
+		{
+			"checksumSHA1": "EdWD8r49xSpyKLQtjV+PFQ9hdcU=",
+			"path": "github.com/ethereum/go-ethereum/crypto/ecies",
+			"revision": "9e9fc87e70accf2b81be8772ab2ab0c914e95666",
+			"revisionTime": "2018-12-23T16:31:32Z"
+		},
+		{
+			"checksumSHA1": "aOk4ecFb0nlqybP4Rh7Gyhh7vmI=",
+			"path": "github.com/ethereum/go-ethereum/crypto/secp256k1",
+			"revision": "9e9fc87e70accf2b81be8772ab2ab0c914e95666",
+			"revisionTime": "2018-12-23T16:31:32Z"
+		},
+		{
+			"checksumSHA1": "9BXdjbACsHoHZZfY3b8bMc76R7w=",
+			"path": "github.com/ethereum/go-ethereum/crypto/sha3",
+			"revision": "9e9fc87e70accf2b81be8772ab2ab0c914e95666",
+			"revisionTime": "2018-12-23T16:31:32Z"
+		},
+		{
+			"checksumSHA1": "uTQILmvDRo43u2PqY/GbGYQKw64=",
+			"path": "github.com/ethereum/go-ethereum/rlp",
+			"revision": "9e9fc87e70accf2b81be8772ab2ab0c914e95666",
+			"revisionTime": "2018-12-23T16:31:32Z"
+		},
+		{
+			"checksumSHA1": "dvvEeX53LOlpJ53zRv541qbp+Ec=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "1b9eda25029c206f36637dde8e2acad26df99dab",
+			"revisionTime": "2019-01-27T01:11:11Z"
+		},
+		{
 			"checksumSHA1": "GaJLoEuMGnP5ofXvuweAI4wx06U=",
 			"path": "github.com/golang/protobuf/proto",
 			"revision": "ddf22928ea3c56eb4292a0adbbf5001b1e8e7d0d",

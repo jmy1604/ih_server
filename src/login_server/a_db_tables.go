@@ -2,7 +2,7 @@ package main
 
 import (
 	_ "github.com/golang/protobuf/proto"
-	_ "ih_server/third_party/mysql"
+	_ "github.com/go-sql-driver/mysql"
 	"database/sql"
 	"errors"
 	"fmt"
