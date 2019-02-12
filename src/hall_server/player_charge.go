@@ -233,7 +233,7 @@ func (this *Player) _charge_month_card_award(month_card *table_config.XmlPayItem
 	}
 	RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, 1105, "", "", bonus, 0)
 	send_num = this.db.Pays.IncbySendMailNum(month_card.BundleId, 1)
-	log.Debug("Player[%v] charge month card %v get reward, send_num %v", this.Id, month_card.BundleId, send_num)
+	log.Trace("Player[%v] charge month card %v get reward, send_num %v", this.Id, month_card.BundleId, send_num)
 	return
 }
 
