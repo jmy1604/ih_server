@@ -452,10 +452,12 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 		p := player_mgr.GetPlayerById(player_ids[i])
 		if p == nil {
 			player_ids[i] = 0
+			log.Warn("Player[%v] agree friend %v not found", this.Id, player_ids[i])
 			continue
 		}
 		if p.db.Friends.NumAll() >= global_config.FriendMaxNum {
 			player_ids[i] = 0
+			log.Warn("Player[%v] friend num is max, agree failed", this.Id)
 			continue
 		}
 		p.db.Friends.Add(&dbPlayerFriendData{
