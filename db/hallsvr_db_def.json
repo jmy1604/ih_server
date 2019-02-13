@@ -1087,30 +1087,6 @@
 			]
 		},
 		{
-			"TableName":"TowerRankingList",
-			"DBTableName":"TowerRankingList",
-			"SingleRow":true,
-			"AutoPrimaryKey":false,
-			"PrimaryKeyName":"Id",
-			"PrimaryKeyType":"int32",
-			"PrimaryKeySize":11,
-			"Columns":[
-				{
-					"ColumnName":"Players",
-					"DBColumnName":"Players",
-					"InUse":true,
-					"Simple":false,
-					"SimpleType":"",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"Ids","Repeated":true}
-					]
-				}
-			]
-		},
-		{
 			"TableName":"ArenaSeason",
 			"DBTableName":"ArenaSeason",
 			"SingleRow":true,

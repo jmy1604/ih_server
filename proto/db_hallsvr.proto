@@ -525,10 +525,6 @@ message TowerFightSaveData{
 	optional bytes Data=1;
 }
 
-message TowerRankingListPlayers{
-	repeated int32 Ids=1;
-}
-
 message ArenaSeasonData{
 	optional int32 LastDayResetTime=1;
 	optional int32 LastSeasonResetTime=2;

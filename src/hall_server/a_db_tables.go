@@ -2219,35 +2219,6 @@ func (this* dbTowerFightSaveDataData)clone_to(d *dbTowerFightSaveDataData){
 	}
 	return
 }
-type dbTowerRankingListPlayersData struct{
-	Ids []int32
-}
-func (this* dbTowerRankingListPlayersData)from_pb(pb *db.TowerRankingListPlayers){
-	if pb == nil {
-		this.Ids = make([]int32,0)
-		return
-	}
-	this.Ids = make([]int32,len(pb.GetIds()))
-	for i, v := range pb.GetIds() {
-		this.Ids[i] = v
-	}
-	return
-}
-func (this* dbTowerRankingListPlayersData)to_pb()(pb *db.TowerRankingListPlayers){
-	pb = &db.TowerRankingListPlayers{}
-	pb.Ids = make([]int32, len(this.Ids))
-	for i, v := range this.Ids {
-		pb.Ids[i]=v
-	}
-	return
-}
-func (this* dbTowerRankingListPlayersData)clone_to(d *dbTowerRankingListPlayersData){
-	d.Ids = make([]int32, len(this.Ids))
-	for _ii, _vv := range this.Ids {
-		d.Ids[_ii]=_vv
-	}
-	return
-}
 type dbArenaSeasonDataData struct{
 	LastDayResetTime int32
 	LastSeasonResetTime int32
@@ -15548,286 +15519,6 @@ func (this *dbTowerFightSaveTable) GetRow(TowerFightId int32) (row *dbTowerFight
 	}
 	return row
 }
-type dbTowerRankingListPlayersColumn struct{
-	m_row *dbTowerRankingListRow
-	m_data *dbTowerRankingListPlayersData
-	m_changed bool
-}
-func (this *dbTowerRankingListPlayersColumn)load(data []byte)(err error){
-	if data == nil || len(data) == 0 {
-		this.m_data = &dbTowerRankingListPlayersData{}
-		this.m_changed = false
-		return nil
-	}
-	pb := &db.TowerRankingListPlayers{}
-	err = proto.Unmarshal(data, pb)
-	if err != nil {
-		log.Error("Unmarshal ")
-		return
-	}
-	this.m_data = &dbTowerRankingListPlayersData{}
-	this.m_data.from_pb(pb)
-	this.m_changed = false
-	return
-}
-func (this *dbTowerRankingListPlayersColumn)save( )(data []byte,err error){
-	pb:=this.m_data.to_pb()
-	data, err = proto.Marshal(pb)
-	if err != nil {
-		log.Error("Unmarshal ")
-		return
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbTowerRankingListPlayersColumn)Get( )(v *dbTowerRankingListPlayersData ){
-	this.m_row.m_lock.UnSafeRLock("dbTowerRankingListPlayersColumn.Get")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v=&dbTowerRankingListPlayersData{}
-	this.m_data.clone_to(v)
-	return
-}
-func (this *dbTowerRankingListPlayersColumn)Set(v dbTowerRankingListPlayersData ){
-	this.m_row.m_lock.UnSafeLock("dbTowerRankingListPlayersColumn.Set")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=&dbTowerRankingListPlayersData{}
-	v.clone_to(this.m_data)
-	this.m_changed=true
-	return
-}
-func (this *dbTowerRankingListPlayersColumn)GetIds( )(v []int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbTowerRankingListPlayersColumn.GetIds")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = make([]int32, len(this.m_data.Ids))
-	for _ii, _vv := range this.m_data.Ids {
-		v[_ii]=_vv
-	}
-	return
-}
-func (this *dbTowerRankingListPlayersColumn)SetIds(v []int32){
-	this.m_row.m_lock.UnSafeLock("dbTowerRankingListPlayersColumn.SetIds")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.Ids = make([]int32, len(v))
-	for _ii, _vv := range v {
-		this.m_data.Ids[_ii]=_vv
-	}
-	this.m_changed = true
-	return
-}
-type dbTowerRankingListRow struct {
-	m_table *dbTowerRankingListTable
-	m_lock       *RWMutex
-	m_loaded  bool
-	m_new     bool
-	m_remove  bool
-	m_touch      int32
-	m_releasable bool
-	m_valid   bool
-	m_Id        int32
-	Players dbTowerRankingListPlayersColumn
-}
-func new_dbTowerRankingListRow(table *dbTowerRankingListTable, Id int32) (r *dbTowerRankingListRow) {
-	this := &dbTowerRankingListRow{}
-	this.m_table = table
-	this.m_Id = Id
-	this.m_lock = NewRWMutex()
-	this.Players.m_row=this
-	this.Players.m_data=&dbTowerRankingListPlayersData{}
-	return this
-}
-func (this *dbTowerRankingListRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
-	this.m_lock.UnSafeLock("dbTowerRankingListRow.save_data")
-	defer this.m_lock.UnSafeUnlock()
-	if this.m_new {
-		db_args:=new_db_args(2)
-		db_args.Push(this.m_Id)
-		dPlayers,db_err:=this.Players.save()
-		if db_err!=nil{
-			log.Error("insert save Players failed")
-			return db_err,false,0,"",nil
-		}
-		db_args.Push(dPlayers)
-		args=db_args.GetArgs()
-		state = 1
-	} else {
-		if this.Players.m_changed{
-			update_string = "UPDATE TowerRankingList SET "
-			db_args:=new_db_args(2)
-			if this.Players.m_changed{
-				update_string+="Players=?,"
-				dPlayers,err:=this.Players.save()
-				if err!=nil{
-					log.Error("update save Players failed")
-					return err,false,0,"",nil
-				}
-				db_args.Push(dPlayers)
-			}
-			update_string = strings.TrimRight(update_string, ", ")
-			update_string+=" WHERE Id=?"
-			db_args.Push(this.m_Id)
-			args=db_args.GetArgs()
-			state = 2
-		}
-	}
-	this.m_new = false
-	this.Players.m_changed = false
-	if release && this.m_loaded {
-		this.m_loaded = false
-		released = true
-	}
-	return nil,released,state,update_string,args
-}
-func (this *dbTowerRankingListRow) Save(release bool) (err error, d bool, released bool) {
-	err,released, state, update_string, args := this.save_data(release)
-	if err != nil {
-		log.Error("save data failed")
-		return err, false, false
-	}
-	if state == 0 {
-		d = false
-	} else if state == 1 {
-		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
-		if err != nil {
-			log.Error("INSERT TowerRankingList exec failed %v ", this.m_Id)
-			return err, false, released
-		}
-		d = true
-	} else if state == 2 {
-		_, err = this.m_table.m_dbc.Exec(update_string, args...)
-		if err != nil {
-			log.Error("UPDATE TowerRankingList exec failed %v", this.m_Id)
-			return err, false, released
-		}
-		d = true
-	}
-	return nil, d, released
-}
-type dbTowerRankingListTable struct{
-	m_dbc *DBC
-	m_lock *RWMutex
-	m_row *dbTowerRankingListRow
-	m_preload_select_stmt *sql.Stmt
-	m_save_insert_stmt *sql.Stmt
-}
-func new_dbTowerRankingListTable(dbc *DBC) (this *dbTowerRankingListTable) {
-	this = &dbTowerRankingListTable{}
-	this.m_dbc = dbc
-	this.m_lock = NewRWMutex()
-	return this
-}
-func (this *dbTowerRankingListTable) check_create_table() (err error) {
-	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS TowerRankingList(Id int(11),PRIMARY KEY (Id))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
-	if err != nil {
-		log.Error("CREATE TABLE IF NOT EXISTS TowerRankingList failed")
-		return
-	}
-	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='TowerRankingList'", this.m_dbc.m_db_name)
-	if err != nil {
-		log.Error("SELECT information_schema failed")
-		return
-	}
-	columns := make(map[string]int32)
-	for rows.Next() {
-		var column_name string
-		var ordinal_position int32
-		err = rows.Scan(&column_name, &ordinal_position)
-		if err != nil {
-			log.Error("scan information_schema row failed")
-			return
-		}
-		if ordinal_position < 1 {
-			log.Error("col ordinal out of range")
-			continue
-		}
-		columns[column_name] = ordinal_position
-	}
-	_, hasPlayers := columns["Players"]
-	if !hasPlayers {
-		_, err = this.m_dbc.Exec("ALTER TABLE TowerRankingList ADD COLUMN Players LONGBLOB")
-		if err != nil {
-			log.Error("ADD COLUMN Players failed")
-			return
-		}
-	}
-	return
-}
-func (this *dbTowerRankingListTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Players FROM TowerRankingList WHERE Id=0")
-	if err!=nil{
-		log.Error("prepare failed")
-		return
-	}
-	return
-}
-func (this *dbTowerRankingListTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO TowerRankingList (Id,Players) VALUES (?,?)")
-	if err!=nil{
-		log.Error("prepare failed")
-		return
-	}
-	return
-}
-func (this *dbTowerRankingListTable) Init() (err error) {
-	err=this.check_create_table()
-	if err!=nil{
-		log.Error("check_create_table failed")
-		return
-	}
-	err=this.prepare_preload_select_stmt()
-	if err!=nil{
-		log.Error("prepare_preload_select_stmt failed")
-		return
-	}
-	err=this.prepare_save_insert_stmt()
-	if err!=nil{
-		log.Error("prepare_save_insert_stmt failed")
-		return
-	}
-	return
-}
-func (this *dbTowerRankingListTable) Preload() (err error) {
-	r := this.m_dbc.StmtQueryRow(this.m_preload_select_stmt)
-	var dPlayers []byte
-	err = r.Scan(&dPlayers)
-	if err!=nil{
-		if err!=sql.ErrNoRows{
-			log.Error("Scan failed")
-			return
-		}
-	}else{
-		row := new_dbTowerRankingListRow(this,0)
-		err = row.Players.load(dPlayers)
-		if err != nil {
-			log.Error("Players ")
-			return
-		}
-		row.m_valid = true
-		row.m_loaded=true
-		this.m_row=row
-	}
-	if this.m_row == nil {
-		this.m_row = new_dbTowerRankingListRow(this, 0)
-		this.m_row.m_new = true
-		this.m_row.m_valid = true
-		err = this.Save(false)
-		if err != nil {
-			log.Error("save failed")
-			return
-		}
-		this.m_row.m_loaded = true
-	}
-	return
-}
-func (this *dbTowerRankingListTable) Save(quick bool) (err error) {
-	if this.m_row==nil{
-		return errors.New("row nil")
-	}
-	err, _, _ = this.m_row.Save(false)
-	return err
-}
-func (this *dbTowerRankingListTable) GetRow( ) (row *dbTowerRankingListRow) {
-	return this.m_row
-}
 type dbArenaSeasonDataColumn struct{
 	m_row *dbArenaSeasonRow
 	m_data *dbArenaSeasonDataData
@@ -20443,7 +20134,6 @@ type DBC struct {
 	Players *dbPlayerTable
 	BattleSaves *dbBattleSaveTable
 	TowerFightSaves *dbTowerFightSaveTable
-	TowerRankingList *dbTowerRankingListTable
 	ArenaSeason *dbArenaSeasonTable
 	Guilds *dbGuildTable
 	GuildStages *dbGuildStageTable
@@ -20476,12 +20166,6 @@ func (this *DBC)init_tables()(err error){
 	err = this.TowerFightSaves.Init()
 	if err != nil {
 		log.Error("init TowerFightSaves table failed")
-		return
-	}
-	this.TowerRankingList = new_dbTowerRankingListTable(this)
-	err = this.TowerRankingList.Init()
-	if err != nil {
-		log.Error("init TowerRankingList table failed")
 		return
 	}
 	this.ArenaSeason = new_dbArenaSeasonTable(this)
@@ -20562,13 +20246,6 @@ func (this *DBC)Preload()(err error){
 		return
 	}else{
 		log.Info("preload TowerFightSaves table succeed !")
-	}
-	err = this.TowerRankingList.Preload()
-	if err != nil {
-		log.Error("preload TowerRankingList table failed")
-		return
-	}else{
-		log.Info("preload TowerRankingList table succeed !")
 	}
 	err = this.ArenaSeason.Preload()
 	if err != nil {
@@ -20657,11 +20334,6 @@ func (this *DBC)Save(quick bool)(err error){
 	err = this.TowerFightSaves.Save(quick)
 	if err != nil {
 		log.Error("save TowerFightSaves table failed")
-		return
-	}
-	err = this.TowerRankingList.Save(quick)
-	if err != nil {
-		log.Error("save TowerRankingList table failed")
 		return
 	}
 	err = this.ArenaSeason.Save(quick)
