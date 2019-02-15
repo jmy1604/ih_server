@@ -80,6 +80,10 @@ type GmPlayerInfoResponse struct {
 	Id               int32
 	Account          string
 	UniqueId         string
+	CreateTime       int32
+	IsLogin          int32
+	LastLoginTime    int32
+	LogoutTime       int32
 	Level            int32
 	VipLevel         int32
 	Gold             int32

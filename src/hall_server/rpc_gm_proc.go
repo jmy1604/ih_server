@@ -7,6 +7,7 @@ import (
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/server_message"
 	"ih_server/src/rpc_common"
+	"sync/atomic"
 	"time"
 )
 
@@ -90,6 +91,10 @@ func (this *G2H_Proc) PlayerInfo(args *rpc_common.GmPlayerInfoCmd, result *rpc_c
 	result.Id = args.Id
 	result.Account = p.db.GetAccount()
 	result.UniqueId = p.db.GetUniqueId()
+	result.CreateTime = p.db.Info.GetCreateUnix()
+	result.IsLogin = atomic.LoadInt32(&p.is_login)
+	result.LastLoginTime = p.db.Info.GetLastLogin()
+	result.LogoutTime = p.db.Info.GetLastLogout()
 	result.Level = p.db.Info.GetLvl()
 	result.VipLevel = p.db.Info.GetVipLvl()
 	result.Gold = p.db.Info.GetGold()
