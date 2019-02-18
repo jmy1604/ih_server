@@ -78,6 +78,8 @@ func (this *DBC) Conn(name string, addr string, acc string, pwd string, db_copy_
 		log.Error("open db failed %v", err)
 		return
 	}
+	
+	this.m_db.SetConnMaxLifetime(time.Second * 5)
 
 	this.m_db_lock = NewMutex()
 	this.m_shutdown_lock = NewMutex()
