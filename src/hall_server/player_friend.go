@@ -432,7 +432,7 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 		return -1
 	}
 
-	if this.db.Friends.NumAll()+int32(len(player_ids)) >= global_config.FriendMaxNum {
+	if this.db.Friends.NumAll()+int32(len(player_ids)) > global_config.FriendMaxNum {
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_NUM_MAX)
 	}
 
