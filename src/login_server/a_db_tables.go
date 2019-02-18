@@ -3,14 +3,15 @@ package main
 import (
 	_ "github.com/golang/protobuf/proto"
 	_ "github.com/go-sql-driver/mysql"
+	"bytes"
 	"database/sql"
 	"errors"
 	"fmt"
 	"ih_server/libs/log"
 	"math/rand"
 	"os"
+	"os/exec"
 	_ "ih_server/proto/gen_go/db_login"
-	_ "sort"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -157,7 +158,6 @@ func (this *DBC) Loop() {
 		}
 		log.Trace("db存数据花费时长: %v", time.Now().Sub(begin).Nanoseconds())
 		
-		/*
 			now_time_hour := int32(time.Now().Hour())
 			if now_time_hour != this.m_db_last_copy_time {
 				args := []string {
@@ -190,7 +190,6 @@ func (this *DBC) Loop() {
 				}
 				this.m_db_last_copy_time = now_time_hour
 			}
-		*/
 		
 		if this.m_quit {
 			break

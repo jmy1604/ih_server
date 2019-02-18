@@ -42,7 +42,13 @@ func main() {
 	}
 
 	log.Event("连接数据库", config.MYSQL_NAME, log.Property{"地址", config.MYSQL_IP})
-	err := dbc.Conn(config.MYSQL_NAME, config.MYSQL_IP, config.MYSQL_ACCOUNT, config.MYSQL_PWD, "")
+	err := dbc.Conn(config.MYSQL_NAME, config.MYSQL_IP, config.MYSQL_ACCOUNT, config.MYSQL_PWD, func() string {
+		if config.MYSQL_COPY_PATH == "" {
+			return config.GetDBBackupPath()
+		} else {
+			return config.MYSQL_COPY_PATH
+		}
+	}())
 	if err != nil {
 		log.Error("连接数据库失败 %v", err)
 		return

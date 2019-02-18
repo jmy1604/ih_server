@@ -24,11 +24,13 @@ const (
 	LogConfigDir   = "conf/log/"
 	GameDataDir    = "game_data/"
 	LogDir         = "log/"
+	DBBackUpDir    = "db_backup/"
 )
 
 type ServerConfig interface {
 	GetType() int32
 	GetLogConfigFile() string
+	GetDBBackupPath() string
 }
 
 // 中心服务器配置
@@ -57,6 +59,10 @@ func (this *CenterServerConfig) GetLogConfigFile() string {
 	return this.LogConfigFile
 }
 
+func (this *CenterServerConfig) GetDBBackupPath() string {
+	return ""
+}
+
 // 登陆服务器配置
 type LoginServerConfig struct {
 	ServerId           int32
@@ -73,12 +79,13 @@ type LoginServerConfig struct {
 	FacebookAppSecret  string
 	UseHttps           bool
 
-	MYSQL_IP      string
-	MYSQL_ACCOUNT string
-	MYSQL_PWD     string
-	MYSQL_NAME    string
-	DBCST_MIN     int
-	DBCST_MAX     int
+	MYSQL_IP        string
+	MYSQL_ACCOUNT   string
+	MYSQL_PWD       string
+	MYSQL_NAME      string
+	MYSQL_COPY_PATH string
+	DBCST_MIN       int
+	DBCST_MAX       int
 }
 
 func (this *LoginServerConfig) GetType() int32 {
@@ -87,6 +94,10 @@ func (this *LoginServerConfig) GetType() int32 {
 
 func (this *LoginServerConfig) GetLogConfigFile() string {
 	return this.LogConfigFile
+}
+
+func (this *LoginServerConfig) GetDBBackupPath() string {
+	return DBBackUpDir + this.MYSQL_NAME
 }
 
 // 游戏服务器配置
@@ -125,6 +136,10 @@ func (this *GameServerConfig) GetLogConfigFile() string {
 	return this.LogConfigFile
 }
 
+func (this *GameServerConfig) GetDBBackupPath() string {
+	return DBBackUpDir + this.MYSQL_NAME
+}
+
 // RPC服务器配置
 type RpcServerConfig struct {
 	LogConfigFile    string
@@ -137,6 +152,7 @@ type RpcServerConfig struct {
 	MYSQL_IP         string
 	MYSQL_ACCOUNT    string
 	MYSQL_PWD        string
+	MYSQL_COPY_PATH  string
 	DBCST_MIN        int
 	DBCST_MAX        int
 }
@@ -147,6 +163,10 @@ func (this *RpcServerConfig) GetType() int32 {
 
 func (this *RpcServerConfig) GetLogConfigFile() string {
 	return this.LogConfigFile
+}
+
+func (this *RpcServerConfig) GetDBBackupPath() string {
+	return DBBackUpDir + this.MYSQL_NAME
 }
 
 // 测试客户端配置
@@ -170,6 +190,10 @@ func (this *TestClientConfig) GetType() int32 {
 
 func (this *TestClientConfig) GetLogConfigFile() string {
 	return this.LogConfigFile
+}
+
+func (this *TestClientConfig) GetDBBackupPath() string {
+	return ""
 }
 
 // GM测试配置

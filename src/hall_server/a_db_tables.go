@@ -3,12 +3,14 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	_ "github.com/go-sql-driver/mysql"
+	"bytes"
 	"database/sql"
 	"errors"
 	"fmt"
 	"ih_server/libs/log"
 	"math/rand"
 	"os"
+	"os/exec"
 	"ih_server/proto/gen_go/db_hall"
 	"strings"
 	"sync/atomic"
@@ -156,40 +158,38 @@ func (this *DBC) Loop() {
 		}
 		log.Trace("db存数据花费时长: %vms", time.Now().Sub(begin).Nanoseconds()/1000000)
 		
-		/*
-			now_time_hour := int32(time.Now().Hour())
-			if now_time_hour != this.m_db_last_copy_time {
-				args := []string {
-					fmt.Sprintf("-h%v", this.m_db_addr),
-					fmt.Sprintf("-u%v", this.m_db_account),
-					fmt.Sprintf("-p%v", this.m_db_password),
-					this.m_db_name,
-				}
-				cmd := exec.Command("mysqldump", args...)
-				var out bytes.Buffer
-				cmd.Stdout = &out
-				cmd_err := cmd.Run()
-				if cmd_err == nil {
-					file_name := this.check_files_exist()
-					file, file_err := os.OpenFile(file_name, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0660)
-					defer file.Close()
-					if file_err == nil {
-						_, write_err := file.Write(out.Bytes())
-						if write_err == nil {
-							log.Trace("数据库备份成功！备份文件名:%v", file_name)
-						} else {
-							log.Error("数据库备份文件写入失败！备份文件名%v", file_name)
-						}
-					} else {
-						log.Error("数据库备份文件打开失败！备份文件名%v", file_name)
-					}
-					file.Close()
-				} else {
-					log.Error("数据库备份失败！")
-				}
-				this.m_db_last_copy_time = now_time_hour
+		now_time_hour := int32(time.Now().Hour())
+		if now_time_hour != this.m_db_last_copy_time {
+			args := []string {
+				fmt.Sprintf("-h%v", this.m_db_addr),
+				fmt.Sprintf("-u%v", this.m_db_account),
+				fmt.Sprintf("-p%v", this.m_db_password),
+				this.m_db_name,
 			}
-		*/
+			cmd := exec.Command("mysqldump", args...)
+			var out bytes.Buffer
+			cmd.Stdout = &out
+			cmd_err := cmd.Run()
+			if cmd_err == nil {
+				file_name := this.check_files_exist()
+				file, file_err := os.OpenFile(file_name, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0660)
+				defer file.Close()
+				if file_err == nil {
+					_, write_err := file.Write(out.Bytes())
+					if write_err == nil {
+						log.Trace("数据库备份成功！备份文件名:%v", file_name)
+					} else {
+						log.Error("数据库备份文件写入失败！备份文件名%v", file_name)
+					}
+				} else {
+					log.Error("数据库备份文件打开失败！备份文件名%v", file_name)
+				}
+				file.Close()
+			} else {
+				log.Error("数据库备份失败！")
+			}
+			this.m_db_last_copy_time = now_time_hour
+		}
 		
 		if this.m_quit {
 			break
