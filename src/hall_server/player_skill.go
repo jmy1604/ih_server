@@ -1,8 +1,8 @@
 package main
 
 import (
-	"errors"
-	"fmt"
+	//"errors"
+	//"fmt"
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/src/table_config"
@@ -1478,14 +1478,14 @@ func (this *BuffList) remove_buff(buff *Buff) bool {
 	delete(this.buffs, buff)
 
 	// 测试
-	b := this.head
+	/*b := this.head
 	for b != nil {
 		if this.buffs[b] == nil {
 			s := fmt.Sprintf("============================ Team[%v] member[%v] no buff[%p,%v] after remove buff[%p,%v]", this.owner.team.side, this.owner.pos, b, b, buff, buff)
 			panic(errors.New(s))
 		}
 		b = b.next
-	}
+	}*/
 
 	return true
 }
@@ -1599,14 +1599,14 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 	}
 
 	// 测试
-	bb := this.head
+	/*bb := this.head
 	for bb != nil {
 		if this.buffs[bb] == nil {
 			s := fmt.Sprintf("============================ Team[%v] member[%v] no buff[%p,%v] after add buff[%p,%v]", this.owner.team.side, this.owner.pos, bb, bb, buff, buff)
 			panic(errors.New(s))
 		}
 		bb = bb.next
-	}
+	}*/
 	return
 }
 
