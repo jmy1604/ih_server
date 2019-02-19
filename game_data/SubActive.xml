@@ -37,6 +37,12 @@
      <item SubActiveID="5006" BundleID="" Param1="5" Param2="5" Param3="0" Param4="0" EventCount="1" Reward="22,4" />
      <item SubActiveID="5007" BundleID="" Param1="5" Param2="12" Param3="0" Param4="0" EventCount="1" Reward="22,6" />
      <item SubActiveID="5008" BundleID="" Param1="5" Param2="20" Param3="0" Param4="0" EventCount="1" Reward="22,10" />
+     <item SubActiveID="5009" BundleID="" Param1="5" Param2="10" Param3="1" Param4="0" EventCount="1" Reward="10012,1,12012,1" />
+     <item SubActiveID="5010" BundleID="" Param1="5" Param2="10" Param3="2" Param4="0" EventCount="1" Reward="11012,1,13012,1" />
+     <item SubActiveID="5011" BundleID="" Param1="5" Param2="10" Param3="3" Param4="0" EventCount="1" Reward="10012,1,12012,1" />
+     <item SubActiveID="5012" BundleID="" Param1="5" Param2="10" Param3="4" Param4="0" EventCount="1" Reward="11012,1,13012,1" />
+     <item SubActiveID="5013" BundleID="" Param1="5" Param2="10" Param3="5" Param4="0" EventCount="1" Reward="10012,1,12012,1" />
+     <item SubActiveID="5014" BundleID="" Param1="5" Param2="10" Param3="6" Param4="0" EventCount="1" Reward="11012,1,13012,1" />
      <item SubActiveID="6001" BundleID="" Param1="2000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="16,5" />
      <item SubActiveID="6002" BundleID="" Param1="5000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,2" />
      <item SubActiveID="6003" BundleID="" Param1="10000" Param2="0" Param3="0" Param4="0" EventCount="1" Reward="22,4" />
