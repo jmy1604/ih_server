@@ -384,6 +384,19 @@ func skill_get_random_targets(self_pos int32, target_team *BattleTeam, skill_dat
 				pos = append(pos, ps[i])
 			}
 		}
+	} else if skill_data.RangeType == SKILL_RANGE_TYPE_BIG_CROSS {
+		p := _random_one_target(self_pos, target_team, pos)
+		if p < 0 {
+			log.Error("Cant get random one target with self_pos %v", self_pos)
+			return
+		}
+		ps := _get_team_big_cross_targets()[p]
+		for i := 0; i < len(ps); i++ {
+			m := target_team.members[ps[i]]
+			if m != nil && !m.is_dead() {
+				pos = append(pos, ps[i])
+			}
+		}
 	} else {
 		log.Warn("Range type %v cant get random targets", skill_data.RangeType)
 	}
