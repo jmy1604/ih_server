@@ -307,6 +307,8 @@ var hero_convert_table_mgr table_config.HeroConvertTableMgr
 var activity_table_mgr table_config.ActivityTableMgr
 var sub_activity_table_mgr table_config.SubActivityTableMgr
 var expedition_table_mgr table_config.ExpeditionTableMgr
+var artifact_table_mgr table_config.ArtifactTableMgr
+var artifact_unlock_table_mgr table_config.ArtifactUnlockTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool
@@ -570,6 +572,14 @@ func table_init() error {
 
 	if !expedition_table_mgr.Init("") {
 		return errors.New("expedition_table_mgr init failed")
+	}
+
+	if !artifact_table_mgr.Init("") {
+		return errors.New("expedition_table_mgr init failed")
+	}
+
+	if !artifact_unlock_table_mgr.Init("") {
+		return errors.New("artifact_unlock_table_mgr init failed")
 	}
 
 	return nil

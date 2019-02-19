@@ -517,6 +517,16 @@ message PlayerSysMail{
 	optional int32 CurrId=1;
 }
 
+message PlayerArtifact{
+	optional int32 Id=1;
+	optional int32 Rank=2;
+	optional int32 Level=3;
+}
+
+message PlayerArtifactList{
+	repeated PlayerArtifact List=1;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }

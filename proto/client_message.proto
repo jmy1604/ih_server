@@ -90,6 +90,7 @@ enum E_ERR {
 	PLAYER_ROLE_DISPLACE_TABLE_DATA_INVALID = -12020; // 角色置换配置数据非法
 	PLAYER_ROLE_DISPLACE_FAILED				= -12021; // 角色置换失败，未获得新的角色
 	PLAYER_ROLE_DISPLACE_CONFIRM_FAILED     = -12022; // 角色置换确认失败
+	PLAYER_ROLE_CANT_RANKUP_WITH_LEVEL		= -12023; // 角色未到升阶的等级
 	
 	// 关卡
 	PLAYER_STAGE_TABLE_DATA_NOT_FOUND		= -13000; // 关卡数据找不到
@@ -272,9 +273,21 @@ enum E_ERR {
 	CHARGE_PAY_REPEATED_VERIFY				= -30001; // 充值支付重复验证
 	CHARGE_NO_ACTIVITY_ON_THIS_TIME			= -30002; // 无充值活动可用
 	
+	// 远征
 	EXPEDITION_ROLE_NUM_TOO_MORE 			= -31000; // 远征上阵角色数太多
 	EXPEDITION_ROLE_WEAK_CANT_USE			= -31001; // 远征虚弱角色不能上场
 	EXPEDITION_ROLE_NO_HP_CANT_USE			= -31002; // 远征角色HP为0不能上场
+	
+	// 神器
+	ARTIFACT_TABLE_DATA_NOT_FOUND			= -32000; // 神器配置不存在
+	ARTIFACT_TABLE_UNLOCK_DATA_NOT_FOUND	= -32001; // 神器解锁配置不存在
+	ARTIFACT_ALREADY_UNLOCKED				= -32002; // 神器已经解锁
+	ARTIFACT_CANT_UNLOCK_WITH_CONDITION		= -32003; // 神器解锁条件不满足 
+	ARTIFACT_HAS_NOT_UNLOCK					= -32004; // 神器还未解锁
+	ARTIFACT_MUST_RANKUP_TO_LEVELUP			= -32005; // 神器升阶才能继续升级
+	ARTIFACT_LEVEL_IS_MAX					= -32006; // 神器等级达到上限
+	ARTIFACT_RANK_IS_MAX					= -32007; // 神器品阶达到上限
+	ARTIFACT_NO_NEED_TO_RESET				= -32008; // 神器无需重铸
 	
 	// 保留
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -2370,13 +2383,23 @@ message C2SArtifactDataRequest {
 message ArtifactData {
 	int32 Id 								= 1; // Id
 	int32 Level								= 2; // 等级
+	int32 Rank								= 3; // 品阶
 }
 
 message S2CArtifactDataResponse {
 	repeated ArtifactData ArtifactList		= 1; // 神器列表
 }
 
-// 升级神器(激活就是升到一级)
+// 神器解锁
+message C2SArtifactUnlockRequest {
+	int32 Id								= 1;
+}
+
+message S2CArtifactUnlockResponse {
+	int32 Id								= 1;
+}
+
+// 神器升级
 message C2SArtifactLevelUpRequest {
 	int32 Id								= 1;
 }
@@ -2386,11 +2409,28 @@ message S2CArtifactLevelUpResponse {
 	int32 Level								= 2;
 }
 
-// 重铸神器
-message C2SArtifactDeactiveRequest {
+// 神器升阶
+message C2SArtifactRankUpRequest {
 	int32 Id								= 1;
 }
 
-message S2CArtifactDeactiveResponse {
+message S2CArtifactRankUpResponse {
 	int32 Id								= 1;
+	int32 Rank								= 2;
+}
+
+// 重铸神器
+message C2SArtifactResetRequest {
+	int32 Id								= 1;
+}
+
+message S2CArtifactResetResponse {
+	int32 Id								= 1;
+}
+
+// 某个神器数据更新
+message S2CArtifactDataUpdateNotify {
+	int32 Id								= 1;
+	int32 Level								= 2;
+	int32 Rank								= 3;
 }

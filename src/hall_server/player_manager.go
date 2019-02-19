@@ -319,6 +319,13 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_EXPEDITION_DATA_REQUEST), C2SExpeditionDataHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_EXPEDITION_LEVEL_DATA_REQUEST), C2SExpeditionLevelDataHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_EXPEDITION_PURIFY_REWARD_REQUEST), C2SExpeditionPurifyRewardHandler)
+
+	// 神器
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ARTIFACT_DATA_REQUEST), C2SArtifactDataHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ARTIFACT_UNLOCK_REQUEST), C2SArtifactUnlockHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ARTIFACT_LEVELUP_REQUEST), C2SArtifactLevelUpHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ARTIFACT_RANKUP_REQUEST), C2SArtifactRankUpHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ARTIFACT_RESET_REQUEST), C2SArtifactResetHandler)
 }
 
 func C2SEnterGameRequestHandler(msg_data []byte) (int32, *Player) {

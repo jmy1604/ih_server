@@ -351,8 +351,13 @@ enum MSGID {
 	
 	C2S_ARTIFACT_DATA_REQUEST				= 12700; // 神器数据 C2SArtifactDataRequest
 	S2C_ARTIFACT_DATA_RESPONSE				= 12701; // 返回神器数据 S2CArtifactDataResponse
-	C2S_ARTIFACT_LEVELUP_REQUEST			= 12702; // 神器升级 C2SArtifactLevelUpRequest
-	S2C_ARTIFACT_LEVELUP_RESPONSE			= 12703; // 神器升级返回 S2CArtifactLevelUpResponse
-	C2S_ARTIFACT_DEACTIVE_REQUEST			= 12704; // 神器重铸 C2SArtifactDeactiveRequest
-	S2C_ARTIFACT_DEACTIVE_RESPONSE			= 12705; // 神器重铸返回 S2CArtifactDeactiveResponse
+	C2S_ARTIFACT_UNLOCK_REQUEST				= 12702; // 神器解锁 C2SArtifactUnlockRequest
+	S2C_ARTIFACT_UNLOCK_RESPONSE			= 12703; // 神器解锁返回 S2CArtifactUnlockResponse
+	C2S_ARTIFACT_LEVELUP_REQUEST			= 12704; // 神器升级 C2SArtifactLevelUpRequest
+	S2C_ARTIFACT_LEVELUP_RESPONSE			= 12705; // 神器升级返回 S2CArtifactLevelUpResponse
+	C2S_ARTIFACT_RANKUP_REQUEST				= 12706; // 神器升阶 C2SArtifactRankUpRequest
+	S2C_ARTIFACT_RANKUP_RESPONSE			= 12707; // 神器升阶返回 S2CArtifactRankUpResponse
+	C2S_ARTIFACT_RESET_REQUEST				= 12708; // 神器重铸 C2SArtifactResetRequest
+	S2C_ARTIFACT_RESET_RESPONSE				= 12709; // 神器重铸返回 S2CArtifactResetResponse
+	S2C_ARTIFACT_DATA_UPDATE_NOTIFY			= 12710; // 神器数据更新通知 S2CArtifactDataUpdateNotify			
 }

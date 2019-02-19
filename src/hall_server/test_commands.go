@@ -2379,6 +2379,74 @@ func expeditin_match_cmd(p *Player, args []string) int32 {
 	return p.MatchExpeditionPlayer()
 }
 
+func artifact_data_cmd(p *Player, args []string) int32 {
+	return p.artifact_data()
+}
+
+func artifact_unlock_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.artifact_unlock(int32(id))
+}
+
+func artifact_levelup_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.artifact_unlock(int32(id))
+}
+
+func artifact_rankup_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.artifact_rankup(int32(id))
+}
+
+func artifact_reset_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.artifact_reset(int32(id))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2532,6 +2600,10 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"expedition_team_set":      expedition_team_set_cmd,
 	"expedition_purify_points": expedition_purify_points_cmd,
 	"expedition_match":         expeditin_match_cmd,
+	"artifact_data":            artifact_data_cmd,
+	"artifact_unlock":          artifact_unlock_cmd,
+	"artifact_levelup":         artifact_levelup_cmd,
+	"artifact_rankup":          artifact_rankup_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {

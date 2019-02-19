@@ -2177,6 +2177,33 @@ func (this* dbPlayerSysMailData)clone_to(d *dbPlayerSysMailData){
 	d.CurrId = this.CurrId
 	return
 }
+type dbPlayerArtifactData struct{
+	Id int32
+	Rank int32
+	Level int32
+}
+func (this* dbPlayerArtifactData)from_pb(pb *db.PlayerArtifact){
+	if pb == nil {
+		return
+	}
+	this.Id = pb.GetId()
+	this.Rank = pb.GetRank()
+	this.Level = pb.GetLevel()
+	return
+}
+func (this* dbPlayerArtifactData)to_pb()(pb *db.PlayerArtifact){
+	pb = &db.PlayerArtifact{}
+	pb.Id = proto.Int32(this.Id)
+	pb.Rank = proto.Int32(this.Rank)
+	pb.Level = proto.Int32(this.Level)
+	return
+}
+func (this* dbPlayerArtifactData)clone_to(d *dbPlayerArtifactData){
+	d.Id = this.Id
+	d.Rank = this.Rank
+	d.Level = this.Level
+	return
+}
 type dbBattleSaveDataData struct{
 	Data []byte
 }
@@ -11651,6 +11678,201 @@ func (this *dbPlayerSysMailColumn)SetCurrId(v int32){
 	this.m_changed = true
 	return
 }
+type dbPlayerArtifactColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerArtifactData
+	m_changed bool
+}
+func (this *dbPlayerArtifactColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerArtifactList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerArtifactData{}
+		d.from_pb(v)
+		this.m_data[int32(d.Id)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerArtifactColumn)save( )(data []byte,err error){
+	pb := &db.PlayerArtifactList{}
+	pb.List=make([]*db.PlayerArtifact,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerArtifactColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArtifactColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerArtifactColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArtifactColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerArtifactColumn)GetAll()(list []dbPlayerArtifactData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArtifactColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerArtifactData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerArtifactColumn)Get(id int32)(v *dbPlayerArtifactData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArtifactColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerArtifactData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerArtifactColumn)Set(v dbPlayerArtifactData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArtifactColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.Id)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Id)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerArtifactColumn)Add(v *dbPlayerArtifactData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArtifactColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.Id)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Id)
+		return false
+	}
+	d:=&dbPlayerArtifactData{}
+	v.clone_to(d)
+	this.m_data[int32(v.Id)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerArtifactColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArtifactColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerArtifactColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArtifactColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerArtifactData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerArtifactColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArtifactColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbPlayerArtifactColumn)GetRank(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArtifactColumn.GetRank")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Rank
+	return v,true
+}
+func (this *dbPlayerArtifactColumn)SetRank(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArtifactColumn.SetRank")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Rank = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerArtifactColumn)IncbyRank(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArtifactColumn.IncbyRank")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerArtifactData{}
+		this.m_data[id] = d
+	}
+	d.Rank +=  v
+	this.m_changed = true
+	return d.Rank
+}
+func (this *dbPlayerArtifactColumn)GetLevel(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArtifactColumn.GetLevel")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Level
+	return v,true
+}
+func (this *dbPlayerArtifactColumn)SetLevel(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArtifactColumn.SetLevel")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Level = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerArtifactColumn)IncbyLevel(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArtifactColumn.IncbyLevel")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerArtifactData{}
+		this.m_data[id] = d
+	}
+	d.Level +=  v
+	this.m_changed = true
+	return d.Level
+}
 type dbPlayerRow struct {
 	m_table *dbPlayerTable
 	m_lock       *RWMutex
@@ -11740,6 +11962,7 @@ type dbPlayerRow struct {
 	ExpeditionLevelRole8s dbPlayerExpeditionLevelRoleColumn
 	ExpeditionLevelRole9s dbPlayerExpeditionLevelRoleColumn
 	SysMail dbPlayerSysMailColumn
+	Artifacts dbPlayerArtifactColumn
 }
 func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this := &dbPlayerRow{}
@@ -11886,6 +12109,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.ExpeditionLevelRole9s.m_data=make(map[int32]*dbPlayerExpeditionLevelRoleData)
 	this.SysMail.m_row=this
 	this.SysMail.m_data=&dbPlayerSysMailData{}
+	this.Artifacts.m_row=this
+	this.Artifacts.m_data=make(map[int32]*dbPlayerArtifactData)
 	return this
 }
 func (this *dbPlayerRow) GetPlayerId() (r int32) {
@@ -11895,7 +12120,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(74)
+		db_args:=new_db_args(75)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_UniqueId)
 		db_args.Push(this.m_Account)
@@ -12305,12 +12530,18 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dSysMail)
+		dArtifacts,db_err:=this.Artifacts.save()
+		if db_err!=nil{
+			log.Error("insert save Artifact failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dArtifacts)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionData.m_changed||this.ExpeditionRoles.m_changed||this.ExpeditionLevels.m_changed||this.ExpeditionLevelRole0s.m_changed||this.ExpeditionLevelRole1s.m_changed||this.ExpeditionLevelRole2s.m_changed||this.ExpeditionLevelRole3s.m_changed||this.ExpeditionLevelRole4s.m_changed||this.ExpeditionLevelRole5s.m_changed||this.ExpeditionLevelRole6s.m_changed||this.ExpeditionLevelRole7s.m_changed||this.ExpeditionLevelRole8s.m_changed||this.ExpeditionLevelRole9s.m_changed||this.SysMail.m_changed{
+		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionData.m_changed||this.ExpeditionRoles.m_changed||this.ExpeditionLevels.m_changed||this.ExpeditionLevelRole0s.m_changed||this.ExpeditionLevelRole1s.m_changed||this.ExpeditionLevelRole2s.m_changed||this.ExpeditionLevelRole3s.m_changed||this.ExpeditionLevelRole4s.m_changed||this.ExpeditionLevelRole5s.m_changed||this.ExpeditionLevelRole6s.m_changed||this.ExpeditionLevelRole7s.m_changed||this.ExpeditionLevelRole8s.m_changed||this.ExpeditionLevelRole9s.m_changed||this.SysMail.m_changed||this.Artifacts.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(74)
+			db_args:=new_db_args(75)
 			if this.m_UniqueId_changed{
 				update_string+="UniqueId=?,"
 				db_args.Push(this.m_UniqueId)
@@ -12938,6 +13169,15 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dSysMail)
 			}
+			if this.Artifacts.m_changed{
+				update_string+="Artifacts=?,"
+				dArtifacts,err:=this.Artifacts.save()
+				if err!=nil{
+					log.Error("insert save Artifact failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dArtifacts)
+			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE PlayerId=?"
 			db_args.Push(this.m_PlayerId)
@@ -13019,6 +13259,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.ExpeditionLevelRole8s.m_changed = false
 	this.ExpeditionLevelRole9s.m_changed = false
 	this.SysMail.m_changed = false
+	this.Artifacts.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -13702,10 +13943,18 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasArtifact := columns["Artifacts"]
+	if !hasArtifact {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Artifacts LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN Artifacts failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail,Artifacts FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13713,7 +13962,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail,Artifacts) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13831,9 +14080,10 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dExpeditionLevelRole8s []byte
 	var dExpeditionLevelRole9s []byte
 	var dSysMail []byte
+	var dArtifacts []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionData,&dExpeditionRoles,&dExpeditionLevels,&dExpeditionLevelRole0s,&dExpeditionLevelRole1s,&dExpeditionLevelRole2s,&dExpeditionLevelRole3s,&dExpeditionLevelRole4s,&dExpeditionLevelRole5s,&dExpeditionLevelRole6s,&dExpeditionLevelRole7s,&dExpeditionLevelRole8s,&dExpeditionLevelRole9s,&dSysMail)
+		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionData,&dExpeditionRoles,&dExpeditionLevels,&dExpeditionLevelRole0s,&dExpeditionLevelRole1s,&dExpeditionLevelRole2s,&dExpeditionLevelRole3s,&dExpeditionLevelRole4s,&dExpeditionLevelRole5s,&dExpeditionLevelRole6s,&dExpeditionLevelRole7s,&dExpeditionLevelRole8s,&dExpeditionLevelRole9s,&dSysMail,&dArtifacts)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -14181,6 +14431,11 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.SysMail.load(dSysMail)
 		if err != nil {
 			log.Error("SysMail %v", PlayerId)
+			return
+		}
+		err = row.Artifacts.load(dArtifacts)
+		if err != nil {
+			log.Error("Artifacts %v", PlayerId)
 			return
 		}
 		row.m_UniqueId_changed=false

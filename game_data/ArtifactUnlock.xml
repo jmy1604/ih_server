@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item ArtifactID="1" UnLockLevel="60" UnLockVIPLevel="0" UnLockResCost="5,1000" MaxRank="4" />
+     <item ArtifactID="2" UnLockLevel="70" UnLockVIPLevel="0" UnLockResCost="5,1000" MaxRank="4" />
+     <item ArtifactID="3" UnLockLevel="80" UnLockVIPLevel="0" UnLockResCost="5,1000" MaxRank="4" />
+     <item ArtifactID="4" UnLockLevel="100" UnLockVIPLevel="0" UnLockResCost="5,1000" MaxRank="4" />
+     <item ArtifactID="5" UnLockLevel="120" UnLockVIPLevel="0" UnLockResCost="5,1000" MaxRank="4" />
+     <item ArtifactID="6" UnLockLevel="150" UnLockVIPLevel="0" UnLockResCost="5,1000" MaxRank="4" />
+     <item ArtifactID="7" UnLockLevel="60" UnLockVIPLevel="6" UnLockResCost="5,1000" MaxRank="4" />
+     <item ArtifactID="8" UnLockLevel="60" UnLockVIPLevel="11" UnLockResCost="5,1000" MaxRank="4" />
+     <item ArtifactID="9" UnLockLevel="60" UnLockVIPLevel="0" UnLockResCost="6,1000" MaxRank="4" />
+     <item ArtifactID="10" UnLockLevel="60" UnLockVIPLevel="0" UnLockResCost="6,1000" MaxRank="4" />
+</Config>

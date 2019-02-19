@@ -573,6 +573,12 @@ func (this *Player) rankup_role(role_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_TABLE_ID_NOT_FOUND)
 	}
 
+	curr_level, _ := this.db.Roles.GetLevel(role_id)
+	if card_data.MaxLevel > curr_level {
+		log.Error("Player %v cant rank up role %v with level %v", role_id, role_id, curr_level)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_CANT_RANKUP_WITH_LEVEL)
+	}
+
 	rank_data := rankup_table_mgr.Get(rank)
 	if rank_data == nil {
 		log.Error("Cant found rankup[%v] data", rank)
