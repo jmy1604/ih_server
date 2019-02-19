@@ -318,6 +318,7 @@ func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 		players = this.power2players[new_power]
 		if players == nil {
 			log.Error("@@@@ New power %v have no players", new_power)
+			return 0
 		}
 	}
 

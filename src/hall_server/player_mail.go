@@ -427,6 +427,27 @@ func (this *Player) CheckNewMail() int32 {
 	return 1
 }
 
+func (this *Player) CheckSystemMail() {
+	self_sys_mail_id := this.db.SysMail.GetCurrId()
+	sys_mail_id := dbc.SysMailCommon.GetRow().GetCurrMailId()
+	if self_sys_mail_id < sys_mail_id {
+		for mail_id := self_sys_mail_id; mail_id <= sys_mail_id; mail_id++ {
+			mail := dbc.SysMails.GetRow(mail_id)
+			if mail == nil {
+				continue
+			}
+			if mail.GetSendTime() >= this.db.Info.GetCreateUnix() {
+				mid := RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, mail.GetTableId(), "", "", mail.AttachedItems.Get().ItemList, 0)
+				if mid < 0 {
+
+				}
+				this.SetSysMailSendTime(mid, mail.GetSendTime())
+			}
+		}
+		this.db.SysMail.SetCurrId(sys_mail_id)
+	}
+}
+
 func (this *Player) GetMailList() int32 {
 	this.clear_cache_new_mails()
 

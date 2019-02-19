@@ -348,4 +348,11 @@ enum MSGID {
 	C2S_EXPEDITION_PURIFY_REWARD_REQUEST	= 12605; // 远征净化点奖励 C2SExpeditionPurifyRewardRequest
 	S2C_EXPEDITION_PURIFY_REWARD_RESPONSE	= 12606; // 远征净化点奖励返回 S2CExpeditionPurifyRewardResponse
 	S2C_EXPEDITION_PURIFY_POINTS_SYNC       = 12607; // 远征净化点同步 S2CExpeditionPurifyPointsSync
+	
+	C2S_ARTIFACT_DATA_REQUEST				= 12700; // 神器数据 C2SArtifactDataRequest
+	S2C_ARTIFACT_DATA_RESPONSE				= 12701; // 返回神器数据 S2CArtifactDataResponse
+	C2S_ARTIFACT_LEVELUP_REQUEST			= 12702; // 神器升级 C2SArtifactLevelUpRequest
+	S2C_ARTIFACT_LEVELUP_RESPONSE			= 12703; // 神器升级返回 S2CArtifactLevelUpResponse
+	C2S_ARTIFACT_DEACTIVE_REQUEST			= 12704; // 神器重铸 C2SArtifactDeactiveRequest
+	S2C_ARTIFACT_DEACTIVE_RESPONSE			= 12705; // 神器重铸返回 S2CArtifactDeactiveResponse
 }

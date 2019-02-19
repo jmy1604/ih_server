@@ -2361,3 +2361,36 @@ message S2CExpeditionPurifyRewardResponse {
 message S2CExpeditionPurifyPointsSync {
 	int32 PurifyPoints						= 1; // 净化点
 }
+
+// ---------------------------------- 神器 ------------------------------------
+// 数据请求
+message C2SArtifactDataRequest {
+}
+
+message ArtifactData {
+	int32 Id 								= 1; // Id
+	int32 Level								= 2; // 等级
+}
+
+message S2CArtifactDataResponse {
+	repeated ArtifactData ArtifactList		= 1; // 神器列表
+}
+
+// 升级神器(激活就是升到一级)
+message C2SArtifactLevelUpRequest {
+	int32 Id								= 1;
+}
+
+message S2CArtifactLevelUpResponse {
+	int32 Id								= 1;
+	int32 Level								= 2;
+}
+
+// 重铸神器
+message C2SArtifactDeactiveRequest {
+	int32 Id								= 1;
+}
+
+message S2CArtifactDeactiveResponse {
+	int32 Id								= 1;
+}
