@@ -69,6 +69,8 @@ const (
 	BATTLE_TEAM_MEMBER_MAX_NUM           = 9  // 最大人数
 	BATTLE_FORMATION_LINE_NUM            = 3  // 阵型列数
 	BATTLE_FORMATION_ONE_LINE_MEMBER_NUM = 3  // 每列人数
+	BATTLE_TEAM_ARTIFACT_ADD_ENERGY      = 20 // 神器每回合增加能量
+	BATTLE_TEAM_ARTIFACT_MAX_ENERGY      = 60 // 神器最大能量
 )
 
 // 阵容类型
@@ -224,6 +226,7 @@ type TeamMember struct {
 	id                      int32
 	level                   int32
 	card                    *table_config.XmlCardItem
+	artifact                *table_config.XmlArtifactItem
 	hp                      int32
 	energy                  int32
 	attack                  int32
@@ -810,7 +813,11 @@ func (this *TeamMember) used_skill(skill *table_config.XmlSkillItem) {
 	}
 	max_energy := global_config.MaxEnergy
 	if max_energy == 0 {
-		max_energy = BATTLE_TEAM_MEMBER_MAX_ENERGY
+		if this.pos >= 0 {
+			max_energy = BATTLE_TEAM_MEMBER_MAX_ENERGY
+		} else {
+			max_energy = BATTLE_TEAM_ARTIFACT_MAX_ENERGY
+		}
 	}
 	if this.energy >= max_energy {
 		this.energy -= max_energy
@@ -914,6 +921,9 @@ func (this *TeamMember) is_disable_super_attack() bool {
 }
 
 func (this *TeamMember) is_disable_attack() bool {
+	if this.pos < 0 {
+		return false
+	}
 	if this.bufflist_arr == nil {
 		return false
 	}
@@ -926,6 +936,9 @@ func (this *TeamMember) is_disable_attack() bool {
 }
 
 func (this *TeamMember) can_action() bool {
+	if this.pos < 0 {
+		return false
+	}
 	if this.bufflist_arr != nil {
 		if this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION].head != nil || this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK].head != nil {
 			return false
@@ -935,6 +948,9 @@ func (this *TeamMember) can_action() bool {
 }
 
 func (this *TeamMember) is_dead() bool {
+	if this.pos < 0 {
+		return false
+	}
 	if this.hp < 0 {
 		return true
 	}
@@ -942,6 +958,9 @@ func (this *TeamMember) is_dead() bool {
 }
 
 func (this *TeamMember) is_will_dead() bool {
+	if this.pos < 0 {
+		return false
+	}
 	if this.hp == 0 {
 		return true
 	}
@@ -949,23 +968,35 @@ func (this *TeamMember) is_will_dead() bool {
 }
 
 func (this *TeamMember) set_dead(attacker *TeamMember, skill_data *table_config.XmlSkillItem) {
+	if this.pos < 0 {
+		return
+	}
 	this.hp = -1
 	this.on_dead(attacker, skill_data)
 	log.Debug("+++++++++++++++++++++++++ team[%v] mem[%v] 死了", this.team.side, this.pos)
 }
 
 func (this *TeamMember) on_will_dead(attacker *TeamMember) {
+	if this.pos < 0 {
+		return
+	}
 	if passive_skill_effect_with_self_pos(EVENT_BEFORE_TARGET_DEAD, this.team, this.pos, nil, nil, true) {
 		log.Debug("Team[%v] member[%v] 触发了死亡前被动技能", attacker.team.side, attacker.pos)
 	}
 }
 
 func (this *TeamMember) on_after_will_dead(attacker *TeamMember) {
+	if this.pos < 0 {
+		return
+	}
 	passive_skill_effect_with_self_pos(EVENT_AFTER_TARGET_DEAD, this.team, this.pos, attacker.team, nil, true)
 	log.Debug("+++++++++++++ Team[%v] member[%v] 触发死亡后触发器", this.team.side, this.pos)
 }
 
 func (this *TeamMember) on_dead(attacker *TeamMember, skill_data *table_config.XmlSkillItem) {
+	if this.pos < 0 {
+		return
+	}
 	// 被动技，被主动技杀死时触发
 	if skill_data != nil && (skill_data.Type == SKILL_TYPE_NORMAL || skill_data.Type == SKILL_TYPE_SUPER) {
 		passive_skill_effect_with_self_pos(EVENT_KILL_ENEMY, attacker.team, attacker.pos, this.team, []int32{this.pos}, true)

@@ -211,7 +211,9 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":2,"Name":"DefenseMembers","Repeated":true},
-						{"Type":"int32","Index":3,"Name":"CampaignMembers","Repeated":true}
+						{"Type":"int32","Index":3,"Name":"CampaignMembers","Repeated":true},
+						{"Type":"int32","Index":4,"Name":"DefenseArtifactId"},
+						{"Type":"int32","Index":5,"Name":"CampaignArtifactId"}
 					]
 				},
 				{

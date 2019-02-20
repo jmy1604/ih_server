@@ -120,7 +120,7 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TOWER_NOT_ENOUGH_STAMINA)
 	}
 
-	err, is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(3, stage, nil, nil)
+	err, is_win, my_team, target_team, my_artifact_id, target_artifact_id, enter_reports, rounds, _ := this.FightInStage(3, stage, nil, nil)
 	if err < 0 {
 		log.Error("Player[%v] fight tower %v failed, team is empty", this.Id, tower_id)
 		return err
@@ -146,6 +146,8 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 		TargetMemberCures:   member_cures[this.target_stage_team.side],
 		BattleType:          3,
 		BattleParam:         tower_id,
+		MyArtifactId:        my_artifact_id,
+		TargetArtifactId:    target_artifact_id,
 	}
 	data := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

@@ -289,6 +289,7 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 
 	if response.MyTeam != nil {
 		log.Debug("My team:")
+		log.Debug("		 MyArtifact: %v", response.GetMyArtifactId())
 		for i := 0; i < len(response.MyTeam); i++ {
 			m := response.MyTeam[i]
 			if m == nil {
@@ -299,6 +300,7 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 	}
 	if response.TargetTeam != nil {
 		log.Debug("Target team:")
+		log.Debug("      TargetArtifact: %v", response.GetTargetArtifactId())
 		for i := 0; i < len(response.TargetTeam); i++ {
 			m := response.TargetTeam[i]
 			if m == nil {

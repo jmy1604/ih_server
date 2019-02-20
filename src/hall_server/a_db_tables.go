@@ -449,6 +449,8 @@ func (this* dbPlayerRoleHandbookData)clone_to(d *dbPlayerRoleHandbookData){
 type dbPlayerBattleTeamData struct{
 	DefenseMembers []int32
 	CampaignMembers []int32
+	DefenseArtifactId int32
+	CampaignArtifactId int32
 }
 func (this* dbPlayerBattleTeamData)from_pb(pb *db.PlayerBattleTeam){
 	if pb == nil {
@@ -464,6 +466,8 @@ func (this* dbPlayerBattleTeamData)from_pb(pb *db.PlayerBattleTeam){
 	for i, v := range pb.GetCampaignMembers() {
 		this.CampaignMembers[i] = v
 	}
+	this.DefenseArtifactId = pb.GetDefenseArtifactId()
+	this.CampaignArtifactId = pb.GetCampaignArtifactId()
 	return
 }
 func (this* dbPlayerBattleTeamData)to_pb()(pb *db.PlayerBattleTeam){
@@ -476,6 +480,8 @@ func (this* dbPlayerBattleTeamData)to_pb()(pb *db.PlayerBattleTeam){
 	for i, v := range this.CampaignMembers {
 		pb.CampaignMembers[i]=v
 	}
+	pb.DefenseArtifactId = proto.Int32(this.DefenseArtifactId)
+	pb.CampaignArtifactId = proto.Int32(this.CampaignArtifactId)
 	return
 }
 func (this* dbPlayerBattleTeamData)clone_to(d *dbPlayerBattleTeamData){
@@ -487,6 +493,8 @@ func (this* dbPlayerBattleTeamData)clone_to(d *dbPlayerBattleTeamData){
 	for _ii, _vv := range this.CampaignMembers {
 		d.CampaignMembers[_ii]=_vv
 	}
+	d.DefenseArtifactId = this.DefenseArtifactId
+	d.CampaignArtifactId = this.CampaignArtifactId
 	return
 }
 type dbPlayerCampaignCommonData struct{
@@ -3684,6 +3692,32 @@ func (this *dbPlayerBattleTeamColumn)SetCampaignMembers(v []int32){
 	for _ii, _vv := range v {
 		this.m_data.CampaignMembers[_ii]=_vv
 	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerBattleTeamColumn)GetDefenseArtifactId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamColumn.GetDefenseArtifactId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.DefenseArtifactId
+	return
+}
+func (this *dbPlayerBattleTeamColumn)SetDefenseArtifactId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamColumn.SetDefenseArtifactId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.DefenseArtifactId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerBattleTeamColumn)GetCampaignArtifactId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamColumn.GetCampaignArtifactId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.CampaignArtifactId
+	return
+}
+func (this *dbPlayerBattleTeamColumn)SetCampaignArtifactId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamColumn.SetCampaignArtifactId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.CampaignArtifactId = v
 	this.m_changed = true
 	return
 }

@@ -543,15 +543,18 @@ message S2CReconnectResponse {
 // 设置阵容
 message C2SSetTeamRequest {
 	int32 TeamType							= 1; // 1 pvp阵容  2 防守阵容  3 pve阵容
-	repeated int32 TeamMembers				= 2;
+	repeated int32 TeamMembers				= 2; // 阵容
+	int32 ArtifactId						= 3; // 神器
 }
 message S2CSetTeamResponse {
 	int32 TeamType							= 1;
 	repeated int32 TeamMembers				= 2;
+	int32 ArtifactId						= 3;
 }
 message TeamData {
 	int32 TeamType							= 1; // 阵容类型
 	repeated int32 TeamMembers				= 2; // 阵容
+	int32 ArtifactId						= 3; // 神器
 }
 // 阵容数据
 message S2CTeamsResponse {
@@ -573,7 +576,7 @@ message BattleMemberItem {
 
 // 战斗成员
 message BattleFighter {
-	int32 Pos								= 1; // 位置
+	int32 Pos								= 1; // 位置  小于0表示神器
 	int32 HP								= 2; // 血量
 	int32 MaxHP								= 3; // 最大血量
 	int32 Damage 							= 4; // 伤害
@@ -613,6 +616,10 @@ message BattleRoundReports {
 	repeated BattleFighter ChangedFighters	= 4; // 回合结束时BUFF影响的属性变化的成员
 	repeated int32 MyMembersEnergy			= 5; // 我方怒气
 	repeated int32 TargetMembersEnergy		= 6; // 敌方怒气
+	int32 MyArtifactStartEnergy				= 7; // 我方神器回合开始时能量
+	int32 TargetArtifactStartEnergy			= 8; // 敌方神器回合开始时能量
+	int32 MyArtifactEndEnergy				= 9; // 我方神器回合结束时能量
+	int32 TargetArtifactEndEnergy			= 10; // 敌方神器回合结束时能量
 }
 
 // 请求战斗结果
@@ -626,6 +633,7 @@ message C2SBattleResultRequest {
 	int32 AssistRoleId					 	= 7; // 助战角色ID
 	int32 AssistPos							= 8; // 助战角色阵型位置
 	int32 SweepNum							= 9; // 扫荡次数   0 非扫荡  >0 扫荡次数  (pvp没有扫荡)
+	int32 AritfactId						= 10; // 神器ID
 }
 message S2CBattleResultResponse {
 	bool IsWin								= 1; // true 赢  false 输
@@ -648,6 +656,8 @@ message S2CBattleResultResponse {
 	int32 ExtraValue						= 18; // 额外的数据       类型 5 该值就是好友BOSS血量百分比   类型 9 公会副本时为BOSS血量百分比
 	int32 MySpeedBonus						= 19; // 自己先手值
 	int32 TargetSpeedBonus					= 20; // 对方先手值
+	int32 MyArtifactId						= 21; // 我方神器
+	int32 TargetArtifactId					= 22; // 敌方神器
 }
 
 // 请求录像列表

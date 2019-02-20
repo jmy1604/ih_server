@@ -234,6 +234,23 @@ func (this *Player) artifact_reset(id int32) int32 {
 	return 1
 }
 
+func (this *Player) artifact_add_member_attrs(artifact_id int32, member *TeamMember) {
+	if !this.db.Artifacts.HasIndex(artifact_id) {
+		return
+	}
+
+	rank, _ := this.db.Artifacts.GetRank(artifact_id)
+	level, _ := this.db.Artifacts.GetLevel(artifact_id)
+	a := artifact_table_mgr.Get(artifact_id, rank, level)
+	if a == nil {
+		return
+	}
+
+	if member != nil && !member.is_dead() {
+		member.add_attrs(a.ArtifactAttr)
+	}
+}
+
 func C2SArtifactDataHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SArtifactDataRequest
 	err := proto.Unmarshal(msg_data, &req)

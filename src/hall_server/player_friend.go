@@ -913,13 +913,13 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		fight_num = this.sweep_num
 	}
 
-	var err, n int32
+	var err, n, my_artifact_id, target_artifact_id int32
 	var is_win, has_next_wave bool
 	var my_team, target_team []*msg_client_message.BattleMemberItem
 	var enter_reports []*msg_client_message.BattleReportItem
 	var rounds []*msg_client_message.BattleRoundReports
 	for ; n < fight_num; n++ {
-		err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave = this.FightInStage(5, stage, p, nil)
+		err, is_win, my_team, target_team, my_artifact_id, target_artifact_id, enter_reports, rounds, has_next_wave = this.FightInStage(5, stage, p, nil)
 		if err < 0 {
 			p.cancel_friend_boss_fight()
 			log.Error("Player[%v] fight friend %v boss %v failed, team is empty", this.Id, friend_id, friend_boss_table_id)
@@ -981,6 +981,8 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		BattleParam:         friend_id,
 		SweepNum:            this.sweep_num,
 		ExtraValue:          p.get_friend_boss_hp_percent(),
+		MyArtifactId:        my_artifact_id,
+		TargetArtifactId:    target_artifact_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

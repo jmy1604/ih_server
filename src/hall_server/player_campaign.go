@@ -190,7 +190,7 @@ func (this *Player) LoadCampaignRankData() {
 	this._update_campaign_rank_data(campaign_id, sid)
 }
 
-func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player, guild *dbGuildRow) (err int32, is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
+func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player, guild *dbGuildRow) (err int32, is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, my_artifact_id, target_artifact_id int32, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
 	var attack_team *BattleTeam
 	var team_type int32
 	if stage_type == 1 {
@@ -289,6 +289,12 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 
 	my_team = attack_team._format_members_for_msg()
 	target_team = this.target_stage_team._format_members_for_msg()
+	if attack_team.artifact != nil {
+		my_artifact_id = attack_team.artifact.id
+	}
+	if this.target_stage_team.artifact != nil {
+		target_artifact_id = this.target_stage_team.artifact.id
+	}
 
 	// 扫荡状态
 	if this.sweep_num > 0 {
@@ -370,7 +376,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
 	}
 
-	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage, nil, nil)
+	err, is_win, my_team, target_team, my_artifact_id, target_artifact_id, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage, nil, nil)
 	if err < 0 {
 		log.Error("Player[%v] fight campaign %v failed, err %v", this.Id, campaign_id, err)
 		return err
@@ -408,6 +414,8 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		NextCampaignId:      next_campaign_id,
 		BattleType:          2,
 		BattleParam:         campaign_id,
+		MyArtifactId:        my_artifact_id,
+		TargetArtifactId:    target_artifact_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

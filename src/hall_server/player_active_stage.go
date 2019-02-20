@@ -273,7 +273,7 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		return -1
 	}
 
-	err, is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(4, stage, nil, nil)
+	err, is_win, my_team, target_team, my_artifact_id, target_artifact_id, enter_reports, rounds, _ := this.FightInStage(4, stage, nil, nil)
 	if err < 0 {
 		log.Error("Player[%v] fight active stage %v failed", this.Id, active_stage_id)
 		return err
@@ -308,6 +308,8 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		AssistFriendId:      assist_friend_id,
 		AssistRoleId:        this.assist_role_id,
 		AssistPos:           this.assist_role_pos,
+		MyArtifactId:        my_artifact_id,
+		TargetArtifactId:    target_artifact_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

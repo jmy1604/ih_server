@@ -368,7 +368,7 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 		return this.guild_stage_rank_list(boss_id)
 	}
 
-	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(9, stage, nil, guild)
+	err, is_win, my_team, target_team, my_artifact_id, target_artifact_id, enter_reports, rounds, has_next_wave := this.FightInStage(9, stage, nil, guild)
 
 	guild_ex.CancelStageFight()
 
@@ -411,6 +411,8 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 		BattleType:          9,
 		BattleParam:         boss_id,
 		ExtraValue:          guild.Stage.GetHpPercent(),
+		MyArtifactId:        my_artifact_id,
+		TargetArtifactId:    target_artifact_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

@@ -689,6 +689,7 @@ const (
 	SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM = 8  // 增加普攻次数
 	SKILL_EFFECT_TYPE_MODIFY_RAGE           = 9  // 改变怒气
 	SKILL_EFFECT_TYPE_ADD_SHIELD            = 10 // 增加护盾
+	SKILL_EFFECT_TYPE_ARTIFACT_DAMAGE       = 11 // 神器伤害
 )
 
 // 技能直接伤害
@@ -884,6 +885,9 @@ func skill_effect_add_buff(self_mem *TeamMember, target_mem *TeamMember, effect 
 
 // 召唤
 func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_pos int32, effect []int32) (mem *TeamMember) {
+	if self_mem.pos < 0 {
+		return
+	}
 	new_card := card_table_mgr.GetRankCard(effect[1], 1)
 	if new_card == nil {
 		log.Error("summon skill role[%v] not found", effect[1])
@@ -906,6 +910,9 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_po
 
 // 临时改变角色属性效果
 func skill_effect_temp_attrs(self_mem *TeamMember, effect []int32) {
+	if self_mem.pos < 0 {
+		return
+	}
 	if self_mem == nil {
 		return
 	}
@@ -925,7 +932,7 @@ func skill_effect_temp_attrs(self_mem *TeamMember, effect []int32) {
 
 // 设置临时属性已计算
 func skill_effect_temp_attrs_used(self_mem *TeamMember) {
-	if self_mem == nil {
+	if self_mem == nil || self_mem.pos < 0 {
 		return
 	}
 	if self_mem.temp_changed_attrs_used == 1 {
@@ -936,7 +943,7 @@ func skill_effect_temp_attrs_used(self_mem *TeamMember) {
 
 // 清空临时属性
 func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
-	if self_mem == nil {
+	if self_mem == nil || self_mem.pos < 0 {
 		return
 	}
 	if self_mem.temp_changed_attrs_used == 2 && self_mem.temp_changed_attrs != nil {
@@ -947,6 +954,37 @@ func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
 		log.Debug("team[%v] member[%v] 清空了技能临时属性 %v", self_mem.team.side, self_mem.pos, self_mem.temp_changed_attrs)
 		self_mem.temp_changed_attrs = nil
 	}
+}
+
+// 神器伤害效果
+func skill_effect_artifact_damage(self, target *TeamMember, effect []int32) (target_damage int32, is_absorb bool) {
+	if effect == nil || len(effect) < 2 {
+		return
+	}
+
+	target_damage = effect[0]
+
+	// 贯通
+	if effect[1] > 0 {
+		if target.attrs[ATTR_SHIELD] < target_damage {
+			target.attrs[ATTR_SHIELD] = 0
+		} else {
+			target.attrs[ATTR_SHIELD] -= target_damage
+		}
+	} else {
+		if target.attrs[ATTR_SHIELD] < target_damage {
+			target_damage -= target.attrs[ATTR_SHIELD]
+			target.attrs[ATTR_SHIELD] = 0
+		} else {
+			target.attrs[ATTR_SHIELD] -= target_damage
+			target_damage = 0
+		}
+
+		if target_damage == 0 {
+			is_absorb = true
+		}
+	}
+	return
 }
 
 func _get_battle_report(report *msg_client_message.BattleReportItem, skill_id int32, self_team *BattleTeam, self_pos, self_dmg int32, target_team *BattleTeam, target_pos, target_dmg int32, is_critical, is_block, is_absorb bool, anti_type int32) (*msg_client_message.BattleReportItem, *msg_client_message.BattleFighter) {
@@ -979,13 +1017,21 @@ func _get_battle_report(report *msg_client_message.BattleReportItem, skill_id in
 // 技能效果
 func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) (used bool) {
 	effects := skill_data.Effects
-	self := self_team.members[self_pos]
-	if self == nil || target_team == nil {
-		return
-	}
 
-	if self.is_dead() {
-		return
+	var self *TeamMember
+	if self_pos >= 0 {
+		self = self_team.members[self_pos]
+		if self == nil || target_team == nil {
+			return
+		}
+		if self.is_dead() {
+			return
+		}
+	} else {
+		if self_team.artifact == nil {
+			return
+		}
+		self = self_team.artifact
 	}
 
 	if skill_data.Type != SKILL_TYPE_PASSIVE {
@@ -1294,6 +1340,15 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					// ------------------------------------------------------
 					used = true
 				}
+			} else if effect_type == SKILL_EFFECT_TYPE_ARTIFACT_DAMAGE {
+				if target == nil || target.is_dead() {
+					continue
+				}
+				target_damage, is_absorb := skill_effect_artifact_damage(self, target, effects[i])
+				if is_report {
+					report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], target_damage, false, false, is_absorb, 0)
+				}
+				used = true
 			}
 		}
 	}

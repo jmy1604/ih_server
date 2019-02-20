@@ -1079,7 +1079,7 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 	} else {
 		battle_type = 6
 	}
-	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(battle_type, stage, nil, nil)
+	err, is_win, my_team, target_team, my_artifact_id, target_artifact_id, enter_reports, rounds, has_next_wave := this.FightInStage(battle_type, stage, nil, nil)
 	if err < 0 {
 		log.Error("Player[%v] fight explore task %v (is_story: %v) failed, team is empty", this.Id, id, is_story)
 		return err
@@ -1107,6 +1107,8 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 		HasNextWave:         has_next_wave,
 		BattleType:          battle_type,
 		BattleParam:         id,
+		MyArtifactId:        my_artifact_id,
+		TargetArtifactId:    target_artifact_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

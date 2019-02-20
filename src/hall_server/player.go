@@ -71,6 +71,11 @@ func (this *IdChangeInfo) reset() {
 	this.update = nil
 }
 
+type TmpTeam struct {
+	members  []int32
+	artifact *table_config.XmlArtifactItem
+}
+
 type Player struct {
 	UniqueId string
 	Id       int32
@@ -93,7 +98,7 @@ type Player struct {
 
 	used_drop_ids         map[int32]int32       // 抽卡掉落ID统计
 	team_member_mgr       map[int32]*TeamMember // 成员map
-	tmp_teams             map[int32][]int32     // 临时阵容，缓存爬塔活动等进攻阵容ID
+	tmp_teams             map[int32]*TmpTeam    // 临时阵容，缓存爬塔活动等进攻阵容ID
 	attack_team           *BattleTeam           // PVP进攻阵型
 	campaign_team         *BattleTeam           // PVE战役进攻阵容
 	tower_team            *BattleTeam           // PVE爬塔进攻阵容
@@ -597,7 +602,7 @@ func (this *Player) send_red_point_states(modules []int32) int32 {
 	return 1
 }
 
-func (this *Player) SetTeam(team_type int32, team []int32) int32 {
+func (this *Player) SetTeam(team_type int32, team []int32, artifact_id int32) int32 {
 	if team == nil {
 		return -1
 	}
@@ -639,6 +644,10 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 		}
 	}
 
+	if artifact_id > 0 && !this.db.Artifacts.HasIndex(artifact_id) {
+		return int32(msg_client_message.E_ERR_ARTIFACT_HAS_NOT_UNLOCK)
+	}
+
 	for i := 0; i < len(team); i++ {
 		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
 			break
@@ -666,18 +675,58 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 
 	if team_type == BATTLE_TEAM_CAMPAIN {
 		this.db.BattleTeam.SetCampaignMembers(team)
+		this.db.BattleTeam.SetCampaignArtifactId(artifact_id)
 	} else if team_type == BATTLE_TEAM_DEFENSE {
 		this.db.BattleTeam.SetDefenseMembers(team)
+		this.db.BattleTeam.SetDefenseArtifactId(artifact_id)
 	} else {
 		if this.tmp_teams == nil {
-			this.tmp_teams = make(map[int32][]int32)
+			this.tmp_teams = make(map[int32]*TmpTeam)
 		}
-		this.tmp_teams[team_type] = team
+		ar, _ := this.db.Artifacts.GetRank(artifact_id)
+		al, _ := this.db.Artifacts.GetLevel(artifact_id)
+		a := artifact_table_mgr.Get(artifact_id, ar, al)
+		tmp_team := this.tmp_teams[team_type]
+		if tmp_team == nil {
+			tmp_team = &TmpTeam{
+				members:  team,
+				artifact: a,
+			}
+			this.tmp_teams[team_type] = tmp_team
+		} else {
+			tmp_team.members = team
+			tmp_team.artifact = a
+		}
 	}
 	return 1
 }
 
-func (this *Player) SetCampaignTeam(team []int32) int32 {
+func (this *Player) SetTeamArtifact(team_id, artifact_id int32) int32 {
+	if team_id == BATTLE_TEAM_CAMPAIN {
+		this.db.BattleTeam.SetCampaignArtifactId(artifact_id)
+	} else if team_id == BATTLE_TEAM_DEFENSE {
+		this.db.BattleTeam.SetDefenseArtifactId(artifact_id)
+	} else {
+		if this.tmp_teams == nil {
+			this.tmp_teams = make(map[int32]*TmpTeam)
+		}
+		ar, _ := this.db.Artifacts.GetRank(artifact_id)
+		al, _ := this.db.Artifacts.GetLevel(artifact_id)
+		a := artifact_table_mgr.Get(artifact_id, ar, al)
+		tmp_team := this.tmp_teams[team_id]
+		if tmp_team == nil {
+			tmp_team = &TmpTeam{
+				artifact: a,
+			}
+			this.tmp_teams[team_id] = tmp_team
+		} else {
+			tmp_team.artifact = a
+		}
+	}
+	return 1
+}
+
+func (this *Player) SetCampaignTeam(team []int32, artifact_id int32) int32 {
 	if team == nil {
 		return -1
 	}
@@ -703,13 +752,20 @@ func (this *Player) SetCampaignTeam(team []int32) int32 {
 			log.Warn("Player[%v] not has role[%v] for set campaign team", this.Id, team[i])
 			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
 		}
-		//this.db.Roles.SetIsLock(team[i], 1)
 	}
+
+	if artifact_id > 0 && !this.db.Artifacts.HasIndex(artifact_id) {
+		log.Warn("Player[%v] artifact %v not unlock, cant set in campaign team")
+		return int32(msg_client_message.E_ERR_ARTIFACT_HAS_NOT_UNLOCK)
+	}
+
 	this.db.BattleTeam.SetCampaignMembers(team)
+	this.db.BattleTeam.SetCampaignArtifactId(artifact_id)
+
 	return 1
 }
 
-func (this *Player) SetDefenseTeam(team []int32) int32 {
+func (this *Player) SetDefenseTeam(team []int32, artifact_id int32) int32 {
 	if team == nil {
 		return -1
 	}
@@ -724,7 +780,6 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 		}
 		used_id[team[i]] = true
 	}
-
 	for i := 0; i < len(team); i++ {
 		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
 			break
@@ -736,9 +791,16 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 			log.Warn("Player[%v] not has role[%v] for set defense team", this.Id, team[i])
 			return int32(msg_client_message.E_ERR_PLAYER_SET_DEFENSE_MEMBERS_FAILED)
 		}
-		//this.db.Roles.SetIsLock(team[i], 1)
 	}
+
+	if artifact_id > 0 && !this.db.Artifacts.HasIndex(artifact_id) {
+		log.Warn("Player[%v] artifact %v not unlock, cant set in defense team")
+		return int32(msg_client_message.E_ERR_ARTIFACT_HAS_NOT_UNLOCK)
+	}
+
 	this.db.BattleTeam.SetDefenseMembers(team)
+	this.db.BattleTeam.SetDefenseArtifactId(artifact_id)
+
 	return 1
 }
 
@@ -848,6 +910,13 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 
 	members_damage := this.attack_team.common_data.members_damage
 	members_cure := target_team.common_data.members_cure
+	var my_artifact_id, target_artifact_id int32
+	if this.attack_team.artifact != nil && this.attack_team.artifact.artifact != nil {
+		my_artifact_id = this.attack_team.artifact.artifact.Id
+	}
+	if target_team.artifact != nil && target_team.artifact.artifact != nil {
+		target_artifact_id = target_team.artifact.artifact.Id
+	}
 	response := &msg_client_message.S2CBattleResultResponse{
 		IsWin:               is_win,
 		EnterReports:        enter_reports,
@@ -862,6 +931,8 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		BattleParam:         player_id,
 		MySpeedBonus:        this.attack_team.get_first_hand(),
 		TargetSpeedBonus:    target_team.get_first_hand(),
+		MyArtifactId:        my_artifact_id,
+		TargetArtifactId:    target_artifact_id,
 	}
 	d := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

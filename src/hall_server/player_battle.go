@@ -18,13 +18,15 @@ type DelaySkillList struct {
 }
 
 type BattleCommonData struct {
-	reports          []*msg_client_message.BattleReportItem
-	remove_buffs     []*msg_client_message.BattleMemberBuff
-	changed_fighters []*msg_client_message.BattleFighter
-	round_num        int32
-	delay_skill_list *DelaySkillList
-	members_damage   [][]int32
-	members_cure     [][]int32
+	reports                []*msg_client_message.BattleReportItem
+	remove_buffs           []*msg_client_message.BattleMemberBuff
+	changed_fighters       []*msg_client_message.BattleFighter
+	round_num              int32
+	delay_skill_list       *DelaySkillList
+	members_damage         [][]int32
+	members_cure           [][]int32
+	my_artifact_energy     int32
+	target_artifact_energy int32
 }
 
 func (this *BattleCommonData) init_damage_data() {
@@ -66,6 +68,8 @@ func (this *BattleCommonData) Reset() {
 			d = n
 		}
 	}
+	this.my_artifact_energy = 0
+	this.target_artifact_energy = 0
 }
 
 func (this *BattleCommonData) Recycle() {
@@ -147,6 +151,7 @@ type BattleTeam struct {
 	side              int32             // 0 左边 1 右边
 	temp_curr_id      int32             // 临时ID，用于标识召唤的角色
 	members           []*TeamMember     // 成员
+	artifact          *TeamMember       // 神器
 	common_data       *BattleCommonData // 每回合战报
 	friend            *Player           // 用于好友BOSS
 	guild             *dbGuildRow       // 用于公会副本
@@ -198,18 +203,33 @@ func (this *BattleTeam) calc_first_hand(p *Player) {
 // 利用玩家初始化
 func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	var members []int32
+	var artifact *table_config.XmlArtifactItem
 	if team_id == BATTLE_TEAM_DEFENSE {
 		members = p.db.BattleTeam.GetDefenseMembers()
+		aid := p.db.BattleTeam.GetDefenseArtifactId()
+		ar, _ := p.db.Artifacts.GetRank(aid)
+		al, _ := p.db.Artifacts.GetLevel(aid)
+		artifact = artifact_table_mgr.Get(aid, ar, al)
 	} else if team_id == BATTLE_TEAM_CAMPAIN {
 		members = p.db.BattleTeam.GetCampaignMembers()
+		aid := p.db.BattleTeam.GetCampaignArtifactId()
+		ar, _ := p.db.Artifacts.GetRank(aid)
+		al, _ := p.db.Artifacts.GetLevel(aid)
+		artifact = artifact_table_mgr.Get(aid, ar, al)
 	} else if team_id < BATTLE_TEAM_MAX {
 		if p.tmp_teams == nil {
-			p.tmp_teams = make(map[int32][]int32)
+			p.tmp_teams = make(map[int32]*TmpTeam)
 		}
-		if p.tmp_teams[team_id] == nil {
-			p.tmp_teams[team_id] = p.db.BattleTeam.GetCampaignMembers()
+		tmp_team := p.tmp_teams[team_id]
+		if tmp_team == nil {
+			tmp_team = &TmpTeam{
+				// 没有设置阵型就用战役阵型
+				members: p.db.BattleTeam.GetCampaignMembers(),
+			}
+			p.tmp_teams[team_id] = tmp_team
 		}
-		members = p.tmp_teams[team_id]
+		members = tmp_team.members
+		artifact = tmp_team.artifact
 	} else {
 		log.Warn("Unknown team id %v", team_id)
 		return int32(msg_client_message.E_ERR_PLAYER_TEAM_TYPE_INVALID)
@@ -235,6 +255,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	this.team_type = team_id
 	this.clear_first_hand()
 
+	// 成员
 	if this.members == nil {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
 	}
@@ -253,6 +274,20 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 		}
 		this.members[i] = m
 	}
+
+	// 神器
+	if this.artifact != nil {
+		team_member_pool.Put(this.artifact)
+		this.artifact = nil
+	}
+	if artifact != nil {
+		this.artifact = team_member_pool.Get()
+		this.artifact.pos = -1
+		this.artifact.artifact = artifact
+		this.artifact.team = this
+		log.Trace("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! artifact id %v", artifact.Id)
+	}
+
 	this.calc_first_hand(p)
 	this.curr_attack = 0
 	this.side = side
@@ -436,17 +471,6 @@ func (this *BattleTeam) InitExpeditionEnemy(p *Player) bool {
 		return false
 	}
 
-	/*curr_level := p.db.ExpeditionData.GetCurrLevel()
-	var robot *ArenaRobot
-	enemy_id, _ := p.db.ExpeditionLevels.GetPlayerId(curr_level)
-	if player_mgr.GetPlayerById(enemy_id) == nil {
-		robot = arena_robot_mgr.Get(enemy_id)
-		if robot == nil {
-			log.Error("Player %v current expedition level %v cant found player", this.Id, curr_level)
-			return false
-		}
-	}*/
-
 	if this.members == nil {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
 	}
@@ -493,6 +517,17 @@ func (this *BattleTeam) InitExpeditionEnemy(p *Player) bool {
 	return true
 }
 
+// 神器不能使用技能就增加能量
+func (this *BattleTeam) check_artifact_energy_add() bool {
+	if this.artifact != nil {
+		if this.artifact.energy < BATTLE_TEAM_ARTIFACT_MAX_ENERGY {
+			this.artifact.energy += BATTLE_TEAM_ARTIFACT_ADD_ENERGY
+			return true
+		}
+	}
+	return false
+}
+
 // round start
 func (this *BattleTeam) RoundStart() {
 	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
@@ -501,6 +536,7 @@ func (this *BattleTeam) RoundStart() {
 		}
 	}
 	this.curr_attack = 0
+	this.check_artifact_energy_add()
 }
 
 // round end
@@ -514,48 +550,55 @@ func (this *BattleTeam) RoundEnd() {
 
 // 获得使用的技能
 func (this *BattleTeam) GetTheUseSkill(self *TeamMember, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
-	skill_id := int32(0)
-	if trigger_skill == 0 {
-		use_normal := true
-		// 能量满用绝杀
-		if self.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
-			if !self.is_disable_super_attack() {
-				use_normal = false
-			} else {
-				log.Debug("@@@@@@@@@@@!!!!!!!!!!!!!!! Team[%v] member[%v] disable super attack", this.side, self.pos)
-			}
-		} else {
-			if self.is_disable_normal_attack() {
-				log.Debug("@@@############## Team[%v] member[%v] disable all attack", this.side, self.pos)
-				return
-			}
-		}
+	var skill_id int32
 
-		if use_normal {
-			if self.temp_normal_skill > 0 {
-				skill_id = self.temp_normal_skill
-				self.use_temp_skill = true
-			} else {
-				if self.card.NormalSkillID == 0 {
-					skill_id = self.card.SuperSkillID
+	if self.pos < 0 { // 神器
+		if self.artifact != nil && self.energy >= BATTLE_TEAM_ARTIFACT_MAX_ENERGY {
+			skill_id = self.artifact.SkillId
+		}
+	} else { // 角色
+		if trigger_skill == 0 {
+			use_normal := true
+			// 能量满用绝杀
+			if self.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
+				if !self.is_disable_super_attack() {
+					use_normal = false
 				} else {
-					skill_id = self.card.NormalSkillID
+					log.Debug("@@@@@@@@@@@!!!!!!!!!!!!!!! Team[%v] member[%v] disable super attack", this.side, self.pos)
+				}
+			} else {
+				if self.is_disable_normal_attack() {
+					log.Debug("@@@############## Team[%v] member[%v] disable all attack", this.side, self.pos)
+					return
+				}
+			}
+
+			if use_normal {
+				if self.temp_normal_skill > 0 {
+					skill_id = self.temp_normal_skill
+					self.use_temp_skill = true
+				} else {
+					if self.card.NormalSkillID == 0 {
+						skill_id = self.card.SuperSkillID
+					} else {
+						skill_id = self.card.NormalSkillID
+					}
+				}
+			} else {
+				if self.temp_super_skill > 0 {
+					skill_id = self.temp_super_skill
+					self.use_temp_skill = true
+				} else {
+					if self.card.SuperSkillID == 0 {
+						skill_id = self.card.NormalSkillID
+					} else {
+						skill_id = self.card.SuperSkillID
+					}
 				}
 			}
 		} else {
-			if self.temp_super_skill > 0 {
-				skill_id = self.temp_super_skill
-				self.use_temp_skill = true
-			} else {
-				if self.card.SuperSkillID == 0 {
-					skill_id = self.card.NormalSkillID
-				} else {
-					skill_id = self.card.SuperSkillID
-				}
-			}
+			skill_id = trigger_skill
 		}
-	} else {
-		skill_id = trigger_skill
 	}
 
 	skill = skill_table_mgr.Get(skill_id)
@@ -564,7 +607,7 @@ func (this *BattleTeam) GetTheUseSkill(self *TeamMember, target_team *BattleTeam
 		return
 	}
 
-	if trigger_skill > 0 && self.is_disable_attack() && skill.Type != SKILL_TYPE_PASSIVE {
+	if self.pos >= 0 && trigger_skill > 0 && self.is_disable_attack() && skill.Type != SKILL_TYPE_PASSIVE {
 		log.Debug("############# Team[%v] member[%v] disable combo skill[%v]", this.side, self.pos, trigger_skill)
 		return nil
 	}
@@ -620,9 +663,21 @@ func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, s
 	return
 }
 
+func (this *BattleTeam) get_member(index int32) (mem *TeamMember) {
+	if index < 0 {
+		mem = this.artifact
+	} else {
+		mem = this.members[index]
+		if mem != nil && mem.is_dead() {
+			mem = nil
+		}
+	}
+	return
+}
+
 func (this *BattleTeam) UseSkillOnce(self_index int32, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
-	self := this.members[self_index]
-	if self == nil || self.is_dead() {
+	self := this.get_member(self_index)
+	if self == nil {
 		return nil
 	}
 
@@ -648,7 +703,7 @@ func (this *BattleTeam) UseSkillOnce(self_index int32, target_team *BattleTeam, 
 	skill_effect(this, self_index, target_team, target_pos, skill)
 
 	// 清除临时技能
-	if self.use_temp_skill {
+	if self_index >= 0 && self.use_temp_skill {
 		if self.temp_normal_skill > 0 {
 			log.Debug("!!!!!!!!!!!!!!!!!!! Team[%v] mem[%v] clear temp normal skill[%v]", this.side, self_index, self.temp_normal_skill)
 			self.temp_normal_skill = 0
@@ -714,6 +769,30 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 	return 1
 }
 
+func (this *BattleTeam) CheckAndUseArtifactEveryRound(target_team *BattleTeam) bool {
+	if this.artifact == nil || this.player == nil {
+		return false
+	}
+
+	a := this.artifact.artifact
+	if a == nil {
+		return false
+	}
+
+	self_index := int32(-1)
+	skill := this.UseSkillOnce(self_index, target_team, 0)
+	if skill == nil {
+		return false
+	}
+
+	if skill.ComboSkill > 0 {
+		log.Debug("@@@@@@!!!!!! Team[%v] artifact %v will use combo skill[%v]", this.side, this.artifact.artifact.Id, skill.ComboSkill)
+		this.UseSkillOnce(self_index, target_team, skill.ComboSkill)
+	}
+
+	return true
+}
+
 func (this *BattleTeam) _is_slave(index int32) bool {
 	if this.members == nil {
 		return false
@@ -758,6 +837,9 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, this, i, target_team, nil, false)
 		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, target_team, i, this, nil, false)
 	}
+
+	// 检测使用神器
+	this.CheckAndUseArtifactEveryRound(target_team)
 
 	var self_index, target_index int32
 	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM || target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
@@ -932,17 +1014,32 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	for c := int32(0); c < round_max; c++ {
 		log.Debug("----------------------------------------------- Round[%v] --------------------------------------------", c+1)
 
+		round := msg_battle_round_reports_pool.Get()
+		// 非扫荡
+		if !this.IsSweep() {
+			if this.artifact != nil {
+				round.MyArtifactStartEnergy = this.artifact.energy
+			}
+			if target_team.artifact != nil {
+				round.TargetArtifactStartEnergy = target_team.artifact.energy
+			}
+		}
+
 		this.common_data.round_num += 1
 		this.DoRound(target_team)
 
-		// 非扫荡
 		if !this.IsSweep() {
-			round := msg_battle_round_reports_pool.Get()
 			round.MyMembersEnergy = this.GetMembersEnergy()
 			round.TargetMembersEnergy = target_team.GetMembersEnergy()
 			round.Reports = this.common_data.reports
 			round.RemoveBuffs = this.common_data.remove_buffs
 			round.ChangedFighters = this.common_data.changed_fighters
+			if this.artifact != nil {
+				round.MyArtifactEndEnergy = this.artifact.energy
+			}
+			if target_team.artifact != nil {
+				round.TargetArtifactEndEnergy = target_team.artifact.energy
+			}
 			round.RoundNum = c + 1
 			rounds = append(rounds, round)
 		}
@@ -1112,7 +1209,7 @@ const (
 	PVP_TEAM_MAX_MEMBER_NUM = 4
 )
 
-func (this *Player) fight(team_members []int32, battle_type, battle_param, assist_friend_id, assist_role_id, assist_pos int32) int32 {
+func (this *Player) fight(team_members []int32, battle_type, battle_param, assist_friend_id, assist_role_id, assist_pos, artifact_id int32) int32 {
 	if battle_type == 1 && this.Id == battle_param {
 		log.Error("Cant fight with self")
 		return -1
@@ -1140,14 +1237,14 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 
 	if team_members != nil && len(team_members) > 0 {
 		if battle_type == 1 || battle_type == 8 {
-			res := this.SetTeam(BATTLE_TEAM_ATTACK, team_members)
+			res := this.SetTeam(BATTLE_TEAM_ATTACK, team_members, artifact_id)
 			if res < 0 {
 				this.assist_friend = nil
 				log.Error("Player[%v] set attack team failed", this.Id)
 				return res
 			}
 		} else if battle_type == 2 {
-			res := this.SetCampaignTeam(team_members)
+			res := this.SetCampaignTeam(team_members, artifact_id)
 			if res < 0 {
 				this.assist_friend = nil
 				log.Error("Player[%v] set campaign members[%v] failed", this.Id, team_members)
@@ -1180,7 +1277,7 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 				return -1
 			}
 
-			res := this.SetTeam(team_type, team_members)
+			res := this.SetTeam(team_type, team_members, artifact_id)
 			if res < 0 {
 				this.assist_friend = nil
 				log.Error("Player[%v] set team[%v:%v] failed", this.Id, team_type, team_members)
@@ -1256,7 +1353,7 @@ func C2SFightHandler(p *Player, msg_data []byte) int32 {
 
 	p.sweep_num = req.GetSweepNum()
 	p.curr_sweep = 0
-	return p.fight(req.GetAttackMembers(), req.GetBattleType(), req.GetBattleParam(), req.GetAssistFriendId(), req.GetAssistRoleId(), req.GetAssistPos())
+	return p.fight(req.GetAttackMembers(), req.GetBattleType(), req.GetBattleParam(), req.GetAssistFriendId(), req.GetAssistRoleId(), req.GetAssistPos(), req.GetAritfactId())
 }
 
 func C2SSetTeamHandler(p *Player, msg_data []byte) int32 {
@@ -1272,12 +1369,12 @@ func C2SSetTeamHandler(p *Player, msg_data []byte) int32 {
 	if tt == BATTLE_TEAM_ATTACK {
 		//res = p.SetAttackTeam(req.TeamMembers)
 	} else if tt == BATTLE_TEAM_DEFENSE {
-		res = p.SetTeam(BATTLE_TEAM_DEFENSE, req.TeamMembers)
+		res = p.SetTeam(BATTLE_TEAM_DEFENSE, req.GetTeamMembers(), req.GetArtifactId())
 		if res > 0 {
 			top_power_match_manager.Update(p.Id, p.get_defense_team_power())
 		}
 	} else if tt == BATTLE_TEAM_CAMPAIN {
-		res = p.SetTeam(BATTLE_TEAM_CAMPAIN, req.TeamMembers)
+		res = p.SetTeam(BATTLE_TEAM_CAMPAIN, req.GetTeamMembers(), req.GetArtifactId())
 	} else {
 		log.Warn("Unknown team type[%v] to player[%v]", tt, p.Id)
 	}

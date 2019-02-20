@@ -54,6 +54,8 @@ message PlayerRoleHandbook{
 message PlayerBattleTeam{
 	repeated int32 DefenseMembers=2;
 	repeated int32 CampaignMembers=3;
+	optional int32 DefenseArtifactId=4;
+	optional int32 CampaignArtifactId=5;
 }
 
 message PlayerCampaignCommon{

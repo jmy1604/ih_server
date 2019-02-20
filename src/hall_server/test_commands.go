@@ -264,7 +264,7 @@ func set_attack_team_cmd(p *Player, args []string) int32 {
 		team = append(team, int32(role_id))
 	}
 
-	if p.SetTeam(BATTLE_TEAM_ATTACK, team) < 0 {
+	if p.SetTeam(BATTLE_TEAM_ATTACK, team, 0) < 0 {
 		log.Error("设置玩家[%v]攻击阵容失败", p.Id)
 		return -1
 	}
@@ -290,7 +290,7 @@ func set_defense_team_cmd(p *Player, args []string) int32 {
 		team = append(team, int32(role_id))
 	}
 
-	if p.SetTeam(BATTLE_TEAM_DEFENSE, team) < 0 {
+	if p.SetTeam(BATTLE_TEAM_DEFENSE, team, 0) < 0 {
 		log.Error("设置玩家[%v]防守阵容失败", p.Id)
 		return -1
 	}
@@ -354,7 +354,7 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 		stage_type = 1
 	}
 
-	err_code, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(int32(stage_type), stage, nil, nil)
+	err_code, is_win, my_team, target_team, my_artifact_id, target_artifact_id, enter_reports, rounds, has_next_wave := p.FightInStage(int32(stage_type), stage, nil, nil)
 	if err_code < 0 {
 		log.Error("Player[%v] fight stage %v, team is empty", p.Id, stage_id)
 		return err_code
@@ -367,6 +367,8 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 	response.EnterReports = enter_reports
 	response.Rounds = rounds
 	response.HasNextWave = has_next_wave
+	response.MyArtifactId = my_artifact_id
+	response.TargetArtifactId = target_artifact_id
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 	log.Debug("玩家[%v]挑战了关卡[%v]", p.Id, stage_id)
 	return 1
@@ -1514,7 +1516,7 @@ func use_assist_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	var battle_type, battle_param, friend_id, role_id, member_pos int
+	var battle_type, battle_param, friend_id, role_id, member_pos, artifact_id int
 	var err error
 	battle_type, err = strconv.Atoi(args[0])
 	if err != nil {
@@ -1536,7 +1538,10 @@ func use_assist_cmd(p *Player, args []string) int32 {
 	if err != nil {
 		return -1
 	}
-	return p.fight(nil, int32(battle_type), int32(battle_param), int32(friend_id), int32(role_id), int32(member_pos))
+	if len(args) > 5 {
+		artifact_id, err = strconv.Atoi(args[5])
+	}
+	return p.fight(nil, int32(battle_type), int32(battle_param), int32(friend_id), int32(role_id), int32(member_pos), int32(artifact_id))
 }
 
 func task_data_cmd(p *Player, args []string) int32 {
@@ -2325,7 +2330,7 @@ func expedition_fight_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	res := p.SetTeam(BATTLE_TEAM_EXPEDITION, mems)
+	res := p.SetTeam(BATTLE_TEAM_EXPEDITION, mems, 0)
 	if res < 0 {
 		return res
 	}
@@ -2354,7 +2359,7 @@ func expedition_team_set_cmd(p *Player, args []string) int32 {
 		}
 		mids = append(mids, int32(id))
 	}
-	return p.SetTeam(BATTLE_TEAM_EXPEDITION, mids)
+	return p.SetTeam(BATTLE_TEAM_EXPEDITION, mids, 0)
 }
 
 func expedition_purify_points_cmd(p *Player, args []string) int32 {
@@ -2445,6 +2450,25 @@ func artifact_reset_cmd(p *Player, args []string) int32 {
 	}
 
 	return p.artifact_reset(int32(id))
+}
+
+func set_team_artifact_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var team_id, artifact_id int
+	var err error
+	team_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	artifact_id, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+	return p.SetTeamArtifact(int32(team_id), int32(artifact_id))
 }
 
 type test_cmd_func func(*Player, []string) int32
@@ -2605,6 +2629,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"artifact_levelup":         artifact_levelup_cmd,
 	"artifact_rankup":          artifact_rankup_cmd,
 	"artifact_reset":           artifact_reset_cmd,
+	"set_team_artifact":        set_team_artifact_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {
