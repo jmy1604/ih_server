@@ -116,20 +116,22 @@ func (this *Player) fill_task_msg(task_type int32) (task_list []*msg_client_mess
 				this.db.Tasks.SetState(t.Id, s)
 			} else {
 				// 特殊判断等级和VIP等级，解决因为丢失任务数据不能完成的问题
-				var complete bool
-				if t.EventId == table_config.TASK_COMPLETE_TYPE_REACH_LEVEL {
-					if this.db.GetLevel() >= t.EventParam {
-						complete = true
+				if s == TASK_STATE_DOING {
+					var complete bool
+					if t.EventId == table_config.TASK_COMPLETE_TYPE_REACH_LEVEL {
+						if this.db.GetLevel() >= t.EventParam {
+							complete = true
+						}
+					} else if t.EventId == table_config.TASK_COMPLETE_TYPE_REACH_VIP_N_LEVEL {
+						if this.db.Info.GetVipLvl() >= t.EventParam {
+							complete = true
+						}
 					}
-				} else if t.EventId == table_config.TASK_COMPLETE_TYPE_REACH_VIP_N_LEVEL {
-					if this.db.Info.GetVipLvl() >= t.EventParam {
-						complete = true
+					if complete {
+						s = TASK_STATE_COMPLETE
+						v = t.CompleteNum
+						this.db.Tasks.SetValue(t.Id, t.CompleteNum)
 					}
-				}
-				if complete {
-					s = TASK_STATE_COMPLETE
-					v = t.CompleteNum
-					this.db.Tasks.SetValue(t.Id, t.CompleteNum)
 				}
 			}
 		}
