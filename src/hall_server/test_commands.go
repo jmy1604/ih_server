@@ -2412,7 +2412,7 @@ func artifact_levelup_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return p.artifact_unlock(int32(id))
+	return p.artifact_levelup(int32(id))
 }
 
 func artifact_rankup_cmd(p *Player, args []string) int32 {
@@ -2604,6 +2604,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"artifact_unlock":          artifact_unlock_cmd,
 	"artifact_levelup":         artifact_levelup_cmd,
 	"artifact_rankup":          artifact_rankup_cmd,
+	"artifact_reset":           artifact_reset_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {

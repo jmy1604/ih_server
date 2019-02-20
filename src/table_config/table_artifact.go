@@ -113,7 +113,7 @@ func (this *ArtifactTableMgr) Load(table_file string) bool {
 			rank_item.MaxLevel = tmp_item.MaxLevel
 			id_item.Rank2Item[tmp_item.Rank] = rank_item
 		}
-		rank_item.Level2Item[tmp_item.Id] = tmp_item
+		rank_item.Level2Item[tmp_item.Level] = tmp_item
 		this.Array = append(this.Array, tmp_item)
 	}
 
