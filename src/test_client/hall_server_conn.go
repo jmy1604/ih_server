@@ -300,7 +300,7 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 	}
 	if response.TargetTeam != nil {
 		log.Debug("Target team:")
-		log.Debug("      TargetArtifact: %v", response.GetTargetArtifactId())
+		log.Debug("		 TargetArtifact: %v", response.GetTargetArtifactId())
 		for i := 0; i < len(response.TargetTeam); i++ {
 			m := response.TargetTeam[i]
 			if m == nil {
@@ -323,6 +323,8 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 		for i := 0; i < len(response.Rounds); i++ {
 			r := response.Rounds[i]
 			log.Debug("	  round[%v]", r.RoundNum)
+			log.Debug("     my artifact start energy: %v", r.GetMyArtifactStartEnergy())
+			log.Debug("     target artifact start energy: %v", r.GetTargetArtifactStartEnergy())
 			if r.Reports != nil {
 				for j := 0; j < len(r.Reports); j++ {
 					rr := r.Reports[j]
@@ -341,6 +343,8 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 					log.Debug("			changed member: Side[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v]", m.Side, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage)
 				}
 			}
+			log.Debug("     my artifact end energy: %v", r.GetMyArtifactEndEnergy())
+			log.Debug("     target artifact end energy: %v", r.GetTargetArtifactEndEnergy())
 		}
 	}
 }

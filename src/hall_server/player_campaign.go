@@ -292,8 +292,8 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 	if attack_team.artifact != nil {
 		my_artifact_id = attack_team.artifact.id
 	}
-	if this.target_stage_team.artifact != nil {
-		target_artifact_id = this.target_stage_team.artifact.id
+	if this.target_stage_team.artifact != nil && this.target_stage_team.artifact.artifact != nil {
+		target_artifact_id = this.target_stage_team.artifact.artifact.ClientIndex
 	}
 
 	// 扫荡状态

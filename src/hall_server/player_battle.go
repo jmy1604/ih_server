@@ -625,6 +625,8 @@ func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, s
 		// 被动触发
 	} else if skill.Type == SKILL_TYPE_NEXT {
 
+	} else if skill.Type == SKILL_TYPE_ARTIFACT {
+
 	} else {
 		log.Error("Invalid skill type[%v]", skill.Type)
 		return
@@ -790,6 +792,10 @@ func (this *BattleTeam) CheckAndUseArtifactEveryRound(target_team *BattleTeam) b
 		this.UseSkillOnce(self_index, target_team, skill.ComboSkill)
 	}
 
+	if this.artifact.energy >= BATTLE_TEAM_ARTIFACT_MAX_ENERGY {
+		this.artifact.energy -= BATTLE_TEAM_ARTIFACT_MAX_ENERGY
+	}
+
 	return true
 }
 
@@ -828,9 +834,21 @@ func (this *BattleTeam) _fight_pair(self_index, target_index int32, target_team 
 }
 
 // 回合
-func (this *BattleTeam) DoRound(target_team *BattleTeam) {
+func (this *BattleTeam) DoRound(target_team *BattleTeam, round *msg_client_message.BattleRoundReports) {
 	this.RoundStart()
 	target_team.RoundStart()
+
+	if round != nil {
+		// 非扫荡
+		if !this.IsSweep() {
+			if this.artifact != nil {
+				round.MyArtifactStartEnergy = this.artifact.energy
+			}
+			if target_team.artifact != nil {
+				round.TargetArtifactStartEnergy = target_team.artifact.energy
+			}
+		}
+	}
 
 	// 被动技，回合行动前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
@@ -852,6 +870,23 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 	this.RoundEnd()
 	target_team.RoundEnd()
+
+	if round != nil {
+		// 非扫荡
+		if !this.IsSweep() {
+			round.MyMembersEnergy = this.GetMembersEnergy()
+			round.TargetMembersEnergy = target_team.GetMembersEnergy()
+			round.Reports = this.common_data.reports
+			round.RemoveBuffs = this.common_data.remove_buffs
+			round.ChangedFighters = this.common_data.changed_fighters
+			if this.artifact != nil {
+				round.MyArtifactEndEnergy = this.artifact.energy
+			}
+			if target_team.artifact != nil {
+				round.TargetArtifactEndEnergy = target_team.artifact.energy
+			}
+		}
+	}
 }
 
 // 结束
@@ -1015,31 +1050,11 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		log.Debug("----------------------------------------------- Round[%v] --------------------------------------------", c+1)
 
 		round := msg_battle_round_reports_pool.Get()
-		// 非扫荡
-		if !this.IsSweep() {
-			if this.artifact != nil {
-				round.MyArtifactStartEnergy = this.artifact.energy
-			}
-			if target_team.artifact != nil {
-				round.TargetArtifactStartEnergy = target_team.artifact.energy
-			}
-		}
 
 		this.common_data.round_num += 1
-		this.DoRound(target_team)
+		this.DoRound(target_team, round)
 
 		if !this.IsSweep() {
-			round.MyMembersEnergy = this.GetMembersEnergy()
-			round.TargetMembersEnergy = target_team.GetMembersEnergy()
-			round.Reports = this.common_data.reports
-			round.RemoveBuffs = this.common_data.remove_buffs
-			round.ChangedFighters = this.common_data.changed_fighters
-			if this.artifact != nil {
-				round.MyArtifactEndEnergy = this.artifact.energy
-			}
-			if target_team.artifact != nil {
-				round.TargetArtifactEndEnergy = target_team.artifact.energy
-			}
 			round.RoundNum = c + 1
 			rounds = append(rounds, round)
 		}

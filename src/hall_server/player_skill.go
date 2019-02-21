@@ -12,10 +12,11 @@ import (
 
 // 技能类型
 const (
-	SKILL_TYPE_NORMAL  = 1 // 普攻
-	SKILL_TYPE_SUPER   = 2 // 绝杀
-	SKILL_TYPE_PASSIVE = 3 // 被动
-	SKILL_TYPE_NEXT    = 4 // 连携
+	SKILL_TYPE_NORMAL   = 1 // 普攻
+	SKILL_TYPE_SUPER    = 2 // 绝杀
+	SKILL_TYPE_PASSIVE  = 3 // 被动
+	SKILL_TYPE_NEXT     = 4 // 连携
+	SKILL_TYPE_ARTIFACT = 5 // 神器
 )
 
 // 技能战斗类型
@@ -171,6 +172,9 @@ func _get_team_big_cross_targets() [][]int32 {
 
 // 单个默认目标
 func _get_single_default_target(self_pos int32, target_team *BattleTeam) (pos int32) {
+	if self_pos < 0 {
+		return -1
+	}
 	pos = int32(-1)
 	rows := _get_rows_order(self_pos)
 	if rows == nil {
@@ -197,8 +201,14 @@ func _get_single_default_target(self_pos int32, target_team *BattleTeam) (pos in
 // 默认目标选择
 func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE { // 单体
+		if self_pos < 0 {
+			return
+		}
 		pos = []int32{_get_single_default_target(self_pos, target_team)}
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_ROW { //横排
+		if self_pos < 0 {
+			return
+		}
 		rows := _get_rows_order(self_pos)
 		if rows == nil {
 			log.Warn("get rows failed")
@@ -212,6 +222,9 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 			}
 		}
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN { // 竖排
+		if self_pos < 0 {
+			return
+		}
 		for c := 0; c < BATTLE_FORMATION_LINE_NUM; c++ {
 			is_empty := false
 			is_empty, pos = _check_team_column(self_pos, int32(c), target_team)
@@ -223,6 +236,9 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 		// 默认多体不存在
 		log.Warn("Cant get target pos on default multi members")
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_CROSS { // 十字
+		if self_pos < 0 {
+			return
+		}
 		p := _get_single_default_target(self_pos, target_team)
 		if p < 0 {
 			log.Error("Get single target pos by self_pos[%v] failed", self_pos)
@@ -236,6 +252,9 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 			}
 		}
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_BIG_CROSS { // 大十字
+		if self_pos < 0 {
+			return
+		}
 		p := _get_single_default_target(self_pos, target_team)
 		if p < 0 {
 			log.Error("Get single target pos by self_pos[%v] failed", self_pos)
@@ -249,9 +268,12 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 			}
 		}
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_ALL { // 全体
-		m := target_team.members[self_pos]
-		if m != nil && !m.is_dead() {
-			pos = []int32{self_pos}
+		var m *TeamMember
+		if self_pos >= 0 {
+			m = target_team.members[self_pos]
+			if m != nil && !m.is_dead() {
+				pos = []int32{self_pos}
+			}
 		}
 		for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
 			if self_pos == int32(i) {
@@ -270,6 +292,9 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 
 // 后排目标选择
 func skill_get_back_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+	if self_pos < 0 {
+		return
+	}
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE { // 单体
 		var found bool
 		rows := _get_rows_order(self_pos)
@@ -405,6 +430,9 @@ func skill_get_random_targets(self_pos int32, target_team *BattleTeam, skill_dat
 
 // 强制自身目标选择
 func skill_get_force_self_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+	if self_pos < 0 {
+		return
+	}
 	var indexes []int32
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE {
 		pos = []int32{self_pos}
@@ -998,17 +1026,19 @@ func _get_battle_report(report *msg_client_message.BattleReportItem, skill_id in
 	report.User.Damage += self_dmg
 	target := build_battle_report_item_add_target_item(report, target_team, target_pos, target_dmg, is_critical, is_block, is_absorb, anti_type)
 
-	members_damage := self_team.common_data.members_damage
-	members_cure := self_team.common_data.members_cure
-	if target_dmg > 0 {
-		members_damage[self_team.side][self_pos] += target_dmg
-	} else if target_dmg < 0 {
-		members_cure[self_team.side][self_pos] += target_dmg
-	}
-	if self_dmg > 0 {
-		members_damage[target_team.side][target_pos] += self_dmg
-	} else if self_dmg < 0 {
-		members_cure[target_team.side][target_pos] += self_dmg
+	if self_pos >= 0 {
+		members_damage := self_team.common_data.members_damage
+		members_cure := self_team.common_data.members_cure
+		if target_dmg > 0 {
+			members_damage[self_team.side][self_pos] += target_dmg
+		} else if target_dmg < 0 {
+			members_cure[self_team.side][self_pos] += target_dmg
+		}
+		if self_dmg > 0 {
+			members_damage[target_team.side][target_pos] += self_dmg
+		} else if self_dmg < 0 {
+			members_cure[target_team.side][target_pos] += self_dmg
+		}
 	}
 
 	return report, target
@@ -1479,6 +1509,9 @@ func passive_skill_effect(trigger_event int32, user *TeamMember, target_team *Ba
 
 // 被动技效果
 func passive_skill_effect_with_self_pos(trigger_event int32, user_team *BattleTeam, user_pos int32, target_team *BattleTeam, trigger_pos []int32, is_combo bool) bool {
+	if user_pos < 0 {
+		return false
+	}
 	user := user_team.members[user_pos]
 	if user == nil {
 		return false

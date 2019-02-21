@@ -25,6 +25,7 @@ func set_level_cmd(p *Player, args []string) int32 {
 	}
 
 	p.db.Info.SetLvl(int32(level))
+	p.db.SetLevel(int32(level))
 	p.b_base_prop_chg = true
 	p.send_info()
 	return 1
@@ -299,8 +300,20 @@ func set_defense_team_cmd(p *Player, args []string) int32 {
 }
 
 func list_teams_cmd(p *Player, args []string) int32 {
-	log.Debug("defense team: %v", p.db.BattleTeam.GetDefenseMembers())
-	log.Debug("campaign team: %v", p.db.BattleTeam.GetCampaignMembers())
+	for bt := int32(1); bt < BATTLE_TEAM_MAX; bt++ {
+		if bt == BATTLE_TEAM_DEFENSE {
+			log.Debug("defense team: %v, artifact: %v", p.db.BattleTeam.GetDefenseMembers(), p.db.BattleTeam.GetDefenseArtifactId())
+		} else if bt == BATTLE_TEAM_CAMPAIN {
+			log.Debug("campaign team: %v, artifact: %v", p.db.BattleTeam.GetCampaignMembers(), p.db.BattleTeam.GetCampaignArtifactId())
+		} else {
+			if p.tmp_teams != nil {
+				tmp_team := p.tmp_teams[bt]
+				if tmp_team != nil {
+					log.Debug("team %v: %v, artifact %v", bt, tmp_team.members, tmp_team.artifact.Id)
+				}
+			}
+		}
+	}
 	return 1
 }
 
@@ -318,7 +331,7 @@ func pvp_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	p.Fight2Player(1, int32(player_id))
+	p.Fight2Player(8, int32(player_id))
 
 	log.Debug("玩家[%v]pvp玩家[%v]", p.Id, player_id)
 	return 1

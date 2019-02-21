@@ -702,6 +702,10 @@ func (this *Player) SetTeam(team_type int32, team []int32, artifact_id int32) in
 }
 
 func (this *Player) SetTeamArtifact(team_id, artifact_id int32) int32 {
+	if !this.db.Artifacts.HasIndex(artifact_id) {
+		log.Error("Player[%v] not has unlock artifact %v", this.Id, artifact_id)
+		return int32(msg_client_message.E_ERR_ARTIFACT_HAS_NOT_UNLOCK)
+	}
 	if team_id == BATTLE_TEAM_CAMPAIN {
 		this.db.BattleTeam.SetCampaignArtifactId(artifact_id)
 	} else if team_id == BATTLE_TEAM_DEFENSE {
@@ -713,6 +717,10 @@ func (this *Player) SetTeamArtifact(team_id, artifact_id int32) int32 {
 		ar, _ := this.db.Artifacts.GetRank(artifact_id)
 		al, _ := this.db.Artifacts.GetLevel(artifact_id)
 		a := artifact_table_mgr.Get(artifact_id, ar, al)
+		if a == nil {
+			log.Error("cant found artifact with id[%v] rank[%v] level[%v]", artifact_id, ar, al)
+			return int32(msg_client_message.E_ERR_ARTIFACT_TABLE_DATA_NOT_FOUND)
+		}
 		tmp_team := this.tmp_teams[team_id]
 		if tmp_team == nil {
 			tmp_team = &TmpTeam{
@@ -915,7 +923,7 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		my_artifact_id = this.attack_team.artifact.artifact.Id
 	}
 	if target_team.artifact != nil && target_team.artifact.artifact != nil {
-		target_artifact_id = target_team.artifact.artifact.Id
+		target_artifact_id = target_team.artifact.artifact.ClientIndex
 	}
 	response := &msg_client_message.S2CBattleResultResponse{
 		IsWin:               is_win,

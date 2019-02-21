@@ -8,6 +8,7 @@ import (
 )
 
 type XmlArtifactItem struct {
+	ClientIndex       int32  `xml:"ClientIndex,attr"`
 	Id                int32  `xml:"ArtifactID,attr"`
 	Rank              int32  `xml:"Rank,attr"`
 	Level             int32  `xml:"Level,attr"`

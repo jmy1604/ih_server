@@ -9,6 +9,9 @@ func (this *TeamMember) build_battle_fighter(damage int32) *msg_client_message.B
 	item := msg_battle_fighter_pool.Get()
 	item.Side = this.team.side
 	item.Pos = this.pos
+	if item.Pos < 0 {
+		return item
+	}
 	item.HP = this.hp
 	item.MaxHP = this.attrs[ATTR_HP_MAX]
 	item.Energy = this.energy

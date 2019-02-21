@@ -675,9 +675,11 @@ func (this *TeamMember) init_all_no_calc(team *BattleTeam, id int32, level int32
 		team.player.role_update_suit_attr_power(id, true, false)
 		if id > 0 {
 			team.player.add_talent_attr(this)
+			team.player.artifact_add_member_attrs(this)
 		} else if id < 0 {
 			if team.player.assist_friend != nil {
 				team.player.assist_friend.add_talent_attr(this)
+				team.player.assist_friend.artifact_add_member_attrs(this)
 			}
 		}
 	}

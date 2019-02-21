@@ -27,6 +27,10 @@ func (this *Player) artifact_data() int32 {
 			}
 			level, _ := this.db.Artifacts.GetLevel(id)
 			rank, _ := this.db.Artifacts.GetRank(id)
+			if artifact_table_mgr.Get(id, rank, level) == nil {
+				this.db.Artifacts.Remove(id)
+				continue
+			}
 			item_list = append(item_list, &msg_client_message.ArtifactData{
 				Id:    id,
 				Level: level,
@@ -68,6 +72,13 @@ func (this *Player) artifact_unlock(id int32) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
 		}
 	}
+
+	a := artifact_table_mgr.Get(id, 1, 1)
+	if a == nil {
+		log.Error("artifact %v unlock with rank 1 and level 1 table data not found", id)
+		return int32(msg_client_message.E_ERR_ARTIFACT_TABLE_DATA_NOT_FOUND)
+	}
+
 	this.db.Artifacts.Add(&dbPlayerArtifactData{
 		Id:    id,
 		Rank:  1,
@@ -234,20 +245,22 @@ func (this *Player) artifact_reset(id int32) int32 {
 	return 1
 }
 
-func (this *Player) artifact_add_member_attrs(artifact_id int32, member *TeamMember) {
-	if !this.db.Artifacts.HasIndex(artifact_id) {
-		return
-	}
+func (this *Player) artifact_add_member_attrs(member *TeamMember) {
+	ids := this.db.Artifacts.GetAllIndex()
+	for _, id := range ids {
+		if !this.db.Artifacts.HasIndex(id) {
+			continue
+		}
+		rank, _ := this.db.Artifacts.GetRank(id)
+		level, _ := this.db.Artifacts.GetLevel(id)
+		a := artifact_table_mgr.Get(id, rank, level)
+		if a == nil {
+			continue
+		}
 
-	rank, _ := this.db.Artifacts.GetRank(artifact_id)
-	level, _ := this.db.Artifacts.GetLevel(artifact_id)
-	a := artifact_table_mgr.Get(artifact_id, rank, level)
-	if a == nil {
-		return
-	}
-
-	if member != nil && !member.is_dead() {
-		member.add_attrs(a.ArtifactAttr)
+		if member != nil && !member.is_dead() {
+			member.add_attrs(a.ArtifactAttr)
+		}
 	}
 }
 
