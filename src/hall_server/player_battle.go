@@ -282,6 +282,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	}
 	if artifact != nil {
 		this.artifact = team_member_pool.Get()
+		this.artifact.attrs = make([]int32, ATTR_COUNT_MAX)
 		this.artifact.energy = 0
 		this.artifact.pos = -1
 		this.artifact.artifact = artifact
