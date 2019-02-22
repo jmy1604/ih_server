@@ -289,8 +289,8 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 
 	my_team = attack_team._format_members_for_msg()
 	target_team = this.target_stage_team._format_members_for_msg()
-	if attack_team.artifact != nil {
-		my_artifact_id = attack_team.artifact.id
+	if attack_team.artifact != nil && attack_team.artifact.artifact != nil {
+		my_artifact_id = attack_team.artifact.artifact.ClientIndex
 	}
 	if this.target_stage_team.artifact != nil && this.target_stage_team.artifact.artifact != nil {
 		target_artifact_id = this.target_stage_team.artifact.artifact.ClientIndex
