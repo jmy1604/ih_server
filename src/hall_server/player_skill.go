@@ -55,6 +55,21 @@ const (
 	SKILL_TARGET_TYPE_EMPTY_POS      = 8 // 空位
 )
 
+// 技能效果类型
+const (
+	SKILL_EFFECT_TYPE_DIRECT_INJURY         = 1  // 直接伤害
+	SKILL_EFFECT_TYPE_CURE                  = 2  // 治疗
+	SKILL_EFFECT_TYPE_ADD_BUFF              = 3  // 施加BUFF
+	SKILL_EFFECT_TYPE_SUMMON                = 4  // 召唤技能
+	SKILL_EFFECT_TYPE_MODIFY_ATTR           = 5  // 改变下次计算时的角色参数
+	SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL   = 6  // 改变普通攻击技能ID
+	SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL     = 7  // 改变怒气攻击技能ID
+	SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM = 8  // 增加普攻次数
+	SKILL_EFFECT_TYPE_MODIFY_RAGE           = 9  // 改变怒气
+	SKILL_EFFECT_TYPE_ADD_SHIELD            = 10 // 增加护盾
+	SKILL_EFFECT_TYPE_ARTIFACT_DAMAGE       = 11 // 神器伤害
+)
+
 // BUFF效果类型
 const (
 	BUFF_EFFECT_TYPE_DAMAGE                = 1
@@ -705,21 +720,6 @@ func skill_effect_cond_check(self *TeamMember, target *TeamMember, effect_cond1 
 	return true
 }
 
-// 技能效果类型
-const (
-	SKILL_EFFECT_TYPE_DIRECT_INJURY         = 1  // 直接伤害
-	SKILL_EFFECT_TYPE_CURE                  = 2  // 治疗
-	SKILL_EFFECT_TYPE_ADD_BUFF              = 3  // 施加BUFF
-	SKILL_EFFECT_TYPE_SUMMON                = 4  // 召唤技能
-	SKILL_EFFECT_TYPE_MODIFY_ATTR           = 5  // 改变下次计算时的角色参数
-	SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL   = 6  // 改变普通攻击技能ID
-	SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL     = 7  // 改变怒气攻击技能ID
-	SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM = 8  // 增加普攻次数
-	SKILL_EFFECT_TYPE_MODIFY_RAGE           = 9  // 改变怒气
-	SKILL_EFFECT_TYPE_ADD_SHIELD            = 10 // 增加护盾
-	SKILL_EFFECT_TYPE_ARTIFACT_DAMAGE       = 11 // 神器伤害
-)
-
 // 技能直接伤害
 func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type, skill_fight_type int32, effect []int32) (target_damage, self_damage int32, is_block, is_critical, is_absorb bool, anti_type int32) {
 	if len(effect) < 4 {
@@ -986,14 +986,14 @@ func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
 
 // 神器伤害效果
 func skill_effect_artifact_damage(self, target *TeamMember, effect []int32) (target_damage int32, is_absorb bool) {
-	if effect == nil || len(effect) < 2 {
+	if effect == nil || len(effect) < 3 {
 		return
 	}
 
-	target_damage = effect[0]
+	target_damage = effect[1]
 
 	// 贯通
-	if effect[1] > 0 {
+	if effect[2] > 0 {
 		if target.attrs[ATTR_SHIELD] < target_damage {
 			target.attrs[ATTR_SHIELD] = 0
 		} else {

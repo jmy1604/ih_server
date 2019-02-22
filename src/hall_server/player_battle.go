@@ -553,12 +553,12 @@ func (this *BattleTeam) RoundEnd() {
 func (this *BattleTeam) GetTheUseSkill(self *TeamMember, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
 	var skill_id int32
 
-	if self.pos < 0 { // 神器
-		if self.artifact != nil && self.energy >= BATTLE_TEAM_ARTIFACT_MAX_ENERGY {
-			skill_id = self.artifact.SkillId
-		}
-	} else { // 角色
-		if trigger_skill == 0 {
+	if trigger_skill == 0 {
+		if self.pos < 0 { // 神器
+			if self.artifact != nil && self.energy >= BATTLE_TEAM_ARTIFACT_MAX_ENERGY {
+				skill_id = self.artifact.SkillId
+			}
+		} else {
 			use_normal := true
 			// 能量满用绝杀
 			if self.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
@@ -597,9 +597,9 @@ func (this *BattleTeam) GetTheUseSkill(self *TeamMember, target_team *BattleTeam
 					}
 				}
 			}
-		} else {
-			skill_id = trigger_skill
 		}
+	} else {
+		skill_id = trigger_skill
 	}
 
 	skill = skill_table_mgr.Get(skill_id)
