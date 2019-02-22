@@ -45,22 +45,31 @@ func _write_source(f *os.File, dest_dir string, tt *this_table) (err error) {
 	tname := _upper_first_char(f.Name())
 	str = "type " + tname + " struct {\n"
 	for _, c := range tt.cols {
-		str += ("	" + _upper_first_char(c.header) + " " + c.value_type)
+		str += ("	" + _upper_first_char(c.header) + " " + c.value_type + "\n")
 	}
 	str += "}\n\n"
-	_, err = f.WriteString(str)
-	if err != nil {
-		return
-	}
 
 	// table manager struct
 	tmname := tname + "Mgr"
-	str = "type " + tmname + " struct {\n"
+	str += "type " + tmname + " struct {\n"
+	str += ("	id2items map[int32]*" + tname + "\n")
+	str += ("	items_array []*" + tname + "\n")
 	str += "}\n\n"
 
 	// read function
-	str = "func (this *" + sname + ") Read() {"
-	str += "}\n"
+	str += "func (this *" + tmname + ") Read() {\n"
+	str += "}\n\n"
+
+	// get function
+	str += "func (this *" + tmname + ") Get(id int32) {\n"
+	str += "	return this.id2items[id]"
+	str += "}\n\n"
+	str += "func (this *" + tmname + ") GetByIndex(idx int32) {\n"
+	str += "	if idx >= len(this.items_array) {\n"
+	str += "		return nil\n"
+	str += "	}\n"
+	str += "	return this.items_array[idx]\n"
+	str += "}\n\n"
 
 	return
 }
