@@ -130,7 +130,7 @@ func (this *G2H_Proc) OnlinePlayerNum(args *rpc_common.GmOnlinePlayerNumCmd, res
 		}
 	}()
 
-	result.PlayerNum = []int32{conn_timer_wheel.GetCurrPlayerNum()}
+	result.PlayerNum = []int32{conn_timer_wheel.GetCurrPlayerNum(), player_mgr.GetPlayersNum()}
 
 	log.Trace("@@@ G2H_Proc::OnlinePlayerNum")
 

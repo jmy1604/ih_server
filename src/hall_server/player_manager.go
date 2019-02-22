@@ -35,6 +35,12 @@ func (this *PlayerManager) Init() bool {
 	return true
 }
 
+func (this *PlayerManager) GetPlayersNum() int32 {
+	this.uid2players_locker.RLock()
+	defer this.uid2players_locker.RUnlock()
+	return int32(len(this.uid2players))
+}
+
 func (this *PlayerManager) GetPlayerById(id int32) *Player {
 	this.id2players_locker.Lock()
 	defer this.id2players_locker.Unlock()

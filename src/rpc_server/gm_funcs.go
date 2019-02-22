@@ -212,7 +212,7 @@ func gm_online_player_num(id int32, data []byte) (int32, []byte) {
 
 		rpc_client := GetRpcClientByServerId(sid)
 		if rpc_client == nil {
-			player_num = append(player_num, -1)
+			player_num = append(player_num, []int32{-1, -1}...)
 			log.Error("gm get rpc client by server id %v failed", sid)
 			continue
 		}
@@ -220,12 +220,12 @@ func gm_online_player_num(id int32, data []byte) (int32, []byte) {
 		args.ServerId = sid
 		err = rpc_client.Call("G2H_Proc.OnlinePlayerNum", &args, &result)
 		if err != nil {
-			player_num = append(player_num, -1)
+			player_num = append(player_num, []int32{-1, -1}...)
 			log.Error("gm rpc call G2H_Proc.OnlinePlayerNum err %v", err.Error())
 			continue
 		}
 
-		player_num = append(player_num, result.PlayerNum[0])
+		player_num = append(player_num, result.PlayerNum...)
 	}
 
 	result.PlayerNum = player_num
