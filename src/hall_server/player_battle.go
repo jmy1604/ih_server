@@ -276,19 +276,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	}
 
 	// 神器
-	if this.artifact != nil {
-		team_member_pool.Put(this.artifact)
-		this.artifact = nil
-	}
-	if artifact != nil {
-		this.artifact = team_member_pool.Get()
-		this.artifact.attrs = make([]int32, ATTR_COUNT_MAX)
-		this.artifact.energy = 0
-		this.artifact.pos = -1
-		this.artifact.artifact = artifact
-		this.artifact.team = this
-		log.Trace("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! artifact id %v", artifact.Id)
-	}
+	this._init4artifact(artifact)
 
 	this.calc_first_hand(p)
 	this.curr_attack = 0
@@ -304,6 +292,22 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	}
 
 	return 1
+}
+
+// init for artifact
+func (this *BattleTeam) _init4artifact(artifact *table_config.XmlArtifactItem) {
+	if this.artifact != nil {
+		team_member_pool.Put(this.artifact)
+		this.artifact = nil
+	}
+	if artifact != nil {
+		this.artifact = team_member_pool.Get()
+		this.artifact.attrs = make([]int32, ATTR_COUNT_MAX)
+		this.artifact.energy = 0
+		this.artifact.pos = -1
+		this.artifact.artifact = artifact
+		this.artifact.team = this
+	}
 }
 
 // init with stage
