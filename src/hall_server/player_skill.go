@@ -878,7 +878,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 
 // 技能治疗效果
 func skill_effect_cure(self_mem *TeamMember, target_mem *TeamMember, effect []int32) (cure int32) {
-	if len(effect) < 2 {
+	if len(effect) < 4 {
 		log.Error("cure skill effect length %v not enough", len(effect))
 		return
 	}
@@ -913,6 +913,10 @@ func skill_effect_add_buff(self_mem *TeamMember, target_mem *TeamMember, effect 
 
 // 召唤
 func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_pos int32, effect []int32) (mem *TeamMember) {
+	if len(effect) < 4 {
+		log.Error("summon skill effect length %v not enough", len(effect))
+		return
+	}
 	if self_mem.pos < 0 {
 		return
 	}
