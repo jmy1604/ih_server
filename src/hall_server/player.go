@@ -731,6 +731,7 @@ func (this *Player) SetTeamArtifact(team_id, artifact_id int32) int32 {
 			tmp_team.artifact = a
 		}
 	}
+	log.Debug("Player %v set team %v artifact %v", this.Id, team_id, artifact_id)
 	return 1
 }
 

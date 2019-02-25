@@ -506,6 +506,13 @@ func (this *Player) expedition_fight() int32 {
 		this.db.ExpeditionData.IncbyPurifyPoints(e.PurifyPoint)
 	}
 
+	var my_artifact_id, target_artifact_id int32
+	if this.expedition_team.artifact != nil && this.expedition_team.artifact.artifact != nil {
+		my_artifact_id = this.expedition_team.artifact.artifact.ClientIndex
+	}
+	if this.expedition_enemy_team.artifact != nil && this.expedition_enemy_team.artifact.artifact != nil {
+		target_artifact_id = this.expedition_enemy_team.artifact.artifact.ClientIndex
+	}
 	members_damage := this.expedition_team.common_data.members_damage
 	members_cure := this.expedition_team.common_data.members_cure
 	response := &msg_client_message.S2CBattleResultResponse{
@@ -522,6 +529,8 @@ func (this *Player) expedition_fight() int32 {
 		BattleParam:         0,
 		MySpeedBonus:        this.expedition_team.get_first_hand(),
 		TargetSpeedBonus:    this.expedition_enemy_team.get_first_hand(),
+		MyArtifactId:        my_artifact_id,
+		TargetArtifactId:    target_artifact_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
