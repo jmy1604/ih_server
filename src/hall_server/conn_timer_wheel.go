@@ -147,7 +147,7 @@ func (this *ConnTimerWheel) Run() {
 					for t != nil {
 						p := player_mgr.GetPlayerById(t.player_id)
 						if p != nil {
-							log.Debug("############### to offline player[%v]", t.player_id)
+							log.Trace("############### to offline player[%v]", t.player_id)
 							this.remove(p.Id)
 							p.OnLogout(false)
 						}

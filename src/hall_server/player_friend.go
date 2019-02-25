@@ -301,7 +301,9 @@ func (this *Player) send_recommend_friends() int32 {
 		Players: players,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_RECOMMEND_RESPONSE), response)
-	log.Debug("Player[%v] recommend friends %v", this.Id, response)
+
+	log.Trace("Player[%v] recommend friends %v", this.Id, response)
+
 	return 1
 }
 
@@ -313,7 +315,9 @@ func (this *Player) send_friend_list() int32 {
 		Friends: friends,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_LIST_RESPONSE), response)
-	log.Debug("Player[%v] friend list: %v", this.Id, response)
+
+	log.Trace("Player[%v] friend list: %v", this.Id, response)
+
 	return 1
 }
 
@@ -332,7 +336,9 @@ func (this *Player) check_and_send_friend_add() int32 {
 		FriendsAdd: friends,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_LIST_ADD_NOTIFY), response)
-	log.Debug("Player[%v] friend add: %v", this.Id, response)
+
+	log.Trace("Player[%v] friend add: %v", this.Id, response)
+
 	return 1
 }
 
@@ -383,7 +389,7 @@ func (this *Player) friend_ask(player_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_ASK_RESPONSE), response)
 
-	log.Debug("Player[%v] asked players[%v] to friend", this.Id, player_ids)
+	log.Trace("Player[%v] asked players[%v] to friend", this.Id, player_ids)
 
 	return 1
 }
@@ -403,7 +409,9 @@ func (this *Player) check_and_send_friend_ask_add() int32 {
 		PlayersAdd: players,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_ASK_PLAYER_LIST_ADD_NOTIFY), response)
-	log.Debug("Player[%v] checked friend ask add %v", this.Id, response)
+
+	log.Trace("Player[%v] checked friend ask add %v", this.Id, response)
+
 	return 1
 }
 
@@ -415,7 +423,9 @@ func (this *Player) send_friend_ask_list() int32 {
 		Players: players,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_ASK_PLAYER_LIST_RESPONSE), response)
-	log.Debug("Player[%v] friend ask list %v", this.Id, response)
+
+	log.Trace("Player[%v] friend ask list %v", this.Id, response)
+
 	return 1
 }
 
@@ -484,7 +494,8 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 	this.friend_add_ids(player_ids)
 	this.check_and_send_friend_add()
 
-	log.Debug("Player[%v] agreed players[%v] friend ask", this.Id, player_ids)
+	log.Trace("Player[%v] agreed players[%v] friend ask", this.Id, player_ids)
+
 	return 1
 }
 
@@ -510,7 +521,7 @@ func (this *Player) refuse_friend_ask(player_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_REFUSE_RESPONSE), response)
 
-	log.Debug("Player[%v] refuse players %v friend ask", this.Id, player_ids)
+	log.Trace("Player[%v] refuse players %v friend ask", this.Id, player_ids)
 
 	return 1
 }
@@ -547,7 +558,7 @@ func (this *Player) remove_friend(friend_ids []int32) int32 {
 		}
 	}
 
-	log.Debug("Player[%v] removed friends: %v", this.Id, friend_ids)
+	log.Trace("Player[%v] removed friends: %v", this.Id, friend_ids)
 
 	return 1
 }
@@ -595,7 +606,7 @@ func (this *Player) give_friends_points(friend_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_GIVE_POINTS_RESPONSE), response)
 
-	log.Debug("Player[%v] give friends %v points, is gived %v", this.Id, friend_ids, is_gived)
+	log.Trace("Player[%v] give friends %v points, is gived %v", this.Id, friend_ids, is_gived)
 
 	return 1
 }
@@ -634,7 +645,7 @@ func (this *Player) get_friend_points(friend_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_GET_POINTS_RESPONSE), response)
 
-	log.Debug("Player[%v] get friends %v points %v", this.Id, friend_ids, get_points)
+	log.Trace("Player[%v] get friends %v points %v", this.Id, friend_ids, get_points)
 
 	return 1
 }
@@ -717,9 +728,9 @@ func (this *Player) friend_search_boss() int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_SEARCH_BOSS_RESPONSE), response)
 
 	if boss_id > 0 {
-		log.Debug("Player[%v] search friend boss %v", this.Id, boss_id)
+		log.Trace("Player[%v] search friend boss %v", this.Id, boss_id)
 	} else {
-		log.Debug("Player[%v] search friend boss get items %v", this.Id, items)
+		log.Trace("Player[%v] search friend boss get items %v", this.Id, items)
 	}
 
 	return 1
@@ -781,7 +792,7 @@ func (this *Player) get_friends_boss_list() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIENDS_BOSS_LIST_RESPONSE), response)
 
-	log.Debug("Player[%v] get friend boss list %v", this.Id, response)
+	log.Trace("Player[%v] get friend boss list %v", this.Id, response)
 
 	return 1
 }
@@ -829,7 +840,7 @@ func (this *Player) battle_random_reward_notify(drop_id, drop_num int32) {
 			FakeItems: fake_items,
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RANDOM_REWARD_NOTIFY), notify)
-		log.Debug("Player[%v] battle random reward %v", this.Id, notify)
+		log.Trace("Player[%v] battle random reward %v", this.Id, notify)
 	}
 }
 
@@ -1050,7 +1061,7 @@ func (this *Player) friend_boss_get_attack_list(friend_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_BOSS_ATTACK_LIST_RESPONSE), response)
 
-	log.Debug("Player[%v] get friend[%v] boss attack list: %v", this.Id, friend_id, response)
+	log.Trace("Player[%v] get friend[%v] boss attack list: %v", this.Id, friend_id, response)
 
 	return 1
 }
@@ -1128,7 +1139,7 @@ func (this *Player) friend_data(send bool) int32 {
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_DATA_RESPONSE), response)
 
-		log.Debug("Player[%v] friend data %v", this.Id, response)
+		log.Trace("Player[%v] friend data %v", this.Id, response)
 	}
 
 	return 1
@@ -1169,7 +1180,7 @@ func (this *Player) friend_set_assist_role(role_id int32) int32 {
 
 	this.check_and_send_roles_change()
 
-	log.Debug("Player[%v] set assist role %v for friends", this.Id, role_id)
+	log.Trace("Player[%v] set assist role %v for friends", this.Id, role_id)
 
 	return 1
 }

@@ -423,7 +423,9 @@ func (this *Player) CheckNewMail() int32 {
 		Mails: mails,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAILS_NEW_NOTIFY), response)
-	log.Debug("Player[%v] get new mails[%v] notify", this.Id, mails)
+
+	log.Trace("Player[%v] get new mails[%v] notify", this.Id, mails)
+
 	return 1
 }
 
@@ -500,7 +502,7 @@ func (this *Player) GetMailDetail(mail_ids []int32) int32 {
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_DETAIL_RESPONSE), response)
 
-	log.Debug("Player[%v] mails[%v] detail: %v", this.Id, mail_ids, response)
+	log.Trace("Player[%v] mails[%v] detail: %v", this.Id, mail_ids, response)
 
 	return 1
 }
@@ -552,7 +554,7 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE), response)
 
-	log.Debug("Player[%v] mails[%v] get attached items: %v", this.Id, mail_ids, attached_items)
+	log.Trace("Player[%v] mails[%v] get attached items: %v", this.Id, mail_ids, attached_items)
 
 	return 1
 }

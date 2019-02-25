@@ -138,7 +138,7 @@ func (this *Player) sign_award(id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SIGN_AWARD_RESPONSE), response)
 
-	log.Debug("Player[%v] sign award %v", this.Id, response)
+	log.Trace("Player[%v] sign award %v", this.Id, response)
 
 	return 1
 }

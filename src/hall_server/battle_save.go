@@ -102,7 +102,7 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 			defenser.push_battle_record(row.GetId())
 		}
 
-		log.Debug("Battle Record[%v] saved with attacker[%v] and defenser[%v]", row.GetId(), attacker_id, defenser_id)
+		log.Trace("Battle Record[%v] saved with attacker[%v] and defenser[%v]", row.GetId(), attacker_id, defenser_id)
 	}
 	return true
 }

@@ -589,7 +589,7 @@ func (this *Player) send_guild_data() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DATA_RESPONSE), response)
 
-	log.Debug("Player[%v] guild data %v", this.Id, response)
+	log.Trace("Player[%v] guild data %v", this.Id, response)
 
 	this.send_guild_donate_list(guild)
 
@@ -615,7 +615,7 @@ func (this *Player) guild_recommend() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_RECOMMEND_RESPONSE), response)
 
-	log.Debug("Player[%v] recommend guilds %v", this.Id, response)
+	log.Trace("Player[%v] recommend guilds %v", this.Id, response)
 
 	return 1
 }
@@ -644,7 +644,7 @@ func (this *Player) guild_search(key string) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_SEARCH_RESPONSE), response)
 
-	log.Debug("Player[%v] searched guild %v with key %v", this.Id, response, key)
+	log.Trace("Player[%v] searched guild %v with key %v", this.Id, response, key)
 
 	return 1
 }
@@ -684,7 +684,7 @@ func (this *Player) guild_create(name, anouncement string, logo int32) int32 {
 	// 日志
 	push_new_guild_log(guild, GUILD_LOG_TYPE_CREATE, this.Id)
 
-	log.Debug("Player[%v] created guild %v", this.Id, response)
+	log.Trace("Player[%v] created guild %v", this.Id, response)
 
 	return 1
 }
@@ -715,7 +715,7 @@ func (this *Player) guild_dismiss() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DISMISS_RESPONSE), response)
 
-	log.Debug("Player[%v] dismiss guild %v", this.Id, response)
+	log.Trace("Player[%v] dismiss guild %v", this.Id, response)
 
 	return 1
 }
@@ -736,7 +736,7 @@ func (this *Player) guild_cancel_dismiss() int32 {
 	response := &msg_client_message.S2CGuildCancelDismissResponse{}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_CANCEL_DISMISS_RESPONSE), response)
 
-	log.Debug("Player[%v] cancelled dismiss guild", this.Id)
+	log.Trace("Player[%v] cancelled dismiss guild", this.Id)
 
 	return 1
 }
@@ -774,7 +774,7 @@ func (this *Player) guild_info_modify(name string, logo int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_INFO_MODIFY_RESPONSE), response)
 
-	log.Debug("Player[%v] modified guild info %v", this.Id, response)
+	log.Trace("Player[%v] modified guild info %v", this.Id, response)
 
 	return 1
 }
@@ -856,7 +856,7 @@ func (this *Player) guild_members_list() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_MEMBERS_RESPONSE), response)
 
-	log.Debug("Player[%v] get guild[%v] members %v", this.Id, guild.GetId(), response)
+	log.Trace("Player[%v] get guild[%v] members %v", this.Id, guild.GetId(), response)
 
 	return 1
 }
@@ -901,7 +901,7 @@ func (this *Player) guild_ask_join(guild_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_ASK_JOIN_RESPONSE), response)
 
-	log.Debug("Player[%v] asked join guild %v", this.Id, guild_id)
+	log.Trace("Player[%v] asked join guild %v", this.Id, guild_id)
 
 	return 1
 }
@@ -1014,14 +1014,14 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 				GuildId:     guild.GetId(),
 			}
 			player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_NOTIFY), notify)
-			log.Debug("Player[%v] agreed player[%v] join guild %v", this.Id, player_id, guild.GetId())
+			log.Trace("Player[%v] agreed player[%v] join guild %v", this.Id, player_id, guild.GetId())
 		}
 	}
 
 	if !is_refuse {
-		log.Debug("Player[%v] agreed players %v join guild %v", this.Id, player_ids, guild.GetId())
+		log.Trace("Player[%v] agreed players %v join guild %v", this.Id, player_ids, guild.GetId())
 	} else {
-		log.Debug("Player[%v] refused players %v ask to join guild %v", this.Id, player_ids, guild.GetId())
+		log.Trace("Player[%v] refused players %v ask to join guild %v", this.Id, player_ids, guild.GetId())
 	}
 
 	return 1
@@ -1051,7 +1051,7 @@ func (this *Player) guild_ask_list() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_ASK_LIST_RESPONSE), response)
 
-	log.Debug("Player[%v] get ask list %v", this.Id, response)
+	log.Trace("Player[%v] get ask list %v", this.Id, response)
 
 	return 1
 }
@@ -1090,7 +1090,7 @@ func (this *Player) guild_quit() int32 {
 	// 日志
 	push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_QUIT, this.Id)
 
-	log.Debug("Player[%v] quit guild %v, rejoin remain seconds %v", this.Id, guild.GetId(), response.GetRejoinRemainSeconds())
+	log.Trace("Player[%v] quit guild %v, rejoin remain seconds %v", this.Id, guild.GetId(), response.GetRejoinRemainSeconds())
 
 	return 1
 }
@@ -1130,7 +1130,7 @@ func (this *Player) guild_logs() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_LOGS_RESPONSE), response)
 
-	log.Debug("Player[%v] get guild logs %v", this.Id, response)
+	log.Trace("Player[%v] get guild logs %v", this.Id, response)
 
 	return 1
 }
@@ -1214,7 +1214,7 @@ func (this *Player) guild_sign_in() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_SIGN_IN_RESPONSE), response)
 
-	log.Debug("Player[%v] sign in guild[%v]", this.Id, guild.GetId())
+	log.Trace("Player[%v] sign in guild[%v]", this.Id, guild.GetId())
 
 	return 1
 }
@@ -1284,7 +1284,7 @@ func (this *Player) guild_set_officer(player_ids []int32, set_type int32) int32 
 		}
 	}
 
-	log.Debug("Player[%v] set officer %v in guild %v", this.Id, response, guild.GetId())
+	log.Trace("Player[%v] set officer %v in guild %v", this.Id, response, guild.GetId())
 
 	return 1
 }
@@ -1352,7 +1352,7 @@ func (this *Player) guild_kick_member(player_ids []int32) int32 {
 		push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_KICK, player_id)
 	}
 
-	log.Debug("Player[%v] kick members %v from guild %v", this.Id, player_ids, guild.GetId())
+	log.Trace("Player[%v] kick members %v from guild %v", this.Id, player_ids, guild.GetId())
 
 	return 1
 }
@@ -1399,7 +1399,7 @@ func (this *Player) guild_change_president(player_id int32) int32 {
 	// 日志
 	push_new_guild_log(guild, GUILD_LOG_TYPE_PRESIDENT_CHANGE, player_id)
 
-	log.Debug("Player[%v] change guild %v president to %v", this.Id, guild.GetId(), player_id)
+	log.Trace("Player[%v] change guild %v president to %v", this.Id, guild.GetId(), player_id)
 
 	return 1
 }
@@ -1443,7 +1443,7 @@ func (this *Player) guild_recruit(content []byte) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_RECRUIT_RESPONSE), response)
 
-	log.Debug("Player[%v] recruit with content[%v]", this.Id, content)
+	log.Trace("Player[%v] recruit with content[%v]", this.Id, content)
 
 	return 1
 }
@@ -1482,7 +1482,7 @@ func (this *Player) send_guild_donate_list(guild *dbGuildRow) {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_LIST_RESPONSE), response)
 
-	log.Debug("Player[%v] get donate list %v", this.Id, response)
+	log.Trace("Player[%v] get donate list %v", this.Id, response)
 }
 
 // 检测捐赠列表
@@ -1596,7 +1596,7 @@ func (this *Player) guild_ask_donate(item_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_ASK_DONATE_RESPONSE), response)
 
-	log.Debug("Player[%v] asked donate %v", this.Id, response)
+	log.Trace("Player[%v] asked donate %v", this.Id, response)
 
 	return 1
 }
@@ -1685,7 +1685,7 @@ func (this *Player) guild_donate(player_id int32) int32 {
 	}
 	player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_ITEM_NOTIFY), notify)
 
-	log.Debug("Player[%v] donate to player[%v] result %v", this.Id, player_id, response)
+	log.Trace("Player[%v] donate to player[%v] result %v", this.Id, player_id, response)
 
 	return 1
 }

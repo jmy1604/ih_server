@@ -193,14 +193,14 @@ func (this *Player) send_task(task_type int32) int32 {
 		response.TaskList = this.fill_task_msg(table_config.TASK_TYPE_DAILY)
 		response.DailyTaskRefreshRemainSeconds = remain_seconds
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), &response)
-		log.Debug("Player[%v] daily tasks %v", this.Id, response)
+		log.Trace("Player[%v] daily tasks %v", this.Id, response)
 	}
 
 	if task_type == 0 || task_type == table_config.TASK_TYPE_ACHIVE {
 		response.TaskType = table_config.TASK_TYPE_ACHIVE
 		response.TaskList = this.fill_task_msg(table_config.TASK_TYPE_ACHIVE)
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), &response)
-		log.Debug("Player[%v] achive tasks %v", this.Id, response)
+		log.Trace("Player[%v] achive tasks %v", this.Id, response)
 	}
 
 	return 1
@@ -275,7 +275,7 @@ func (this *Player) WholeDailyTaskUpdate(daily_task *table_config.XmlTaskItem, n
 		to_send, cur_val, cur_state := this.SingleTaskUpdate(whole_daily_task, 1)
 		if to_send {
 			this.NotifyTaskValue(notify_task, whole_daily_task.Id, cur_val, cur_state)
-			log.Info("Player(%v) WholeDailyTask(%v) Update, Progress(%v/%v), Complete(%v)", this.Id, whole_daily_task.Id, cur_val, whole_daily_task.CompleteNum, cur_state)
+			log.Trace("Player(%v) WholeDailyTask(%v) Update, Progress(%v/%v), Complete(%v)", this.Id, whole_daily_task.Id, cur_val, whole_daily_task.CompleteNum, cur_state)
 		}
 	}
 }
@@ -325,7 +325,7 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 
 		if updated && !(taskcfg.Prev > 0 && this.db.Tasks.HasIndex(taskcfg.Prev)) {
 			this.NotifyTaskValue(&notify_task, taskcfg.Id, cur_val, cur_state)
-			log.Info("Player[%v] Task[%v] EventParam[%v] Progress[%v/%v] FinishType(%v) Complete(%v)", this.Id, taskcfg.Id, event_param, cur_val, taskcfg.CompleteNum, complete_type, cur_state)
+			log.Trace("Player[%v] Task[%v] EventParam[%v] Progress[%v/%v] FinishType(%v) Complete(%v)", this.Id, taskcfg.Id, event_param, cur_val, taskcfg.CompleteNum, complete_type, cur_state)
 			if taskcfg.Type == table_config.TASK_TYPE_DAILY && cur_state == TASK_STATE_COMPLETE {
 				// 所有日常任务更新
 				this.WholeDailyTaskUpdate(taskcfg, &notify_task)
@@ -358,7 +358,7 @@ func (this *Player) check_notify_next_task(task *table_config.XmlTaskItem) {
 
 	notify := &msg_client_message.S2CTaskValueNotify{}
 	this.NotifyTaskValue(notify, task.Next, v, s)
-	log.Debug("Player[%v] notify new task %v value %v state %v", this.Id, task.Next, v, s)
+	log.Trace("Player[%v] notify new task %v value %v state %v", this.Id, task.Next, v, s)
 }
 
 func (p *Player) task_get_reward(task_id int32) int32 {
@@ -390,7 +390,7 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 	}
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_REWARD_RESPONSE), response)
 
-	log.Debug("Player[%v] get task %v reward", p.Id, task_id)
+	log.Trace("Player[%v] get task %v reward", p.Id, task_id)
 
 	if task_cfg.Type == table_config.TASK_TYPE_ACHIVE {
 		if task_cfg.Next > 0 {

@@ -127,7 +127,8 @@ func (this *Player) chat(channel int32, content []byte, evalue int32) int32 {
 		Content: content,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_RESPONSE), response)
-	log.Debug("Player[%v] chat content[%v] in channel[%v]", this.Id, content, channel)
+
+	log.Trace("Player[%v] chat content[%v] in channel[%v]", this.Id, content, channel)
 
 	return 1
 }
@@ -154,7 +155,7 @@ func (this *Player) _pull_chat(chat_mgr *ChatMgr, channel, now_time int32, empty
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_MSG_PULL_RESPONSE), response)
 
-	log.Debug("Player[%v] pulled chat channel %v msgs %v", this.Id, channel, response)
+	log.Trace("Player[%v] pulled chat channel %v msgs %v", this.Id, channel, response)
 
 	return 1
 }

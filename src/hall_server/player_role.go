@@ -122,7 +122,7 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 	// 更新任务
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_STAR_ROLES, false, card.Rarity, 1)
 
-	log.Debug("Player[%v] create new role[%v] table_id[%v]", this.Id, role.Id, role_id)
+	log.Trace("Player[%v] create new role[%v] table_id[%v]", this.Id, role.Id, role_id)
 
 	// 更新排行榜
 	this.UpdateRolePowerRank(role.Id)
@@ -431,7 +431,9 @@ func (this *Player) send_role_attrs(role_id int32) int32 {
 		Power:  power,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_ATTRS_RESPONSE), response)
-	log.Debug("Player[%v] send role[%v] attrs: %v  power: %v", this.Id, role_id, m.attrs, power)
+
+	log.Trace("Player[%v] send role[%v] attrs: %v  power: %v", this.Id, role_id, m.attrs, power)
+
 	return 1
 }
 
@@ -543,7 +545,7 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 	// 更新任务
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_LEVELUP_ROLE_WITH_CAMP, false, card.Camp, up_num)
 
-	log.Debug("Player[%v] role[%v] up to level[%v]", this.Id, role_id, lvl+up_num)
+	log.Trace("Player[%v] role[%v] up to level[%v]", this.Id, role_id, lvl+up_num)
 
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
@@ -624,7 +626,7 @@ func (this *Player) rankup_role(role_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_RANKUP_RESPONSE), response)
 
-	log.Debug("Player[%v] role[%v] up rank[%v]", this.Id, role_id, rank)
+	log.Trace("Player[%v] role[%v] up rank[%v]", this.Id, role_id, rank)
 
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
@@ -755,7 +757,7 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 	// 更新任务
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_DECOMPOSE_ROLES, false, 0, num)
 
-	log.Debug("Player[%v] decompose roles %v", this.Id, role_ids)
+	log.Trace("Player[%v] decompose roles %v", this.Id, role_ids)
 
 	return 1
 }
@@ -981,7 +983,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_FUSION_RESPONSE), response)
 
-	log.Debug("Player[%v] fusion[%v] main_card[%v] get new role[%v] new card[%v], cost cards[%v]", this.Id, fusion_id, main_role_id, new_role_id, item.Id, cost_role_ids)
+	log.Trace("Player[%v] fusion[%v] main_card[%v] get new role[%v] new card[%v], cost cards[%v]", this.Id, fusion_id, main_role_id, new_role_id, item.Id, cost_role_ids)
 
 	return 1
 }
@@ -1036,7 +1038,7 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEFTSLOT_OPEN_RESPONSE), response)
 
-	log.Debug("Player[%v] opened left slot for role[%v] with equip[%v]", this.Id, role_id, equips[EQUIP_TYPE_LEFT_SLOT])
+	log.Trace("Player[%v] opened left slot for role[%v] with equip[%v]", this.Id, role_id, equips[EQUIP_TYPE_LEFT_SLOT])
 
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)
@@ -1167,7 +1169,7 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_ONEKEY_EQUIP_RESPONSE), response)
 
-	log.Debug("Player[%v] role[%v] one key equips[%v]", this.Id, role_id, equips)
+	log.Trace("Player[%v] role[%v] one key equips[%v]", this.Id, role_id, equips)
 
 	// 更新排行榜
 	this.UpdateRolePowerRank(role_id)

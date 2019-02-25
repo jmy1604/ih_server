@@ -1048,6 +1048,82 @@ func _get_battle_report(report *msg_client_message.BattleReportItem, skill_id in
 	return report, target
 }
 
+// 伤害后效果
+func _after_skill_damage(self *TeamMember, target *TeamMember, skill_data *table_config.XmlSkillItem, self_dmg, target_dmg int32, target_before_dmg_dead, is_block, is_critical bool, report_target *msg_client_message.BattleFighter) (has_target_dead bool) {
+	// 被动技，血量变化
+	if !target.is_dead() && !target.is_will_dead() && target_dmg != 0 {
+		passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, target.team, target.pos /*target_pos[j]*/, nil, nil, true)
+	}
+	// 被动技，血量变化
+	if !self.is_will_dead() && self_dmg != 0 {
+		passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, self.team, self.pos, nil, nil, true)
+	}
+
+	if skill_data.Type != SKILL_TYPE_PASSIVE {
+		// 格挡触发
+		if is_block {
+			if !self.is_will_dead() {
+				passive_skill_effect_with_self_pos(EVENT_BE_BLOCK, self.team, self.pos, target.team, []int32{target.pos /*target_pos[j]*/}, true)
+			}
+			if !target.is_will_dead() {
+				passive_skill_effect_with_self_pos(EVENT_BLOCK, target.team, target.pos /*target_pos[j]*/, self.team, []int32{self.pos}, true)
+			}
+		}
+		// 暴击触发
+		if is_critical {
+			if !self.is_will_dead() {
+				passive_skill_effect_with_self_pos(EVENT_CRITICAL, self.team, self.pos, target.team, []int32{target.pos /*target_pos[j]*/}, true)
+			}
+			if !target.is_will_dead() {
+				passive_skill_effect_with_self_pos(EVENT_BE_CRITICAL, target.team, target.pos /*target_pos[j]*/, self.team, []int32{self.pos}, true)
+			}
+		}
+
+		// 被击计算伤害后触发
+		if !target.is_will_dead() {
+			passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, target.team, target.pos /*target_pos[j]*/, self.team, []int32{self.pos}, true)
+		}
+	}
+
+	// 被动技，目标死亡前触发
+	if target.is_will_dead() {
+		target.on_will_dead(self)
+		if report_target != nil {
+			report_target.HP = target.hp
+		}
+	}
+
+	// 再次判断是否真死
+	if target.is_will_dead() {
+
+		// 有死亡后触发的被动技
+		if target.has_trigger_event([]int32{EVENT_AFTER_TARGET_DEAD}) {
+			target.on_after_will_dead(self)
+		}
+
+		if target.is_will_dead() {
+			// 延迟被动技有没有死亡后触发
+			if !self.team.HasDelayTriggerEventSkill(EVENT_AFTER_TARGET_DEAD, target) {
+				target.set_dead(self, skill_data)
+			} else {
+				log.Debug("-+-+-+-+-+-+- 有延迟死亡后触发器 team[%v] member[%v]", target.team.side, target.pos)
+			}
+		}
+
+		// 修改战报目标血量表示真死
+		if report_target != nil {
+			report_target.HP = target.hp
+		}
+	}
+
+	// 对方有死亡
+	if !target_before_dmg_dead && target.is_dead() {
+		has_target_dead = true
+	}
+
+	return
+}
+
 // 技能效果
 func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) (used bool) {
 	effects := skill_data.Effects
@@ -1154,78 +1230,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				skill_effect_clear_temp_attrs(self)
 				skill_effect_clear_temp_attrs(target)
 
-				log.Debug("self_team[%v] member[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, target_dmg, target.hp, self_dmg, self.hp)
+				log.Trace("self_team[%v] member[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, target_dmg, target.hp, self_dmg, self.hp)
 
-				// 被动技，血量变化
-				if !target.is_dead() && !target.is_will_dead() && target_dmg != 0 {
-					passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, target_team, target_pos[j], nil, nil, true)
-				}
-				// 被动技，血量变化
-				if !self.is_will_dead() && self_dmg != 0 {
-					passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, self_team, self_pos, nil, nil, true)
-				}
-
-				if skill_data.Type != SKILL_TYPE_PASSIVE {
-					// 格挡触发
-					if is_block {
-						if !self.is_will_dead() {
-							passive_skill_effect_with_self_pos(EVENT_BE_BLOCK, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
-						}
-						if !target.is_will_dead() {
-							passive_skill_effect_with_self_pos(EVENT_BLOCK, target_team, target_pos[j], self_team, []int32{self_pos}, true)
-						}
-					}
-					// 暴击触发
-					if is_critical {
-						if !self.is_will_dead() {
-							passive_skill_effect_with_self_pos(EVENT_CRITICAL, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
-						}
-						if !target.is_will_dead() {
-							passive_skill_effect_with_self_pos(EVENT_BE_CRITICAL, target_team, target_pos[j], self_team, []int32{self_pos}, true)
-						}
-					}
-
-					// 被击计算伤害后触发
-					if !target.is_will_dead() {
-						passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], self_team, []int32{self_pos}, true)
-					}
-				}
-
-				// 被动技，目标死亡前触发
-				if target.is_will_dead() {
-					target.on_will_dead(self)
-					if report_target != nil {
-						report_target.HP = target.hp
-					}
-				}
-
-				// 再次判断是否真死
-				if target.is_will_dead() {
-
-					// 有死亡后触发的被动技
-					if target.has_trigger_event([]int32{EVENT_AFTER_TARGET_DEAD}) {
-						target.on_after_will_dead(self)
-					}
-
-					if target.is_will_dead() {
-						// 延迟被动技有没有死亡后触发
-						if !self_team.HasDelayTriggerEventSkill(EVENT_AFTER_TARGET_DEAD, target) {
-							target.set_dead(self, skill_data)
-						} else {
-							log.Debug("-+-+-+-+-+-+- 有延迟死亡后触发器 team[%v] member[%v]", target.team.side, target.pos)
-						}
-					}
-
-					// 修改战报目标血量表示真死
-					if report_target != nil {
-						report_target.HP = target.hp
-					}
-				}
-
-				// 对方有死亡
-				if !is_target_dead && target.is_dead() {
-					has_target_dead = true
-				}
+				_after_skill_damage(self, target, skill_data, self_dmg, target_dmg, is_target_dead, is_block, is_critical, report_target)
 			} else if effect_type == SKILL_EFFECT_TYPE_CURE {
 				if target == nil || target.is_dead() {
 					continue
@@ -1244,7 +1251,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 
 				used = true
-				log.Debug("self_team[%v] member[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, cure)
+				log.Trace("self_team[%v] member[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, cure)
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_BUFF {
 				if target == nil || target.is_dead() {
 					continue
@@ -1259,7 +1266,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 					// ----------------------------------------------
 					used = true
-					log.Debug("self_team[%v] member[%v] use skill[%v] to target team[%v] member[%v] 触发 buff[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos, buff_id)
+					log.Trace("self_team[%v] member[%v] use skill[%v] to target team[%v] member[%v] 触发 buff[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos, buff_id)
 				} else {
 					log.Warn("self_team[%v] member[%v] use skill[%v] add buff failed", self_team.side, self.pos, skill_data.Id)
 				}
@@ -1275,7 +1282,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 					// -------------------------------------------------
 					used = true
-					log.Debug("self_team[%v] member[%v] use skill[%v] to summon npc[%v]", self_team.side, self.pos, skill_data.Id, mem.card.Id)
+					log.Trace("self_team[%v] member[%v] use skill[%v] to summon npc[%v]", self_team.side, self.pos, skill_data.Id, mem.card.Id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_ATTR {
 				if target == nil || target.is_dead() {
@@ -1289,7 +1296,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				// ----------------------------------------------
 				used = true
-				log.Debug("self_team[%v] member[%v] use skill[%v] to add temp attrs to target team[%v] member[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos)
+				log.Trace("self_team[%v] member[%v] use skill[%v] to add temp attrs to target team[%v] member[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos)
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL {
 				// 改变普通攻击技能ID
 				if effects[i][1] > 0 {
@@ -1300,7 +1307,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 					// ----------------------------------------------
 					used = true
-					log.Debug("self_team[%v] pos[%v] role[%v] changed normal skill to %v", self_team.side, self_pos, self.id, self.temp_normal_skill)
+					log.Trace("self_team[%v] pos[%v] role[%v] changed normal skill to %v", self_team.side, self_pos, self.id, self.temp_normal_skill)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL {
 				// 改变必杀技ID
@@ -1312,7 +1319,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 					// ----------------------------------------------
 					used = true
-					log.Debug("self_team[%v] pos[%v] role[%v] changed super skill to %v", self_team.side, self_pos, self.id, self.temp_super_skill)
+					log.Trace("self_team[%v] pos[%v] role[%v] changed super skill to %v", self_team.side, self_pos, self.id, self.temp_super_skill)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE {
 				// 改变怒气
@@ -1323,14 +1330,14 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 							if target.energy < 0 {
 								target.energy = 0
 							}
-							log.Debug("team[%v] member[%v] 增加了怒气 [%v]", target_team.side, target.pos, effects[i][1])
+							log.Trace("team[%v] member[%v] 增加了怒气 [%v]", target_team.side, target.pos, effects[i][1])
 						}
 						if effects[i][2] > 0 {
 							self.energy += effects[i][2]
 							if self.energy < 0 {
 								self.energy = 0
 							}
-							log.Debug("team[%v] member[%v] 增加了怒气 [%v]", self_team.side, self.pos, effects[i][2])
+							log.Trace("team[%v] member[%v] 增加了怒气 [%v]", self_team.side, self.pos, effects[i][2])
 						}
 						// -------------------- 战报 ----------------------
 						if is_report && (effects[i][1] > 0 || effects[i][2] > 0) {
@@ -1358,7 +1365,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				// ----------------------------------------------
 				used = true
-				log.Debug("Team[%v] member[%v] 增加了行动次数 %v", target.team.side, target.pos, effects[i][1])
+				log.Trace("Team[%v] member[%v] 增加了行动次数 %v", target.team.side, target.pos, effects[i][1])
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_SHIELD {
 				if target == nil || target.is_dead() {
 					continue
@@ -1378,12 +1385,14 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if target == nil || target.is_dead() {
 					continue
 				}
+				is_target_dead := target.is_dead()
 				target_damage, is_absorb := skill_effect_artifact_damage(self, target, effects[i])
 				if is_report {
-					report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], target_damage, false, false, is_absorb, 0)
+					report, report_target = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], target_damage, false, false, is_absorb, 0)
 				}
+				_after_skill_damage(self, target, skill_data, 0, target_damage, is_target_dead, false, false, report_target)
 				used = true
-				log.Debug("self_team[%v] pos[%v] use skill %v to target_team[%v] pos[%v] with artifact damage %v", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos[j], target_damage)
+				log.Trace("self_team[%v] pos[%v] use skill %v to target_team[%v] pos[%v] with artifact damage %v", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos[j], target_damage)
 			}
 		}
 	}
@@ -1717,15 +1726,6 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 		this.owner.add_buff_effect(buff, skill_effect)
 	}
 
-	// 测试
-	/*bb := this.head
-	for bb != nil {
-		if this.buffs[bb] == nil {
-			s := fmt.Sprintf("============================ Team[%v] member[%v] no buff[%p,%v] after add buff[%p,%v]", this.owner.team.side, this.owner.pos, bb, bb, buff, buff)
-			panic(errors.New(s))
-		}
-		bb = bb.next
-	}*/
 	return
 }
 

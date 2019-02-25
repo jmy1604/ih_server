@@ -235,7 +235,7 @@ func (this *Player) check_and_send_items_change() {
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEMS_UPDATE), &msg)
 		this.items_changed_info = nil
-		log.Debug("Player[%v] Items change %v", this.Id, msg)
+		log.Trace("Player[%v] Items change %v", this.Id, msg)
 	}
 }
 
@@ -375,7 +375,7 @@ func (this *Player) OnLogin() {
 	friend_recommend_mgr.AddPlayer(this.Id)
 	atomic.StoreInt32(&this.is_lock, 0)
 	atomic.StoreInt32(&this.is_login, 1)
-	log.Info("Player[%v] login", this.Id)
+	log.Trace("Player[%v] login", this.Id)
 }
 
 func (this *Player) OnLogout(remove_timer bool) {
@@ -396,7 +396,7 @@ func (this *Player) OnLogout(remove_timer bool) {
 		var notify msg_server_message.H2LAccountLogoutNotify
 		notify.Account = this.Account
 		login_conn_mgr.Send(uint16(msg_server_message.MSGID_H2L_ACCOUNT_LOGOUT_NOTIFY), &notify)
-		log.Info("Player[%v] log out !!!", this.Id)
+		log.Trace("Player[%v] log out !!!", this.Id)
 	} else {
 		log.Warn("Player[%v] already loged out", this.Id)
 	}
@@ -459,7 +459,7 @@ func (this *Player) send_info() {
 		GuildLevel: guild_level,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_INFO_RESPONSE), response)
-	log.Debug("Player[%v] info: %v", this.Id, response)
+	log.Trace("Player[%v] info: %v", this.Id, response)
 }
 
 func (this *Player) notify_enter_complete() {
@@ -1009,7 +1009,7 @@ func (this *Player) change_head(new_head int32) int32 {
 		PlayerHead:  new_head,
 	})
 
-	log.Debug("Player[%v] changed to head[%v]", this.Id, new_head)
+	log.Trace("Player[%v] changed to head[%v]", this.Id, new_head)
 
 	return 1
 }

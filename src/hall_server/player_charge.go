@@ -161,7 +161,7 @@ func google_pay_save(order_id, bundle_id, account string, player *Player) {
 
 	player.rpc_charge_save(1, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), pay.PayTimeStr)
 
-	log.Info("save google pay: player_id(%v), order_id(%v), bundle_id(%v)", player.Id, order_id, bundle_id)
+	log.Trace("save google pay: player_id(%v), order_id(%v), bundle_id(%v)", player.Id, order_id, bundle_id)
 }
 
 func check_google_order_exist(order_id string) bool {
@@ -207,7 +207,7 @@ func apple_pay_save(order_id, bundle_id, account string, player *Player) {
 
 	player.rpc_charge_save(2, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), pay.PayTimeStr)
 
-	log.Info("save apple pay: player_id(%v), order_id(%v), bundle_id(%v)", player.Id, order_id, bundle_id)
+	log.Trace("save apple pay: player_id(%v), order_id(%v), bundle_id(%v)", player.Id, order_id, bundle_id)
 }
 
 func check_apple_order_exist(order_id string) bool {
@@ -310,7 +310,7 @@ func (this *Player) charge_data() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_DATA_RESPONSE), response)
 
-	log.Debug("Player[%v] charge data %v", this.Id, response)
+	log.Trace("Player[%v] charge data %v", this.Id, response)
 
 	return 1
 }
@@ -581,7 +581,7 @@ func (this *Player) verify_apple_purchase_data(bundle_id string, purchase_data [
 		_post_talking_data(this.Account, "apple pay", config.ServerName, config.InnerVersion, "apple", tmp_res.Receipt.TransactionId, "ios", "charge", "success", this.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 
-	log.Info("Player[%v] apple pay bunder_id[%v] verify success, purchase data %v", this.Id, bundle_id, string(purchase_data))
+	log.Trace("Player[%v] apple pay bunder_id[%v] verify success, purchase data %v", this.Id, bundle_id, string(purchase_data))
 
 	return 1
 }
@@ -851,7 +851,7 @@ func (this *Player) charge_first_award() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHARGE_FIRST_AWARD_RESPONSE), response)
 
-	log.Debug("Player[%v] first charge award %v", this.Id, response)
+	log.Trace("Player[%v] first charge award %v", this.Id, response)
 
 	return 1
 }

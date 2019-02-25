@@ -70,7 +70,7 @@ func (this *Player) _send_active_stage_data(typ int32) {
 		GetPointsDay:          this.db.FriendCommon.GetGetPointsDay(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_DATA_RESPONSE), response)
-	log.Debug("Player[%v] active stage data: %v", this.Id, response)
+	log.Trace("Player[%v] active stage data: %v", this.Id, response)
 }
 
 func (this *Player) check_active_stage_refresh(send bool) bool {
@@ -112,7 +112,7 @@ func (this *Player) check_active_stage_refresh(send bool) bool {
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_REFRESH_NOTIFY), notify)
 	}
 
-	log.Debug("Player[%v] active stage refreshed", this.Id)
+	log.Trace("Player[%v] active stage refreshed", this.Id)
 	return true
 }
 
@@ -181,7 +181,7 @@ func (this *Player) get_assist_points() int32 {
 			get_points = global_config.FriendAssistPointsGetLimitDay - withdraw_points
 		}
 	}
-	log.Debug("Player[%v] assist points %v", this.Id, get_points)
+	log.Trace("Player[%v] assist points %v", this.Id, get_points)
 	return get_points
 }
 
@@ -233,7 +233,7 @@ func (this *Player) active_stage_get_friends_assist_role_list() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_ASSIST_ROLE_LIST_RESPONSE), response)
 
-	log.Debug("Player[%v] active stage get assist role list %v", this.Id, response)
+	log.Trace("Player[%v] active stage get assist role list %v", this.Id, response)
 
 	return 1
 }

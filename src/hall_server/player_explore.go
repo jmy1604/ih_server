@@ -66,11 +66,11 @@ func (this *Player) check_explore_tasks_refresh(is_notify bool) (refresh bool) {
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_DATA_RESPONSE), response)
 
-		log.Debug("Player[%v] explore data refreshed: %v", this.Id, response)
+		log.Trace("Player[%v] explore data refreshed: %v", this.Id, response)
 
 		notify := &msg_client_message.S2CExploreAutoRefreshNotify{}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_AUTO_REFRESH_NOTIFY), notify)
-		log.Debug("Player[%v] explore tasks auto refreshed", this.Id)
+		log.Trace("Player[%v] explore tasks auto refreshed", this.Id)
 	}
 
 	refresh = true
@@ -196,7 +196,7 @@ func (this *Player) explore_gen_story_task(task_id int32) {
 		TaskId: task_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_STORY_NEW_NOTIFY), notify)
-	log.Debug("Player[%v] gen new explore story task %v", this.Id, task_id)
+	log.Trace("Player[%v] gen new explore story task %v", this.Id, task_id)
 	return
 }
 
@@ -355,7 +355,7 @@ func (this *Player) send_explore_data() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_DATA_RESPONSE), response)
 
-	log.Debug("Player[%v] explore datas %v", this.Id, response)
+	log.Trace("Player[%v] explore datas %v", this.Id, response)
 
 	return 1
 }
@@ -631,7 +631,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_SEL_ROLE_RESPONSE), response)
 
-	log.Debug("Player[%v] set explore task %v roles %v, is story: %v", this.Id, id, role_ids, is_story)
+	log.Trace("Player[%v] set explore task %v roles %v, is story: %v", this.Id, id, role_ids, is_story)
 
 	return 1
 }
@@ -728,7 +728,7 @@ func (this *Player) explore_task_start(ids []int32, is_story bool) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_START_RESPONSE), response)
 
-	log.Debug("Player[%v] explore tasks %v start", this.Id, ids)
+	log.Trace("Player[%v] explore tasks %v start", this.Id, ids)
 
 	return 1
 }
@@ -827,7 +827,7 @@ func (this *Player) explore_speedup(ids []int32, is_story bool) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_SPEEDUP_RESPONSE), response)
 
-	log.Debug("Player[%v] explore task %v (is_story: %v) speed up, cost diamond %v", this.Id, ids, is_story, cost_diamond)
+	log.Trace("Player[%v] explore task %v (is_story: %v) speed up, cost diamond %v", this.Id, ids, is_story, cost_diamond)
 
 	return 1
 }
@@ -867,7 +867,9 @@ func (this *Player) explore_tasks_refresh() int32 {
 		Datas: datas,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_REFRESH_RESPONSE), response)
-	log.Debug("Player[%v] explore task refreshed, cost diamond %v, tasks %v", this.Id, cost_diamond, datas)
+
+	log.Trace("Player[%v] explore task refreshed, cost diamond %v, tasks %v", this.Id, cost_diamond, datas)
+
 	return 1
 }
 
@@ -909,7 +911,7 @@ func (this *Player) explore_task_lock(ids []int32, is_lock bool) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_LOCK_RESPONSE), response)
 
-	log.Debug("Player[%v] explore task %v lock %v", this.Id, ids, is_lock)
+	log.Trace("Player[%v] explore task %v lock %v", this.Id, ids, is_lock)
 
 	return 1
 }
@@ -1035,7 +1037,7 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 		this.activitys_update(ACTIVITY_EVENT_EXPLORE, task.TaskStar, 1, 0, 0)
 	}
 
-	log.Debug("Player[%v] explore task %v get reward, reward stage %v", this.Id, id, reward_stage_id)
+	log.Trace("Player[%v] explore task %v get reward, reward stage %v", this.Id, id, reward_stage_id)
 
 	return 1
 }

@@ -484,7 +484,7 @@ func (this *Player) equip(role_id, equip_id int32) int32 {
 
 	top_power_match_manager.CheckDefensePowerUpdate(this)
 
-	log.Debug("Player[%v] equip role[%v] item[%v] on equip type[%v]", this.Id, role_id, equip_id, item_tdata.EquipType)
+	log.Trace("Player[%v] equip role[%v] item[%v] on equip type[%v]", this.Id, role_id, equip_id, item_tdata.EquipType)
 
 	return 1
 }
@@ -523,7 +523,7 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 
 	top_power_match_manager.CheckDefensePowerUpdate(this)
 
-	log.Debug("Player[%v] unequip role[%v] equip type[%v]", this.Id, role_id, equip_type)
+	log.Trace("Player[%v] unequip role[%v] equip type[%v]", this.Id, role_id, equip_type)
 
 	return 1
 }
@@ -583,7 +583,7 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_FUSION_RESPONSE), response)
 
-	log.Debug("Player[%v] fusioned items[%v] with piece[%v,%v]", this.Id, items, piece_id, fusion_num)
+	log.Trace("Player[%v] fusioned items[%v] with piece[%v,%v]", this.Id, items, piece_id, fusion_num)
 
 	return 1
 }
@@ -639,7 +639,7 @@ func (this *Player) sell_item(item_id, item_num int32, send_msg bool) int32 {
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_SELL_RESPONSE), response)
 	}
 
-	log.Debug("Player[%v] sell item[%v,%v], get items[%v]", this.Id, item_id, item_num, item.SellReward)
+	log.Trace("Player[%v] sell item[%v,%v], get items[%v]", this.Id, item_id, item_num, item.SellReward)
 
 	return 1
 }
@@ -771,7 +771,7 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 
 	top_power_match_manager.CheckDefensePowerUpdate(this)
 
-	log.Debug("Player[%v] upgraded item[%v] to new item[%v]", this.Id, item_id, new_items)
+	log.Trace("Player[%v] upgraded item[%v] to new item[%v]", this.Id, item_id, new_items)
 
 	return 1
 }
@@ -918,7 +918,7 @@ func (this *Player) items_one_key_upgrade(item_ids []int32) int32 {
 	// 更新任务
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_FORGE_EQUIP_NUM, false, 0, 1)
 
-	log.Debug("Player[%v] item one key upgrade result: %v", this.Id, response)
+	log.Trace("Player[%v] item one key upgrade result: %v", this.Id, response)
 
 	return 1
 }

@@ -86,7 +86,9 @@ func (this *Player) seven_days_data() int32 {
 		RemainSeconds: remain_seconds,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SEVENDAYS_DATA_RESPONSE), response)
-	log.Debug("Player[%v] seven days data %v", this.Id, response)
+
+	log.Trace("Player[%v] seven days data %v", this.Id, response)
+
 	return 1
 }
 
@@ -125,7 +127,8 @@ func (this *Player) seven_days_award() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SEVENDAYS_AWARD_RESPONSE), response)
 
-	log.Debug("Player[%v] seven days awarded day %v", this.Id, response)
+	log.Trace("Player[%v] seven days awarded day %v", this.Id, response)
+
 	return 1
 }
 

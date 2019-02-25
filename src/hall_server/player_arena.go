@@ -381,7 +381,7 @@ func (this *Player) MatchArenaPlayer() (player_id, player_rank int32) {
 	player_id = item.(*ArenaRankItem).PlayerId
 	player_rank = r
 
-	log.Debug("Player[%v] match arena players rank range [start:%v, num:%v], rand the rank %v, match player[%v]", this.Id, start_rank, rank_num, r, player_id)
+	log.Trace("Player[%v] match arena players rank range [start:%v, num:%v], rand the rank %v, match player[%v]", this.Id, start_rank, rank_num, r, player_id)
 
 	return
 }
@@ -412,7 +412,7 @@ func (this *Player) send_arena_data() int32 {
 		TicketsRefreshRemainSeconds: tickets_remain,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_DATA_RESPONSE), response)
-	log.Debug("Player[%v] arena data: %v", this.Id, response)
+	log.Trace("Player[%v] arena data: %v", this.Id, response)
 	return 1
 }
 
@@ -496,7 +496,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 		PlayerName:  player_name,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE), response)
-	log.Debug("Player[%v] get arena player[%v] defense team[%v]", this.Id, player_id, team)
+	log.Trace("Player[%v] get arena player[%v] defense team[%v]", this.Id, player_id, team)
 	return 1
 }
 
@@ -567,7 +567,7 @@ func (this *Player) arena_match() int32 {
 		PlayerRank:  rank,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_MATCH_PLAYER_RESPONSE), response)
-	log.Debug("Player[%v] matched arena player[%v]", this.Id, response)
+	log.Trace("Player[%v] matched arena player[%v]", this.Id, response)
 	return 1
 }
 

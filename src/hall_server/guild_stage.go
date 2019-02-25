@@ -100,7 +100,7 @@ func (this *GuildStageManager) SaveDamageLog(guild_id, boss_id, attacker_id, dam
 		row.DamageLogs.SetDamage(attacker_id, damage)
 	}
 
-	log.Debug("Saved guild %v stage %v attacker %v damage %v", guild_id, boss_id, attacker_id, damage)
+	log.Trace("Saved guild %v stage %v attacker %v damage %v", guild_id, boss_id, attacker_id, damage)
 }
 
 func (this *GuildStageManager) LoadDB2RankList(guild_id, boss_id int32, rank_list *utils.ShortRankList) {
@@ -273,7 +273,7 @@ func (this *Player) send_guild_stage_data(check_refresh bool) int32 {
 		CanResetRemainSeconds: GetRemainSeconds(guild.GetLastStageResetTime(), global_config.GuildStageResetCDSecs),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_DATA_RESPONSE), response)
-	log.Debug("Player[%v] send guild data %v", this.Id, response)
+	log.Trace("Player[%v] send guild data %v", this.Id, response)
 	return 1
 }
 
@@ -300,7 +300,7 @@ func (this *Player) guild_stage_rank_list(boss_id int32) int32 {
 		DmgList: damage_list,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_RANK_LIST_RESPONSE), response)
-	log.Debug("Player[%v] guild stage %v rank list %v", this.Id, boss_id, response)
+	log.Trace("Player[%v] guild stage %v rank list %v", this.Id, boss_id, response)
 	return 1
 }
 
@@ -480,7 +480,7 @@ func (this *Player) guild_stage_check_refresh(is_notify bool) bool {
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_AUTO_REFRESH_NOTIFY), &notify)
 	}
 
-	log.Debug("Player[%v] guild stage auto refreshed", this.Id)
+	log.Trace("Player[%v] guild stage auto refreshed", this.Id)
 
 	return true
 }
@@ -528,7 +528,8 @@ func (this *Player) guild_stage_player_respawn() int32 {
 		NextCost:         next_cost,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_PLAYER_RESPAWN_RESPONSE), response)
-	log.Debug("Player[%v] respawn in guild stage %v", this.Id, response)
+
+	log.Trace("Player[%v] respawn in guild stage %v", this.Id, response)
 
 	return 1
 }
@@ -594,7 +595,7 @@ func (this *Player) guild_stage_reset() int32 {
 		}
 	}
 
-	log.Debug("Player[%v] reset guild stage", this.Id)
+	log.Trace("Player[%v] reset guild stage", this.Id)
 
 	return 1
 }

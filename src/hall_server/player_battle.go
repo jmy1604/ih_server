@@ -1415,7 +1415,7 @@ func C2SSetHangupCampaignHandler(p *Player, msg_data []byte) int32 {
 
 	res := p.set_hangup_campaign_id(req.GetCampaignId())
 	if res < 0 {
-		log.Debug("Player[%v] set hangup campaign %v failed[%v]", p.Id, req.GetCampaignId(), res)
+		log.Warn("Player[%v] set hangup campaign %v failed[%v]", p.Id, req.GetCampaignId(), res)
 		return res
 	}
 
@@ -1423,7 +1423,7 @@ func C2SSetHangupCampaignHandler(p *Player, msg_data []byte) int32 {
 	response.CampaignId = req.GetCampaignId()
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE), response)
 
-	log.Debug("Player[%v] set hangup campaign %v success", p.Id, req.GetCampaignId())
+	log.Trace("Player[%v] set hangup campaign %v success", p.Id, req.GetCampaignId())
 
 	return 1
 }

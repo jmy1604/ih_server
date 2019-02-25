@@ -230,7 +230,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 		this.activitys_update(ACTIVITY_EVENT_DRAW_SCORE, draw.NeedBlank, 0, 0, 0)
 	}
 
-	log.Debug("Player[%v] drawed card[%v] with draw type[%v], is free[%v]", this.Id, role_ids, draw_type, is_free)
+	log.Trace("Player[%v] drawed card[%v] with draw type[%v], is free[%v]", this.Id, role_ids, draw_type, is_free)
 
 	return 1
 }
@@ -266,7 +266,7 @@ func (this *Player) send_draw_data() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_DRAW_DATA_RESPONSE), response)
 
-	log.Debug("Player[%v] draw data is %v", this.Id, response)
+	log.Trace("Player[%v] draw data is %v", this.Id, response)
 
 	return 1
 }

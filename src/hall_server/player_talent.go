@@ -34,7 +34,9 @@ func (this *Player) send_talent_list() int32 {
 		Talents: talents,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_LIST_RESPONSE), response)
+
 	log.Debug("Player[%v] send talent list %v", this.Id, talents)
+
 	return 1
 }
 
@@ -93,7 +95,7 @@ func (this *Player) up_talent(talent_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_UP_RESPONSE), response)
 
-	log.Debug("Player[%v] update talent[%v] to level[%v]", this.Id, talent_id, level)
+	log.Trace("Player[%v] update talent[%v] to level[%v]", this.Id, talent_id, level)
 
 	return 1
 }
@@ -146,7 +148,8 @@ func (this *Player) talent_reset(tag int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_RESET_RESPONSE), response)
 
-	log.Debug("Player[%v] reset talents tag[%v], return items %v, cost diamond %v", this.Id, tag, items, response.GetCostDiamond())
+	log.Trace("Player[%v] reset talents tag[%v], return items %v, cost diamond %v", this.Id, tag, items, response.GetCostDiamond())
+
 	return 1
 }
 

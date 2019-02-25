@@ -152,14 +152,15 @@ func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs 
 	}
 
 	response := &msg_client_message.S2CShopDataResponse{
-		ShopId: shop.Id,
-		Items:  shop_items,
+		ShopId:                       shop.Id,
+		Items:                        shop_items,
 		NextFreeRefreshRemainSeconds: free_remain_secs,
 		NextAutoRefreshRemainSeconds: auto_remain_secs,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_DATA_RESPONSE), response)
 
-	log.Debug("Player[%v] send shop data: %v", this.Id, response)
+	log.Trace("Player[%v] send shop data: %v", this.Id, response)
+
 	return 1
 }
 
@@ -193,7 +194,7 @@ func (this *Player) check_shop_auto_refresh(shop *table_config.XmlShopItem, send
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_AUTO_REFRESH_NOTIFY), notify)
 	}
 
-	log.Debug("Player[%v] shop[%v] auto refreshed", this.Id, shop.Id)
+	log.Trace("Player[%v] shop[%v] auto refreshed", this.Id, shop.Id)
 
 	return true
 }
@@ -302,7 +303,7 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 	// 更新任务
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_BUY_ITEM_NUM_ON_SHOP, false, shop_id, buy_num)
 
-	log.Debug("Player[%v] in shop[%v] buy item[%v] num[%v], cost resource %v  add item %v", this.Id, shop_id, id, buy_num, shopitem_tdata.BuyCost, shopitem_tdata.Item)
+	log.Trace("Player[%v] in shop[%v] buy item[%v] num[%v], cost resource %v  add item %v", this.Id, shop_id, id, buy_num, shopitem_tdata.BuyCost, shopitem_tdata.Item)
 
 	return 1
 }
@@ -361,7 +362,9 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 		IsFreeRefresh: is_free,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_REFRESH_RESPONSE), response)
-	log.Debug("Player[%v] refresh shop %v", this.Id, response)
+
+	log.Trace("Player[%v] refresh shop %v", this.Id, response)
+
 	return 1
 }
 
