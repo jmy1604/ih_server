@@ -456,6 +456,10 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 			continue
 		}
 		if p.db.Friends.NumAll() >= global_config.FriendMaxNum {
+			if len(player_ids) == 1 {
+				log.Error("Player[%v] cant agree add friend %v", this.Id, p.Id)
+				return int32(msg_client_message.E_ERR_PLAYER_FRIEND_OTHER_SIDE_FRIEND_MAX)
+			}
 			player_ids[i] = int32(msg_client_message.E_ERR_PLAYER_FRIEND_OTHER_SIDE_FRIEND_MAX)
 			log.Warn("Player[%v] friend num is max, agree failed", p.Id)
 			continue
