@@ -1049,7 +1049,7 @@ func _get_battle_report(report *msg_client_message.BattleReportItem, skill_id in
 }
 
 // 伤害后效果
-func _after_skill_damage(self *TeamMember, target *TeamMember, skill_data *table_config.XmlSkillItem, self_dmg, target_dmg int32, target_before_dmg_dead, is_block, is_critical bool, report_target *msg_client_message.BattleFighter) (has_target_dead bool) {
+func _after_skill_damage(skill_data *table_config.XmlSkillItem, self *TeamMember, target *TeamMember, self_dmg, target_dmg int32, target_before_dmg_dead, is_block, is_critical bool, report_target *msg_client_message.BattleFighter) (has_target_dead bool) {
 	// 被动技，血量变化
 	if !target.is_dead() && !target.is_will_dead() && target_dmg != 0 {
 		passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, target.team, target.pos /*target_pos[j]*/, nil, nil, true)
@@ -1232,7 +1232,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				log.Trace("self_team[%v] member[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, target_dmg, target.hp, self_dmg, self.hp)
 
-				_after_skill_damage(self, target, skill_data, self_dmg, target_dmg, is_target_dead, is_block, is_critical, report_target)
+				_after_skill_damage(skill_data, self, target, self_dmg, target_dmg, is_target_dead, is_block, is_critical, report_target)
 			} else if effect_type == SKILL_EFFECT_TYPE_CURE {
 				if target == nil || target.is_dead() {
 					continue
@@ -1393,7 +1393,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if is_report {
 					report, report_target = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], target_damage, false, false, is_absorb, 0)
 				}
-				_after_skill_damage(self, target, skill_data, 0, target_damage, is_target_dead, false, false, report_target)
+				_after_skill_damage(skill_data, self, target, 0, target_damage, is_target_dead, false, false, report_target)
 				used = true
 				log.Trace("self_team[%v] pos[%v] use skill %v to target_team[%v] pos[%v] with artifact damage %v", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos[j], target_damage)
 			}
