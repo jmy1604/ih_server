@@ -7,4 +7,5 @@
      <item ServerID="LifeTreeEnterLevel" Level="24" />
      <item ServerID="FriendBossEnterLevel" Level="34" />
      <item ServerID="ExpeditionEnterLevel" Level="40" />
+     <item ServerID="ArtifactEnterLevel" Level="60" />
 </Config>
