@@ -1387,6 +1387,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				is_target_dead := target.is_dead()
 				target_damage, is_absorb := skill_effect_artifact_damage(self, target, effects[i])
+				if target_damage != 0 {
+					target.add_hp(-target_damage)
+				}
 				if is_report {
 					report, report_target = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], target_damage, false, false, is_absorb, 0)
 				}
