@@ -1383,6 +1383,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], target_damage, false, false, is_absorb, 0)
 				}
 				used = true
+				log.Debug("self_team[%v] pos[%v] use skill %v to target_team[%v] pos[%v] with artifact damage %v", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos[j], target_damage)
 			}
 		}
 	}
