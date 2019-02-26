@@ -74,8 +74,6 @@ func _write_source(f *os.File, dest_dir string, tt *this_table) (err error) {
 	str += "   	sz := len(ss)\n"
 	str += ("	this.id2items = make(map[int32]*" + tname + ")\n")
 	str += "    for i := int32(0); i < int32(sz); i++ {\n"
-	str += "    	//log.Printf(ss[i])\n"
-	str += "        //log.Printf(ss[i][0]) //  key的数据  可以作为map的数据的值\n"
 	str += ("		if i < " + strconv.Itoa(int(tt.data_start_index)) + " {\n")
 	str += "			continue\n"
 	str += "		}\n"
@@ -86,14 +84,15 @@ func _write_source(f *os.File, dest_dir string, tt *this_table) (err error) {
 	str += "		this.id2items[ss[i][0]] = &v\n"
 	str += "		this.items_array = append(this.items_array, &v)\n"
 	str += "   	}\n"
+	str += "	return true"
 	str += "}\n\n"
 
 	// get function
-	str += "func (this *" + tmname + ") Get(id int32) {\n"
+	str += "func (this *" + tmname + ") Get(id int32) *" + tname + " {\n"
 	str += "	return this.id2items[id]\n"
 	str += "}\n\n"
-	str += "func (this *" + tmname + ") GetByIndex(idx int32) {\n"
-	str += "	if idx >= len(this.items_array) {\n"
+	str += "func (this *" + tmname + ") GetByIndex(idx int32) *" + tname + " {\n"
+	str += "	if int(idx) >= len(this.items_array) {\n"
 	str += "		return nil\n"
 	str += "	}\n"
 	str += "	return this.items_array[idx]\n"

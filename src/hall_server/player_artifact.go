@@ -122,20 +122,14 @@ func (this *Player) artifact_levelup(id int32) int32 {
 		}
 	}
 
-	next_level := level + 1
-	a := artifact_table_mgr.Get(id, rank, next_level)
-	if a == nil {
-		log.Error("artifact table data with id[%v] rank[%v] level[%v] not found", id, rank, next_level)
-		return int32(msg_client_message.E_ERR_ARTIFACT_TABLE_DATA_NOT_FOUND)
-	}
-
-	if a.LevelUpResCost != nil {
-		if !this.check_resources(a.LevelUpResCost) {
+	if item.LevelUpResCost != nil {
+		if !this.check_resources(item.LevelUpResCost) {
 			log.Error("Player %v not enough resource to levelup artifact %v", this.Id, id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
 		}
 	}
 
+	next_level := level + 1
 	if !this.db.Artifacts.HasIndex(id) {
 		this.db.Artifacts.Add(&dbPlayerArtifactData{
 			Id:    id,
@@ -147,8 +141,8 @@ func (this *Player) artifact_levelup(id int32) int32 {
 		this.db.Artifacts.IncbyLevel(id, 1)
 	}
 
-	if a.LevelUpResCost != nil {
-		this.cost_resources(a.LevelUpResCost)
+	if item.LevelUpResCost != nil {
+		this.cost_resources(item.LevelUpResCost)
 	}
 
 	response := &msg_client_message.S2CArtifactLevelUpResponse{
