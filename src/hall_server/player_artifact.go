@@ -170,7 +170,7 @@ func (this *Player) artifact_rankup(id int32) int32 {
 		return int32(msg_client_message.E_ERR_ARTIFACT_RANK_IS_MAX)
 	}
 	level, _ := this.db.Artifacts.GetLevel(id)
-	a := artifact_table_mgr.Get(id, rank+1, level)
+	a := artifact_table_mgr.Get(id, rank, level)
 	if a == nil {
 		log.Error("artifact table not found data with id %v and rank %v and level %v", id, rank+1, level)
 		return int32(msg_client_message.E_ERR_ARTIFACT_TABLE_DATA_NOT_FOUND)

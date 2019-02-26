@@ -20,7 +20,7 @@ type XmlArtifactItem struct {
 	LevelUpResCost    []int32
 	RankUpResCostStr  string `xml:"RankUpResCost,attr"`
 	RankUpResCost     []int32
-	DecomposeResStr   string `xml:"DecomposeResStr,attr"`
+	DecomposeResStr   string `xml:"DecomposeRes,attr"`
 	DecomposeRes      []int32
 }
 
