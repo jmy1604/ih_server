@@ -116,7 +116,7 @@ func main() {
 
 		generate_src_path := RuntimeRootDir + GenerateSrcDir
 		generate_tab_path := RuntimeRootDir + GenerateTabDir
-		if !GenSourceAndCsv(config.ExcelPath, f.Name(), generate_src_path, generate_tab_path, config.HeaderIndex, config.ValueTypeIndex, config.UserTypeIndex, config.DataStartIndex) {
+		if !GenSourceAndCsv(excel_path, f.Name(), generate_src_path, generate_tab_path, config.HeaderIndex, config.ValueTypeIndex, config.UserTypeIndex, config.DataStartIndex) {
 			continue
 		}
 
