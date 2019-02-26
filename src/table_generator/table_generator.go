@@ -72,7 +72,7 @@ func _write_source(f *os.File, dest_dir string, tt *this_table) (err error) {
 	// read function
 	str += "func (this *" + tmname + ") Read(file_path_name string) bool {\n"
 	str += "	if file_path_name == \"\" {\n"
-	str += ("		file_path_name = \"" + RuntimeRootDir + GenerateTabPath + "/" + strings.TrimSuffix(src_file, ".go") + ".csv\"\n")
+	str += ("		file_path_name = \"" + RuntimeRootDir + GenerateTabDir + "/" + strings.TrimSuffix(src_file, ".go") + ".csv\"\n")
 	str += "	}\n"
 	str += "	cs, err := ioutil.ReadFile(file_path_name)\n"
 	str += "	if err != nil {\n"
@@ -109,6 +109,7 @@ func _write_source(f *os.File, dest_dir string, tt *this_table) (err error) {
 			continue
 		}
 		// column type
+		str += "		// " + c.header + "\n"
 		if c.value_type == "int32" {
 			var s2 string = "strconv.Atoi(" + s + ")"
 			str += ("		intv, err = " + s2 + "\n")
@@ -194,13 +195,8 @@ func _write_csv(f *os.File, dest_dir string, tt *this_table) (err error) {
 }
 
 func _gen_x_file(table_path, table_file, dest_path, file_suffix string, tt *this_table) bool {
-	var err error
-	if err = os.MkdirAll(dest_path, os.ModePerm); err != nil {
-		log.Printf("创建目录结构%v错误 %v\n", dest_path, err.Error())
-		return false
-	}
-	if err = os.Chmod(dest_path, os.ModePerm); err != nil {
-		log.Printf("修改目录%v权限错误 %v\n", dest_path, err.Error())
+	err := create_dirs(dest_path)
+	if err != nil {
 		return false
 	}
 

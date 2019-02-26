@@ -921,7 +921,7 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 	members_cure := target_team.common_data.members_cure
 	var my_artifact_id, target_artifact_id int32
 	if this.attack_team.artifact != nil && this.attack_team.artifact.artifact != nil {
-		my_artifact_id = this.attack_team.artifact.artifact.Id
+		my_artifact_id = this.attack_team.artifact.artifact.ClientIndex
 	}
 	if target_team.artifact != nil && target_team.artifact.artifact != nil {
 		target_artifact_id = target_team.artifact.artifact.ClientIndex
