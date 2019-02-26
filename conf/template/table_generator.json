@@ -1,7 +1,5 @@
 {
 	"ExcelPath": "D:/work/IHProject/Design/数值/gameres",
-	"GenerateSrcPath": "../src/table_readers",
-	"GenerateTabPath": "../game_tables",
 	"HeaderIndex": 0,
 	"ValueTypeIndex": 1,
 	"UserTypeIndex": 2,
