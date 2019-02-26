@@ -92,6 +92,12 @@
 			"path": "github.com/satori/go.uuid",
 			"revision": "b2ce2384e17bbe0c6d34077efa39dbab3e09123b",
 			"revisionTime": "2018-10-28T12:50:25Z"
+		},
+		{
+			"checksumSHA1": "17LkJs4TmDkUH4mS6RbkglksGmU=",
+			"path": "github.com/tealeg/xlsx",
+			"revision": "dbf71b6a931e7096340690e009e40c914eb1fc3a",
+			"revisionTime": "2018-10-24T00:20:44Z"
 		}
 	],
 	"rootPath": "ih_server"
