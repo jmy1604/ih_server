@@ -890,7 +890,7 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam, round *msg_client_messa
 	this.RoundEnd()
 	target_team.RoundEnd()
 
-	// 回合后神器能量
+	// 回合后战报
 	if round != nil {
 		// 非扫荡
 		if !this.IsSweep() {
