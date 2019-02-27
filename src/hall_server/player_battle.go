@@ -844,6 +844,7 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam, round *msg_client_messa
 	this.RoundStart()
 	target_team.RoundStart()
 
+	// 回合前神器能量
 	if round != nil {
 		// 非扫荡
 		if !this.IsSweep() {
@@ -862,28 +863,34 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam, round *msg_client_messa
 		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, target_team, i, this, nil, false)
 	}
 
+	var is_end bool
 	// 检测使用神器
 	this.CheckAndUseArtifactEveryRound(target_team)
 	if target_team.IsAllDead() {
-		return
+		is_end = true
 	}
-	target_team.CheckAndUseArtifactEveryRound(this)
-	if this.IsAllDead() {
-		return
+	if !is_end {
+		target_team.CheckAndUseArtifactEveryRound(this)
+		if this.IsAllDead() {
+			is_end = true
+		}
 	}
 
-	var self_index, target_index int32
-	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM || target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
-		if this.get_first_hand() >= target_team.get_first_hand() {
-			self_index, target_index = this._fight_pair(self_index, target_index, target_team)
-		} else {
-			target_index, self_index = target_team._fight_pair(target_index, self_index, this)
+	if !is_end {
+		var self_index, target_index int32
+		for self_index < BATTLE_TEAM_MEMBER_MAX_NUM || target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
+			if this.get_first_hand() >= target_team.get_first_hand() {
+				self_index, target_index = this._fight_pair(self_index, target_index, target_team)
+			} else {
+				target_index, self_index = target_team._fight_pair(target_index, self_index, this)
+			}
 		}
 	}
 
 	this.RoundEnd()
 	target_team.RoundEnd()
 
+	// 回合后神器能量
 	if round != nil {
 		// 非扫荡
 		if !this.IsSweep() {
