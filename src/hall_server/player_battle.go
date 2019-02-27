@@ -864,6 +864,7 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam, round *msg_client_messa
 
 	// 检测使用神器
 	this.CheckAndUseArtifactEveryRound(target_team)
+	target_team.CheckAndUseArtifactEveryRound(this)
 
 	var self_index, target_index int32
 	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM || target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
