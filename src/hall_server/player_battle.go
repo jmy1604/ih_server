@@ -864,7 +864,13 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam, round *msg_client_messa
 
 	// 检测使用神器
 	this.CheckAndUseArtifactEveryRound(target_team)
+	if target_team.IsAllDead() {
+		return
+	}
 	target_team.CheckAndUseArtifactEveryRound(this)
+	if this.IsAllDead() {
+		return
+	}
 
 	var self_index, target_index int32
 	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM || target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
