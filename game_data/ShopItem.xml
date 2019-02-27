@@ -195,4 +195,6 @@
      <item GoodID="6016" ShopID="6" LevelMin="1" LevelMax="9999" ItemList="57014,10" BuyCost="24,6000" StockNum="-1" RandomWeight="0" />
      <item GoodID="6017" ShopID="6" LevelMin="1" LevelMax="9999" ItemList="57015,10" BuyCost="24,6000" StockNum="-1" RandomWeight="0" />
      <item GoodID="6018" ShopID="6" LevelMin="1" LevelMax="9999" ItemList="57016,10" BuyCost="24,6000" StockNum="-1" RandomWeight="0" />
+     <item GoodID="6019" ShopID="6" LevelMin="1" LevelMax="9999" ItemList="25,500" BuyCost="24,4000" StockNum="-1" RandomWeight="0" />
+     <item GoodID="6020" ShopID="6" LevelMin="1" LevelMax="9999" ItemList="26,100" BuyCost="24,10000" StockNum="-1" RandomWeight="0" />
 </Config>
