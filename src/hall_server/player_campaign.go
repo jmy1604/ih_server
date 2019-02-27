@@ -853,3 +853,50 @@ func C2SCampaignAccelNumRefreshHandler(p *Player, msg_data []byte) int32 {
 	}
 	return p.campaign_accel_num_refresh()
 }
+
+func C2SSetHangupCampaignHandler(p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SBattleSetHangupCampaignRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
+		return -1
+	}
+
+	res := p.set_hangup_campaign_id(req.GetCampaignId())
+	if res < 0 {
+		log.Warn("Player[%v] set hangup campaign %v failed[%v]", p.Id, req.GetCampaignId(), res)
+		return res
+	}
+
+	response := &msg_client_message.S2CBattleSetHangupCampaignResponse{}
+	response.CampaignId = req.GetCampaignId()
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE), response)
+
+	log.Trace("Player[%v] set hangup campaign %v success", p.Id, req.GetCampaignId())
+
+	return 1
+}
+
+func C2SCampaignHangupIncomeHandler(p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SCampaignHangupIncomeRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
+		return -1
+	}
+
+	t := req.GetIncomeType()
+	p.campaign_hangup_income_get(t, false)
+	return 1
+}
+
+func C2SCampaignDataHandler(p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SCampaignDataRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
+		return -1
+	}
+	p.send_campaigns()
+	return 1
+}
