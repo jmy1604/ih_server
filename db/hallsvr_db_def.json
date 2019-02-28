@@ -171,7 +171,8 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"DisplaceRoleId"},
 						{"Type":"int32","Index":2,"Name":"DisplacedNewRoleTableId"},
-						{"Type":"int32","Index":3,"Name":"DisplaceGroupId"}
+						{"Type":"int32","Index":3,"Name":"DisplaceGroupId"},
+						{"Type":"int32","Index":4,"Name":"PowerUpdateTime"}
 					]
 				},
 				{

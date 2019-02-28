@@ -7,105 +7,10 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
 	"math/rand"
-	"sync/atomic"
 	"time"
 
 	"github.com/golang/protobuf/proto"
 )
-
-// -------------------------------- 关卡排行榜 --------------------------------
-var campaign_rank_serial_id int32
-
-type CampaignRankItem struct {
-	SerialId   int32
-	CampaignId int32
-	PlayerId   int32
-}
-
-func (this *CampaignRankItem) Less(value interface{}) bool {
-	item := value.(*CampaignRankItem)
-	if item == nil {
-		return false
-	}
-	if this.CampaignId < item.CampaignId {
-		return true
-	}
-	if this.CampaignId == item.CampaignId {
-		if this.SerialId > item.SerialId {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *CampaignRankItem) Greater(value interface{}) bool {
-	item := value.(*CampaignRankItem)
-	if item == nil {
-		return false
-	}
-	if this.CampaignId > item.CampaignId {
-		return true
-	}
-	if this.CampaignId == item.CampaignId {
-		if this.SerialId < item.SerialId {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *CampaignRankItem) KeyEqual(value interface{}) bool {
-	item := value.(*CampaignRankItem)
-	if item == nil {
-		return false
-	}
-	if item == nil {
-		return false
-	}
-	if this.PlayerId == item.PlayerId {
-		return true
-	}
-	return false
-}
-
-func (this *CampaignRankItem) GetKey() interface{} {
-	return this.PlayerId
-}
-
-func (this *CampaignRankItem) GetValue() interface{} {
-	return this.CampaignId
-}
-
-func (this *CampaignRankItem) SetValue(value interface{}) {
-	this.CampaignId = value.(int32)
-	this.SerialId = atomic.AddInt32(&campaign_rank_serial_id, 1)
-}
-
-func (this *CampaignRankItem) New() utils.SkiplistNode {
-	return &CampaignRankItem{}
-}
-
-func (this *CampaignRankItem) Assign(node utils.SkiplistNode) {
-	n := node.(*CampaignRankItem)
-	if n == nil {
-		return
-	}
-	this.PlayerId = n.PlayerId
-	this.CampaignId = n.CampaignId
-	this.SerialId = n.SerialId
-}
-
-func (this *CampaignRankItem) CopyDataTo(node interface{}) {
-	n := node.(*CampaignRankItem)
-	if n == nil {
-		return
-	}
-	n.PlayerId = this.PlayerId
-	n.CampaignId = this.CampaignId
-	n.SerialId = this.SerialId
-}
-
-// ----------------------------------------------------------------------------
 
 // 下一关
 func get_next_campaign_id(campaign_id int32) int32 {
@@ -165,14 +70,10 @@ func (this *Player) is_unlock_next_difficulty(curr_campaign_id int32) (bool, int
 	return true, next_campaign.Difficulty
 }
 
-func (this *Player) _update_campaign_rank_data(campaign_id, sid int32) {
-	if sid == 0 {
-		campaign_rank_serial_id += 1
-		sid = campaign_rank_serial_id
-	}
-	var data = CampaignRankItem{
-		SerialId:   sid,
-		CampaignId: campaign_id,
+func (this *Player) _update_campaign_rank_data(campaign_id, update_time int32) {
+	var data = PlayerInt32RankItem{
+		Value:      campaign_id,
+		UpdateTime: update_time,
 		PlayerId:   this.Id,
 	}
 	rank_list_mgr.UpdateItem(RANK_LIST_TYPE_CAMPAIGN, &data)
@@ -183,11 +84,11 @@ func (this *Player) LoadCampaignRankData() {
 	if campaign_id <= 0 {
 		return
 	}
-	sid := this.db.CampaignCommon.GetRankSerialId()
-	if campaign_rank_serial_id < sid {
-		campaign_rank_serial_id = sid
+	update_time := this.db.CampaignCommon.GetPassCampaginTime()
+	if update_time == 0 {
+		update_time = this.db.Info.GetLastLogin()
 	}
-	this._update_campaign_rank_data(campaign_id, sid)
+	this._update_campaign_rank_data(campaign_id, update_time)
 }
 
 func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player, guild *dbGuildRow) (err int32, is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, my_artifact_id, target_artifact_id int32, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
@@ -421,9 +322,11 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 
 	if is_win && !has_next_wave {
 		this.db.CampaignCommon.SetLastestPassedCampaignId(campaign_id)
+		now_time := int32(time.Now().Unix())
+		this.db.CampaignCommon.SetPassCampaginTime(now_time)
 		this.send_stage_reward(stage.RewardList, 2, 0)
 		// 更新排名
-		this._update_campaign_rank_data(campaign_id, atomic.AddInt32(&campaign_rank_serial_id, 1))
+		this._update_campaign_rank_data(campaign_id, now_time)
 		// 更新任务 通过章节
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_CAMPAIGN, false, campaign_id, 1)
 	}

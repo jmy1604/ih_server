@@ -341,6 +341,7 @@ type dbPlayerRoleCommonData struct{
 	DisplaceRoleId int32
 	DisplacedNewRoleTableId int32
 	DisplaceGroupId int32
+	PowerUpdateTime int32
 }
 func (this* dbPlayerRoleCommonData)from_pb(pb *db.PlayerRoleCommon){
 	if pb == nil {
@@ -349,6 +350,7 @@ func (this* dbPlayerRoleCommonData)from_pb(pb *db.PlayerRoleCommon){
 	this.DisplaceRoleId = pb.GetDisplaceRoleId()
 	this.DisplacedNewRoleTableId = pb.GetDisplacedNewRoleTableId()
 	this.DisplaceGroupId = pb.GetDisplaceGroupId()
+	this.PowerUpdateTime = pb.GetPowerUpdateTime()
 	return
 }
 func (this* dbPlayerRoleCommonData)to_pb()(pb *db.PlayerRoleCommon){
@@ -356,12 +358,14 @@ func (this* dbPlayerRoleCommonData)to_pb()(pb *db.PlayerRoleCommon){
 	pb.DisplaceRoleId = proto.Int32(this.DisplaceRoleId)
 	pb.DisplacedNewRoleTableId = proto.Int32(this.DisplacedNewRoleTableId)
 	pb.DisplaceGroupId = proto.Int32(this.DisplaceGroupId)
+	pb.PowerUpdateTime = proto.Int32(this.PowerUpdateTime)
 	return
 }
 func (this* dbPlayerRoleCommonData)clone_to(d *dbPlayerRoleCommonData){
 	d.DisplaceRoleId = this.DisplaceRoleId
 	d.DisplacedNewRoleTableId = this.DisplacedNewRoleTableId
 	d.DisplaceGroupId = this.DisplaceGroupId
+	d.PowerUpdateTime = this.PowerUpdateTime
 	return
 }
 type dbPlayerRoleData struct{
@@ -3255,6 +3259,19 @@ func (this *dbPlayerRoleCommonColumn)SetDisplaceGroupId(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerRoleCommonColumn.SetDisplaceGroupId")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.DisplaceGroupId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerRoleCommonColumn)GetPowerUpdateTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleCommonColumn.GetPowerUpdateTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.PowerUpdateTime
+	return
+}
+func (this *dbPlayerRoleCommonColumn)SetPowerUpdateTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleCommonColumn.SetPowerUpdateTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.PowerUpdateTime = v
 	this.m_changed = true
 	return
 }

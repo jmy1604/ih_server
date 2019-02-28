@@ -16,106 +16,13 @@ const (
 	ARENA_RANK_MAX = 100000
 )
 
-var arena_serial_id int32
-
-type ArenaRankItem struct {
-	SerialId    int32
-	PlayerScore int32
-	PlayerId    int32
-}
-
-func (this *ArenaRankItem) Less(value interface{}) bool {
-	item := value.(*ArenaRankItem)
-	if item == nil {
-		return false
-	}
-	if this.PlayerScore < item.PlayerScore {
-		return true
-	}
-	if this.PlayerScore == item.PlayerScore {
-		if this.SerialId > item.SerialId {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *ArenaRankItem) Greater(value interface{}) bool {
-	item := value.(*ArenaRankItem)
-	if item == nil {
-		return false
-	}
-	if this.PlayerScore > item.PlayerScore {
-		return true
-	}
-	if this.PlayerScore == item.PlayerScore {
-		if this.SerialId < item.SerialId {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *ArenaRankItem) KeyEqual(value interface{}) bool {
-	item := value.(*ArenaRankItem)
-	if item == nil {
-		return false
-	}
-	if item == nil {
-		return false
-	}
-	if this.PlayerId == item.PlayerId {
-		return true
-	}
-	return false
-}
-
-func (this *ArenaRankItem) GetKey() interface{} {
-	return this.PlayerId
-}
-
-func (this *ArenaRankItem) GetValue() interface{} {
-	return this.PlayerScore
-}
-
-func (this *ArenaRankItem) SetValue(value interface{}) {
-	this.PlayerScore = value.(int32)
-	this.SerialId = atomic.AddInt32(&arena_serial_id, 1)
-}
-
-func (this *ArenaRankItem) New() utils.SkiplistNode {
-	return &ArenaRankItem{}
-}
-
-func (this *ArenaRankItem) Assign(node utils.SkiplistNode) {
-	n := node.(*ArenaRankItem)
-	if n == nil {
-		return
-	}
-	this.PlayerId = n.PlayerId
-	this.PlayerScore = n.PlayerScore
-	this.SerialId = n.SerialId
-}
-
-func (this *ArenaRankItem) CopyDataTo(node interface{}) {
-	n := node.(*ArenaRankItem)
-	if n == nil {
-		return
-	}
-	n.PlayerId = this.PlayerId
-	n.PlayerScore = this.PlayerScore
-	n.SerialId = this.SerialId
-}
-
 type ArenaRobot struct {
 	robot_data *table_config.XmlArenaRobotItem
-	//defense_team *BattleTeam
-	power int32
+	power      int32
 }
 
 func (this *ArenaRobot) Init(robot *table_config.XmlArenaRobotItem) {
 	this.robot_data = robot
-	//this.defense_team = &BattleTeam{}
 	this._calculate_power()
 }
 
@@ -159,10 +66,10 @@ func (this *ArenaRobotManager) Init() {
 		this.robots[r.Id] = robot
 		if r.IsExpedition == 0 {
 			// 加入排行榜
-			var d = ArenaRankItem{
-				SerialId:    atomic.AddInt32(&arena_serial_id, 1),
-				PlayerScore: r.RobotScore,
-				PlayerId:    r.Id,
+			var d = PlayerInt32RankItem{
+				Value:      r.RobotScore,
+				PlayerId:   r.Id,
+				UpdateTime: 0,
 			}
 			rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ARENA, &d)
 		} else {
@@ -186,7 +93,7 @@ func (this *Player) check_arena_tickets_refresh() (remain_seconds int32) {
 	return
 }
 
-func (this *Player) _update_arena_score(data *ArenaRankItem) {
+func (this *Player) _update_arena_score(data *PlayerInt32RankItem) {
 	rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ARENA, data)
 }
 
@@ -199,18 +106,14 @@ func (this *Player) LoadArenaScore() {
 	if score <= 0 {
 		return
 	}
-	sid := this.db.Arena.GetSerialId()
-	if sid == 0 {
-		arena_serial_id += 1
-		sid = arena_serial_id
+	update_time := this.db.Arena.GetUpdateScoreTime()
+	if update_time == 0 {
+		update_time = this.db.Info.GetLastLogin()
 	}
-	if arena_serial_id < sid {
-		arena_serial_id = sid
-	}
-	var data = ArenaRankItem{
-		SerialId:    sid,
-		PlayerScore: score,
-		PlayerId:    this.Id,
+	var data = PlayerInt32RankItem{
+		Value:      score,
+		UpdateTime: update_time,
+		PlayerId:   this.Id,
 	}
 
 	this._update_arena_score(&data)
@@ -245,10 +148,10 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 		score = this.db.Arena.IncbyScore(add_score)
 		this.db.Arena.SetUpdateScoreTime(now_time)
 
-		var data = ArenaRankItem{
-			SerialId:    atomic.AddInt32(&arena_serial_id, 1),
-			PlayerScore: score,
-			PlayerId:    this.Id,
+		var data = PlayerInt32RankItem{
+			Value:      score,
+			UpdateTime: now_time,
+			PlayerId:   this.Id,
 		}
 		this._update_arena_score(&data)
 
@@ -292,12 +195,12 @@ func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
 
 	l := int32(len(rank_items))
 	for rank := rank_start; rank < l; rank++ {
-		item := (rank_items[rank-rank_start]).(*ArenaRankItem)
+		item := (rank_items[rank-rank_start]).(*PlayerInt32RankItem)
 		if item == nil {
 			log.Error("Player[%v] get arena rank list by rank[%v] item failed")
 			continue
 		}
-		log.Debug("Rank: %v   Player[%v] Score[%v]", rank, item.PlayerId, item.PlayerScore)
+		log.Debug("Rank: %v   Player[%v] Score[%v]", rank, item.PlayerId, item.Value)
 	}
 
 	if self_value != nil && self_rank > 0 {
@@ -378,7 +281,7 @@ func (this *Player) MatchArenaPlayer() (player_id, player_rank int32) {
 		return
 	}
 
-	player_id = item.(*ArenaRankItem).PlayerId
+	player_id = item.(*PlayerInt32RankItem).PlayerId
 	player_rank = r
 
 	log.Trace("Player[%v] match arena players rank range [start:%v, num:%v], rand the rank %v, match player[%v]", this.Id, start_rank, rank_num, r, player_id)
@@ -707,7 +610,7 @@ func (this *ArenaSeasonMgr) Reward(typ int32) {
 			log.Warn("Cant found rank[%v] item in arena rank list with reset", rank)
 			continue
 		}
-		arena_item := item.(*ArenaRankItem)
+		arena_item := item.(*PlayerInt32RankItem)
 		if arena_item == nil {
 			log.Warn("Arena rank[%v] item convert failed on DayReward", rank)
 			continue
@@ -747,7 +650,6 @@ func (this *ArenaSeasonMgr) Reset() {
 		return
 	}
 
-	atomic.StoreInt32(&arena_serial_id, 0)
 	rank_num := rank_list.RankNum()
 	for rank := int32(1); rank <= rank_num; rank++ {
 		item := rank_list.GetItemByRank(rank)
@@ -755,14 +657,14 @@ func (this *ArenaSeasonMgr) Reset() {
 			log.Warn("Cant found rank[%v] item in arena rank list with reset", rank)
 			continue
 		}
-		arena_item := item.(*ArenaRankItem)
+		arena_item := item.(*PlayerInt32RankItem)
 		if arena_item == nil {
 			log.Warn("Arena rank[%v] item convert failed", rank)
 			continue
 		}
-		division := arena_division_table_mgr.GetByScore(arena_item.PlayerScore)
+		division := arena_division_table_mgr.GetByScore(arena_item.Value)
 		if division == nil {
-			log.Error("arena division not found by player[%v] score[%v]", arena_item.PlayerId, arena_item.PlayerScore)
+			log.Error("arena division not found by player[%v] score[%v]", arena_item.PlayerId, arena_item.Value)
 			continue
 		}
 		rank_list.SetValueByKey(arena_item.PlayerId, division.NewSeasonScore)

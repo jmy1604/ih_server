@@ -31,6 +31,7 @@ message PlayerRoleCommon{
 	optional int32 DisplaceRoleId=1;
 	optional int32 DisplacedNewRoleTableId=2;
 	optional int32 DisplaceGroupId=3;
+	optional int32 PowerUpdateTime=4;
 }
 
 message PlayerRole{

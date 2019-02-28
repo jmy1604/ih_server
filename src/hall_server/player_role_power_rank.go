@@ -3,11 +3,8 @@ package main
 import (
 	_ "ih_server/libs/log"
 	"ih_server/libs/utils"
-	"sync/atomic"
+	"time"
 )
-
-// 战力排行榜序号
-var roles_power_rank_serial_id int32
 
 type RolePowerRankItem struct {
 	Power  int32
@@ -63,93 +60,6 @@ func (this *RolePowerRankItem) New() utils.ShortRankItem {
 	return &RolePowerRankItem{}
 }
 
-type RolesPowerRankItem struct {
-	SerialId int32
-	Power    int32
-	PlayerId int32
-}
-
-func (this *RolesPowerRankItem) Less(value interface{}) bool {
-	item := value.(*RolesPowerRankItem)
-	if item == nil {
-		return false
-	}
-	if this.Power < item.Power {
-		return true
-	} else if this.Power == item.Power {
-		if this.SerialId > item.SerialId {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *RolesPowerRankItem) Greater(value interface{}) bool {
-	item := value.(*RolesPowerRankItem)
-	if item == nil {
-		return false
-	}
-	if this.Power > item.Power {
-		return true
-	} else if this.Power == item.Power {
-		if this.SerialId < item.SerialId {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *RolesPowerRankItem) KeyEqual(value interface{}) bool {
-	item := value.(*RolesPowerRankItem)
-	if item == nil {
-		return false
-	}
-	if item == nil {
-		return false
-	}
-	if this.PlayerId == item.PlayerId {
-		return true
-	}
-	return false
-}
-
-func (this *RolesPowerRankItem) GetKey() interface{} {
-	return this.PlayerId
-}
-
-func (this *RolesPowerRankItem) GetValue() interface{} {
-	return this.Power
-}
-
-func (this *RolesPowerRankItem) SetValue(value interface{}) {
-	this.Power = value.(int32)
-	this.SerialId = atomic.AddInt32(&roles_power_rank_serial_id, 1)
-}
-
-func (this *RolesPowerRankItem) New() utils.SkiplistNode {
-	return &RolesPowerRankItem{}
-}
-
-func (this *RolesPowerRankItem) Assign(node utils.SkiplistNode) {
-	n := node.(*RolesPowerRankItem)
-	if n == nil {
-		return
-	}
-	this.PlayerId = n.PlayerId
-	this.Power = n.Power
-	this.SerialId = n.SerialId
-}
-
-func (this *RolesPowerRankItem) CopyDataTo(node interface{}) {
-	n := node.(*RolesPowerRankItem)
-	if n == nil {
-		return
-	}
-	n.PlayerId = this.PlayerId
-	n.Power = this.Power
-	n.SerialId = this.SerialId
-}
-
 // 更新排名
 const (
 	MAX_ROLES_POWER_NUM_TO_RANK_ITEM = 4
@@ -163,7 +73,7 @@ func (this *Player) _update_role_power_rank_info(role_id, power int32) {
 	this.role_power_ranklist.Update(&item, false)
 }
 
-func (this *Player) _update_roles_power_rank_info() {
+func (this *Player) _update_roles_power_rank_info(update_time int32) {
 	// 放入所有玩家的角色战力中排序
 	var power int32
 	for r := 1; r <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM; r++ {
@@ -177,13 +87,18 @@ func (this *Player) _update_roles_power_rank_info() {
 	if power <= 0 {
 		return
 	}
-	sid := atomic.AddInt32(&roles_power_rank_serial_id, 1)
-	var data = RolesPowerRankItem{
-		SerialId: sid,
-		Power:    power,
-		PlayerId: this.Id,
+	var data = PlayerInt32RankItem{
+		Value:      power,
+		UpdateTime: update_time,
+		PlayerId:   this.Id,
 	}
 	rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ROLE_POWER, &data)
+}
+
+func (this *Player) _update_roles_power_rank_info_now() {
+	now_time := int32(time.Now().Unix())
+	this._update_roles_power_rank_info(now_time)
+	this.db.RoleCommon.SetPowerUpdateTime(now_time)
 }
 
 func (this *Player) UpdateRolePowerRank(role_id int32) {
@@ -193,7 +108,7 @@ func (this *Player) UpdateRolePowerRank(role_id int32) {
 	this._update_role_power_rank_info(role_id, power)
 	after_rank := this.role_power_ranklist.GetRank(role_id)
 	if (before_rank >= 1 && before_rank <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM) || (after_rank >= 1 && after_rank <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM) {
-		this._update_roles_power_rank_info()
+		this._update_roles_power_rank_info_now()
 	}
 }
 
@@ -204,7 +119,7 @@ func (this *Player) DeleteRolePowerRank(role_id int32) {
 	rank := this.role_power_ranklist.GetRank(role_id)
 	this.role_power_ranklist.Delete(role_id)
 	if rank >= 1 && rank <= MAX_ROLES_POWER_NUM_TO_RANK_ITEM {
-		this._update_roles_power_rank_info()
+		this._update_roles_power_rank_info_now()
 	}
 }
 
@@ -224,5 +139,9 @@ func (this *Player) LoadRolesPowerRankData() {
 		}
 	}
 
-	this._update_roles_power_rank_info()
+	update_time := this.db.RoleCommon.GetPowerUpdateTime()
+	if update_time == 0 {
+		update_time = this.db.Info.GetLastLogin()
+	}
+	this._update_roles_power_rank_info(update_time)
 }

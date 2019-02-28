@@ -2,11 +2,9 @@ package main
 
 import (
 	"ih_server/libs/log"
-	"ih_server/libs/utils"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
 	"ih_server/src/table_config"
-	"sync/atomic"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -153,10 +151,10 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 
 	if is_win {
 		this.db.TowerCommon.SetCurrId(tower_id)
-		serial_id := atomic.AddInt32(&tower_rank_serial_id, 1)
-		this.db.TowerCommon.SetRankSerialId(serial_id)
+		now_time := int32(time.Now().Unix())
+		this.db.TowerCommon.SetPassTowerTime(now_time)
 		// 名次
-		this.tower_update_rank(tower_id, serial_id)
+		this.tower_update_rank(tower_id, now_time)
 		// 奖励
 		this.send_stage_reward(stage.RewardList, 3, 0)
 		// 录像
@@ -232,11 +230,11 @@ func (this *Player) get_tower_record_data(tower_fight_id int32) int32 {
 
 	return 1
 }
-func (this *Player) tower_update_rank(tower_id, serial_id int32) {
-	var data = TowerRankItem{
-		SerialId: serial_id,
-		TowerId:  tower_id,
-		PlayerId: this.Id,
+func (this *Player) tower_update_rank(tower_id, update_time int32) {
+	var data = PlayerInt32RankItem{
+		Value:      tower_id,
+		UpdateTime: update_time,
+		PlayerId:   this.Id,
 	}
 	rank_list_mgr.UpdateItem(RANK_LIST_TYPE_TOWER, &data)
 }
@@ -246,112 +244,16 @@ func (this *Player) load_tower_db_data() {
 	if tower_id <= 0 {
 		return
 	}
-
-	sid := this.db.TowerCommon.GetRankSerialId()
-	if sid <= 0 {
-		tower_rank_serial_id += 1
-		sid = tower_rank_serial_id
-		this.db.TowerCommon.SetRankSerialId(sid)
+	update_time := this.db.TowerCommon.GetPassTowerTime()
+	if update_time == 0 {
+		update_time = this.db.Info.GetLastLogin()
 	}
-	if tower_rank_serial_id < sid {
-		tower_rank_serial_id = sid
-	}
-	this.tower_update_rank(tower_id, sid)
+	this.tower_update_rank(tower_id, update_time)
 }
 
 const (
 	TOWER_RANKING_LIST_MAX = 50
 )
-
-// 爬塔排行榜序号
-var tower_rank_serial_id int32
-
-type TowerRankItem struct {
-	SerialId int32
-	TowerId  int32
-	PlayerId int32
-}
-
-func (this *TowerRankItem) Less(value interface{}) bool {
-	item := value.(*TowerRankItem)
-	if item == nil {
-		return false
-	}
-	if this.TowerId < item.TowerId {
-		return true
-	} else if this.TowerId == item.TowerId {
-		if this.SerialId > item.SerialId {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *TowerRankItem) Greater(value interface{}) bool {
-	item := value.(*TowerRankItem)
-	if item == nil {
-		return false
-	}
-	if this.TowerId > item.TowerId {
-		return true
-	} else if this.TowerId == item.TowerId {
-		if this.SerialId < item.SerialId {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *TowerRankItem) KeyEqual(value interface{}) bool {
-	item := value.(*TowerRankItem)
-	if item == nil {
-		return false
-	}
-	if item == nil {
-		return false
-	}
-	if this.PlayerId == item.PlayerId {
-		return true
-	}
-	return false
-}
-
-func (this *TowerRankItem) GetKey() interface{} {
-	return this.PlayerId
-}
-
-func (this *TowerRankItem) GetValue() interface{} {
-	return this.TowerId
-}
-
-func (this *TowerRankItem) SetValue(value interface{}) {
-	this.TowerId = value.(int32)
-	this.SerialId = atomic.AddInt32(&tower_rank_serial_id, 1)
-}
-
-func (this *TowerRankItem) New() utils.SkiplistNode {
-	return &TowerRankItem{}
-}
-
-func (this *TowerRankItem) Assign(node utils.SkiplistNode) {
-	n := node.(*TowerRankItem)
-	if n == nil {
-		return
-	}
-	this.PlayerId = n.PlayerId
-	this.TowerId = n.TowerId
-	this.SerialId = n.SerialId
-}
-
-func (this *TowerRankItem) CopyDataTo(node interface{}) {
-	n := node.(*TowerRankItem)
-	if n == nil {
-		return
-	}
-	n.PlayerId = this.PlayerId
-	n.TowerId = this.TowerId
-	n.SerialId = this.SerialId
-}
 
 func C2STowerRecordsInfoHandler(p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2STowerRecordsInfoRequest
@@ -393,7 +295,7 @@ func get_tower_rank_list() (ranking_list []*msg_client_message.TowerRankInfo) {
 	}
 
 	for i := int32(0); i < int32(len(items)); i++ {
-		item := (items[i]).(*TowerRankItem)
+		item := (items[i]).(*PlayerInt32RankItem)
 		if item == nil {
 			continue
 		}

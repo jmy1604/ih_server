@@ -73,14 +73,14 @@ func (this *Player) MatchExpeditionPlayer() int32 {
 	if self_node == nil {
 		return -1
 	}
-	n := self_node.(*RolesPowerRankItem)
+	n := self_node.(*PlayerInt32RankItem)
 	if n == nil {
 		log.Error("Player[%v] no data in Role power rank list", this.Id)
 		return -1
 	}
 
 	for i := 0; i < len(arr); i++ {
-		power := int32(float32(n.Power) * (float32(arr[i].EnemyBattlePower) / 10000))
+		power := int32(float32(n.Value) * (float32(arr[i].EnemyBattlePower) / 10000))
 		pid := top_power_match_manager.GetNearestRandPlayer(power)
 		player := player_mgr.GetPlayerById(pid)
 		var robot *ArenaRobot

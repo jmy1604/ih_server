@@ -16,7 +16,7 @@ const (
 	RANK_LIST_TYPE_CAMPAIGN   = 2 // 战役通关
 	RANK_LIST_TYPE_ROLE_POWER = 3 // 角色战力
 	RANK_LIST_TYPE_TOWER      = 4 // 爬塔
-	RANK_LIST_TYPE_MAX        = 16
+	RANK_LIST_TYPE_MAX        = 10
 )
 
 type RankList struct {
@@ -104,22 +104,11 @@ func (this *RankList) DeleteItem(key interface{}) bool {
 }
 
 var root_rank_item = []utils.SkiplistNode{
-	nil,                   // 0
-	&ArenaRankItem{},      // 1
-	&CampaignRankItem{},   // 2
-	&RolesPowerRankItem{}, // 3
-	&TowerRankItem{},      // 4
-	nil,                   // 5
-	nil,                   // 6
-	nil,                   // 7
-	nil,                   // 8
-	nil,                   // 9
-	nil,                   // 10
-	nil,                   // 11
-	nil,                   // 12
-	nil,                   // 13
-	nil,                   // 14
-	//&TopPowerRankItem{}, // 15
+	nil,                    // 0
+	&PlayerInt32RankItem{}, // 1
+	&PlayerInt32RankItem{}, // 2
+	&PlayerInt32RankItem{}, // 3
+	&PlayerInt32RankItem{}, // 4
 }
 
 type RankListManager struct {
@@ -293,7 +282,7 @@ func (this *RankListManager) DeleteItem2(rank_type int32, key interface{}) bool 
 func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []utils.SkiplistNode) (rank_items []*msg_client_message.RankItemInfo) {
 	if rank_type == RANK_LIST_TYPE_ARENA {
 		for i := int32(0); i < int32(len(items)); i++ {
-			item := (items[i]).(*ArenaRankItem)
+			item := (items[i]).(*PlayerInt32RankItem)
 			if item == nil {
 				continue
 			}
@@ -312,7 +301,7 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 		}
 	} else if rank_type == RANK_LIST_TYPE_CAMPAIGN {
 		for i := int32(0); i < int32(len(items)); i++ {
-			item := (items[i]).(*CampaignRankItem)
+			item := (items[i]).(*PlayerInt32RankItem)
 			if item == nil {
 				continue
 			}
@@ -329,7 +318,7 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 		}
 	} else if rank_type == RANK_LIST_TYPE_ROLE_POWER {
 		for i := int32(0); i < int32(len(items)); i++ {
-			item := (items[i]).(*RolesPowerRankItem)
+			item := (items[i]).(*PlayerInt32RankItem)
 			if item == nil {
 				continue
 			}
@@ -340,7 +329,7 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 				PlayerName:       name,
 				PlayerLevel:      level,
 				PlayerHead:       head,
-				PlayerRolesPower: item.Power,
+				PlayerRolesPower: item.Value,
 			}
 			rank_items = append(rank_items, rank_item)
 		}
