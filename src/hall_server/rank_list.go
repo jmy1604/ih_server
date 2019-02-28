@@ -280,14 +280,15 @@ func (this *RankListManager) DeleteItem2(rank_type int32, key interface{}) bool 
 }
 
 func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []utils.SkiplistNode) (rank_items []*msg_client_message.RankItemInfo) {
-	if rank_type == RANK_LIST_TYPE_ARENA {
-		for i := int32(0); i < int32(len(items)); i++ {
-			item := (items[i]).(*PlayerInt32RankItem)
-			if item == nil {
-				continue
-			}
+	for i := int32(0); i < int32(len(items)); i++ {
+		item := (items[i]).(*PlayerInt32RankItem)
+		if item == nil {
+			continue
+		}
+		var rank_item *msg_client_message.RankItemInfo
+		if rank_type == RANK_LIST_TYPE_ARENA {
 			name, level, head, score, grade, power := GetFighterInfo(item.PlayerId)
-			rank_item := &msg_client_message.RankItemInfo{
+			rank_item = &msg_client_message.RankItemInfo{
 				Rank:             start_rank + i,
 				PlayerId:         item.PlayerId,
 				PlayerName:       name,
@@ -297,16 +298,9 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 				PlayerArenaGrade: grade,
 				PlayerPower:      power,
 			}
-			rank_items = append(rank_items, rank_item)
-		}
-	} else if rank_type == RANK_LIST_TYPE_CAMPAIGN {
-		for i := int32(0); i < int32(len(items)); i++ {
-			item := (items[i]).(*PlayerInt32RankItem)
-			if item == nil {
-				continue
-			}
+		} else if rank_type == RANK_LIST_TYPE_CAMPAIGN {
 			name, level, head, campaign_id := GetPlayerCampaignInfo(item.PlayerId)
-			rank_item := &msg_client_message.RankItemInfo{
+			rank_item = &msg_client_message.RankItemInfo{
 				Rank:                   start_rank + i,
 				PlayerId:               item.PlayerId,
 				PlayerName:             name,
@@ -314,16 +308,9 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 				PlayerHead:             head,
 				PlayerPassedCampaignId: campaign_id,
 			}
-			rank_items = append(rank_items, rank_item)
-		}
-	} else if rank_type == RANK_LIST_TYPE_ROLE_POWER {
-		for i := int32(0); i < int32(len(items)); i++ {
-			item := (items[i]).(*PlayerInt32RankItem)
-			if item == nil {
-				continue
-			}
+		} else if rank_type == RANK_LIST_TYPE_ROLE_POWER {
 			name, level, head := GetPlayerBaseInfo(item.PlayerId)
-			rank_item := &msg_client_message.RankItemInfo{
+			rank_item = &msg_client_message.RankItemInfo{
 				Rank:             start_rank + i,
 				PlayerId:         item.PlayerId,
 				PlayerName:       name,
@@ -331,10 +318,11 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 				PlayerHead:       head,
 				PlayerRolesPower: item.Value,
 			}
-			rank_items = append(rank_items, rank_item)
+		} else {
+			log.Error("invalid rank type[%v] transfer nodes to rank items", rank_type)
+			return
 		}
-	} else {
-		log.Error("invalid rank type[%v] transfer nodes to rank items", rank_type)
+		rank_items = append(rank_items, rank_item)
 	}
 	return
 }
