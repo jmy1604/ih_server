@@ -67,6 +67,7 @@ message PlayerCampaignCommon{
 	optional int32 RankSerialId=6;
 	optional int32 VipAccelNum=7;
 	optional int32 VipAccelRefreshTime=8;
+	optional int32 PassCampaginTime=9;
 }
 
 message PlayerCampaign{
@@ -144,6 +145,7 @@ message PlayerTowerCommon{
 	optional int32 Keys=2;
 	optional int32 LastGetNewKeyTime=3;
 	optional int32 RankSerialId=4;
+	optional int32 PassTowerTime=5;
 }
 
 message PlayerTower{
@@ -423,10 +425,6 @@ message PlayerGuildStage{
 	optional int32 RespawnNum=1;
 	optional int32 RespawnState=2;
 	optional int32 LastRefreshTime=3;
-}
-
-message PlayerRoleMaxPower{
-	repeated int32 RoleIds=1;
 }
 
 message PlayerSign{

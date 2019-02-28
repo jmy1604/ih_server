@@ -506,6 +506,7 @@ type dbPlayerCampaignCommonData struct{
 	RankSerialId int32
 	VipAccelNum int32
 	VipAccelRefreshTime int32
+	PassCampaginTime int32
 }
 func (this* dbPlayerCampaignCommonData)from_pb(pb *db.PlayerCampaignCommon){
 	if pb == nil {
@@ -519,6 +520,7 @@ func (this* dbPlayerCampaignCommonData)from_pb(pb *db.PlayerCampaignCommon){
 	this.RankSerialId = pb.GetRankSerialId()
 	this.VipAccelNum = pb.GetVipAccelNum()
 	this.VipAccelRefreshTime = pb.GetVipAccelRefreshTime()
+	this.PassCampaginTime = pb.GetPassCampaginTime()
 	return
 }
 func (this* dbPlayerCampaignCommonData)to_pb()(pb *db.PlayerCampaignCommon){
@@ -531,6 +533,7 @@ func (this* dbPlayerCampaignCommonData)to_pb()(pb *db.PlayerCampaignCommon){
 	pb.RankSerialId = proto.Int32(this.RankSerialId)
 	pb.VipAccelNum = proto.Int32(this.VipAccelNum)
 	pb.VipAccelRefreshTime = proto.Int32(this.VipAccelRefreshTime)
+	pb.PassCampaginTime = proto.Int32(this.PassCampaginTime)
 	return
 }
 func (this* dbPlayerCampaignCommonData)clone_to(d *dbPlayerCampaignCommonData){
@@ -542,6 +545,7 @@ func (this* dbPlayerCampaignCommonData)clone_to(d *dbPlayerCampaignCommonData){
 	d.RankSerialId = this.RankSerialId
 	d.VipAccelNum = this.VipAccelNum
 	d.VipAccelRefreshTime = this.VipAccelRefreshTime
+	d.PassCampaginTime = this.PassCampaginTime
 	return
 }
 type dbPlayerCampaignData struct{
@@ -775,6 +779,7 @@ type dbPlayerTowerCommonData struct{
 	Keys int32
 	LastGetNewKeyTime int32
 	RankSerialId int32
+	PassTowerTime int32
 }
 func (this* dbPlayerTowerCommonData)from_pb(pb *db.PlayerTowerCommon){
 	if pb == nil {
@@ -784,6 +789,7 @@ func (this* dbPlayerTowerCommonData)from_pb(pb *db.PlayerTowerCommon){
 	this.Keys = pb.GetKeys()
 	this.LastGetNewKeyTime = pb.GetLastGetNewKeyTime()
 	this.RankSerialId = pb.GetRankSerialId()
+	this.PassTowerTime = pb.GetPassTowerTime()
 	return
 }
 func (this* dbPlayerTowerCommonData)to_pb()(pb *db.PlayerTowerCommon){
@@ -792,6 +798,7 @@ func (this* dbPlayerTowerCommonData)to_pb()(pb *db.PlayerTowerCommon){
 	pb.Keys = proto.Int32(this.Keys)
 	pb.LastGetNewKeyTime = proto.Int32(this.LastGetNewKeyTime)
 	pb.RankSerialId = proto.Int32(this.RankSerialId)
+	pb.PassTowerTime = proto.Int32(this.PassTowerTime)
 	return
 }
 func (this* dbPlayerTowerCommonData)clone_to(d *dbPlayerTowerCommonData){
@@ -799,6 +806,7 @@ func (this* dbPlayerTowerCommonData)clone_to(d *dbPlayerTowerCommonData){
 	d.Keys = this.Keys
 	d.LastGetNewKeyTime = this.LastGetNewKeyTime
 	d.RankSerialId = this.RankSerialId
+	d.PassTowerTime = this.PassTowerTime
 	return
 }
 type dbPlayerTowerData struct{
@@ -1798,35 +1806,6 @@ func (this* dbPlayerGuildStageData)clone_to(d *dbPlayerGuildStageData){
 	d.RespawnNum = this.RespawnNum
 	d.RespawnState = this.RespawnState
 	d.LastRefreshTime = this.LastRefreshTime
-	return
-}
-type dbPlayerRoleMaxPowerData struct{
-	RoleIds []int32
-}
-func (this* dbPlayerRoleMaxPowerData)from_pb(pb *db.PlayerRoleMaxPower){
-	if pb == nil {
-		this.RoleIds = make([]int32,0)
-		return
-	}
-	this.RoleIds = make([]int32,len(pb.GetRoleIds()))
-	for i, v := range pb.GetRoleIds() {
-		this.RoleIds[i] = v
-	}
-	return
-}
-func (this* dbPlayerRoleMaxPowerData)to_pb()(pb *db.PlayerRoleMaxPower){
-	pb = &db.PlayerRoleMaxPower{}
-	pb.RoleIds = make([]int32, len(this.RoleIds))
-	for i, v := range this.RoleIds {
-		pb.RoleIds[i]=v
-	}
-	return
-}
-func (this* dbPlayerRoleMaxPowerData)clone_to(d *dbPlayerRoleMaxPowerData){
-	d.RoleIds = make([]int32, len(this.RoleIds))
-	for _ii, _vv := range this.RoleIds {
-		d.RoleIds[_ii]=_vv
-	}
 	return
 }
 type dbPlayerSignData struct{
@@ -3893,6 +3872,19 @@ func (this *dbPlayerCampaignCommonColumn)IncbyVipAccelRefreshTime(v int32)(r int
 	this.m_changed = true
 	return this.m_data.VipAccelRefreshTime
 }
+func (this *dbPlayerCampaignCommonColumn)GetPassCampaginTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignCommonColumn.GetPassCampaginTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.PassCampaginTime
+	return
+}
+func (this *dbPlayerCampaignCommonColumn)SetPassCampaginTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignCommonColumn.SetPassCampaginTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.PassCampaginTime = v
+	this.m_changed = true
+	return
+}
 type dbPlayerCampaignColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerCampaignData
@@ -5241,6 +5233,19 @@ func (this *dbPlayerTowerCommonColumn)SetRankSerialId(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerTowerCommonColumn.SetRankSerialId")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.RankSerialId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerTowerCommonColumn)GetPassTowerTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTowerCommonColumn.GetPassTowerTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.PassTowerTime
+	return
+}
+func (this *dbPlayerTowerCommonColumn)SetPassTowerTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerTowerCommonColumn.SetPassTowerTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.PassTowerTime = v
 	this.m_changed = true
 	return
 }
@@ -10053,72 +10058,6 @@ func (this *dbPlayerGuildStageColumn)SetLastRefreshTime(v int32){
 	this.m_changed = true
 	return
 }
-type dbPlayerRoleMaxPowerColumn struct{
-	m_row *dbPlayerRow
-	m_data *dbPlayerRoleMaxPowerData
-	m_changed bool
-}
-func (this *dbPlayerRoleMaxPowerColumn)load(data []byte)(err error){
-	if data == nil || len(data) == 0 {
-		this.m_data = &dbPlayerRoleMaxPowerData{}
-		this.m_changed = false
-		return nil
-	}
-	pb := &db.PlayerRoleMaxPower{}
-	err = proto.Unmarshal(data, pb)
-	if err != nil {
-		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	this.m_data = &dbPlayerRoleMaxPowerData{}
-	this.m_data.from_pb(pb)
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerRoleMaxPowerColumn)save( )(data []byte,err error){
-	pb:=this.m_data.to_pb()
-	data, err = proto.Marshal(pb)
-	if err != nil {
-		log.Error("Marshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerRoleMaxPowerColumn)Get( )(v *dbPlayerRoleMaxPowerData ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleMaxPowerColumn.Get")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v=&dbPlayerRoleMaxPowerData{}
-	this.m_data.clone_to(v)
-	return
-}
-func (this *dbPlayerRoleMaxPowerColumn)Set(v dbPlayerRoleMaxPowerData ){
-	this.m_row.m_lock.UnSafeLock("dbPlayerRoleMaxPowerColumn.Set")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=&dbPlayerRoleMaxPowerData{}
-	v.clone_to(this.m_data)
-	this.m_changed=true
-	return
-}
-func (this *dbPlayerRoleMaxPowerColumn)GetRoleIds( )(v []int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleMaxPowerColumn.GetRoleIds")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = make([]int32, len(this.m_data.RoleIds))
-	for _ii, _vv := range this.m_data.RoleIds {
-		v[_ii]=_vv
-	}
-	return
-}
-func (this *dbPlayerRoleMaxPowerColumn)SetRoleIds(v []int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerRoleMaxPowerColumn.SetRoleIds")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.RoleIds = make([]int32, len(v))
-	for _ii, _vv := range v {
-		this.m_data.RoleIds[_ii]=_vv
-	}
-	this.m_changed = true
-	return
-}
 type dbPlayerSignColumn struct{
 	m_row *dbPlayerRow
 	m_data *dbPlayerSignData
@@ -11975,7 +11914,6 @@ type dbPlayerRow struct {
 	FirstDrawCards dbPlayerFirstDrawCardColumn
 	Guild dbPlayerGuildColumn
 	GuildStage dbPlayerGuildStageColumn
-	RoleMaxPower dbPlayerRoleMaxPowerColumn
 	Sign dbPlayerSignColumn
 	SevenDays dbPlayerSevenDaysColumn
 	PayCommon dbPlayerPayCommonColumn
@@ -12101,8 +12039,6 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.Guild.m_data=&dbPlayerGuildData{}
 	this.GuildStage.m_row=this
 	this.GuildStage.m_data=&dbPlayerGuildStageData{}
-	this.RoleMaxPower.m_row=this
-	this.RoleMaxPower.m_data=&dbPlayerRoleMaxPowerData{}
 	this.Sign.m_row=this
 	this.Sign.m_data=&dbPlayerSignData{}
 	this.SevenDays.m_row=this
@@ -12154,7 +12090,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(75)
+		db_args:=new_db_args(74)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_UniqueId)
 		db_args.Push(this.m_Account)
@@ -12438,12 +12374,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dGuildStage)
-		dRoleMaxPower,db_err:=this.RoleMaxPower.save()
-		if db_err!=nil{
-			log.Error("insert save RoleMaxPower failed")
-			return db_err,false,0,"",nil
-		}
-		db_args.Push(dRoleMaxPower)
 		dSign,db_err:=this.Sign.save()
 		if db_err!=nil{
 			log.Error("insert save Sign failed")
@@ -12573,9 +12503,9 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.RoleMaxPower.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionData.m_changed||this.ExpeditionRoles.m_changed||this.ExpeditionLevels.m_changed||this.ExpeditionLevelRole0s.m_changed||this.ExpeditionLevelRole1s.m_changed||this.ExpeditionLevelRole2s.m_changed||this.ExpeditionLevelRole3s.m_changed||this.ExpeditionLevelRole4s.m_changed||this.ExpeditionLevelRole5s.m_changed||this.ExpeditionLevelRole6s.m_changed||this.ExpeditionLevelRole7s.m_changed||this.ExpeditionLevelRole8s.m_changed||this.ExpeditionLevelRole9s.m_changed||this.SysMail.m_changed||this.Artifacts.m_changed{
+		if this.m_UniqueId_changed||this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.m_Level_changed||this.Items.m_changed||this.RoleCommon.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed||this.Sign.m_changed||this.SevenDays.m_changed||this.PayCommon.m_changed||this.Pays.m_changed||this.GuideData.m_changed||this.ActivityDatas.m_changed||this.ExpeditionData.m_changed||this.ExpeditionRoles.m_changed||this.ExpeditionLevels.m_changed||this.ExpeditionLevelRole0s.m_changed||this.ExpeditionLevelRole1s.m_changed||this.ExpeditionLevelRole2s.m_changed||this.ExpeditionLevelRole3s.m_changed||this.ExpeditionLevelRole4s.m_changed||this.ExpeditionLevelRole5s.m_changed||this.ExpeditionLevelRole6s.m_changed||this.ExpeditionLevelRole7s.m_changed||this.ExpeditionLevelRole8s.m_changed||this.ExpeditionLevelRole9s.m_changed||this.SysMail.m_changed||this.Artifacts.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(75)
+			db_args:=new_db_args(74)
 			if this.m_UniqueId_changed{
 				update_string+="UniqueId=?,"
 				db_args.Push(this.m_UniqueId)
@@ -13014,15 +12944,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dGuildStage)
 			}
-			if this.RoleMaxPower.m_changed{
-				update_string+="RoleMaxPower=?,"
-				dRoleMaxPower,err:=this.RoleMaxPower.save()
-				if err!=nil{
-					log.Error("update save RoleMaxPower failed")
-					return err,false,0,"",nil
-				}
-				db_args.Push(dRoleMaxPower)
-			}
 			if this.Sign.m_changed{
 				update_string+="Sign=?,"
 				dSign,err:=this.Sign.save()
@@ -13272,7 +13193,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.FirstDrawCards.m_changed = false
 	this.Guild.m_changed = false
 	this.GuildStage.m_changed = false
-	this.RoleMaxPower.m_changed = false
 	this.Sign.m_changed = false
 	this.SevenDays.m_changed = false
 	this.PayCommon.m_changed = false
@@ -13809,14 +13729,6 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasRoleMaxPower := columns["RoleMaxPower"]
-	if !hasRoleMaxPower {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN RoleMaxPower LONGBLOB")
-		if err != nil {
-			log.Error("ADD COLUMN RoleMaxPower failed")
-			return
-		}
-	}
 	_, hasSign := columns["Sign"]
 	if !hasSign {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Sign LONGBLOB")
@@ -13988,7 +13900,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail,Artifacts FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail,Artifacts FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13996,7 +13908,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,RoleMaxPower,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail,Artifacts) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,UniqueId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Level,Items,RoleCommon,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage,Sign,SevenDays,PayCommon,Pays,GuideData,ActivityDatas,ExpeditionData,ExpeditionRoles,ExpeditionLevels,ExpeditionLevelRole0s,ExpeditionLevelRole1s,ExpeditionLevelRole2s,ExpeditionLevelRole3s,ExpeditionLevelRole4s,ExpeditionLevelRole5s,ExpeditionLevelRole6s,ExpeditionLevelRole7s,ExpeditionLevelRole8s,ExpeditionLevelRole9s,SysMail,Artifacts) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -14093,7 +14005,6 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dFirstDrawCards []byte
 	var dGuild []byte
 	var dGuildStage []byte
-	var dRoleMaxPower []byte
 	var dSign []byte
 	var dSevenDays []byte
 	var dPayCommon []byte
@@ -14117,7 +14028,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dArtifacts []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dRoleMaxPower,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionData,&dExpeditionRoles,&dExpeditionLevels,&dExpeditionLevelRole0s,&dExpeditionLevelRole1s,&dExpeditionLevelRole2s,&dExpeditionLevelRole3s,&dExpeditionLevelRole4s,&dExpeditionLevelRole5s,&dExpeditionLevelRole6s,&dExpeditionLevelRole7s,&dExpeditionLevelRole8s,&dExpeditionLevelRole9s,&dSysMail,&dArtifacts)
+		err = r.Scan(&PlayerId,&dUniqueId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dLevel,&dItems,&dRoleCommon,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage,&dSign,&dSevenDays,&dPayCommon,&dPays,&dGuideData,&dActivityDatas,&dExpeditionData,&dExpeditionRoles,&dExpeditionLevels,&dExpeditionLevelRole0s,&dExpeditionLevelRole1s,&dExpeditionLevelRole2s,&dExpeditionLevelRole3s,&dExpeditionLevelRole4s,&dExpeditionLevelRole5s,&dExpeditionLevelRole6s,&dExpeditionLevelRole7s,&dExpeditionLevelRole8s,&dExpeditionLevelRole9s,&dSysMail,&dArtifacts)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -14360,11 +14271,6 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.GuildStage.load(dGuildStage)
 		if err != nil {
 			log.Error("GuildStage %v", PlayerId)
-			return
-		}
-		err = row.RoleMaxPower.load(dRoleMaxPower)
-		if err != nil {
-			log.Error("RoleMaxPower %v", PlayerId)
 			return
 		}
 		err = row.Sign.load(dSign)
