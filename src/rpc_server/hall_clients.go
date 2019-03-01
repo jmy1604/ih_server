@@ -3,6 +3,7 @@ package main
 import (
 	"ih_server/libs/log"
 	"ih_server/libs/rpc"
+	"ih_server/src/share_data"
 )
 
 type HallRpcClient struct {
@@ -12,13 +13,9 @@ type HallRpcClient struct {
 	rpc_client *rpc.Client
 }
 
-func get_server_id_by_player_id(player_id int32) int32 {
-	return (player_id >> 20) & 0xffff
-}
-
 // 通过ServerId对应rpc客户端
 func GetRpcClientByServerId(server_id int32) *rpc.Client {
-	server_info := server_list.GetById(server_id)
+	server_info := server_list.GetServerById(server_id)
 	if server_info == nil {
 		log.Error("get server info by server_id[%v] from failed", server_id)
 		return nil
@@ -33,6 +30,6 @@ func GetRpcClientByServerId(server_id int32) *rpc.Client {
 
 // 通过玩家ID对应大厅的rpc客户端
 func GetRpcClientByPlayerId(player_id int32) *rpc.Client {
-	server_id := get_server_id_by_player_id(player_id)
+	server_id := share_data.GetServerIdByPlayerId(player_id)
 	return GetRpcClientByServerId(server_id)
 }

@@ -299,45 +299,7 @@ func (this *H2H_GlobalProc) WorldChat(args *rpc_common.H2H_WorldChat, result *rp
 		}
 	}()
 
-	/*(if !world_chat_mgr.push_chat_msg(args.ChatContent, args.FromPlayerId, args.FromPlayerLevel, args.FromPlayerName, args.FromPlayerHead) {
-		err_str := fmt.Sprintf("@@@ H2H_GlobalProc::WorldChat Player[%v] world chat content[%v] failed", args.FromPlayerId, args.ChatContent)
-		return errors.New(err_str)
-	}*/
 	log.Debug("@@@ H2H_GlobalProc::WorldChat Player[%v] world chat content[%v]", args.FromPlayerId, args.ChatContent)
-	return nil
-}
-
-func (this *H2H_GlobalProc) Anouncement(args *rpc_common.H2H_Anouncement, result *rpc_common.H2H_AnouncementResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	if !anouncement_mgr.PushNew(args.MsgType, true, args.FromPlayerId, args.MsgParam1, args.MsgParam2, args.MsgParam3, args.MsgText) {
-		err_str := fmt.Sprintf("@@@ H2H_GlobalProc::Anouncement Player[%v] anouncement msg_type[%v] msg_param[%v] failed", args.FromPlayerId, args.MsgType, args.MsgParam1)
-		return errors.New(err_str)
-	}
-	log.Debug("@@@ H2H_GlobalProc::Anouncement Player[%v] anouncement msg_type[%v] msg_param[%v]", args.FromPlayerId, args.MsgType, args.MsgParam1)
-	return nil
-}
-
-// 排行榜调用
-type R2H_RanklistProc struct {
-}
-
-func (this *R2H_RanklistProc) AnouncementFirstRank(args *rpc_common.R2H_RanklistPlayerFirstRank, result *rpc_common.R2H_RanklistPlayerFirstRankResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	if !anouncement_mgr.PushNew(ANOUNCEMENT_TYPE_RANKING_LIST_FIRST_RANK, false, args.PlayerId /*args.PlayerName, args.PlayerLevel, */, args.RankType, args.RankParam, 0, "") {
-		err_str := fmt.Sprintf("@@@ R2H_RanklistProc::AnouncementFirstRank Push Player[%v] first rank in ranklist[%v] failed", args.PlayerId /*args.PlayerName, args.PlayerLevel,*/, args.RankType)
-		return errors.New(err_str)
-	}
-	log.Debug("@@@ R2H_RanklistProc::AnouncementFirstRank Pushed Player[%v] is first rank in ranklist[%v]", args.PlayerId /*args.PlayerName, args.PlayerLevel,*/, args.RankType)
 	return nil
 }
 
@@ -368,9 +330,6 @@ func (this *HallServer) init_rpc_service() bool {
 		return false
 	}
 	if !this.rpc_service.Register(&H2H_GlobalProc{}) {
-		return false
-	}
-	if !this.rpc_service.Register(&R2H_RanklistProc{}) {
 		return false
 	}
 	if !this.rpc_service.Register(&G2H_Proc{}) {

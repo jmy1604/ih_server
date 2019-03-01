@@ -2,6 +2,7 @@ package main
 
 import (
 	"ih_server/libs/log"
+	"ih_server/src/share_data"
 	"sync/atomic"
 )
 
@@ -38,7 +39,7 @@ func (this *DBC) on_preload() (err error) {
 
 func (this *dbGlobalRow) GetNextPlayerId() int32 {
 	curr_id := atomic.AddInt32(&this.m_CurrentPlayerId, 1)
-	new_id := ((config.ServerId << 20) & 0x7ff00000) | curr_id
+	new_id := share_data.GeneratePlayerId(config.ServerId, curr_id) //((config.ServerId << 20) & 0x7ff00000) | curr_id
 	this.m_lock.UnSafeLock("dbGlobalRow.GetNextPlayerId")
 	this.m_CurrentPlayerId_changed = true
 	this.m_lock.UnSafeUnlock()
@@ -47,7 +48,7 @@ func (this *dbGlobalRow) GetNextPlayerId() int32 {
 
 func (this *dbGlobalRow) GetNextGuildId() int32 {
 	curr_id := atomic.AddInt32(&this.m_CurrentGuildId, 1)
-	new_id := ((config.ServerId << 20) & 0x7ff00000) | curr_id
+	new_id := share_data.GenerateGuildId(config.ServerId, curr_id) //((config.ServerId << 20) & 0x7ff00000) | curr_id
 	this.m_lock.UnSafeLock("dbGlobalRow.GetNextGuildId")
 	this.m_CurrentGuildId_changed = true
 	this.m_lock.UnSafeUnlock()

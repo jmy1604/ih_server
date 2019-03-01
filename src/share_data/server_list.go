@@ -27,12 +27,18 @@ type HallServerInfo struct {
 	VerifyUse bool
 }
 
+type CrossInfo struct {
+	Id        int32
+	ServerIds []int32
+}
+
 type ServerList struct {
-	CommonIP    string
-	Servers     []*HallServerInfo
-	Data        string
-	TotalWeight int32
-	//TotalWeightIos    int32
+	CommonIP          string
+	Servers           []*HallServerInfo
+	TotalWeight       int32
+	CrossList         []*CrossInfo
+	Id2Cross          map[int32]*CrossInfo
+	ServerId2Cross    map[int32]*CrossInfo
 	IosVerifyServerId int32
 	ConfigPath        string
 	MD5Str            string
@@ -56,7 +62,6 @@ func (this *ServerList) _read_config(data []byte) bool {
 	}
 
 	var total_weight int32
-	//var total_weight_ios int32
 	if this.Servers != nil {
 		for i := 0; i < len(this.Servers); i++ {
 			s := this.Servers[i]
@@ -66,29 +71,32 @@ func (this *ServerList) _read_config(data []byte) bool {
 			} else if s.Weight == 0 {
 				log.Trace("Server Id %v Weight %v", s.Id, s.Weight)
 			}
-
-			//if s.ClientOS == CLIENT_OS_IOS {
-			//	if !s.VerifyUse {
-			//		total_weight_ios += s.Weight
-			//	} else {
-			//		this.IosVerifyServerId = s.Id
-			//	}
-			//} else {
 			total_weight += s.Weight
-			//}
 		}
 	}
 
-	//if this.IosVerifyServerId <= 0 {
-	if total_weight <= 0 /*&& total_weight_ios <= 0*/ {
+	if total_weight <= 0 {
 		log.Error("Server List Total Weight is invalid %v", total_weight)
 		return false
 	}
-	//}
 
 	this.TotalWeight = total_weight
-	//this.TotalWeightIos = total_weight_ios
-	this.Data = string(data)
+
+	this.Id2Cross = make(map[int32]*CrossInfo)
+	this.ServerId2Cross = make(map[int32]*CrossInfo)
+	for i := 0; i < len(this.CrossList); i++ {
+		c := this.CrossList[i]
+		if c == nil {
+			continue
+		}
+		this.Id2Cross[c.Id] = c
+		if c.ServerIds != nil {
+			for n := 0; n < len(c.ServerIds); n++ {
+				this.ServerId2Cross[c.ServerIds[n]] = c
+			}
+		}
+	}
+
 	this.MD5Str = _get_md5(data)
 
 	return true
@@ -127,7 +135,6 @@ func (this *ServerList) RereadConfig() bool {
 
 	this.Servers = nil
 	this.TotalWeight = 0
-	//this.TotalWeightIos = 0
 
 	if !this._read_config(data) {
 		return false
@@ -138,7 +145,7 @@ func (this *ServerList) RereadConfig() bool {
 	return true
 }
 
-func (this *ServerList) GetById(id int32) (info *HallServerInfo) {
+func (this *ServerList) GetServerById(id int32) (info *HallServerInfo) {
 	this.Locker.RLock()
 	defer this.Locker.RUnlock()
 
@@ -158,16 +165,12 @@ func (this *ServerList) GetById(id int32) (info *HallServerInfo) {
 	return
 }
 
-func (this *ServerList) RandomOne(client_os string) (info *HallServerInfo) {
+func (this *ServerList) RandomOneServer(client_os string) (info *HallServerInfo) {
 	this.Locker.RLock()
 	defer this.Locker.RUnlock()
 
 	var total_weight int32
-	//if client_os == CLIENT_OS_IOS {
-	//	total_weight = this.TotalWeightIos
-	//} else {
 	total_weight = this.TotalWeight
-	//}
 
 	now_time := time.Now()
 	rand.Seed(now_time.Unix() + now_time.UnixNano())
@@ -177,7 +180,6 @@ func (this *ServerList) RandomOne(client_os string) (info *HallServerInfo) {
 
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		//if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
 		if s.Weight <= 0 {
 			continue
 		}
@@ -186,7 +188,6 @@ func (this *ServerList) RandomOne(client_os string) (info *HallServerInfo) {
 			break
 		}
 		r -= s.Weight
-		//}
 	}
 
 	return
@@ -202,28 +203,36 @@ func (this *ServerList) GetServers(client_os string) (servers []*HallServerInfo)
 
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		//if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
 		servers = append(servers, s)
-		//}
 	}
 	return
 }
 
-func (this *ServerList) HasId(client_os string, server_id int32) bool {
+func (this *ServerList) HasServerId(client_os string, server_id int32) bool {
 	this.Locker.RLock()
 	defer this.Locker.RUnlock()
 
 	var found bool
 	for i := 0; i < len(this.Servers); i++ {
 		s := this.Servers[i]
-		//if (s.ClientOS == CLIENT_OS_IOS && !s.VerifyUse && client_os == s.ClientOS) || (s.ClientOS != CLIENT_OS_IOS && client_os != CLIENT_OS_IOS) {
 		if s.Id == server_id {
 			found = true
 			break
 		}
-		//}
 	}
 	return found
+}
+
+func (this *ServerList) GetCrossServers(id int32) *CrossInfo {
+	this.Locker.RLock()
+	defer this.Locker.RUnlock()
+	return this.Id2Cross[id]
+}
+
+func (this *ServerList) GetCrossByServerId(server_id int32) *CrossInfo {
+	this.Locker.RLock()
+	defer this.Locker.RUnlock()
+	return this.ServerId2Cross[server_id]
 }
 
 func (this *ServerList) Run() {

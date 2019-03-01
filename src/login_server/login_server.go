@@ -683,7 +683,7 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 	if select_server_id <= 0 {
 		select_server_id = acc_row.GetLastSelectIOSServerId()
 		if select_server_id <= 0 {
-			server := server_list.RandomOne(client_os)
+			server := server_list.RandomOneServer(client_os)
 			if server == nil {
 				err_code = int32(msg_client_message.E_ERR_INTERNAL)
 				log.Error("Server List random null !!!")
@@ -747,7 +747,7 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 }
 
 func _select_server(unique_id, account string, server_id int32) (err_code int32, hall_ip, access_token string) {
-	sinfo := server_list.GetById(server_id)
+	sinfo := server_list.GetServerById(server_id)
 	if sinfo == nil {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
 		log.Error("select_server_handler player[%v] select server[%v] not found")

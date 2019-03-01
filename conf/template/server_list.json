@@ -35,5 +35,15 @@
 			"ClientOS": "ios",
 			"IsVerify": true
 		}
+	],
+	"CrossList" : [
+		{
+			"Id": 1,
+			"ServerIds": [1,2]
+		},
+		{
+			"Id": 2,
+			"ServerIds": [3,4]
+		}
 	]
 }
