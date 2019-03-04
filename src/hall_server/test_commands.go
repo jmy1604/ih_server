@@ -2484,6 +2484,36 @@ func set_team_artifact_cmd(p *Player, args []string) int32 {
 	return p.SetTeamArtifact(int32(team_id), int32(artifact_id))
 }
 
+func remote_player_info_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	player := player_mgr.GetPlayerById(int32(player_id))
+	if player != nil {
+		player.send_info()
+	} else {
+		resp, err_code := remote_get_player_info(p.Id, int32(player_id))
+		if err_code < 0 {
+			log.Error("remote_get_player_info %v err %v", player_id, err_code)
+		} else {
+			if resp != nil {
+				log.Trace("remote_get_player_info %v", resp)
+			}
+		}
+	}
+
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2643,6 +2673,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"artifact_rankup":          artifact_rankup_cmd,
 	"artifact_reset":           artifact_reset_cmd,
 	"set_team_artifact":        set_team_artifact_cmd,
+	"remote_player_info":       remote_player_info_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {

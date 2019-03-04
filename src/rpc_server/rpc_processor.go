@@ -10,14 +10,37 @@ import (
 )
 
 // 通用调用过程
-type H2H_CommonProc struct {
+type G2G_CommonProc struct {
 }
 
-func (this *H2H_CommonProc) Get(arg *rpc_common.H2H_GetRequest, result *rpc_common.H2H_GetResponse) error {
-	return nil
+func (this *G2G_CommonProc) Get(arg *rpc_common.G2G_GetRequest, result *rpc_common.G2G_GetResponse) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Stack(e)
+		}
+	}()
+
+	rpc_client := GetCrossRpcClientByPlayerId(arg.FromPlayerId, arg.ToPlayerId)
+	if rpc_client == nil {
+		return errors.New(fmt.Sprintf("!!!!!! Not found rpc client by player id %v", arg.ToPlayerId))
+	}
+
+	err = rpc_client.Call("G2G_CommonProc.Get", arg, result)
+	if err != nil {
+		log.Error("RPC @@@ G2G_CommonProc.Get(%v,%v) error(%v)", arg, result, err.Error())
+	} else {
+		log.Trace("RPC @@@ G2G_CommonProc.Get(%v,%v)", arg, result)
+	}
+
+	return err
 }
 
-func (this *H2H_CommonProc) MultiGet(arg *rpc_common.H2H_MultiGetRequest, result *rpc_common.H2H_MultiGetResponse) error {
+func (this *G2G_CommonProc) MultiGet(arg *rpc_common.G2G_MultiGetRequest, result *rpc_common.G2G_MultiGetResponse) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Stack(e)
+		}
+	}()
 	return nil
 }
 
@@ -368,6 +391,10 @@ func (this *RpcServer) init_proc_service() bool {
 	}
 
 	if !this.rpc_service.Register(&H2R_GlobalProc{}) {
+		return false
+	}
+
+	if !this.rpc_service.Register(&G2G_CommonProc{}) {
 		return false
 	}
 

@@ -1,0 +1,76 @@
+syntax = "proto3";
+package msg.rpc_message;
+
+enum MSGID {
+	NONE									= 0;
+	G2G_PLAYER_INFO_REQUEST					= 1; // 请求玩家信息
+	G2G_PLAYER_INFO_RESPONSE				= 2; // 返回玩家信息
+	G2G_PLAYER_INFO_NOTIFY					= 3; // 玩家信息通知
+	G2G_PLAYER_BATTLE_INFO_REQUEST  		= 4; // 请求玩家战斗信息
+	G2G_PLAYER_BATTLE_INFO_RESPONSE 		= 5; // 返回玩家战斗信息
+	
+	G2G_FRIEND_INFO_REQUEST 				= 100; // 好友信息请求
+	G2G_FRIEND_INFO_RESPONSE 				= 101; // 好友信息返回
+	G2G_FRIEND_ASK_REQUEST					= 102; // 添加好友请求
+	G2G_FRIEND_ASK_RESPONSE					= 103; // 添加好友返回
+	G2G_FRIEND_AGREE_REQUEST 				= 104; // 同意添加好友请求
+	G2G_FRIEND_AGREE_RESPONSE 				= 105; // 同意添加好友返回
+	G2G_FRIEND_REFUSE_REQUEST 				= 106; // 拒绝添加好友请求
+	G2G_FRIEND_REFUSE_RESPONSE 				= 107; // 拒绝添加好友返回
+	G2G_FRIEND_REMOVE_REQUEST 				= 108; // 删除好友请求
+	G2G_FRIEND_REMOVE_RESPONSE 				= 109; // 删除好友返回
+	G2G_FRIEND_REMOVE_NOTIFY				= 110; // 删除好友通知
+	G2G_FRIEND_GIVE_POINTS_REQUEST 			= 111; // 赠送友情点请求
+	G2G_FRIEND_GIVE_POINTS_RESPONSE 		= 112; // 赠送友情点返回
+	G2G_FRIEND_GET_POINTS_REQUEST			= 113; // 领取友情点请求
+	G2G_FRIEND_GET_POINTS_RESPONSE			= 114; // 领取友情点返回
+}
+
+// 玩家信息请求
+message G2GPlayerInfoRequest {
+	int32 PlayerId							= 1;
+}
+
+// 玩家信息返回
+message G2GPlayerInfoResponse {
+	int32 PlayerId							= 1;
+	string UniqueId 						= 2;
+	string Account							= 3;
+	int32 Level								= 4;
+	int32 Head								= 5;
+}
+
+// 玩家信息通知
+message G2GPlayerInfoNotify {
+	
+}
+
+// 玩家战斗信息请求
+message G2GPlayerBattleInfoRequest {
+	int32 PlayerId							= 1;
+}
+
+// 玩家战斗信息返回
+message G2GPlayerBattleInfoResponse {
+	
+}
+
+// 好友信息请求
+message G2GFriendInfoRequest {
+	int32 FriendId							= 1;
+}
+
+// 好友信息返回
+message G2GFriendInfoResponse {
+	
+}
+
+// 添加好友请求
+message G2GFriendAskRequest {
+	int32 FriendId							= 1;
+}
+
+// 添加好友返回
+message G2GFriendAskResponse {
+	
+}

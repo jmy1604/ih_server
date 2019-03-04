@@ -18,6 +18,54 @@ func (this *R2H_PingProc) Do(args *rpc_common.R2H_Ping, reply *rpc_common.R2H_Po
 	return nil
 }
 
+// 游戏服到游戏服通用rpc调用
+type G2G_CommonProc struct {
+}
+
+func (this *G2G_CommonProc) Get(arg *rpc_common.G2G_GetRequest, result *rpc_common.G2G_GetResponse) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Stack(e)
+		}
+	}()
+
+	handler := id2rpcfuncs[arg.MsgId]
+	if handler == nil {
+		err_str := fmt.Sprintf("RPC G2G_CommonProc.Get not found msg %v handler", arg.MsgId)
+		log.Error(err_str)
+		err = errors.New(err_str)
+		return
+	}
+
+	result.Data.ResultData, result.Data.ErrorCode = handler(arg.MsgData)
+
+	log.Trace("RPC G2G_CommonProc.Get(%v,%v)", arg, result)
+
+	return
+}
+
+func (this *G2G_CommonProc) MultiGet(arg *rpc_common.G2G_MultiGetRequest, result *rpc_common.G2G_MultiGetResponse) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Stack(e)
+		}
+	}()
+
+	handler := id2multi_rpcfuncs[arg.MsgId]
+	if handler == nil {
+		err_str := fmt.Sprintf("RPC G2G_CommonProc.Get not found msg %v handler", arg.MsgId)
+		log.Error(err_str)
+		err = errors.New(err_str)
+		return
+	}
+
+	result.Datas = handler(arg.MsgData)
+
+	log.Trace("RPC G2G_CommonProc.MultiGet(%v,%v)", arg, result)
+
+	return
+}
+
 //// 玩家调用
 type R2H_PlayerProc struct {
 }
@@ -332,6 +380,11 @@ func (this *HallServer) init_rpc_service() bool {
 	if !this.rpc_service.Register(&H2H_GlobalProc{}) {
 		return false
 	}
+
+	if !this.rpc_service.Register(&G2G_CommonProc{}) {
+		return false
+	}
+
 	if !this.rpc_service.Register(&G2H_Proc{}) {
 		return false
 	}

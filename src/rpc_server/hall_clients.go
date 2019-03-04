@@ -33,3 +33,13 @@ func GetRpcClientByPlayerId(player_id int32) *rpc.Client {
 	server_id := share_data.GetServerIdByPlayerId(player_id)
 	return GetRpcClientByServerId(server_id)
 }
+
+// 通过源玩家ID和目标玩家ID获得跨服rpc客户端
+func GetCrossRpcClientByPlayerId(from_player_id, to_player_id int32) *rpc.Client {
+	from_server_id := share_data.GetServerIdByPlayerId(from_player_id)
+	to_server_id := share_data.GetServerIdByPlayerId(to_player_id)
+	if !server_list.IsSameCross(from_server_id, to_server_id) {
+		return nil
+	}
+	return GetRpcClientByServerId(to_server_id)
+}

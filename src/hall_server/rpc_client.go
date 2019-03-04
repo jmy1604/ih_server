@@ -2,9 +2,9 @@ package main
 
 import (
 	"errors"
-	//"fmt"
 	"ih_server/libs/log"
 	"ih_server/libs/rpc"
+	"ih_server/proto/gen_go/client_message"
 	"ih_server/src/rpc_common"
 )
 
@@ -76,11 +76,52 @@ func (this *HallServer) rpc_hall2hall(receive_player_id int32, method string, ar
 }
 
 // 通用请求函数
-func (this *HallServer) rpc_h2h_get(player_id int32, arg_data, result_data []byte) error {
+func (this *HallServer) rpc_g2g_get(from_player_id, to_player_id, msg_id int32, msg_data []byte) (result_data []byte, err_code int32) {
 	if this.rpc_client == nil {
-		return errors.New("!!! rpc client is null")
+		return nil, -1
 	}
-	return nil
+	var arg = rpc_common.G2G_GetRequest{
+		FromPlayerId: from_player_id,
+		ToPlayerId:   to_player_id,
+		MsgId:        msg_id,
+		MsgData:      msg_data,
+	}
+	var result rpc_common.G2G_GetResponse
+	err := this.rpc_client.Call("G2G_CommonProc.Get", &arg, &result)
+	if err != nil {
+		err_code = int32(msg_client_message.E_ERR_REMOTE_FUNC_CALL_ERROR)
+		log.Error("rpc_g2g_get error(%v)", err.Error())
+		return
+	}
+
+	result_data = result.Data.ResultData
+	err_code = result.Data.ErrorCode
+
+	log.Trace("rpc_g2g_get: arg %v, result %v", arg, result)
+
+	return
+}
+
+func (this *HallServer) rpc_g2g_get_multi(from_player_id int32, to_player_ids []int32, msg_id int32, msg_data []byte) (datas []*rpc_common.ServerResponseData) {
+	if this.rpc_client == nil {
+		log.Error("!!! rpc client is null")
+		return nil
+	}
+	var arg = rpc_common.G2G_MultiGetRequest{
+		FromPlayerId: from_player_id,
+		ToPlayerIds:  to_player_ids,
+		MsgId:        msg_id,
+		MsgData:      msg_data,
+	}
+	var result rpc_common.G2G_MultiGetResponse
+	err := this.rpc_client.Call("G2G_CommonProc.MultiGet", &arg, &result)
+	if err != nil {
+		log.Error("rpc_g2g_get_multi error(%v)", err.Error())
+	} else {
+		log.Trace("rpc_g2g_get_multi: arg %v, result %v", arg, result)
+	}
+	datas = result.Datas
+	return
 }
 
 // 通过ID申请好友

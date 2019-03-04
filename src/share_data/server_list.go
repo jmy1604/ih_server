@@ -235,6 +235,13 @@ func (this *ServerList) GetCrossByServerId(server_id int32) *CrossInfo {
 	return this.ServerId2Cross[server_id]
 }
 
+func (this *ServerList) IsSameCross(server1_id, server2_id int32) bool {
+	this.Locker.RLock()
+	defer this.Locker.RUnlock()
+
+	return this.ServerId2Cross[server1_id] == this.ServerId2Cross[server2_id]
+}
+
 func (this *ServerList) Run() {
 	for {
 		now_time := time.Now()
