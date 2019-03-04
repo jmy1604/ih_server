@@ -10,6 +10,7 @@ import (
 	"ih_server/proto/gen_go/client_message_id"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -247,7 +248,7 @@ func register_func(account, password string, is_guest int32) {
 	log.Debug("Account[%v] registered, password is %v", msg.GetAccount(), msg.GetPassword())
 }
 
-func bind_new_account_func(account, password, new_account, new_password, new_channel string) {
+func bind_new_account_func(server_id int32, account, password, new_account, new_password, new_channel string) {
 	/*var url_str string
 	if config.UseHttps {
 		url_str = fmt.Sprintf("https://"+config.BindNewAccountUrl, config.LoginServerIP, account, password, new_account, new_password)
@@ -296,16 +297,16 @@ func bind_new_account_func(account, password, new_account, new_password, new_cha
 	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE) {
 		log.Warn("returned msg_id[%v] is not correct")
 		return
-	}*/
+	}
 
 	h := hall_conn_mgr.GetHallConnByAcc(account)
 	if h == nil {
 		log.Error("Account %v cant get hall client", account)
 		return
-	}
+	}*/
 
 	var bind_msg = msg_client_message.C2SGuestBindNewAccountRequest{
-		ServerId:    h.server_id,
+		ServerId:    server_id,
 		Account:     account,
 		Password:    password,
 		NewAccount:  new_account,
@@ -553,7 +554,9 @@ func (this *TestClient) cmd_register(use_https bool) {
 }
 
 func (this *TestClient) cmd_bind_new_account(use_https bool) {
-	var account, password, new_account, new_password string
+	var server_id, account, password, new_account, new_password string
+	fmt.Printf("输入ServerId: ")
+	fmt.Scanf("%s\n", &server_id)
 	fmt.Printf("输入旧帐号: ")
 	fmt.Scanf("%s\n", &account)
 	fmt.Printf("输入旧密码: ")
@@ -568,7 +571,11 @@ func (this *TestClient) cmd_bind_new_account(use_https bool) {
 		if config.AccountNum > 1 {
 			acc = fmt.Sprintf("%v_%s", acc, i)
 		}
-		bind_new_account_func(account, password, new_account, new_password, "")
+		sid, err := strconv.Atoi(server_id)
+		if err != nil {
+			continue
+		}
+		bind_new_account_func(int32(sid), account, password, new_account, new_password, "")
 		if config.AccountNum > 1 {
 			log.Debug("Account[%v] bind new account %v, total count %v", account, new_account, i+1)
 		}

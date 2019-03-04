@@ -295,7 +295,7 @@ type JsonResponseData struct {
 }
 
 func _check_register(account, password string) (err_code int32) {
-	if b, err := regexp.MatchString(`^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$`, account); !b {
+	if b, err := regexp.MatchString(`^[a-zA-Z0-9_-\.]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$`, account); !b {
 		if err != nil {
 			log.Error("account[%v] not valid account, err %v", account, err.Error())
 		} else {
@@ -741,7 +741,7 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 		return
 	}
 
-	log.Debug("Account[%v] logined", account)
+	log.Debug("Account[%v] channel[%v] logined", account, channel)
 
 	return
 }

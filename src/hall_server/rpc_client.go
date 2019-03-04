@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	//"fmt"
 	"ih_server/libs/log"
 	"ih_server/libs/rpc"
 	"ih_server/src/rpc_common"
@@ -32,7 +32,6 @@ func (this *HallServer) init_rpc_client() bool {
 			return
 		}
 		log.Info("RPC调用[%v]成功", proc_string)
-
 	}
 	this.rpc_client.SetOnConnect(on_connect)
 
@@ -76,8 +75,16 @@ func (this *HallServer) rpc_hall2hall(receive_player_id int32, method string, ar
 	return err
 }
 
+// 通用请求函数
+func (this *HallServer) rpc_h2h_get(player_id int32, arg_data, result_data []byte) error {
+	if this.rpc_client == nil {
+		return errors.New("!!! rpc client is null")
+	}
+	return nil
+}
+
 // 通过ID申请好友
-func (this *Player) rpc_add_friend(add_id int32) (result *rpc_common.H2R_AddFriendResult) {
+/*func (this *Player) rpc_add_friend(add_id int32) (result *rpc_common.H2R_AddFriendResult) {
 	rpc_client := get_rpc_client()
 	if rpc_client == nil {
 		return nil
@@ -248,7 +255,7 @@ func (p *Player) rpc_world_chat(content []byte) (result *rpc_common.H2H_WorldCha
 		return nil
 	}
 	return
-}
+}*/
 
 // 充值记录
 func (p *Player) rpc_charge_save(channel int32, order_id, bundle_id, account string, player_id, pay_time int32, pay_time_str string) (result *rpc_common.H2R_ChargeSaveResult) {

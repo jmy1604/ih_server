@@ -9,6 +9,18 @@ import (
 	"time"
 )
 
+// 通用调用过程
+type H2H_CommonProc struct {
+}
+
+func (this *H2H_CommonProc) Get(arg *rpc_common.H2H_GetRequest, result *rpc_common.H2H_GetResponse) error {
+	return nil
+}
+
+func (this *H2H_CommonProc) MultiGet(arg *rpc_common.H2H_MultiGetRequest, result *rpc_common.H2H_MultiGetResponse) error {
+	return nil
+}
+
 // 大厅到大厅的调用
 type H2H_CallProc struct {
 }
