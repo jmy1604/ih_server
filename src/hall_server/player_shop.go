@@ -36,47 +36,30 @@ func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 	if shop.ShopMaxSlot > 0 {
 		old_auto_id, _ := this.db.Shops.GetCurrAutoId(shop.Id)
 		this.db.Shops.SetCurrAutoId(shop.Id, shop.Id*SHOP_RANDOM_BASE_FACTOR)
-		// 兼容老的数据
+		// 删掉老的数据
 		if old_auto_id/SHOP_OLD_RANDOM_BASE_FACTOR == shop.Id {
 			for i := int32(1); i <= shop.ShopMaxSlot; i++ {
 				id := shop.Id*SHOP_OLD_RANDOM_BASE_FACTOR + i
 				if this.db.ShopItems.HasIndex(id) {
-					item_id, _ := this.db.ShopItems.GetShopItemId(id)
-					left_num, _ := this.db.ShopItems.GetLeftNum(id)
 					this.db.ShopItems.Remove(id)
-					shop_item := shopitem_table_mgr.GetItem(item_id)
-					if shop_item == nil {
-						log.Warn("Player[%v] random shop[%v] item failed", this.Id, shop.Id)
-						continue
-					}
-					new_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
-					if !this.db.ShopItems.HasIndex(new_id) {
-						this.db.ShopItems.Add(&dbPlayerShopItemData{
-							Id:         new_id,
-							ShopItemId: item_id,
-							BuyNum:     shop_item.StockNum - left_num,
-						})
-					}
 				}
 			}
-		} else {
-			//this.db.Shops.SetCurrAutoId(shop.Id, shop.Id*10000)
-			for i := int32(0); i < shop.ShopMaxSlot; i++ {
-				shop_item := shopitem_table_mgr.RandomShopItemByPlayerLevel(shop.Id, this.db.Info.GetLvl())
-				if shop_item == nil {
-					log.Error("Player[%v] random shop[%v] item failed", this.Id, shop.Id)
-					return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_RANDOM_DATA_INVALID)
-				}
-				curr_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
-				if this.db.ShopItems.HasIndex(curr_id) {
-					this.db.ShopItems.SetShopItemId(curr_id, shop_item.Id)
-					this.db.ShopItems.SetBuyNum(curr_id, 0)
-				} else {
-					this.db.ShopItems.Add(&dbPlayerShopItemData{
-						Id:         curr_id,
-						ShopItemId: shop_item.Id,
-					})
-				}
+		}
+		for i := int32(0); i < shop.ShopMaxSlot; i++ {
+			shop_item := shopitem_table_mgr.RandomShopItemByPlayerLevel(shop.Id, this.db.Info.GetLvl())
+			if shop_item == nil {
+				log.Error("Player[%v] random shop[%v] item failed", this.Id, shop.Id)
+				return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_RANDOM_DATA_INVALID)
+			}
+			curr_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
+			if this.db.ShopItems.HasIndex(curr_id) {
+				this.db.ShopItems.SetShopItemId(curr_id, shop_item.Id)
+				this.db.ShopItems.SetBuyNum(curr_id, 0)
+			} else {
+				this.db.ShopItems.Add(&dbPlayerShopItemData{
+					Id:         curr_id,
+					ShopItemId: shop_item.Id,
+				})
 			}
 		}
 	} else {
@@ -130,6 +113,7 @@ func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs 
 	var shop_items []*msg_client_message.ShopItem
 	item_ids := this.db.ShopItems.GetAllIndex()
 
+	var reset_curr_id bool
 	for _, id := range item_ids {
 		item_id, _ := this.db.ShopItems.GetShopItemId(id)
 		shop_item_tdata := shopitem_table_mgr.GetItem(item_id)
@@ -138,14 +122,38 @@ func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs 
 			continue
 		}
 
+		if shop.Id != shop_item_tdata.ShopId {
+			continue
+		}
+
+		// 不是随机商店id和item_id必须一致
 		if shop.ShopMaxSlot <= 0 && id != shop_item_tdata.Id {
 			this.db.ShopItems.Remove(id)
 			log.Trace("Player[%v] shop[%v] remove old item[%v]", this.Id, shop.Id, id)
 			continue
 		}
 
-		if id/SHOP_RANDOM_BASE_FACTOR != shop.Id && shop_item_tdata.ShopId != shop.Id {
-			continue
+		// 随机商店
+		if shop.ShopMaxSlot > 0 {
+			if id/SHOP_RANDOM_BASE_FACTOR != shop.Id {
+				// 兼容老的数据
+				left_num, _ := this.db.ShopItems.GetLeftNum(id)
+				buy_num := shop_item_tdata.StockNum - left_num
+				if buy_num < 0 {
+					buy_num = 0
+				}
+				this.db.ShopItems.Remove(id)
+				if !reset_curr_id {
+					this.db.Shops.SetCurrAutoId(shop.Id, shop.Id*SHOP_RANDOM_BASE_FACTOR)
+					reset_curr_id = true
+				}
+				id = this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
+				this.db.ShopItems.Add(&dbPlayerShopItemData{
+					Id:         id,
+					ShopItemId: item_id,
+					BuyNum:     buy_num,
+				})
+			}
 		}
 
 		num, o := this.db.ShopItems.GetBuyNum(id)
