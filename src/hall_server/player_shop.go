@@ -138,6 +138,12 @@ func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs 
 			continue
 		}
 
+		if shop.ShopMaxSlot <= 0 && id != shop_item_tdata.Id {
+			this.db.ShopItems.Remove(id)
+			log.Trace("Player[%v] shop[%v] remove old item[%v]", this.Id, shop.Id, id)
+			continue
+		}
+
 		if id/SHOP_RANDOM_BASE_FACTOR != shop.Id && shop_item_tdata.ShopId != shop.Id {
 			continue
 		}
