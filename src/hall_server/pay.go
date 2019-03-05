@@ -129,7 +129,7 @@ type XmlPayBidConfig struct {
 
 type PayMgr struct {
 	//bid2infos         map[string]*XmlPayBidItem
-	google_pay_pub    *rsa.PublicKey
+	google_pays_pub   []*rsa.PublicKey
 	google_payed_sns  map[string]int32
 	apple_payed_sns   map[string]int32
 	faceb_payed_sns   map[string]int32
@@ -140,14 +140,13 @@ var pay_mgr PayMgr
 
 func (this *PayMgr) init() bool {
 	if !this.load_google_pay_pub() {
-		log.Error("!!!!! Load googlepay.key failed")
 		return false
 	}
 	return true
 }
 
-func (this *PayMgr) load_google_pay_pub() bool {
-	path := server_config.GetGameDataPathFile("googlepay.key")
+func (this *PayMgr) _load_one_google_pay(key_file string) bool {
+	path := server_config.GetGameDataPathFile(key_file)
 	content, err := ioutil.ReadFile(path)
 	if nil != err {
 		log.Error("PayMgr Init failed (%s)!", err.Error())
@@ -166,8 +165,18 @@ func (this *PayMgr) load_google_pay_pub() bool {
 		return false
 	}
 
-	this.google_pay_pub = pub.(*rsa.PublicKey)
+	this.google_pays_pub = append(this.google_pays_pub, pub.(*rsa.PublicKey))
 
+	return true
+}
+
+func (this *PayMgr) load_google_pay_pub() bool {
+	var key_files = []string{"googlepay.key", "googlepay2.key"}
+	for i := 0; i < len(key_files); i++ {
+		if !this._load_one_google_pay(key_files[i]) {
+			return false
+		}
+	}
 	return true
 }
 
@@ -295,8 +304,16 @@ func google_pay_order_verify(p *Player, item_id int32, order_data []byte) int32 
 
 	signed := base64.StdEncoding.EncodeToString([]byte(order.signtureData))
 
-	err = rsa.VerifyPKCS1v15(pay_mgr.google_pay_pub, crypto.SHA3_256, []byte(signed)[:], []byte(order.signture))
-	if nil != err {
+	var verified bool
+	pays_pub := pay_mgr.google_pays_pub
+	for i := 0; i < len(pays_pub); i++ {
+		err = rsa.VerifyPKCS1v15(pays_pub[i], crypto.SHA3_256, []byte(signed)[:], []byte(order.signture))
+		if nil == err {
+			verified = true
+			break
+		}
+	}
+	if !verified {
 		log.Error("google_pay_order_verify failed !")
 		return int32(msg_client_message.E_ERR_CHARGE_ORDER_VERIFY_FAILED)
 	}

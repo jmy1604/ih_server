@@ -928,6 +928,7 @@ type dbPlayerShopItemData struct{
 	ShopItemId int32
 	LeftNum int32
 	ShopId int32
+	BuyNum int32
 }
 func (this* dbPlayerShopItemData)from_pb(pb *db.PlayerShopItem){
 	if pb == nil {
@@ -937,6 +938,7 @@ func (this* dbPlayerShopItemData)from_pb(pb *db.PlayerShopItem){
 	this.ShopItemId = pb.GetShopItemId()
 	this.LeftNum = pb.GetLeftNum()
 	this.ShopId = pb.GetShopId()
+	this.BuyNum = pb.GetBuyNum()
 	return
 }
 func (this* dbPlayerShopItemData)to_pb()(pb *db.PlayerShopItem){
@@ -945,6 +947,7 @@ func (this* dbPlayerShopItemData)to_pb()(pb *db.PlayerShopItem){
 	pb.ShopItemId = proto.Int32(this.ShopItemId)
 	pb.LeftNum = proto.Int32(this.LeftNum)
 	pb.ShopId = proto.Int32(this.ShopId)
+	pb.BuyNum = proto.Int32(this.BuyNum)
 	return
 }
 func (this* dbPlayerShopItemData)clone_to(d *dbPlayerShopItemData){
@@ -952,6 +955,7 @@ func (this* dbPlayerShopItemData)clone_to(d *dbPlayerShopItemData){
 	d.ShopItemId = this.ShopItemId
 	d.LeftNum = this.LeftNum
 	d.ShopId = this.ShopId
+	d.BuyNum = this.BuyNum
 	return
 }
 type dbPlayerArenaData struct{
@@ -6052,6 +6056,40 @@ func (this *dbPlayerShopItemColumn)SetShopId(id int32,v int32)(has bool){
 	d.ShopId = v
 	this.m_changed = true
 	return true
+}
+func (this *dbPlayerShopItemColumn)GetBuyNum(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.GetBuyNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.BuyNum
+	return v,true
+}
+func (this *dbPlayerShopItemColumn)SetBuyNum(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.SetBuyNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.BuyNum = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerShopItemColumn)IncbyBuyNum(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.IncbyBuyNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerShopItemData{}
+		this.m_data[id] = d
+	}
+	d.BuyNum +=  v
+	this.m_changed = true
+	return d.BuyNum
 }
 type dbPlayerArenaColumn struct{
 	m_row *dbPlayerRow

@@ -1222,7 +1222,7 @@ message ShopItem {
 	int32 Id								= 1; // 商品ID  服务器自动生成
 	int32 ItemId							= 2; // 商品配置ID
 	ItemInfo CostResource					= 3; // 需要花费的货币
-	int32 BuyNum							= 4; // 剩余购买次数
+	int32 BuyNum							= 4; // 已经购买次数
 }
 
 message S2CShopDataResponse {
@@ -1243,7 +1243,6 @@ message S2CShopBuyItemResponse {
 	int32 ShopId							= 1; // 商店ID
 	int32 Id								= 2; // 商品ID  服务器自动生成
 	int32 BuyNum							= 3; // 购买次数
-	int32 RemainBuyNum						= 4; // 剩余购买购买
 }
 
 // 刷新商店

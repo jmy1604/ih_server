@@ -452,8 +452,16 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		return -1
 	}
 
-	err = rsa.VerifyPKCS1v15(pay_mgr.google_pay_pub, crypto.SHA1, hashedReceipt, decodedSignature)
-	if err != nil {
+	var verified bool
+	pays_pub := pay_mgr.google_pays_pub
+	for i := 0; i < len(pays_pub); i++ {
+		err = rsa.VerifyPKCS1v15(pays_pub[i], crypto.SHA1, hashedReceipt, decodedSignature)
+		if err == nil {
+			verified = true
+			break
+		}
+	}
+	if !verified {
 		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] failed to verify decoded signature[%v] with hashed purchase data[%v]: %v", this.Id, decodedSignature, hashedReceipt, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_SIGNATURE_INVALID)

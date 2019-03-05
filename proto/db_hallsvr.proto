@@ -188,6 +188,7 @@ message PlayerShopItem{
 	optional int32 ShopItemId=2;
 	optional int32 LeftNum=3;
 	optional int32 ShopId=4;
+	optional int32 BuyNum=5;
 }
 
 message PlayerShopItemList{

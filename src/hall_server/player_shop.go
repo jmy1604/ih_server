@@ -20,31 +20,63 @@ const (
 	SHOP_TYPE_EXPEDITOIN = 6
 )
 
+const (
+	SHOP_OLD_RANDOM_BASE_FACTOR = 10000
+	SHOP_RANDOM_BASE_FACTOR     = 1000000
+)
+
 func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 	if !this.db.Shops.HasIndex(shop.Id) {
 		this.db.Shops.Add(&dbPlayerShopData{
 			Id: shop.Id,
 		})
 	}
-	this.db.Shops.SetCurrAutoId(shop.Id, shop.Id*10000)
 
+	// 限制商品种类的商店肯定是随机商店
 	if shop.ShopMaxSlot > 0 {
-		for i := int32(0); i < shop.ShopMaxSlot; i++ {
-			shop_item := shopitem_table_mgr.RandomShopItemByPlayerLevel(shop.Id, this.db.Info.GetLvl())
-			if shop_item == nil {
-				log.Error("Player[%v] random shop[%v] item failed", this.Id, shop.Id)
-				return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_RANDOM_DATA_INVALID)
+		old_auto_id, _ := this.db.Shops.GetCurrAutoId(shop.Id)
+		this.db.Shops.SetCurrAutoId(shop.Id, shop.Id*SHOP_RANDOM_BASE_FACTOR)
+		// 兼容老的数据
+		if old_auto_id/SHOP_OLD_RANDOM_BASE_FACTOR == shop.Id {
+			for i := int32(1); i <= shop.ShopMaxSlot; i++ {
+				id := shop.Id*SHOP_OLD_RANDOM_BASE_FACTOR + i
+				if this.db.ShopItems.HasIndex(id) {
+					item_id, _ := this.db.ShopItems.GetShopItemId(id)
+					left_num, _ := this.db.ShopItems.GetLeftNum(id)
+					this.db.ShopItems.Remove(id)
+					shop_item := shopitem_table_mgr.GetItem(item_id)
+					if shop_item == nil {
+						log.Warn("Player[%v] random shop[%v] item failed", this.Id, shop.Id)
+						continue
+					}
+					new_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
+					if !this.db.ShopItems.HasIndex(new_id) {
+						this.db.ShopItems.Add(&dbPlayerShopItemData{
+							Id:         new_id,
+							ShopItemId: item_id,
+							BuyNum:     shop_item.StockNum - left_num,
+						})
+					}
+				}
 			}
-			curr_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
-			if this.db.ShopItems.HasIndex(curr_id) {
-				this.db.ShopItems.SetShopItemId(curr_id, shop_item.Id)
-				this.db.ShopItems.SetLeftNum(curr_id, shop_item.StockNum)
-			} else {
-				this.db.ShopItems.Add(&dbPlayerShopItemData{
-					Id:         curr_id,
-					ShopItemId: shop_item.Id,
-					LeftNum:    shop_item.StockNum,
-				})
+		} else {
+			//this.db.Shops.SetCurrAutoId(shop.Id, shop.Id*10000)
+			for i := int32(0); i < shop.ShopMaxSlot; i++ {
+				shop_item := shopitem_table_mgr.RandomShopItemByPlayerLevel(shop.Id, this.db.Info.GetLvl())
+				if shop_item == nil {
+					log.Error("Player[%v] random shop[%v] item failed", this.Id, shop.Id)
+					return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_RANDOM_DATA_INVALID)
+				}
+				curr_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
+				if this.db.ShopItems.HasIndex(curr_id) {
+					this.db.ShopItems.SetShopItemId(curr_id, shop_item.Id)
+					this.db.ShopItems.SetBuyNum(curr_id, 0)
+				} else {
+					this.db.ShopItems.Add(&dbPlayerShopItemData{
+						Id:         curr_id,
+						ShopItemId: shop_item.Id,
+					})
+				}
 			}
 		}
 	} else {
@@ -55,15 +87,14 @@ func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_TABLE_DATA_NOT_FOUND)
 		}
 		for _, item := range items_shop {
-			curr_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
-			if this.db.ShopItems.HasIndex(curr_id) {
-				this.db.ShopItems.SetShopItemId(curr_id, item.Id)
-				this.db.ShopItems.SetLeftNum(curr_id, item.StockNum)
+			//curr_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
+			if this.db.ShopItems.HasIndex(item.Id) {
+				this.db.ShopItems.SetShopItemId(item.Id, item.Id)
+				this.db.ShopItems.SetBuyNum(item.Id, 0)
 			} else {
 				this.db.ShopItems.Add(&dbPlayerShopItemData{
-					Id:         curr_id,
+					Id:         item.Id,
 					ShopItemId: item.Id,
-					LeftNum:    item.StockNum,
 				})
 			}
 		}
@@ -99,31 +130,19 @@ func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs 
 	var shop_items []*msg_client_message.ShopItem
 	item_ids := this.db.ShopItems.GetAllIndex()
 
-	var has_item bool
 	for _, id := range item_ids {
-		if id/10000 != shop.Id {
-			continue
-		}
-		has_item = true
-		break
-	}
-
-	if !has_item && shop.AutoRefreshTime == "" && shop.FreeRefreshTime == 0 {
-		this._refresh_shop(shop)
-		item_ids = this.db.ShopItems.GetAllIndex()
-	}
-
-	for _, id := range item_ids {
-		if id/10000 != shop.Id {
-			continue
-		}
 		item_id, _ := this.db.ShopItems.GetShopItemId(id)
 		shop_item_tdata := shopitem_table_mgr.GetItem(item_id)
 		if shop_item_tdata == nil {
 			log.Warn("Player[%v] shop[%v] item[%v] table data not found", this.Id, shop.Id, item_id)
 			continue
 		}
-		num, o := this.db.ShopItems.GetLeftNum(id)
+
+		if id/SHOP_RANDOM_BASE_FACTOR != shop.Id && shop_item_tdata.ShopId != shop.Id {
+			continue
+		}
+
+		num, o := this.db.ShopItems.GetBuyNum(id)
 		if !o {
 			continue
 		}
@@ -246,10 +265,18 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 		return 1
 	}
 
-	item_id, o := this.db.ShopItems.GetShopItemId(id)
-	if !o {
-		log.Error("Player[%v] shop[%v] not found item id[%v]", this.Id, shop_id, id)
-		return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_NOT_FOUND)
+	var item_id int32
+	if shop_tdata.ShopMaxSlot > 0 {
+		var o bool
+		item_id, o = this.db.ShopItems.GetShopItemId(id)
+		if !o {
+			if !shop_tdata.NoRefresh() {
+				log.Error("Player[%v] shop[%v] not found item id[%v]", this.Id, shop_id, id)
+				return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_NOT_FOUND)
+			}
+		}
+	} else {
+		item_id = id
 	}
 
 	shopitem_tdata := shopitem_table_mgr.GetItem(item_id)
@@ -258,11 +285,10 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_TABLE_DATA_NOT_FOUND)
 	}
 
-	left_num := int32(-1)
+	bn, _ := this.db.ShopItems.GetBuyNum(id)
 	if shopitem_tdata.StockNum > 0 {
-		left_num, _ = this.db.ShopItems.GetLeftNum(id)
-		if left_num < buy_num {
-			log.Error("Player[%v] shop[%v] item[%v] num[%v] not enough to buy, need[%v]", this.Id, shop_id, id, left_num, buy_num)
+		if shopitem_tdata.StockNum-bn < buy_num {
+			log.Error("Player[%v] shop[%v] item[%v] num[%v] not enough to buy, need[%v]", this.Id, shop_id, id, shopitem_tdata.StockNum-bn, buy_num)
 			return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_NUM_NOT_ENOUGH)
 		}
 	}
@@ -285,18 +311,23 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 		this.add_resource(shopitem_tdata.BuyCost[2*i], -shopitem_tdata.BuyCost[2*i+1]*buy_num)
 	}
 
-	//if shopitem_tdata.StockNum > 0 {
-	this.db.ShopItems.IncbyLeftNum(id, -buy_num)
-	//}
-
-	if left_num > 0 {
-		left_num -= buy_num
+	if shopitem_tdata.StockNum > 0 {
+		if !this.db.ShopItems.HasIndex(id) {
+			this.db.ShopItems.Add(&dbPlayerShopItemData{
+				Id:         id,
+				ShopItemId: id,
+				BuyNum:     buy_num,
+				ShopId:     shop_id,
+			})
+		} else {
+			this.db.ShopItems.IncbyBuyNum(id, buy_num)
+		}
 	}
+
 	response := &msg_client_message.S2CShopBuyItemResponse{
-		ShopId:       shop_id,
-		Id:           id,
-		BuyNum:       buy_num,
-		RemainBuyNum: left_num,
+		ShopId: shop_id,
+		Id:     id,
+		BuyNum: buy_num,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_BUY_ITEM_RESPONSE), response)
 

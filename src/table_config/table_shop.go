@@ -17,6 +17,10 @@ type XmlShopItem struct {
 	RefreshRes      []int32
 }
 
+func (this *XmlShopItem) NoRefresh() bool {
+	return this.AutoRefreshTime == "" && this.FreeRefreshTime == 0
+}
+
 type XmlShopConfig struct {
 	Items []*XmlShopItem `xml:"item"`
 }

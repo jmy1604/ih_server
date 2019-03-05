@@ -407,7 +407,8 @@
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"ShopItemId"},
 						{"Type":"int32","Index":3,"Name":"LeftNum","Incby":true},
-						{"Type":"int32","Index":4,"Name":"ShopId"}			
+						{"Type":"int32","Index":4,"Name":"ShopId"},
+						{"Type":"int32","Index":5,"Name":"BuyNum","Incby":true}			
 					]
 				},
 				{

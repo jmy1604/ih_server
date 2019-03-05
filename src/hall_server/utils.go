@@ -127,3 +127,47 @@ func Map2ItemInfos(items map[int32]int32) (item_infos []*msg_client_message.Item
 	}
 	return
 }
+
+// 分离本服务器与其他服务器的玩家ID，返回值表示索引之前的都是本服务器的玩家
+func SplitLocalAndRemotePlayers(player_ids []int32) int32 {
+	if player_ids == nil || len(player_ids) == 0 {
+		return 0
+	}
+
+	var i, j int32
+	l := int32(len(player_ids))
+	for {
+		// 其他服务器玩家
+		for ; j < l; j++ {
+			pid := player_ids[j]
+			if player_mgr.GetPlayerById(pid) == nil {
+				break
+			}
+		}
+
+		if j >= l {
+			break
+		}
+
+		// 本服务器玩家
+		for ; i < l; i++ {
+			pid := player_ids[i]
+			if player_mgr.GetPlayerById(pid) != nil {
+				break
+			}
+		}
+
+		if i >= l {
+			break
+		}
+
+		// 交换
+		if i > j {
+			tmp := player_ids[j]
+			player_ids[j] = player_ids[i]
+			player_ids[i] = tmp
+		}
+	}
+
+	return 0
+}
