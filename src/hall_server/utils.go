@@ -134,38 +134,25 @@ func SplitLocalAndRemotePlayers(player_ids []int32) int32 {
 		return 0
 	}
 
-	var i, j int32
+	var local_idx, remote_idx int32
+	local_idx = -1
+	remote_idx = -1
 	l := int32(len(player_ids))
-	for {
-		// 其他服务器玩家
-		for ; j < l; j++ {
-			pid := player_ids[j]
-			if player_mgr.GetPlayerById(pid) == nil {
-				break
-			}
-		}
-
-		if j >= l {
-			break
-		}
-
-		// 本服务器玩家
-		for ; i < l; i++ {
-			pid := player_ids[i]
-			if player_mgr.GetPlayerById(pid) != nil {
-				break
-			}
-		}
-
-		if i >= l {
-			break
+	for i := int32(0); i < l; i++ {
+		id := player_ids[i]
+		if player_mgr.GetPlayerById(id) != nil {
+			local_idx = i
+		} else {
+			remote_idx = i
 		}
 
 		// 交换
-		if i > j {
-			tmp := player_ids[j]
-			player_ids[j] = player_ids[i]
-			player_ids[i] = tmp
+		if local_idx >= 0 && remote_idx >= 0 && local_idx > remote_idx {
+			tmp := player_ids[local_idx]
+			player_ids[local_idx] = player_ids[remote_idx]
+			player_ids[remote_idx] = tmp
+			local_idx = -1
+			remote_idx = -1
 		}
 	}
 
