@@ -2,6 +2,7 @@ package main
 
 import (
 	"ih_server/proto/gen_go/client_message"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -128,33 +129,46 @@ func Map2ItemInfos(items map[int32]int32) (item_infos []*msg_client_message.Item
 	return
 }
 
-// 分离本服务器与其他服务器的玩家ID，返回值表示索引之前的都是本服务器的玩家
+// 分离本服务器与其他服务器的玩家ID，返回值表示索引之前包括该索引都是本服务器的玩家
 func SplitLocalAndRemotePlayers(player_ids []int32) int32 {
 	if player_ids == nil || len(player_ids) == 0 {
 		return 0
 	}
 
-	var local_idx, remote_idx int32
-	local_idx = -1
-	remote_idx = -1
+	var found_local bool
+	var i, j, tmp int32
 	l := int32(len(player_ids))
-	for i := int32(0); i < l; i++ {
-		id := player_ids[i]
-		if player_mgr.GetPlayerById(id) != nil {
-			local_idx = i
-		} else {
-			remote_idx = i
+	i = int32(l) - 1
+	j = 0
+	for j <= i {
+		// 本服务器
+		for ; i >= j; i-- {
+			id := player_ids[i]
+			if player_mgr.GetPlayerById(id) != nil {
+				found_local = true
+				break
+			}
 		}
-
+		// 其他服务器
+		for ; j <= i; j++ {
+			id := player_ids[j]
+			if player_mgr.GetPlayerById(id) == nil {
+				break
+			}
+		}
 		// 交换
-		if local_idx >= 0 && remote_idx >= 0 && local_idx > remote_idx {
-			tmp := player_ids[local_idx]
-			player_ids[local_idx] = player_ids[remote_idx]
-			player_ids[remote_idx] = tmp
-			local_idx = -1
-			remote_idx = -1
+		if i > j {
+			tmp = player_ids[i]
+			player_ids[i] = player_ids[j]
+			player_ids[j] = tmp
 		}
 	}
 
-	return 0
+	if !found_local {
+		i = -1
+	}
+
+	log.Printf("splited player_ids: %v", player_ids)
+
+	return i
 }

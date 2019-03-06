@@ -6,6 +6,7 @@ import (
 	"ih_server/libs/log"
 	"ih_server/libs/rpc"
 	"ih_server/src/rpc_common"
+	"ih_server/src/share_data"
 	"time"
 )
 
@@ -35,12 +36,64 @@ func (this *G2G_CommonProc) Get(arg *rpc_common.G2G_GetRequest, result *rpc_comm
 	return err
 }
 
+func split_player_ids_with_server(player_ids []int32) (serverid2players map[int32][]int32) {
+	if player_ids == nil || len(player_ids) == 0 {
+		return
+	}
+
+	for i := 0; i < len(player_ids); i++ {
+		pid := player_ids[i]
+		server_id := share_data.GetServerIdByPlayerId(pid)
+		if !server_list.HasServerId(server_id) {
+			continue
+		}
+		if serverid2players == nil {
+			serverid2players = make(map[int32][]int32)
+		}
+
+		var players []int32 = serverid2players[server_id]
+		if players == nil {
+			players = []int32{pid}
+		} else {
+			players = append(players, pid)
+		}
+		serverid2players[server_id] = players
+	}
+
+	return
+}
+
 func (this *G2G_CommonProc) MultiGet(arg *rpc_common.G2G_MultiGetRequest, result *rpc_common.G2G_MultiGetResponse) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			log.Stack(e)
 		}
 	}()
+
+	var serverid2players map[int32][]int32 = split_player_ids_with_server(arg.ToPlayerIds)
+	if serverid2players == nil {
+		return errors.New(fmt.Sprintf("!!!!!! split players result is empty from player id %v", arg.FromPlayerId))
+	}
+
+	log.Trace("serverid2players %v", serverid2players)
+
+	for sid, players := range serverid2players {
+		rpc_client := GetRpcClientByServerId(sid)
+		if rpc_client == nil {
+			return errors.New(fmt.Sprintf("!!!!!! Not found rpc client by server id %v", sid))
+		}
+		arg.ToPlayerIds = players
+		var tmp_result rpc_common.G2G_GetResponse
+		err = rpc_client.Call("G2G_CommonProc.MultiGet", arg, &tmp_result)
+		if err != nil {
+			err_str := fmt.Sprintf("RPC @@@ G2G_CommonProc.MultiGet(%v,%v) error(%v)", arg, tmp_result, err.Error())
+			log.Error(err_str)
+			return errors.New(err_str)
+		}
+		result.Datas = append(result.Datas, &tmp_result.Data)
+		log.Trace("RPC @@@ G2G_CommonProc.MultiGet(%v,%v)", arg, tmp_result)
+	}
+
 	return nil
 }
 
@@ -104,235 +157,6 @@ func (this *H2R_ListenRPCProc) Do(args *rpc_common.H2R_ListenIPNoitfy, result *r
 	return nil
 }
 
-/* 好友RPC调用 */
-type H2R_FriendProc struct {
-}
-
-// ID申请好友
-func (this *H2R_FriendProc) AddFriendById(args *rpc_common.H2R_AddFriendById, result *rpc_common.H2R_AddFriendResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := GetRpcClientByPlayerId(args.AddPlayerId)
-	if rpc_client == nil {
-		return errors.New("获取rpc客户端失败")
-	}
-
-	call_args := rpc_common.R2H_AddFriendById{}
-	call_args.PlayerId = args.PlayerId
-	call_args.AddPlayerId = args.AddPlayerId
-	call_args.PlayerName = args.PlayerName
-	call_result := &rpc_common.R2H_AddFriendResult{}
-
-	err := rpc_client.Call("R2H_FriendProc.AddFriendById", call_args, call_result)
-	if err != nil {
-		return err
-	}
-
-	result.AddPlayerId = call_result.AddPlayerId
-	result.PlayerId = call_result.PlayerId
-	result.Error = call_result.Error
-	return nil
-}
-
-func (this *H2R_FriendProc) AgreeAddFriend(args *rpc_common.H2R_AgreeAddFriend, result *rpc_common.H2R_AgreeAddFriendResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := GetRpcClientByPlayerId(args.AgreePlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("通过玩家ID[%v]获取rpc客户端失败", args.AgreePlayerId)
-		return errors.New(err_str)
-	}
-
-	call_args := rpc_common.R2H_AgreeAddFriend{}
-	call_args.AgreePlayerId = args.AgreePlayerId
-	call_args.IsAgree = args.IsAgree
-	call_args.PlayerId = args.PlayerId
-	call_args.PlayerName = args.PlayerName
-	call_result := &rpc_common.R2H_AgreeAddFriendResult{}
-	err := rpc_client.Call("R2H_FriendProc.AgreeAddFriend", call_args, call_result)
-	if err != nil {
-		return err
-	}
-
-	result.IsAgree = args.IsAgree
-	result.PlayerId = args.PlayerId
-	result.AgreePlayerId = args.AgreePlayerId
-	result.AgreePlayerName = call_result.AgreePlayerName
-	result.AgreePlayerLevel = call_result.AgreePlayerLevel
-	result.AgreePlayerVipLevel = call_result.AgreePlayerVipLevel
-	result.AgreePlayerHead = call_result.AgreePlayerHead
-	result.AgreePlayerLastLogin = call_result.AgreePlayerLastLogin
-
-	return nil
-}
-
-func (this *H2R_FriendProc) RemoveFriend(args *rpc_common.H2R_RemoveFriend, result *rpc_common.H2R_RemoveFriendResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := GetRpcClientByPlayerId(args.RemovePlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("RPC FriendProc @@@ get rpc client by player_id[%v] failed", args.RemovePlayerId)
-		return errors.New(err_str)
-	}
-
-	call_args := rpc_common.R2H_RemoveFriend{}
-	call_args.PlayerId = args.PlayerId
-	call_args.RemovePlayerId = args.RemovePlayerId
-	call_result := &rpc_common.R2H_RemoveFriendResult{}
-	err := rpc_client.Call("R2H_FriendProc.RemoveFriend", call_args, call_result)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-type H2H_FriendProc struct {
-}
-
-// 添加好友
-func (this *H2H_FriendProc) AddFriend(args *rpc_common.H2H_AddFriend, result *rpc_common.H2H_AddFriendResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := GetRpcClientByPlayerId(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FriendProc.AddFriend", args, result)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// 赠送友情点
-func (this *H2H_FriendProc) GiveFriendPoints(args *rpc_common.H2H_GiveFriendPoints, result *rpc_common.H2H_GiveFriendPointsResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := GetRpcClientByPlayerId(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FriendProc.GiveFriendPoints", args, result)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// 刷新友情点
-func (this *H2H_FriendProc) RefreshGivePoints(args *rpc_common.H2H_RefreshGiveFriendPoints, result *rpc_common.H2H_RefreshGiveFriendPointsResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := GetRpcClientByPlayerId(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("RPC FriendProc @@@ get rpc client by player_id[%v] failed", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FriendProc.RefreshGivePoints", args, result)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func rpc_call_anouncement_player_first_rank(rank_type int32, rank_param int32, player_id int32, player_name string, player_level int32) error {
-	args := rpc_common.R2H_RanklistPlayerFirstRank{}
-	args.PlayerId = player_id
-	args.RankType = rank_type
-	args.RankParam = rank_param
-	result := &rpc_common.R2H_RanklistPlayerFirstRankResult{}
-	for _, r := range server.hall_rpc_clients {
-		if r.rpc_client != nil {
-			err := r.rpc_client.Call("R2H_RanklistProc.AnouncementFirstRank", args, result)
-			if err != nil {
-				err_str := fmt.Sprintf("@@@ R2H_RanklistProc::AnouncementFirstRank Player[%v] anouncement first rank for ranklist[%v] error[%v]", args.PlayerId, args.RankType, err.Error())
-				return errors.New(err_str)
-			}
-		}
-	}
-	log.Debug("@@@ R2H_RanklistProc::AnouncementFirstRank Player[%v] anouncement first rank for ranklist[%v]", args.PlayerId, args.RankType)
-	return nil
-}
-
-// 全局调用
-type H2H_GlobalProc struct {
-}
-
-func (this *H2H_GlobalProc) WorldChat(args *rpc_common.H2H_WorldChat, result *rpc_common.H2H_WorldChatResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	from_client := GetRpcClientByPlayerId(args.FromPlayerId)
-	for _, r := range server.hall_rpc_clients {
-		if r.rpc_client != nil && r.rpc_client != from_client {
-			err := r.rpc_client.Call("H2H_GlobalProc.WorldChat", args, result)
-			if err != nil {
-				err_str := fmt.Sprintf("@@@ H2H_GlobalProc::WorldChat Player[%v] world chat error[%v]", args.FromPlayerId, err.Error())
-				return errors.New(err_str)
-			}
-		}
-	}
-	log.Debug("@@@ H2H_GlobalProc::WorldChat Player[%v] world chat message[%v]", args.FromPlayerId, args.ChatContent)
-	return nil
-}
-
-func (this *H2H_GlobalProc) Anouncement(args *rpc_common.H2H_Anouncement, result *rpc_common.H2H_AnouncementResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	from_client := GetRpcClientByPlayerId(args.FromPlayerId)
-	for _, r := range server.hall_rpc_clients {
-		if r.rpc_client != nil && r.rpc_client != from_client {
-			err := r.rpc_client.Call("H2H_GlobalProc.Anouncement", args, result)
-			if err != nil {
-				err_str := fmt.Sprintf("@@@ H2H_GlobalProc::Anouncement Player[%v] anouncement error[%v]", args.FromPlayerId, err.Error())
-				return errors.New(err_str)
-			}
-		}
-	}
-	log.Debug("@@@ H2H_GlobalProc::Anouncement Player[%v] anouncement type[%v] param[%v]", args.FromPlayerId, args.MsgType, args.MsgParam1)
-	return nil
-}
-
 // 全局调用
 type H2R_GlobalProc struct {
 }
@@ -383,10 +207,6 @@ func (this *RpcServer) init_proc_service() bool {
 	}
 
 	if !this.rpc_service.Register(&H2R_ListenRPCProc{}) {
-		return false
-	}
-
-	if !this.rpc_service.Register(&H2H_GlobalProc{}) {
 		return false
 	}
 

@@ -29,7 +29,7 @@ func (this *G2G_CommonProc) Get(arg *rpc_common.G2G_GetRequest, result *rpc_comm
 		}
 	}()
 
-	handler := id2rpcfuncs[arg.MsgId]
+	handler := id2rpc_funcs[arg.MsgId]
 	if handler == nil {
 		err_str := fmt.Sprintf("RPC G2G_CommonProc.Get not found msg %v handler", arg.MsgId)
 		log.Error(err_str)
@@ -37,21 +37,22 @@ func (this *G2G_CommonProc) Get(arg *rpc_common.G2G_GetRequest, result *rpc_comm
 		return
 	}
 
-	result.Data.ResultData, result.Data.ErrorCode = handler(arg.MsgData)
+	result.Data.ResultData, result.Data.ErrorCode = handler(arg.ToPlayerId, arg.MsgData)
 
 	log.Trace("RPC G2G_CommonProc.Get(%v,%v)", arg, result)
 
 	return
 }
 
-func (this *G2G_CommonProc) MultiGet(arg *rpc_common.G2G_MultiGetRequest, result *rpc_common.G2G_MultiGetResponse) (err error) {
+// 注意：result参数是返回单个结果
+func (this *G2G_CommonProc) MultiGet(arg *rpc_common.G2G_MultiGetRequest, result *rpc_common.G2G_GetResponse) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			log.Stack(e)
 		}
 	}()
 
-	handler := id2multi_rpcfuncs[arg.MsgId]
+	handler := id2rpc_mfuncs[arg.MsgId]
 	if handler == nil {
 		err_str := fmt.Sprintf("RPC G2G_CommonProc.Get not found msg %v handler", arg.MsgId)
 		log.Error(err_str)
@@ -59,7 +60,7 @@ func (this *G2G_CommonProc) MultiGet(arg *rpc_common.G2G_MultiGetRequest, result
 		return
 	}
 
-	result.Datas = handler(arg.MsgData)
+	result.Data.ResultData, result.Data.ErrorCode = handler(arg.ToPlayerIds, arg.MsgData)
 
 	log.Trace("RPC G2G_CommonProc.MultiGet(%v,%v)", arg, result)
 

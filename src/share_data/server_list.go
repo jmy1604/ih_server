@@ -208,7 +208,7 @@ func (this *ServerList) GetServers(client_os string) (servers []*HallServerInfo)
 	return
 }
 
-func (this *ServerList) HasServerId(client_os string, server_id int32) bool {
+func (this *ServerList) HasServerId(server_id int32) bool {
 	this.Locker.RLock()
 	defer this.Locker.RUnlock()
 

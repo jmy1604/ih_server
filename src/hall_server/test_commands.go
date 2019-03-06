@@ -2514,6 +2514,78 @@ func remote_player_info_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func remote_players_info_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	var player_ids []int32
+	for i := 0; i < len(args); i++ {
+		player_id, err = strconv.Atoi(args[i])
+		if err != nil {
+			return -1
+		}
+		player_ids = append(player_ids, int32(player_id))
+	}
+
+	idx := SplitLocalAndRemotePlayers(player_ids)
+	if int(idx) >= len(player_ids) {
+		log.Error("not found remote player id from %v", player_ids)
+		return -1
+	}
+
+	log.Trace("splited idx %v", idx)
+
+	resp, err_code := remote_get_multi_player_info(p.Id, player_ids[idx+1:])
+	if err_code < 0 {
+		log.Error("remote get multi players %v info err %v", player_ids[idx+1:], err_code)
+		return err_code
+	}
+
+	if resp == nil {
+		log.Error("remote get multi players %v response is empty", player_ids[idx+1])
+		return -1
+	}
+
+	log.Trace("remote multi players: ")
+	for i := 0; i < len(resp.PlayerInfos); i++ {
+		pinfo := resp.PlayerInfos[i]
+		if pinfo == nil {
+			continue
+		}
+		log.Trace("    player %v", pinfo)
+	}
+
+	return 1
+}
+
+func split_player_ids_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	var player_ids []int32
+	for i := 0; i < len(args); i++ {
+		player_id, err = strconv.Atoi(args[i])
+		if err != nil {
+			return -1
+		}
+		player_ids = append(player_ids, int32(player_id))
+	}
+
+	var idx int32 = SplitLocalAndRemotePlayers(player_ids)
+
+	log.Debug("splited players: %v, split index: %v", player_ids, idx)
+
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2674,6 +2746,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"artifact_reset":           artifact_reset_cmd,
 	"set_team_artifact":        set_team_artifact_cmd,
 	"remote_player_info":       remote_player_info_cmd,
+	"remote_players_info":      remote_players_info_cmd,
+	"split_players":            split_player_ids_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {

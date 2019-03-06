@@ -4,7 +4,6 @@ import (
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/rpc_message"
-	"ih_server/src/rpc_common"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -29,14 +28,12 @@ func _unmarshal_msg(msg_data []byte, msg proto.Message) (err error) {
 
 // 获取玩家信息
 func remote_get_player_info(from_player_id, to_player_id int32) (resp *msg_rpc_message.G2GPlayerInfoResponse, err_code int32) {
-	req := &msg_rpc_message.G2GPlayerInfoRequest{
-		PlayerId: to_player_id,
-	}
+	var req msg_rpc_message.G2GPlayerInfoRequest
 
 	var req_data, result_data []byte
 	var err error
 
-	req_data, err = _marshal_msg(req)
+	req_data, err = _marshal_msg(&req)
 	if err != nil {
 		err_code = -1
 		return
@@ -59,8 +56,8 @@ func remote_get_player_info(from_player_id, to_player_id int32) (resp *msg_rpc_m
 	return
 }
 
-// 返回
-func remote_get_player_info_response(req_data []byte) (resp_data []byte, err_code int32) {
+// 获取玩家信息返回
+func remote_get_player_info_response(to_player_id int32, req_data []byte) (resp_data []byte, err_code int32) {
 	var req msg_rpc_message.G2GPlayerInfoRequest
 	err := _unmarshal_msg(req_data, &req)
 	if err != nil {
@@ -68,15 +65,14 @@ func remote_get_player_info_response(req_data []byte) (resp_data []byte, err_cod
 		return
 	}
 
-	player := player_mgr.GetPlayerById(req.GetPlayerId())
+	player := player_mgr.GetPlayerById(to_player_id)
 	if player == nil {
-		log.Error("remote request get player info by id %v not found", req.GetPlayerId())
+		log.Error("remote request get player info by id %v not found", to_player_id)
 		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 		return
 	}
 
 	var response = msg_rpc_message.G2GPlayerInfoResponse{
-		PlayerId: req.GetPlayerId(),
 		UniqueId: player.db.GetUniqueId(),
 		Account:  player.db.GetAccount(),
 		Level:    player.db.GetLevel(),
@@ -93,11 +89,103 @@ func remote_get_player_info_response(req_data []byte) (resp_data []byte, err_cod
 	return
 }
 
-type rpc_func func([]byte) ([]byte, int32)
-type multi_rpc_func func([]byte) []*rpc_common.ServerResponseData
+// 获取多个玩家信息
+func remote_get_multi_player_info(from_player_id int32, to_player_ids []int32) (resp *msg_rpc_message.G2GPlayerMultiInfoResponse, err_code int32) {
+	var req msg_rpc_message.G2GPlayerMultiInfoRequest
 
-var id2rpcfuncs = map[int32]rpc_func{
+	req_data, err := _marshal_msg(&req)
+	if err != nil {
+		err_code = -1
+		return
+	}
+
+	datas := hall_server.rpc_g2g_get_multi(from_player_id, to_player_ids, int32(msg_rpc_message.MSGID_G2G_PLAYER_MULTI_INFO_REQUEST), req_data)
+	if datas == nil || len(datas) == 0 {
+		log.Error("get multi players %v empty", to_player_ids)
+		err_code = -1
+		return
+	}
+
+	var response msg_rpc_message.G2GPlayerMultiInfoResponse
+	for i := 0; i < len(datas); i++ {
+		if datas[i].ErrorCode < 0 {
+			err_code = -1
+			log.Error("get multi players %v error %v with index %v", to_player_ids, datas[i].ErrorCode, i)
+			return
+		}
+		err = _unmarshal_msg(datas[i].ResultData, &response)
+		if err != nil {
+			err_code = -1
+			return
+		}
+		if resp == nil {
+			resp = &msg_rpc_message.G2GPlayerMultiInfoResponse{}
+		}
+		resp.PlayerInfos = append(resp.PlayerInfos, response.PlayerInfos...)
+	}
+
+	err_code = 1
+	return
+}
+
+// 获取多个玩家信息返回
+func remote_get_multi_player_info_response(to_player_ids []int32, req_data []byte) (resp_data []byte, err_code int32) {
+	var req msg_rpc_message.G2GPlayerMultiInfoRequest
+	err := _unmarshal_msg(req_data, &req)
+	if err != nil {
+		err_code = -1
+		return
+	}
+
+	var players_info []*msg_rpc_message.PlayerInfo
+	for i := 0; i < len(to_player_ids); i++ {
+		id := to_player_ids[i]
+		player := player_mgr.GetPlayerById(id)
+		if player == nil {
+			log.Warn("remote request get player info by id %v from %v not found", id, to_player_ids)
+			//err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+			//break
+			continue
+		}
+
+		players_info = append(players_info, &msg_rpc_message.PlayerInfo{
+			PlayerId: id,
+			UniqueId: player.db.GetUniqueId(),
+			Account:  player.db.GetAccount(),
+			Level:    player.db.GetLevel(),
+			Head:     player.db.Info.GetHead(),
+		})
+	}
+
+	if err_code < 0 {
+		return
+	}
+
+	if err_code >= 0 {
+		var response = msg_rpc_message.G2GPlayerMultiInfoResponse{
+			PlayerInfos: players_info,
+		}
+		resp_data, err = _marshal_msg(&response)
+		if err != nil {
+			err_code = -1
+			return
+		}
+	}
+
+	err_code = 1
+	return
+}
+
+type rpc_func func(int32, []byte) ([]byte, int32)
+type rpc_mfunc func([]int32, []byte) ([]byte, int32)
+type rpc_broadcast_func func([]byte)
+
+var id2rpc_funcs = map[int32]rpc_func{
 	int32(msg_rpc_message.MSGID_G2G_PLAYER_INFO_REQUEST): remote_get_player_info_response,
 }
 
-var id2multi_rpcfuncs = map[int32]multi_rpc_func{}
+var id2rpc_mfuncs = map[int32]rpc_mfunc{
+	int32(msg_rpc_message.MSGID_G2G_PLAYER_MULTI_INFO_REQUEST): remote_get_multi_player_info_response,
+}
+
+var id2rpc_broadcast_func = map[int32]rpc_broadcast_func{}

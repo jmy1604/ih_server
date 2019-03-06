@@ -8,6 +8,8 @@ enum MSGID {
 	G2G_PLAYER_INFO_NOTIFY					= 3; // 玩家信息通知
 	G2G_PLAYER_BATTLE_INFO_REQUEST  		= 4; // 请求玩家战斗信息
 	G2G_PLAYER_BATTLE_INFO_RESPONSE 		= 5; // 返回玩家战斗信息
+	G2G_PLAYER_MULTI_INFO_REQUEST			= 10; // 请求多个玩家信息
+	G2G_PLAYER_MULTI_INFO_RESPONSE			= 11; // 请求多个玩家信息返回
 	
 	G2G_FRIEND_INFO_REQUEST 				= 100; // 好友信息请求
 	G2G_FRIEND_INFO_RESPONSE 				= 101; // 好友信息返回
@@ -28,12 +30,10 @@ enum MSGID {
 
 // 玩家信息请求
 message G2GPlayerInfoRequest {
-	int32 PlayerId							= 1;
 }
 
 // 玩家信息返回
 message G2GPlayerInfoResponse {
-	int32 PlayerId							= 1;
 	string UniqueId 						= 2;
 	string Account							= 3;
 	int32 Level								= 4;
@@ -47,12 +47,28 @@ message G2GPlayerInfoNotify {
 
 // 玩家战斗信息请求
 message G2GPlayerBattleInfoRequest {
-	int32 PlayerId							= 1;
 }
 
 // 玩家战斗信息返回
 message G2GPlayerBattleInfoResponse {
 	
+}
+
+// 多个玩家信息请求
+message G2GPlayerMultiInfoRequest {
+}
+
+message PlayerInfo {
+	int32 PlayerId							= 1;
+	string UniqueId 						= 2;
+	string Account							= 3;
+	int32 Level								= 4;
+	int32 Head								= 5;
+}
+
+// 多个玩家信息返回
+message G2GPlayerMultiInfoResponse {
+	repeated PlayerInfo PlayerInfos			= 1;
 }
 
 // 好友信息请求
