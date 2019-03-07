@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"ih_server/libs/log"
+	"ih_server/libs/rpc"
 	"ih_server/src/rpc_proto"
 	"ih_server/src/share_data"
 )
@@ -19,9 +20,14 @@ func (this *G2G_CommonProc) Get(arg *rpc_proto.G2G_GetRequest, result *rpc_proto
 		}
 	}()
 
-	rpc_client := GetCrossRpcClientByPlayerId(arg.FromPlayerId, arg.ToPlayerId)
+	var rpc_client *rpc.Client
+	if arg.ObjectType == rpc_proto.OBJECT_TYPE_PLAYER {
+		rpc_client = GetCrossRpcClientByPlayerId(arg.FromPlayerId, arg.ObjectId)
+	} else if arg.ObjectType == rpc_proto.OBJECT_TYPE_GUILD {
+		rpc_client = GetCrossRpcClientByGuildId(arg.FromPlayerId, arg.ObjectId)
+	}
 	if rpc_client == nil {
-		return errors.New(fmt.Sprintf("!!!!!! Not found rpc client by player id %v", arg.ToPlayerId))
+		return errors.New(fmt.Sprintf("!!!!!! Not found rpc client by object type %v object id %v", arg.ObjectType, arg.ObjectId))
 	}
 
 	err = rpc_client.Call("G2G_CommonProc.Get", arg, result)
@@ -34,28 +40,37 @@ func (this *G2G_CommonProc) Get(arg *rpc_proto.G2G_GetRequest, result *rpc_proto
 	return err
 }
 
-func split_player_ids_with_server(player_ids []int32) (serverid2players map[int32][]int32) {
-	if player_ids == nil || len(player_ids) == 0 {
+func split_object_ids_with_server(object_type int32, object_ids []int32) (serverid2objects map[int32][]int32) {
+	if object_ids == nil || len(object_ids) == 0 {
 		return
 	}
 
-	for i := 0; i < len(player_ids); i++ {
-		pid := player_ids[i]
-		server_id := share_data.GetServerIdByPlayerId(pid)
+	if object_type != rpc_proto.OBJECT_TYPE_GUILD && object_type != rpc_proto.OBJECT_TYPE_PLAYER {
+		return
+	}
+
+	for i := 0; i < len(object_ids); i++ {
+		id := object_ids[i]
+		var server_id int32
+		if object_type == rpc_proto.OBJECT_TYPE_PLAYER {
+			server_id = share_data.GetServerIdByPlayerId(id)
+		} else {
+			server_id = share_data.GetServerIdByGuildId(id)
+		}
 		if !server_list.HasServerId(server_id) {
 			continue
 		}
-		if serverid2players == nil {
-			serverid2players = make(map[int32][]int32)
+		if serverid2objects == nil {
+			serverid2objects = make(map[int32][]int32)
 		}
 
-		var players []int32 = serverid2players[server_id]
-		if players == nil {
-			players = []int32{pid}
+		var objects []int32 = serverid2objects[server_id]
+		if objects == nil {
+			objects = []int32{id}
 		} else {
-			players = append(players, pid)
+			objects = append(objects, id)
 		}
-		serverid2players[server_id] = players
+		serverid2objects[server_id] = objects
 	}
 
 	return
@@ -68,19 +83,18 @@ func (this *G2G_CommonProc) MultiGet(arg *rpc_proto.G2G_MultiGetRequest, result 
 		}
 	}()
 
-	var serverid2players map[int32][]int32 = split_player_ids_with_server(arg.ToPlayerIds)
-	if serverid2players == nil {
+	var sid2objects map[int32][]int32 = split_object_ids_with_server(arg.ObjectType, arg.ObjectIds)
+	if sid2objects == nil {
 		return errors.New(fmt.Sprintf("!!!!!! split players result is empty from player id %v", arg.FromPlayerId))
 	}
 
-	log.Trace("serverid2players %v", serverid2players)
-
-	for sid, players := range serverid2players {
-		rpc_client := GetRpcClientByServerId(sid)
+	var rpc_client *rpc.Client
+	for sid, objects := range sid2objects {
+		rpc_client = GetRpcClientByServerId(sid)
 		if rpc_client == nil {
 			return errors.New(fmt.Sprintf("!!!!!! Not found rpc client by server id %v", sid))
 		}
-		arg.ToPlayerIds = players
+		arg.ObjectIds = objects
 		var tmp_result rpc_proto.G2G_GetResponse
 		err = rpc_client.Call("G2G_CommonProc.MultiGet", arg, &tmp_result)
 		if err != nil {

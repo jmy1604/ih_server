@@ -4,6 +4,7 @@ import (
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/rpc_message"
+	"ih_server/src/rpc_proto"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -26,31 +27,35 @@ func _unmarshal_msg(msg_data []byte, msg proto.Message) (err error) {
 	return
 }
 
-// 获取玩家信息
-func remote_get_player_info(from_player_id, to_player_id int32) (resp *msg_rpc_message.G2GPlayerInfoResponse, err_code int32) {
-	var req msg_rpc_message.G2GPlayerInfoRequest
-
-	req_data, err := _marshal_msg(&req)
+func RemoteGetUsePB(from_player_id, object_type, object_id int32, req_msg_id int32, req_msg proto.Message, resp_msg proto.Message) (err_code int32) {
+	req_data, err := _marshal_msg(req_msg)
 	if err != nil {
 		err_code = -1
 		return
 	}
 
 	var result_data []byte
-	result_data, err_code = hall_server.rpc_g2g_get(from_player_id, to_player_id, int32(msg_rpc_message.MSGID_G2G_PLAYER_INFO_REQUEST), req_data)
+	result_data, err_code = rpc_proto.RpcCommonGet(hall_server.rpc_client, "G2G_CommonProc.Get", from_player_id, object_type, object_id, req_msg_id, req_data)
 	if err_code < 0 {
 		return
 	}
 
-	var response msg_rpc_message.G2GPlayerInfoResponse
-	err = _unmarshal_msg(result_data, &response)
+	err = _unmarshal_msg(result_data, resp_msg)
 	if err != nil {
 		err_code = -1
 		return
 	}
 
-	resp = &response
 	err_code = 1
+	return
+}
+
+// 获取玩家信息
+func remote_get_player_info(from_player_id, to_player_id int32) (resp *msg_rpc_message.G2GPlayerInfoResponse, err_code int32) {
+	var req msg_rpc_message.G2GPlayerInfoRequest
+	var response msg_rpc_message.G2GPlayerInfoResponse
+	err_code = RemoteGetUsePB(from_player_id, rpc_proto.OBJECT_TYPE_PLAYER, to_player_id, int32(msg_rpc_message.MSGID_G2G_PLAYER_INFO_REQUEST), &req, &response)
+	resp = &response
 	return
 }
 
@@ -97,7 +102,7 @@ func remote_get_multi_player_info(from_player_id int32, to_player_ids []int32) (
 		return
 	}
 
-	datas := hall_server.rpc_g2g_get_multi(from_player_id, to_player_ids, int32(msg_rpc_message.MSGID_G2G_PLAYER_MULTI_INFO_REQUEST), req_data)
+	datas := rpc_proto.RpcCommonMultiGet(hall_server.rpc_client, "G2G_CommonProc.MultiGet", from_player_id, rpc_proto.OBJECT_TYPE_PLAYER, to_player_ids, int32(msg_rpc_message.MSGID_G2G_PLAYER_MULTI_INFO_REQUEST), req_data)
 	if datas == nil || len(datas) == 0 {
 		log.Error("get multi players %v empty", to_player_ids)
 		err_code = -1
@@ -141,8 +146,6 @@ func remote_get_multi_player_info_response(to_player_ids []int32, req_data []byt
 		player := player_mgr.GetPlayerById(id)
 		if player == nil {
 			log.Warn("remote request get player info by id %v from %v not found", id, to_player_ids)
-			//err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
-			//break
 			continue
 		}
 

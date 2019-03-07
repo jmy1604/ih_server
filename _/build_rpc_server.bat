@@ -1,7 +1,7 @@
 call set_go_path.bat
 call build_table_config.bat
 
-go install ih_server/src/rpc_common
+go install ih_server/src/rpc_proto
 go install ih_server/src/rpc_server
 if errorlevel 1 goto exit
 
