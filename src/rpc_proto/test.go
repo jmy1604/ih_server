@@ -6,7 +6,7 @@
 举个例子，正确的RPC函数格式如下：
 func (t *T) MethodName(argType T1, replyType *T2) error
 */
-package rpc_common
+package rpc_proto
 
 import (
 	"errors"

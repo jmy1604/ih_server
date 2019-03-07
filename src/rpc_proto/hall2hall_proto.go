@@ -1,4 +1,4 @@
-package rpc_common
+package rpc_proto
 
 import (
 	"ih_server/libs/rpc"

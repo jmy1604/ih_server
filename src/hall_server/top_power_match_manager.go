@@ -301,7 +301,6 @@ func (this *TopPowerMatchManager) GetNearestRandPlayer(power int32) int32 {
 						}
 					}
 				}
-				//log.Debug("@@@@@@@@@@@ matched rank %v", r)
 				break
 			}
 

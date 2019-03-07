@@ -1,4 +1,4 @@
-package rpc_common
+package rpc_proto
 
 type ServerResponseData struct {
 	ResultData []byte

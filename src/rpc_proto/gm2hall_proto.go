@@ -1,4 +1,4 @@
-package rpc_common
+package rpc_proto
 
 const (
 	GM_CMD_TEST              = iota // 测试

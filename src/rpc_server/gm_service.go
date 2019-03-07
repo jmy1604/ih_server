@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"ih_server/libs/log"
-	"ih_server/src/rpc_common"
+	"ih_server/src/rpc_proto"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -109,7 +109,7 @@ func gm_http_handler(w http.ResponseWriter, r *http.Request) {
 
 	var res int32
 	var resp_data []byte
-	var gm_cmd rpc_common.GmCmd
+	var gm_cmd rpc_proto.GmCmd
 	err = json.Unmarshal(data, &gm_cmd)
 	if err != nil {
 		res = -1
@@ -129,7 +129,7 @@ func gm_http_handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var gm_resp = rpc_common.GmResponse{
+	var gm_resp = rpc_proto.GmResponse{
 		Id:   gm_cmd.Id,
 		Res:  res,
 		Data: resp_data,

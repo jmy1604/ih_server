@@ -5,34 +5,34 @@ import (
 	"ih_server/libs/log"
 	"ih_server/libs/rpc"
 	"ih_server/proto/gen_go/client_message"
-	"ih_server/src/rpc_common"
+	"ih_server/src/rpc_proto"
 )
 
 var gm_handles = map[int32]gm_handle{
-	rpc_common.GM_CMD_TEST:              gm_test,
-	rpc_common.GM_CMD_ANOUNCEMENT:       gm_anouncement,
-	rpc_common.GM_CMD_SYS_MAIL:          gm_mail,
-	rpc_common.GM_CMD_PLAYER_INFO:       gm_player_info,
-	rpc_common.GM_CMD_ONLINE_PLAYER_NUM: gm_online_player_num,
-	rpc_common.GM_CMD_MONTH_CARD_SEND:   gm_month_card_send,
-	rpc_common.GM_CMD_BAN_PLAYER:        gm_ban_player,
+	rpc_proto.GM_CMD_TEST:              gm_test,
+	rpc_proto.GM_CMD_ANOUNCEMENT:       gm_anouncement,
+	rpc_proto.GM_CMD_SYS_MAIL:          gm_mail,
+	rpc_proto.GM_CMD_PLAYER_INFO:       gm_player_info,
+	rpc_proto.GM_CMD_ONLINE_PLAYER_NUM: gm_online_player_num,
+	rpc_proto.GM_CMD_MONTH_CARD_SEND:   gm_month_card_send,
+	rpc_proto.GM_CMD_BAN_PLAYER:        gm_ban_player,
 }
 
 func gm_test(id int32, data []byte) (int32, []byte) {
-	if id != rpc_common.GM_CMD_TEST {
+	if id != rpc_proto.GM_CMD_TEST {
 		log.Error("gm test cmd id %v not correct", id)
 		return -1, nil
 	}
 
 	var err error
-	var args rpc_common.GmTestCmd
+	var args rpc_proto.GmTestCmd
 	err = json.Unmarshal(data, &args)
 	if err != nil {
 		log.Error("gm cmd GmTestCmd unmarshal failed")
 		return -1, nil
 	}
 
-	var result rpc_common.GmCommonResponse
+	var result rpc_proto.GmCommonResponse
 	for _, r := range server.hall_rpc_clients {
 		if r.rpc_client != nil {
 			err = r.rpc_client.Call("G2H_Proc.Test", &args, &result)
@@ -54,20 +54,20 @@ func gm_test(id int32, data []byte) (int32, []byte) {
 }
 
 func gm_anouncement(id int32, data []byte) (int32, []byte) {
-	if id != rpc_common.GM_CMD_ANOUNCEMENT {
+	if id != rpc_proto.GM_CMD_ANOUNCEMENT {
 		log.Error("gm anouncement cmd id %v not correct", id)
 		return -1, nil
 	}
 
 	var err error
-	var args rpc_common.GmAnouncementCmd
+	var args rpc_proto.GmAnouncementCmd
 	err = json.Unmarshal(data, &args)
 	if err != nil {
 		log.Error("gm cmd GmAnouncementCmd unmarshal failed")
 		return -1, nil
 	}
 
-	var result rpc_common.GmCommonResponse
+	var result rpc_proto.GmCommonResponse
 	for _, r := range server.hall_rpc_clients {
 		if r.rpc_client != nil {
 			err = r.rpc_client.Call("G2H_Proc.Anouncement", &args, &result)
@@ -89,13 +89,13 @@ func gm_anouncement(id int32, data []byte) (int32, []byte) {
 }
 
 func gm_mail(id int32, data []byte) (int32, []byte) {
-	if id != rpc_common.GM_CMD_SYS_MAIL {
+	if id != rpc_proto.GM_CMD_SYS_MAIL {
 		log.Error("gm sys mail cmd id %v not correct", id)
 		return -1, nil
 	}
 
 	var err error
-	var args rpc_common.GmSendSysMailCmd
+	var args rpc_proto.GmSendSysMailCmd
 	err = json.Unmarshal(data, &args)
 	if err != nil {
 		log.Error("gm cmd GmSendSysMailCmd unmarshal failed")
@@ -104,7 +104,7 @@ func gm_mail(id int32, data []byte) (int32, []byte) {
 
 	player_id := args.PlayerId
 
-	var result rpc_common.GmCommonResponse
+	var result rpc_proto.GmCommonResponse
 	if player_id <= 0 {
 		for _, r := range server.hall_rpc_clients {
 			if r.rpc_client != nil {
@@ -139,13 +139,13 @@ func gm_mail(id int32, data []byte) (int32, []byte) {
 }
 
 func gm_player_info(id int32, data []byte) (int32, []byte) {
-	if id != rpc_common.GM_CMD_PLAYER_INFO {
+	if id != rpc_proto.GM_CMD_PLAYER_INFO {
 		log.Error("gm player info cmd id %v not correct", id)
 		return -1, nil
 	}
 
 	var err error
-	var args rpc_common.GmPlayerInfoCmd
+	var args rpc_proto.GmPlayerInfoCmd
 	err = json.Unmarshal(data, &args)
 	if err != nil {
 		log.Error("gm cmd GmPlayerInfoCmd unmarshal err %v", err.Error())
@@ -158,7 +158,7 @@ func gm_player_info(id int32, data []byte) (int32, []byte) {
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST), nil
 	}
 
-	var result rpc_common.GmPlayerInfoResponse
+	var result rpc_proto.GmPlayerInfoResponse
 	err = rpc_client.Call("G2H_Proc.PlayerInfo", &args, &result)
 	if err != nil {
 		log.Error("gm rpc call G2H_Proc.PlayerInfo err %v", err.Error())
@@ -181,13 +181,13 @@ func gm_player_info(id int32, data []byte) (int32, []byte) {
 }
 
 func gm_online_player_num(id int32, data []byte) (int32, []byte) {
-	if id != rpc_common.GM_CMD_ONLINE_PLAYER_NUM {
+	if id != rpc_proto.GM_CMD_ONLINE_PLAYER_NUM {
 		log.Error("gm online player num cmd id %v not correct", id)
 		return -1, nil
 	}
 
 	var err error
-	var args rpc_common.GmOnlinePlayerNumCmd
+	var args rpc_proto.GmOnlinePlayerNumCmd
 	err = json.Unmarshal(data, &args)
 	if err != nil {
 		log.Error("gm cmd GmOnlinePlayerNumCmd unmarshal err %v", err.Error())
@@ -205,7 +205,7 @@ func gm_online_player_num(id int32, data []byte) (int32, []byte) {
 	}
 
 	var player_num []int32
-	var result rpc_common.GmOnlinePlayerNumResponse
+	var result rpc_proto.GmOnlinePlayerNumResponse
 	for i := 0; i < len(server_ids); i++ {
 		sid := server_ids[i]
 		player_num = append(player_num, sid)
@@ -240,13 +240,13 @@ func gm_online_player_num(id int32, data []byte) (int32, []byte) {
 }
 
 func gm_month_card_send(id int32, data []byte) (int32, []byte) {
-	if id != rpc_common.GM_CMD_MONTH_CARD_SEND {
+	if id != rpc_proto.GM_CMD_MONTH_CARD_SEND {
 		log.Error("gm month card send cmd id %v not correct", id)
 		return -1, nil
 	}
 
 	var err error
-	var args rpc_common.GmMonthCardSendCmd
+	var args rpc_proto.GmMonthCardSendCmd
 	err = json.Unmarshal(data, &args)
 	if err != nil {
 		log.Error("gm cmd GmMonthCardSendCmd unmarshal err %v", err.Error())
@@ -259,7 +259,7 @@ func gm_month_card_send(id int32, data []byte) (int32, []byte) {
 		return -1, nil
 	}
 
-	var result rpc_common.GmCommonResponse
+	var result rpc_proto.GmCommonResponse
 	err = rpc_client.Call("G2H_Proc.MonthCardSend", &args, &result)
 	if err != nil {
 		log.Error("gm rpc call G2H_Proc.MonthCardSend err %v", err.Error())
@@ -277,13 +277,13 @@ func gm_month_card_send(id int32, data []byte) (int32, []byte) {
 }
 
 func gm_ban_player(id int32, data []byte) (int32, []byte) {
-	if id != rpc_common.GM_CMD_BAN_PLAYER {
+	if id != rpc_proto.GM_CMD_BAN_PLAYER {
 		log.Error("gm ban player cmd id %v not correct", id)
 		return -1, nil
 	}
 
 	var err error
-	var args rpc_common.GmBanPlayerCmd
+	var args rpc_proto.GmBanPlayerCmd
 	err = json.Unmarshal(data, &args)
 	if err != nil {
 		log.Error("gm cmd GmBanPlayerCmd unmarshal err %v", err.Error())
@@ -309,10 +309,10 @@ func gm_ban_player(id int32, data []byte) (int32, []byte) {
 		return -1, nil
 	}
 
-	var get_args = rpc_common.GmGetPlayerUniqueIdCmd{
+	var get_args = rpc_proto.GmGetPlayerUniqueIdCmd{
 		PlayerId: args.PlayerId,
 	}
-	var get_res rpc_common.GmGetPlayerUniqueIdResponse
+	var get_res rpc_proto.GmGetPlayerUniqueIdResponse
 	err = rpc_client.Call("G2H_Proc.GetPlayerUniqueId", &get_args, &get_res)
 	if err != nil {
 		log.Error("gm rpc call G2H.BanPlayer err %v", err.Error())
@@ -324,12 +324,12 @@ func gm_ban_player(id int32, data []byte) (int32, []byte) {
 		return -1, nil
 	}
 
-	var ban_args = rpc_common.GmBanPlayerByUniqueIdCmd{
+	var ban_args = rpc_proto.GmBanPlayerByUniqueIdCmd{
 		PlayerUniqueId: get_res.PlayerUniqueId,
 		PlayerId:       args.PlayerId,
 		BanOrFree:      args.BanOrFree,
 	}
-	var result rpc_common.GmCommonResponse
+	var result rpc_proto.GmCommonResponse
 	for _, r := range server.hall_rpc_clients {
 		if r.rpc_client != nil {
 			err = r.rpc_client.Call("G2H_Proc.BanPlayer", &ban_args, &result)

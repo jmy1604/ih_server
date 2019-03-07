@@ -5,7 +5,7 @@ import (
 	"ih_server/libs/log"
 	"ih_server/libs/rpc"
 	"ih_server/libs/timer"
-	"ih_server/src/rpc_common"
+	"ih_server/src/rpc_proto"
 	"ih_server/src/table_config"
 	"sync"
 	"time"
@@ -215,8 +215,8 @@ func (this *RpcServer) connect_hall(addr string, server_id int32) bool {
 }
 
 func (this *RpcServer) check_connect() {
-	var args = rpc_common.H2R_Ping{}
-	var result = rpc_common.H2R_Pong{}
+	var args = rpc_proto.H2R_Ping{}
+	var result = rpc_proto.H2R_Pong{}
 
 	to_del_ids := make(map[int32]int32)
 	for id, c := range this.hall_rpc_clients {

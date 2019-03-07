@@ -1,4 +1,4 @@
-package rpc_common
+package rpc_proto
 
 // ping大厅
 type R2H_Ping struct {

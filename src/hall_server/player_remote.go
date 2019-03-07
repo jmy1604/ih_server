@@ -30,15 +30,13 @@ func _unmarshal_msg(msg_data []byte, msg proto.Message) (err error) {
 func remote_get_player_info(from_player_id, to_player_id int32) (resp *msg_rpc_message.G2GPlayerInfoResponse, err_code int32) {
 	var req msg_rpc_message.G2GPlayerInfoRequest
 
-	var req_data, result_data []byte
-	var err error
-
-	req_data, err = _marshal_msg(&req)
+	req_data, err := _marshal_msg(&req)
 	if err != nil {
 		err_code = -1
 		return
 	}
 
+	var result_data []byte
 	result_data, err_code = hall_server.rpc_g2g_get(from_player_id, to_player_id, int32(msg_rpc_message.MSGID_G2G_PLAYER_INFO_REQUEST), req_data)
 	if err_code < 0 {
 		return

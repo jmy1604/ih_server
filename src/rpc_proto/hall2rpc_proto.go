@@ -1,4 +1,4 @@
-package rpc_common
+package rpc_proto
 
 // 转发消息
 type H2R_Transfer struct {

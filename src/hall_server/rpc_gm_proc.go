@@ -6,7 +6,7 @@ import (
 	"ih_server/libs/log"
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/server_message"
-	"ih_server/src/rpc_common"
+	"ih_server/src/rpc_proto"
 	"sync/atomic"
 	"time"
 )
@@ -15,7 +15,7 @@ import (
 type G2H_Proc struct {
 }
 
-func (this *G2H_Proc) Test(args *rpc_common.GmTestCmd, result *rpc_common.GmCommonResponse) error {
+func (this *G2H_Proc) Test(args *rpc_proto.GmTestCmd, result *rpc_proto.GmCommonResponse) error {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
@@ -28,7 +28,7 @@ func (this *G2H_Proc) Test(args *rpc_common.GmTestCmd, result *rpc_common.GmComm
 	return nil
 }
 
-func (this *G2H_Proc) Anouncement(args *rpc_common.GmAnouncementCmd, result *rpc_common.GmCommonResponse) error {
+func (this *G2H_Proc) Anouncement(args *rpc_proto.GmAnouncementCmd, result *rpc_proto.GmCommonResponse) error {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
@@ -46,7 +46,7 @@ func (this *G2H_Proc) Anouncement(args *rpc_common.GmAnouncementCmd, result *rpc
 	return nil
 }
 
-func (this *G2H_Proc) SysMail(args *rpc_common.GmSendSysMailCmd, result *rpc_common.GmCommonResponse) error {
+func (this *G2H_Proc) SysMail(args *rpc_proto.GmSendSysMailCmd, result *rpc_proto.GmCommonResponse) error {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
@@ -75,7 +75,7 @@ func (this *G2H_Proc) SysMail(args *rpc_common.GmSendSysMailCmd, result *rpc_com
 	return nil
 }
 
-func (this *G2H_Proc) PlayerInfo(args *rpc_common.GmPlayerInfoCmd, result *rpc_common.GmPlayerInfoResponse) error {
+func (this *G2H_Proc) PlayerInfo(args *rpc_proto.GmPlayerInfoCmd, result *rpc_proto.GmPlayerInfoResponse) error {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
@@ -123,7 +123,7 @@ func (this *G2H_Proc) PlayerInfo(args *rpc_common.GmPlayerInfoCmd, result *rpc_c
 	return nil
 }
 
-func (this *G2H_Proc) OnlinePlayerNum(args *rpc_common.GmOnlinePlayerNumCmd, result *rpc_common.GmOnlinePlayerNumResponse) error {
+func (this *G2H_Proc) OnlinePlayerNum(args *rpc_proto.GmOnlinePlayerNumCmd, result *rpc_proto.GmOnlinePlayerNumResponse) error {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
@@ -137,7 +137,7 @@ func (this *G2H_Proc) OnlinePlayerNum(args *rpc_common.GmOnlinePlayerNumCmd, res
 	return nil
 }
 
-func (this *G2H_Proc) MonthCardSend(args *rpc_common.GmMonthCardSendCmd, result *rpc_common.GmCommonResponse) error {
+func (this *G2H_Proc) MonthCardSend(args *rpc_proto.GmMonthCardSendCmd, result *rpc_proto.GmCommonResponse) error {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
@@ -184,7 +184,7 @@ func (this *G2H_Proc) MonthCardSend(args *rpc_common.GmMonthCardSendCmd, result 
 	return nil
 }
 
-func (this *G2H_Proc) GetPlayerUniqueId(args *rpc_common.GmGetPlayerUniqueIdCmd, result *rpc_common.GmGetPlayerUniqueIdResponse) error {
+func (this *G2H_Proc) GetPlayerUniqueId(args *rpc_proto.GmGetPlayerUniqueIdCmd, result *rpc_proto.GmGetPlayerUniqueIdResponse) error {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
@@ -207,7 +207,7 @@ func (this *G2H_Proc) GetPlayerUniqueId(args *rpc_common.GmGetPlayerUniqueIdCmd,
 	return nil
 }
 
-func (this *G2H_Proc) BanPlayer(args *rpc_common.GmBanPlayerByUniqueIdCmd, result *rpc_common.GmCommonResponse) error {
+func (this *G2H_Proc) BanPlayer(args *rpc_proto.GmBanPlayerByUniqueIdCmd, result *rpc_proto.GmCommonResponse) error {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
