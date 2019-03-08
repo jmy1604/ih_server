@@ -707,6 +707,8 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 
 	account_login(account, token, client_os)
 
+	acc_row.SetToken(token)
+
 	response := &msg_client_message.S2CLoginResponse{
 		Acc:    account,
 		Token:  token,
@@ -790,12 +792,12 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	acc := account_info_get(account, false)
+	/*acc := account_info_get(account, false)
 	if acc == nil {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 		log.Error("select_server_handler: player[%v] not found", account)
 		return
-	}
+	}*/
 
 	// 暂时不区分IOS或android
 	/*client_os := acc.get_client_os()
@@ -812,9 +814,9 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}*/
 
-	if token != acc.get_token() {
+	if /*token != acc.get_token()*/ token != row.GetToken() {
 		err_code = int32(msg_client_message.E_ERR_PLAYER_TOKEN_ERROR)
-		log.Error("select_server_handler player[%v] token[%v] invalid, need[%v]", account, token, acc.token)
+		log.Error("select_server_handler player[%v] token[%v] invalid, need[%v]", account, token, row.GetToken())
 		return
 	}
 

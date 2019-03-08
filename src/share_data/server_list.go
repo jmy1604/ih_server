@@ -82,17 +82,19 @@ func (this *ServerList) _read_config(data []byte) bool {
 
 	this.TotalWeight = total_weight
 
-	this.Id2Cross = make(map[int32]*CrossInfo)
-	this.ServerId2Cross = make(map[int32]*CrossInfo)
-	for i := 0; i < len(this.CrossList); i++ {
-		c := this.CrossList[i]
-		if c == nil {
-			continue
-		}
-		this.Id2Cross[c.Id] = c
-		if c.ServerIds != nil {
-			for n := 0; n < len(c.ServerIds); n++ {
-				this.ServerId2Cross[c.ServerIds[n]] = c
+	if this.CrossList != nil {
+		this.Id2Cross = make(map[int32]*CrossInfo)
+		this.ServerId2Cross = make(map[int32]*CrossInfo)
+		for i := 0; i < len(this.CrossList); i++ {
+			c := this.CrossList[i]
+			if c == nil {
+				continue
+			}
+			this.Id2Cross[c.Id] = c
+			if c.ServerIds != nil {
+				for n := 0; n < len(c.ServerIds); n++ {
+					this.ServerId2Cross[c.ServerIds[n]] = c
+				}
 			}
 		}
 	}
