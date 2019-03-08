@@ -523,6 +523,9 @@ const (
 )
 
 func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
+	if mem == nil {
+		return true
+	}
 	if len(effect_cond) > 0 {
 		if effect_cond[0] == SKILL_COND_TYPE_NONE {
 			return true
@@ -1161,11 +1164,10 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	has_target_dead := false
 
 	for j := 0; j < len(target_pos); j++ {
-		if target_pos[j] < 0 || target_pos[j] >= int32(len(target_team.members)) {
-			continue
+		var target *TeamMember
+		if target_pos[j] >= 0 && target_pos[j] < int32(len(target_team.members)) {
+			target = target_team.members[target_pos[j]]
 		}
-
-		target := target_team.members[target_pos[j]]
 		if target == nil && skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
 			continue
 		}
