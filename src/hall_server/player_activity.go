@@ -412,6 +412,8 @@ func (this *Player) activity_update(a *table_config.XmlActivityItem, param1, par
 			log.Trace("Player[%v] get arena score %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, sa_param)
 		} else if a.EventId == ACTIVITY_EVENT_EXPLORE {
 			log.Trace("Player[%v] explore star %v for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, sa_param)
+		} else if a.EventId == ACTIVITY_EVENT_CHARGE_RETURN {
+			log.Trace("Player[%v] charged %v vip exp for activity[%v,%v] update progress %v/%v", this.Id, param1, a.Id, sa_id, sub_value, sa_param)
 		}
 	}
 }
@@ -419,7 +421,7 @@ func (this *Player) activity_update(a *table_config.XmlActivityItem, param1, par
 // 活动更新
 func (this *Player) activitys_update(event_type, param1, param2, param3, param4 int32) {
 	var as []*table_config.XmlActivityItem
-	if event_type == ACTIVITY_EVENT_GET_HERO || event_type == ACTIVITY_EVENT_DIAMOND_COST || event_type == ACTIVITY_EVENT_EXPLORE || event_type == ACTIVITY_EVENT_DRAW_SCORE || event_type == ACTIVITY_EVENT_ARENA_SCORE { // 获得英雄
+	if event_type == ACTIVITY_EVENT_GET_HERO || event_type == ACTIVITY_EVENT_DIAMOND_COST || event_type == ACTIVITY_EVENT_EXPLORE || event_type == ACTIVITY_EVENT_DRAW_SCORE || event_type == ACTIVITY_EVENT_ARENA_SCORE || event_type == ACTIVITY_EVENT_CHARGE_RETURN { // 获得英雄
 		as = activity_mgr.GetActivitysByEvent(event_type)
 	} else {
 		return
