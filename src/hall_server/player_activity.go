@@ -358,7 +358,7 @@ func (this *Player) activity_update(a *table_config.XmlActivityItem, param1, par
 			}
 			param_value = param2
 			sa_param = sa.Param2
-		} else if a.EventId == ACTIVITY_EVENT_DIAMOND_COST || a.EventId == ACTIVITY_EVENT_DRAW_SCORE || a.EventId == ACTIVITY_EVENT_ARENA_SCORE {
+		} else if a.EventId == ACTIVITY_EVENT_DIAMOND_COST || a.EventId == ACTIVITY_EVENT_DRAW_SCORE || a.EventId == ACTIVITY_EVENT_ARENA_SCORE || a.EventId == ACTIVITY_EVENT_CHARGE_RETURN {
 			param_value = param1
 			sa_param = sa.Param1
 		} else if a.EventId == ACTIVITY_EVENT_EXPLORE {

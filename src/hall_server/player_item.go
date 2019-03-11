@@ -317,6 +317,8 @@ func (this *Player) add_vip_exp(add_exp int32) (level, exp int32) {
 		this.set_resource(ITEM_RESOURCE_ID_VIP_EXP, exp)
 	}
 
+	this.activitys_update(ACTIVITY_EVENT_CHARGE_RETURN, exp, 0, 0, 0)
+
 	return
 }
 
