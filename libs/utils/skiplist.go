@@ -243,7 +243,7 @@ func (this *Skiplist) Delete(v SkiplistNode) bool {
 
 	node := this.GetNode(v)
 	if node == nil {
-		log.Debug("###[Skiplist]### get node %v failed", v)
+		log.Error("###[Skiplist]### get node %v failed", v)
 		return false
 	}
 
@@ -258,7 +258,7 @@ func (this *Skiplist) DeleteByRank(rank int32) bool {
 	}
 	node := this.GetNodeByRank(rank)
 	if node == nil {
-		log.Debug("###[Skiplist]### get node by rank[%v] failed", rank)
+		log.Error("###[Skiplist]### get node by rank[%v] failed", rank)
 		return false
 	}
 

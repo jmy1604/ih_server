@@ -93,11 +93,11 @@ func (this *CommonRankingList) delete(key interface{}, is_lock bool) bool {
 
 	item, o := this.key2item[key]
 	if !o {
-		log.Debug("CommonRankingList key[%v] not found", key)
+		log.Error("CommonRankingList key[%v] not found", key)
 		return false
 	}
 	if !this.ranking_items.Delete(item) {
-		log.Debug("CommonRankingList delete key[%v] value[%v] in ranking list failed", key, item.GetValue())
+		log.Error("CommonRankingList delete key[%v] value[%v] in ranking list failed", key, item.GetValue())
 		return false
 	}
 	if is_lock {
@@ -140,7 +140,7 @@ func (this *CommonRankingList) GetRangeNodes(rank_start, rank_num int32, nodes [
 	defer this.locker.RUnlock()
 
 	if int(rank_start) > len(this.key2item) {
-		log.Debug("Ranking List rank range[1,%v], rank_start[%v] over rank list", len(this.key2item), rank_start)
+		log.Warn("Ranking List rank range[1,%v], rank_start[%v] over rank list", len(this.key2item), rank_start)
 		return
 	}
 
