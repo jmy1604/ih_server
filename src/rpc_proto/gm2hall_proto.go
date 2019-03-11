@@ -97,6 +97,8 @@ type GmPlayerInfoResponse struct {
 	TalentList       []int32
 	TowerId          int32
 	SignIn           int32
+	Roles            []int32
+	Items            []int32
 }
 
 // 查询在线人数

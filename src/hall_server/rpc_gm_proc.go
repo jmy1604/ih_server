@@ -117,7 +117,32 @@ func (this *G2H_Proc) PlayerInfo(args *rpc_proto.GmPlayerInfoCmd, result *rpc_pr
 	}
 	result.TowerId = p.db.TowerCommon.GetCurrId()
 	result.SignIn = p.db.Sign.GetSignedIndex()
-
+	items := p.db.Items.GetAllIndex()
+	var item_list []int32
+	if items != nil {
+		for i := 0; i < len(items); i++ {
+			c, o := p.db.Items.GetCount(items[i])
+			if !o {
+				continue
+			}
+			item_list = append(item_list, []int32{items[i], c}...)
+		}
+	}
+	result.Items = item_list
+	var role_list []int32
+	roles := p.db.Roles.GetAllIndex()
+	if roles != nil {
+		for i := 0; i < len(roles); i++ {
+			role_cid, o := p.db.Roles.GetTableId(roles[i])
+			if !o {
+				continue
+			}
+			role_rank, _ := p.db.Roles.GetRank(roles[i])
+			role_level, _ := p.db.Roles.GetLevel(roles[i])
+			role_list = append(role_list, []int32{roles[i], role_cid, role_rank, role_level}...)
+		}
+	}
+	result.Roles = role_list
 	log.Trace("@@@ G2H_Proc::PlayerInfo %v %v", args, result)
 
 	return nil

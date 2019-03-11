@@ -161,7 +161,7 @@ func (this *DBC) Loop() {
 		log.Trace("db存数据花费时长: %vms", time.Now().Sub(begin).Nanoseconds()/1000000)
 		
 		now_time_hour := int32(time.Now().Hour())
-		if now_time_hour != this.m_db_last_copy_time {
+		if now_time_hour-24 >= this.m_db_last_copy_time {
 			args := []string {
 				fmt.Sprintf("-h%v", this.m_db_addr),
 				fmt.Sprintf("-u%v", this.m_db_account),
