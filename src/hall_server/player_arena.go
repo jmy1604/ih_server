@@ -297,12 +297,12 @@ func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
 
 	l := int32(len(rank_items))
 	for rank := rank_start; rank < l; rank++ {
-		item := (rank_items[rank-rank_start]).(*PlayerInt32RankItem)
+		item := (rank_items[rank-rank_start]).(*ArenaRankItem)
 		if item == nil {
 			log.Error("Player[%v] get arena rank list by rank[%v] item failed")
 			continue
 		}
-		log.Debug("Rank: %v   Player[%v] Score[%v]", rank, item.PlayerId, item.Value)
+		log.Debug("Rank: %v   Player[%v] Score[%v]", rank, item.PlayerId, item.Score)
 	}
 
 	if self_value != nil && self_rank > 0 {
@@ -383,7 +383,7 @@ func (this *Player) MatchArenaPlayer() (player_id, player_rank int32) {
 		return
 	}
 
-	player_id = item.(*PlayerInt32RankItem).PlayerId
+	player_id = item.(*ArenaRankItem).PlayerId
 	player_rank = r
 
 	log.Trace("Player[%v] match arena players rank range [start:%v, num:%v], rand the rank %v, match player[%v]", this.Id, start_rank, rank_num, r, player_id)
@@ -712,7 +712,7 @@ func (this *ArenaSeasonMgr) Reward(typ int32) {
 			log.Warn("Cant found rank[%v] item in arena rank list with reset", rank)
 			continue
 		}
-		arena_item := item.(*PlayerInt32RankItem)
+		arena_item := item.(*ArenaRankItem)
 		if arena_item == nil {
 			log.Warn("Arena rank[%v] item convert failed on DayReward", rank)
 			continue
