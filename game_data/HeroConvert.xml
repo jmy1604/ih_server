@@ -36,6 +36,8 @@
      <item ConvertGroupID="225" HeroID="2055" Weight="7500" />
      <item ConvertGroupID="115" HeroID="2056" Weight="3000" />
      <item ConvertGroupID="225" HeroID="2056" Weight="3000" />
+     <item ConvertGroupID="125" HeroID="2057" Weight="6250" />
+     <item ConvertGroupID="225" HeroID="2057" Weight="6250" />
      <item ConvertGroupID="135" HeroID="2058" Weight="7500" />
      <item ConvertGroupID="225" HeroID="2058" Weight="7500" />
      <item ConvertGroupID="134" HeroID="3031" Weight="7500" />
@@ -112,4 +114,6 @@
      <item ConvertGroupID="265" HeroID="6055" Weight="10000" />
      <item ConvertGroupID="125" HeroID="6056" Weight="6250" />
      <item ConvertGroupID="265" HeroID="6056" Weight="6250" />
+     <item ConvertGroupID="135" HeroID="6057" Weight="7500" />
+     <item ConvertGroupID="265" HeroID="6057" Weight="7500" />
 </Config>

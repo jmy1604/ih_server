@@ -681,6 +681,8 @@
      <item ID="51054" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1054" BattlePower="0" SuitID="0" />
      <item ID="51055" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1055" BattlePower="0" SuitID="0" />
      <item ID="51056" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1056" BattlePower="0" SuitID="0" />
+     <item ID="51057" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1057" BattlePower="0" SuitID="0" />
+     <item ID="51059" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1059" BattlePower="0" SuitID="0" />
      <item ID="52001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="2001" BattlePower="0" SuitID="0" />
      <item ID="52011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="2011" BattlePower="0" SuitID="0" />
      <item ID="52021" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="2021" BattlePower="0" SuitID="0" />
@@ -693,7 +695,9 @@
      <item ID="52054" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2054" BattlePower="0" SuitID="0" />
      <item ID="52055" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2055" BattlePower="0" SuitID="0" />
      <item ID="52056" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2056" BattlePower="0" SuitID="0" />
+     <item ID="52057" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2057" BattlePower="0" SuitID="0" />
      <item ID="52058" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2058" BattlePower="0" SuitID="0" />
+     <item ID="52059" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2059" BattlePower="0" SuitID="0" />
      <item ID="53001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="3001" BattlePower="0" SuitID="0" />
      <item ID="53011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="3011" BattlePower="0" SuitID="0" />
      <item ID="53021" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="3021" BattlePower="0" SuitID="0" />
@@ -732,6 +736,7 @@
      <item ID="55054" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5054" BattlePower="0" SuitID="0" />
      <item ID="55055" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5055" BattlePower="0" SuitID="0" />
      <item ID="55056" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5056" BattlePower="0" SuitID="0" />
+     <item ID="55058" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5058" BattlePower="0" SuitID="0" />
      <item ID="56001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="6001" BattlePower="0" SuitID="0" />
      <item ID="56011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="6011" BattlePower="0" SuitID="0" />
      <item ID="56021" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="6021" BattlePower="0" SuitID="0" />
@@ -744,6 +749,7 @@
      <item ID="56054" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6054" BattlePower="0" SuitID="0" />
      <item ID="56055" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6055" BattlePower="0" SuitID="0" />
      <item ID="56056" ItemType="4" EquipType="0" SellReward="" Quality="6" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6056" BattlePower="0" SuitID="0" />
+     <item ID="56057" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6057" BattlePower="0" SuitID="0" />
      <item ID="57001" ItemType="4" EquipType="0" SellReward="" Quality="5" ShowStar="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="300011" BattlePower="0" SuitID="0" />
      <item ID="57002" ItemType="4" EquipType="0" SellReward="" Quality="5" ShowStar="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="300012" BattlePower="0" SuitID="0" />
      <item ID="57003" ItemType="4" EquipType="0" SellReward="" Quality="5" ShowStar="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="300013" BattlePower="0" SuitID="0" />
@@ -776,6 +782,8 @@
      <item ID="61054" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="61055" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="61056" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="61057" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="61059" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="62001" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="62011" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="62021" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
@@ -788,7 +796,9 @@
      <item ID="62054" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="62055" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="62056" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="62057" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="62058" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="62059" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="63001" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="63011" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="63021" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
@@ -814,6 +824,7 @@
      <item ID="64054" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="64055" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="64056" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="64059" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="65001" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="65011" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="65021" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
@@ -826,6 +837,7 @@
      <item ID="65054" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="65055" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="65056" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="65058" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="66001" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="66011" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="66021" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
@@ -838,4 +850,5 @@
      <item ID="66054" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="66055" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="66056" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="66057" ItemType="5" EquipType="0" SellReward="" Quality="0" ShowStar="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
 </Config>
