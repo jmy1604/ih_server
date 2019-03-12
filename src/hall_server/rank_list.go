@@ -280,17 +280,26 @@ func (this *RankListManager) DeleteItem2(rank_type int32, key interface{}) bool 
 }
 
 func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []utils.SkiplistNode) (rank_items []*msg_client_message.RankItemInfo) {
+	var item *PlayerInt32RankItem
+	var arena_item *ArenaRankItem
 	for i := int32(0); i < int32(len(items)); i++ {
-		item := (items[i]).(*PlayerInt32RankItem)
-		if item == nil {
-			continue
+		if rank_type == RANK_LIST_TYPE_ARENA {
+			arena_item = (items[i]).(*ArenaRankItem)
+			if arena_item == nil {
+				continue
+			}
+		} else {
+			item = (items[i]).(*PlayerInt32RankItem)
+			if item == nil {
+				continue
+			}
 		}
 		var rank_item *msg_client_message.RankItemInfo
 		if rank_type == RANK_LIST_TYPE_ARENA {
-			name, level, head, score, grade, power := GetFighterInfo(item.PlayerId)
+			name, level, head, score, grade, power := GetFighterInfo(arena_item.PlayerId)
 			rank_item = &msg_client_message.RankItemInfo{
 				Rank:             start_rank + i,
-				PlayerId:         item.PlayerId,
+				PlayerId:         arena_item.PlayerId,
 				PlayerName:       name,
 				PlayerLevel:      level,
 				PlayerHead:       head,
