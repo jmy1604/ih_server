@@ -105,7 +105,7 @@ func (this *RankList) DeleteItem(key interface{}) bool {
 
 var root_rank_item = []utils.SkiplistNode{
 	nil,                    // 0
-	&PlayerInt32RankItem{}, // 1
+	&ArenaRankItem{},       // 1
 	&PlayerInt32RankItem{}, // 2
 	&PlayerInt32RankItem{}, // 3
 	&PlayerInt32RankItem{}, // 4

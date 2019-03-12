@@ -16,6 +16,107 @@ const (
 	ARENA_RANK_MAX = 100000
 )
 
+type ArenaRankItem struct {
+	Score      int32
+	UpdateTime int32
+	PlayerId   int32
+}
+
+func (this *ArenaRankItem) Less(value interface{}) bool {
+	item := value.(*ArenaRankItem)
+	if item == nil {
+		return false
+	}
+	if this.Score < item.Score {
+		return true
+	} else if this.Score == item.Score {
+		if this.UpdateTime > item.UpdateTime {
+			return true
+		}
+		if this.UpdateTime == item.UpdateTime {
+			if this.PlayerId > item.PlayerId {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (this *ArenaRankItem) Greater(value interface{}) bool {
+	item := value.(*ArenaRankItem)
+	if item == nil {
+		return false
+	}
+	if this.Score > item.Score {
+		return true
+	} else if this.Score == item.Score {
+		if this.UpdateTime < item.UpdateTime {
+			return true
+		}
+		if this.UpdateTime == item.UpdateTime {
+			if this.PlayerId < item.PlayerId {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (this *ArenaRankItem) KeyEqual(value interface{}) bool {
+	item := value.(*ArenaRankItem)
+	if item == nil {
+		return false
+	}
+	if item == nil {
+		return false
+	}
+	if this.PlayerId == item.PlayerId {
+		return true
+	}
+	return false
+}
+
+func (this *ArenaRankItem) GetKey() interface{} {
+	return this.PlayerId
+}
+
+func (this *ArenaRankItem) GetValue() interface{} {
+	return this.Score
+}
+
+func (this *ArenaRankItem) SetValue(value interface{}) {
+	item := value.(*ArenaRankItem)
+	if item == nil {
+		return
+	}
+	this.Score = item.Score
+	this.UpdateTime = item.UpdateTime
+}
+
+func (this *ArenaRankItem) New() utils.SkiplistNode {
+	return &ArenaRankItem{}
+}
+
+func (this *ArenaRankItem) Assign(node utils.SkiplistNode) {
+	n := node.(*ArenaRankItem)
+	if n == nil {
+		return
+	}
+	this.Score = n.Score
+	this.UpdateTime = n.UpdateTime
+	this.PlayerId = n.PlayerId
+}
+
+func (this *ArenaRankItem) CopyDataTo(node interface{}) {
+	n := node.(*ArenaRankItem)
+	if n == nil {
+		return
+	}
+	n.Score = this.Score
+	n.UpdateTime = this.UpdateTime
+	n.PlayerId = this.PlayerId
+}
+
 type ArenaRobot struct {
 	robot_data *table_config.XmlArenaRobotItem
 	power      int32
@@ -65,14 +166,15 @@ func (this *ArenaRobotManager) Init() {
 		robot.Init(r)
 		this.robots[r.Id] = robot
 		if r.IsExpedition == 0 {
-			// 加入排行榜
-			var d = PlayerInt32RankItem{
-				Value:      r.RobotScore,
+			// 用于竞技场
+			var d = ArenaRankItem{
+				Score:      r.RobotScore,
 				PlayerId:   r.Id,
 				UpdateTime: 0,
 			}
 			rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ARENA, &d)
 		} else {
+			// 用于远征
 			top_power_match_manager.Update(r.Id, robot.power)
 		}
 	}
@@ -93,7 +195,7 @@ func (this *Player) check_arena_tickets_refresh() (remain_seconds int32) {
 	return
 }
 
-func (this *Player) _update_arena_score(data *PlayerInt32RankItem) {
+func (this *Player) _update_arena_score(data *ArenaRankItem) {
 	rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ARENA, data)
 }
 
@@ -110,8 +212,8 @@ func (this *Player) LoadArenaScore() {
 	if update_time == 0 {
 		update_time = this.db.Info.GetLastLogin()
 	}
-	var data = PlayerInt32RankItem{
-		Value:      score,
+	var data = ArenaRankItem{
+		Score:      score,
 		UpdateTime: update_time,
 		PlayerId:   this.Id,
 	}
@@ -148,8 +250,8 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 		score = this.db.Arena.IncbyScore(add_score)
 		this.db.Arena.SetUpdateScoreTime(now_time)
 
-		var data = PlayerInt32RankItem{
-			Value:      score,
+		var data = ArenaRankItem{
+			Score:      score,
 			UpdateTime: now_time,
 			PlayerId:   this.Id,
 		}
@@ -650,6 +752,8 @@ func (this *ArenaSeasonMgr) Reset() {
 		return
 	}
 
+	now_time := int32(time.Now().Unix())
+	var update_item ArenaRankItem
 	rank_num := rank_list.RankNum()
 	for rank := int32(1); rank <= rank_num; rank++ {
 		item := rank_list.GetItemByRank(rank)
@@ -657,17 +761,17 @@ func (this *ArenaSeasonMgr) Reset() {
 			log.Warn("Cant found rank[%v] item in arena rank list with reset", rank)
 			continue
 		}
-		arena_item := item.(*PlayerInt32RankItem)
+		arena_item := item.(*ArenaRankItem)
 		if arena_item == nil {
 			log.Warn("Arena rank[%v] item convert failed", rank)
 			continue
 		}
-		division := arena_division_table_mgr.GetByScore(arena_item.Value)
+		division := arena_division_table_mgr.GetByScore(arena_item.Score)
 		if division == nil {
-			log.Error("arena division not found by player[%v] score[%v]", arena_item.PlayerId, arena_item.Value)
+			log.Error("arena division not found by player[%v] score[%v]", arena_item.PlayerId, arena_item.Score)
 			continue
 		}
-		rank_list.SetValueByKey(arena_item.PlayerId, division.NewSeasonScore)
+
 		p := player_mgr.GetPlayerById(arena_item.PlayerId)
 		if p != nil {
 			p.db.Arena.SetScore(division.NewSeasonScore)
@@ -677,6 +781,10 @@ func (this *ArenaSeasonMgr) Reset() {
 				robot.robot_data.RobotScore = division.NewSeasonScore
 			}
 		}
+		update_item.UpdateTime = now_time - (rank_num - rank)
+		update_item.PlayerId = arena_item.PlayerId
+		update_item.Score = division.NewSeasonScore
+		rank_list.SetValueByKey(arena_item.PlayerId, &update_item)
 	}
 }
 

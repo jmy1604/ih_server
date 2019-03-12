@@ -63,6 +63,11 @@ func (this *CenterServerConfig) GetDBBackupPath() string {
 	return ""
 }
 
+type FacebookConfig struct {
+	FacebookAppID     string
+	FacebookAppSecret string
+}
+
 // 登陆服务器配置
 type LoginServerConfig struct {
 	ServerId           int32
@@ -75,9 +80,10 @@ type LoginServerConfig struct {
 	CenterServerIP     string // 连接CenterServer
 	RedisServerIP      string // 连接redis
 	VerifyAccount      bool   // 验证账号
-	FacebookAppID      string
-	FacebookAppSecret  string
-	UseHttps           bool
+
+	Facebook []*FacebookConfig // facebook
+
+	UseHttps bool
 
 	MYSQL_IP        string
 	MYSQL_ACCOUNT   string

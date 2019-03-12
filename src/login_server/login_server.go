@@ -462,12 +462,7 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	uid := row.GetUniqueId()
 
 	var last_server_id int32
-	//_, client_os := account_get_client_os(account)
-	//if client_os == share_data.CLIENT_OS_IOS {
-	//	last_server_id = row.GetLastSelectIOSServerId()
-	//} else {
 	last_server_id = row.GetLastSelectServerId()
-	//}
 
 	row = dbc.Accounts.AddRow(new_account)
 	if row == nil {
@@ -482,11 +477,7 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 	row.SetRegisterTime(register_time)
 	row.SetUniqueId(uid)
 	row.SetOldAccount(account)
-	//if client_os == share_data.CLIENT_OS_IOS {
-	//	row.SetLastSelectIOSServerId(last_server_id)
-	//} else {
 	row.SetLastSelectServerId(last_server_id)
-	//}
 
 	//dbc.Accounts.RemoveRow(account) // 暂且不删除
 
@@ -525,6 +516,13 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 }
 
 func _verify_facebook_login(user_id, input_token string) int32 {
+
+	var resp *http.Response
+	var err error
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
 	type _facebook_data struct {
 		AppID     string `json:"app_id"`
 		IsValid   bool   `json:"is_valid"`
@@ -537,50 +535,54 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 		Data _facebook_data `json:"data"`
 	}
 
-	var resp *http.Response
-	var err error
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	var verified bool
+	for i := 0; i < len(config.Facebook); i++ {
+		url_str := fmt.Sprintf("https://graph.facebook.com/debug_token?input_token=%v&access_token=%v|%v", input_token, config.Facebook[i].FacebookAppID, config.Facebook[i].FacebookAppSecret)
+		log.Debug("verify facebook url: %v", url_str)
+
+		client := &http.Client{Transport: tr}
+		resp, err = client.Get(url_str)
+		if nil != err {
+			log.Error("Facebook verify error %s", err.Error())
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			log.Error("Facebook verify response code %v", resp.StatusCode)
+			continue
+		}
+
+		var data []byte
+		data, err = ioutil.ReadAll(resp.Body)
+		if nil != err {
+			log.Error("Read facebook verify result err(%s) !", err.Error())
+			continue
+		}
+
+		log.Debug("facebook verify result data: %v", string(data))
+
+		var fdata facebook_data
+		err = json.Unmarshal(data, &fdata)
+		if nil != err {
+			log.Error("Facebook verify ummarshal err(%s)", err.Error())
+			continue
+		}
+
+		if !fdata.Data.IsValid {
+			log.Error("Facebook verify input_token[%v] failed", input_token)
+			continue
+		}
+
+		if fdata.Data.UserID != user_id {
+			log.Error("Facebook verify client user_id[%v] different to result user_id[%v]", user_id, fdata.Data.UserID)
+			continue
+		}
+
+		verified = true
+		break
 	}
 
-	url_str := fmt.Sprintf("https://graph.facebook.com/debug_token?input_token=%v&access_token=%v|%v", input_token, config.FacebookAppID, config.FacebookAppSecret)
-	log.Debug("verify facebook url: %v", url_str)
-
-	client := &http.Client{Transport: tr}
-	resp, err = client.Get(url_str)
-	if nil != err {
-		log.Error("Facebook verify error %s", err.Error())
-		return -1
-	}
-
-	if resp.StatusCode != 200 {
-		log.Error("Facebook verify response code %v", resp.StatusCode)
-		return -1
-	}
-
-	var data []byte
-	data, err = ioutil.ReadAll(resp.Body)
-	if nil != err {
-		log.Error("Read facebook verify result err(%s) !", err.Error())
-		return -1
-	}
-
-	log.Debug("facebook verify result data: %v", string(data))
-
-	var fdata facebook_data
-	err = json.Unmarshal(data, &fdata)
-	if nil != err {
-		log.Error("Facebook verify ummarshal err(%s)", err.Error())
-		return -1
-	}
-
-	if !fdata.Data.IsValid {
-		log.Error("Facebook verify input_token[%v] failed", input_token)
-		return -1
-	}
-
-	if fdata.Data.UserID != user_id {
-		log.Error("Facebook verify client user_id[%v] different to result user_id[%v]", user_id, fdata.Data.UserID)
+	if !verified {
 		return -1
 	}
 
@@ -670,15 +672,6 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 	// --------------------------------------------------------------------------------------------
 	// 选择默认服
 	var select_server_id int32
-	/*if client_os == share_data.CLIENT_OS_IOS {
-		if is_verify {
-			select_server_id = server_list.GetIosVerifyServerId()
-		} else {
-			select_server_id = acc_row.GetLastSelectIOSServerId()
-		}
-	} else {
-		select_server_id = acc_row.GetLastSelectServerId()
-	}*/
 	select_server_id = acc_row.GetLastSelectServerId()
 	if select_server_id <= 0 {
 		select_server_id = acc_row.GetLastSelectIOSServerId()
@@ -690,12 +683,8 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 				return
 			}
 			select_server_id = server.Id
-			//if client_os == share_data.CLIENT_OS_IOS {
-			//	acc_row.SetLastSelectIOSServerId(select_server_id)
-			//} else {
 			acc_row.SetLastSelectServerId(select_server_id)
 		}
-		//}
 	}
 
 	var hall_ip, token string
@@ -845,12 +834,6 @@ func select_server_handler(account, token string, server_id int32) (err_code int
 		return
 	}
 
-	// 暂时不区分IOS或android
-	/*if client_os == share_data.CLIENT_OS_IOS {
-		row.SetLastSelectIOSServerId(server_id)
-	} else {
-		row.SetLastSelectServerId(server_id)
-	}*/
 	row.SetLastSelectServerId(server_id)
 
 	log.Trace("Account %v selected server %v", account, server_id)
