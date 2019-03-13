@@ -81,10 +81,8 @@ type Player struct {
 	Id       int32
 	Account  string
 
-	ol_array_idx  int32
-	all_array_idx int32
-	db            *dbPlayerRow
-	pos           int32
+	db  *dbPlayerRow
+	pos int32
 
 	is_lock            int32
 	msg_items          []*PlayerMsgItem
@@ -167,8 +165,6 @@ func new_player(id int32, uid, account, token string, db *dbPlayerRow) *Player {
 	ret_p.Account = account
 	//ret_p.Token = token
 	ret_p.db = db
-	ret_p.ol_array_idx = -1
-	ret_p.all_array_idx = -1
 
 	ret_p._init()
 
@@ -184,8 +180,7 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	ret_p := &Player{}
 	ret_p.Id = id
 	ret_p.db = db
-	ret_p.ol_array_idx = -1
-	ret_p.all_array_idx = -1
+
 	ret_p.Account = db.GetAccount()
 	ret_p.UniqueId = db.GetUniqueId()
 
