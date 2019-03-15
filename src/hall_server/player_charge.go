@@ -729,10 +729,7 @@ func (this *Player) _charge_with_bundle_id(channel int32, bundle_id string, purc
 			return err_code, false
 		}
 	} else if channel == 0 {
-		/*if config.DisableTestCommand {
-			log.Error("Player[%v] cant use test command to charge", this.Id)
-			return -1, false
-		}*/
+		// 测试用
 	} else {
 		log.Error("Player[%v] charge channel[%v] invalid", this.Id, channel)
 		return int32(msg_client_message.E_ERR_CHARGE_CHANNEL_INVALID), false
