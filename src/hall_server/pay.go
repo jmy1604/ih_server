@@ -257,7 +257,7 @@ func verify_google_purchase_data(player *Player, bundle_id string, purchase_data
 
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
 	if pay_item != nil {
-		_post_talking_data(player.Account, pay_channel.PaymentType, config.ServerName, config.InnerVersion, "google", data.OrderId, "android", "charge", "success", player.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
+		_post_talking_data(player.Account, "google pay", config.ServerName, config.InnerVersion, pay_channel.Partner, data.OrderId, "android", "charge", "success", player.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 
 	log.Trace("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", player.Id, bundle_id, purchase_data, signature)
@@ -367,7 +367,7 @@ func verify_apple_purchase_data(player *Player, bundle_id string, purchase_data 
 
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
 	if pay_item != nil && !is_sandbox {
-		_post_talking_data(player.Account, "apple pay", config.ServerName, config.InnerVersion, "apple", tmp_res.Receipt.TransactionId, "ios", "charge", "success", player.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
+		_post_talking_data(player.Account, "apple pay", config.ServerName, config.InnerVersion, "AppStore", tmp_res.Receipt.TransactionId, "ios", "charge", "success", player.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 
 	log.Trace("Player[%v] apple pay bunder_id[%v] verify success, purchase data %v", player.Id, bundle_id, string(purchase_data))
@@ -391,6 +391,7 @@ type TalkingData struct {
 	Status                string  `json:"status"`
 	ChargeTime            int64   `json:"chargeTime"`
 	Mission               string  `json:"mission"`
+	Partner               string  `json:"partner"`
 }
 
 type TalkingDataStatus struct {
@@ -442,6 +443,7 @@ func _post_talking_data(account, pay_type, game_server, game_version, partner, o
 		PaymentType:           pay_type,
 		Status:                status,
 		ChargeTime:            (now_time.Unix())*1000 + now_time.UnixNano()/(1000*1000),
+		Partner:               partner,
 	}
 	bytes, err := json.Marshal([]*TalkingData{pay})
 	if err != nil {

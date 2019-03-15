@@ -12,8 +12,8 @@ import (
 )
 
 type PayChannel struct {
-	KeyFile     string
-	PaymentType string
+	KeyFile string
+	Partner string
 	*rsa.PublicKey
 }
 
