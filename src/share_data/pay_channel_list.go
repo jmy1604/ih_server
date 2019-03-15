@@ -7,8 +7,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"ih_server/src/server_config"
 	"io/ioutil"
-	"mm_server/src/server_config"
 )
 
 type PayChannel struct {
