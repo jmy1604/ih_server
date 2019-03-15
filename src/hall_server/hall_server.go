@@ -260,6 +260,7 @@ func (this *HallServer) OnUpdate(c *socket.TcpConn, t timer.TickTime) {
 
 }
 
+var pay_list share_data.PayChannelConfig
 var global_config table_config.GlobalConfig
 var task_table_mgr table_config.TaskTableMgr
 var item_table_mgr table_config.ItemTableMgr
@@ -540,9 +541,9 @@ func table_init() error {
 		return errors.New("pay_table_mgr init failed")
 	}
 
-	if !pay_mgr.init() {
+	/*if !pay_mgr.init() {
 		return errors.New("pay_mgr init failed")
-	}
+	}*/
 
 	if !system_unlock_table_mgr.Init("") {
 		return errors.New("system_unlock_table_mgr init failed")
@@ -578,6 +579,10 @@ func table_init() error {
 
 	if !artifact_unlock_table_mgr.Init("") {
 		return errors.New("artifact_unlock_table_mgr init failed")
+	}
+
+	if !pay_list.LoadConfig(server_config.GetConfPathFile("pay.json")) {
+		return errors.New("pay.json load failed")
 	}
 
 	return nil

@@ -106,6 +106,11 @@ func (this *LoginServerConfig) GetDBBackupPath() string {
 	return DBBackUpDir + this.MYSQL_NAME
 }
 
+type PayChannel struct {
+	KeyFile string
+	Channel string
+}
+
 // 游戏服务器配置
 type GameServerConfig struct {
 	ServerId             int32
@@ -132,6 +137,7 @@ type GameServerConfig struct {
 	MYSQL_COPY_PATH      string
 	DisableTestCommand   bool
 	UseHttps             bool
+	PayChannelList       []*PayChannel // 支付渠道
 }
 
 func (this *GameServerConfig) GetType() int32 {

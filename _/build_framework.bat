@@ -16,9 +16,6 @@ if errorlevel 1 goto exit
 go install ih_server/libs/socket
 if errorlevel 1 goto exit
 
-go install ih_server/libs/web
-if errorlevel 1 goto exit
-
 go install ih_server/libs/server_conn
 if errorlevel 1 goto exit
 

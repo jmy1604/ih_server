@@ -3,8 +3,6 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
-	"crypto"
-	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/tls"
 	"encoding/base64"
@@ -149,16 +147,6 @@ func google_pay_save(order_id, bundle_id, account string, player *Player) {
 		return
 	}
 
-	/*row := dbc.GooglePays.GetRow(order_id)
-	if row == nil {
-		row = dbc.GooglePays.AddRow(order_id)
-		row.SetBundleId(bundle_id)
-		row.SetAccount(account)
-		row.SetPlayerId(player.Id)
-		row.SetPayTime(int32(now_time.Unix()))
-		row.SetPayTimeStr(now_time.String())
-	}*/
-
 	player.rpc_charge_save(1, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), pay.PayTimeStr)
 
 	log.Trace("save google pay: player_id(%v), order_id(%v), bundle_id(%v)", player.Id, order_id, bundle_id)
@@ -194,16 +182,6 @@ func apple_pay_save(order_id, bundle_id, account string, player *Player) {
 		log.Error("redis设置集合[%v]数据失败[%v]", APPLE_PAY_REDIS_KEY, err.Error())
 		return
 	}
-
-	/*row := dbc.ApplePays.GetRow(order_id)
-	if row == nil {
-		row = dbc.ApplePays.AddRow(order_id)
-		row.SetBundleId(bundle_id)
-		row.SetAccount(account)
-		row.SetPlayerId(player.Id)
-		row.SetPayTime(int32(now_time.Unix()))
-		row.SetPayTimeStr(now_time.String())
-	}*/
 
 	player.rpc_charge_save(2, order_id, bundle_id, account, player.Id, int32(now_time.Unix()), pay.PayTimeStr)
 
@@ -452,16 +430,8 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 		return -1
 	}
 
-	var verified bool
-	pays_pub := pay_mgr.google_pays_pub
-	for i := 0; i < len(pays_pub); i++ {
-		err = rsa.VerifyPKCS1v15(pays_pub[i], crypto.SHA1, hashedReceipt, decodedSignature)
-		if err == nil {
-			verified = true
-			break
-		}
-	}
-	if !verified {
+	pay_channel := pay_list.Verify(hashedReceipt, decodedSignature)
+	if pay_channel == nil {
 		atomic.CompareAndSwapInt32(&this.is_paying, 1, 0)
 		log.Error("Player[%v] failed to verify decoded signature[%v] with hashed purchase data[%v]: %v", this.Id, decodedSignature, hashedReceipt, err.Error())
 		return int32(msg_client_message.E_ERR_CHARGE_GOOGLE_SIGNATURE_INVALID)
@@ -480,7 +450,7 @@ func (this *Player) verify_google_purchase_data(bundle_id string, purchase_data,
 
 	pay_item := pay_table_mgr.GetByBundle(bundle_id)
 	if pay_item != nil {
-		_post_talking_data(this.Account, "google pay", config.ServerName, config.InnerVersion, "google", data.OrderId, "android", "charge", "success", this.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
+		_post_talking_data(this.Account, pay_channel.PaymentType, config.ServerName, config.InnerVersion, "google", data.OrderId, "android", "charge", "success", this.db.Info.GetLvl(), pay_item.RecordGold, "USD", float64(pay_item.GemReward))
 	}
 
 	log.Trace("Player[%v] google pay bunder_id[%v] purchase_data[%v] signature[%v] verify success", this.Id, bundle_id, purchase_data, signature)
@@ -495,6 +465,10 @@ type AppleReceiptResponse struct {
 type ApplePurchaseCheckRes struct {
 	Status  int32                `json:"status"`
 	Receipt AppleReceiptResponse `json:"receipt"`
+}
+
+type AppleCheck struct {
+	Receipt string `json:"receipt-data"`
 }
 
 func (this *Player) _send_apple_verify_url(url string, data []byte) (int32, *ApplePurchaseCheckRes) {

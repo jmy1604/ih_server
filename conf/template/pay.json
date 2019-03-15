@@ -1,0 +1,12 @@
+{
+	"PayChannels": [
+		{
+			"KeyFile": "googlepay.key",
+			"PaymentType": "google pay"
+		},
+		{
+			"KeyFile": "googlepay2.key",
+			"PaymentType": "google pay 2"
+		}
+	]
+}
