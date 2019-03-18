@@ -83,6 +83,8 @@ func (this *RpcServer) Start() {
 		return
 	}
 
+	go server_list.Run()
+
 	this.Run()
 }
 
