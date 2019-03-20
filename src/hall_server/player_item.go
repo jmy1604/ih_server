@@ -586,7 +586,7 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_FUSION_RESPONSE), response)
 
-	log.Trace("Player[%v] fusioned items[%v] with piece[%v,%v]", this.Id, items, piece_id, i*piece.ComposeNum)
+	log.Trace("Player[%v] fusioned items[%v] with piece[%v,%v] fusion_num[%v]", this.Id, items, piece_id, i*piece.ComposeNum, fusion_num)
 
 	return 1
 }
