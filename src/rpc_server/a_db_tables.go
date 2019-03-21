@@ -491,7 +491,7 @@ func (this *dbApplePayTable) check_create_table() (err error) {
 	}
 	_, hasBundleId := columns["BundleId"]
 	if !hasBundleId {
-		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN BundleId varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN BundleId varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN BundleId failed")
 			return
@@ -499,7 +499,7 @@ func (this *dbApplePayTable) check_create_table() (err error) {
 	}
 	_, hasAccount := columns["Account"]
 	if !hasAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN Account varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN Account varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN Account failed")
 			return
@@ -523,7 +523,7 @@ func (this *dbApplePayTable) check_create_table() (err error) {
 	}
 	_, hasPayTimeStr := columns["PayTimeStr"]
 	if !hasPayTimeStr {
-		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN PayTimeStr varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePays ADD COLUMN PayTimeStr varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN PayTimeStr failed")
 			return
@@ -986,7 +986,7 @@ func (this *dbGooglePayTable) check_create_table() (err error) {
 	}
 	_, hasBundleId := columns["BundleId"]
 	if !hasBundleId {
-		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN BundleId varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN BundleId varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN BundleId failed")
 			return
@@ -994,7 +994,7 @@ func (this *dbGooglePayTable) check_create_table() (err error) {
 	}
 	_, hasAccount := columns["Account"]
 	if !hasAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN Account varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN Account varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN Account failed")
 			return
@@ -1018,7 +1018,7 @@ func (this *dbGooglePayTable) check_create_table() (err error) {
 	}
 	_, hasPayTimeStr := columns["PayTimeStr"]
 	if !hasPayTimeStr {
-		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN PayTimeStr varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePays ADD COLUMN PayTimeStr varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN PayTimeStr failed")
 			return

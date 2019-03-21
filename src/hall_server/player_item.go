@@ -573,6 +573,7 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 		}
 		items[item.Id] += item.Value
 		i++
+		log.Trace("Player[%v] fusioned item or hero %v,%v", this.Id, item.GetId(), item.GetValue())
 		if piece.ComposeType == 1 && this.db.Roles.NumAll() >= global_config.MaxRoleCount {
 			break
 		}
@@ -585,7 +586,7 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_FUSION_RESPONSE), response)
 
-	log.Trace("Player[%v] fusioned items[%v] with piece[%v,%v]", this.Id, items, piece_id, fusion_num)
+	log.Trace("Player[%v] fusioned items[%v] with piece[%v,%v] fusion_num[%v]", this.Id, items, piece_id, i*piece.ComposeNum, fusion_num)
 
 	return 1
 }

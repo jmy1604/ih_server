@@ -13370,7 +13370,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	}
 	_, hasUniqueId := columns["UniqueId"]
 	if !hasUniqueId {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN UniqueId varchar(45) DEFAULT ''")
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN UniqueId varchar(256) DEFAULT ''")
 		if err != nil {
 			log.Error("ADD COLUMN UniqueId failed")
 			return
@@ -13378,7 +13378,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	}
 	_, hasAccount := columns["Account"]
 	if !hasAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Account varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Account varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN Account failed")
 			return
@@ -13386,7 +13386,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	}
 	_, hasName := columns["Name"]
 	if !hasName {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Name varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Name varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN Name failed")
 			return
@@ -13394,7 +13394,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	}
 	_, hasToken := columns["Token"]
 	if !hasToken {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Token varchar(45) DEFAULT ''")
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Token varchar(256) DEFAULT ''")
 		if err != nil {
 			log.Error("ADD COLUMN Token failed")
 			return
@@ -17312,7 +17312,7 @@ func (this *dbGuildTable) check_create_table() (err error) {
 	}
 	_, hasName := columns["Name"]
 	if !hasName {
-		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Name varchar(45) DEFAULT ''")
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Name varchar(256) DEFAULT ''")
 		if err != nil {
 			log.Error("ADD COLUMN Name failed")
 			return
@@ -17376,7 +17376,7 @@ func (this *dbGuildTable) check_create_table() (err error) {
 	}
 	_, hasAnouncement := columns["Anouncement"]
 	if !hasAnouncement {
-		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Anouncement varchar(45) DEFAULT ''")
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Anouncement varchar(256) DEFAULT ''")
 		if err != nil {
 			log.Error("ADD COLUMN Anouncement failed")
 			return
@@ -19661,7 +19661,7 @@ func (this *dbBanPlayerTable) check_create_table() (err error) {
 	}
 	_, hasStartTimeStr := columns["StartTimeStr"]
 	if !hasStartTimeStr {
-		_, err = this.m_dbc.Exec("ALTER TABLE BanPlayers ADD COLUMN StartTimeStr varchar(45) DEFAULT ''")
+		_, err = this.m_dbc.Exec("ALTER TABLE BanPlayers ADD COLUMN StartTimeStr varchar(256) DEFAULT ''")
 		if err != nil {
 			log.Error("ADD COLUMN StartTimeStr failed")
 			return
@@ -19685,7 +19685,7 @@ func (this *dbBanPlayerTable) check_create_table() (err error) {
 	}
 	_, hasAccount := columns["Account"]
 	if !hasAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE BanPlayers ADD COLUMN Account varchar(45) DEFAULT ''")
+		_, err = this.m_dbc.Exec("ALTER TABLE BanPlayers ADD COLUMN Account varchar(256) DEFAULT ''")
 		if err != nil {
 			log.Error("ADD COLUMN Account failed")
 			return
@@ -20127,7 +20127,7 @@ func (this *dbOtherServerPlayerTable) check_create_table() (err error) {
 	}
 	_, hasAccount := columns["Account"]
 	if !hasAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Account varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Account varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN Account failed")
 			return
@@ -20135,7 +20135,7 @@ func (this *dbOtherServerPlayerTable) check_create_table() (err error) {
 	}
 	_, hasName := columns["Name"]
 	if !hasName {
-		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Name varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Name varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN Name failed")
 			return
@@ -20151,7 +20151,7 @@ func (this *dbOtherServerPlayerTable) check_create_table() (err error) {
 	}
 	_, hasHead := columns["Head"]
 	if !hasHead {
-		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Head varchar(45)")
+		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Head varchar(256)")
 		if err != nil {
 			log.Error("ADD COLUMN Head failed")
 			return

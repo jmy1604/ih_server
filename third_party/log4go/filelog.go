@@ -160,9 +160,10 @@ func NewFileLogWriter(fname string, fsuffix string, rotate bool) *FileLogWriter 
 // check number start
 func (w *FileLogWriter) CheckNumberStart() {
 	// open file by date
-	y := time.Now().Year()
-	m := time.Now().Month()
-	d := time.Now().Day()
+	now_time := time.Now()
+	y := now_time.Year()
+	m := now_time.Month()
+	d := now_time.Day()
 
 	w.year = y
 	w.month = int(m)
@@ -202,9 +203,10 @@ func (w *FileLogWriter) intRotate() error {
 	}
 
 	// open file by date
-	y := time.Now().Year()
-	m := time.Now().Month()
-	d := time.Now().Day()
+	now_time := time.Now()
+	y := now_time.Year()
+	m := now_time.Month()
+	d := now_time.Day()
 
 	if w.year != y || w.month != int(m) || w.day != d {
 		w.year = y

@@ -397,6 +397,7 @@ func C2SEnterGameRequestHandler(msg_data []byte) (int32, *Player) {
 	p.send_guide_data()
 	p.send_explore_data()
 	p.get_sign_data()
+	p.charge_data()
 	p.notify_enter_complete()
 
 	log.Info("PlayerEnterGameHandler account[%s]", req.GetAcc())
