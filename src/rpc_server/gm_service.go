@@ -44,6 +44,8 @@ func (this *GmService) StartHttp() bool {
 		return false
 	}
 
+	this.login_http_server = login_http_server
+
 	return true
 }
 
