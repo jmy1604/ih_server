@@ -1447,11 +1447,11 @@ namespace DBCompiler_sql
                         {
                             if (c.DefaultValue != null)
                             {
-                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " varchar(45) DEFAULT \'" + c.DefaultValue + "\'\")");//todo
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " varchar(256) DEFAULT \'" + c.DefaultValue + "\'\")");//todo
                             }
                             else
                             {
-                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " varchar(45)\")");//todo
+                                code.AppendLine("\t	_, err = this.m_dbc.Exec(\"ALTER TABLE " + db_table_name + " ADD COLUMN " + /*c.DBColumnName*/column_val + " varchar(256)\")");//todo
                             }
                         }
                         else if (big_type == "float32")
