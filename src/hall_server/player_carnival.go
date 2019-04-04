@@ -375,11 +375,11 @@ func (this *Player) carnival_be_invited(invite_code string) int32 {
 	if inviter == nil {
 		log.Error("Player %v inviter %v not found", this.Id, inviter_id)
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
-	}
-
-	if !inviter.carnival_invite_tasks_check() {
-		log.Error("Player %v use the invite code %v deprecated", this.Id, invite_code)
-		return int32(msg_client_message.E_ERR_CARNIVAL_TASK_INVITE_CODE_DEPRECATED)
+	} else {
+		if !inviter.carnival_invite_tasks_check() {
+			log.Error("Player %v use the invite code %v deprecated", this.Id, invite_code)
+			return int32(msg_client_message.E_ERR_CARNIVAL_TASK_INVITE_CODE_DEPRECATED)
+		}
 	}
 
 	value := this.carnival_task_do_once(task)
