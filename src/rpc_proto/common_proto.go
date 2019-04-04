@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	OBJECT_TYPE_PLAYER = 1
-	OBJECT_TYPE_GUILD  = 2
+	OBJECT_TYPE_PLAYER       = 1
+	OBJECT_TYPE_GUILD        = 2
+	OBJECT_TYPE_CROSS_PLAYER = 3
+	OBJECT_TYPE_CROSS_GUILD  = 4
 )
 
 type ServerResponseData struct {

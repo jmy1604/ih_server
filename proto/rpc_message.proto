@@ -26,6 +26,10 @@ enum MSGID {
 	G2G_FRIEND_GIVE_POINTS_RESPONSE 		= 112; // 赠送友情点返回
 	G2G_FRIEND_GET_POINTS_REQUEST			= 113; // 领取友情点请求
 	G2G_FRIEND_GET_POINTS_RESPONSE			= 114; // 领取友情点返回
+	
+	// 嘉年華
+	G2G_CARNIVAL_BE_INVITED_REQUEST			= 1000; // 被邀請請求
+	G2G_CARNIVAL_BE_INVITED_RESPONSE		= 1001; // 被邀請請求返回
 }
 
 // 玩家信息请求
@@ -89,4 +93,14 @@ message G2GFriendAskRequest {
 // 添加好友返回
 message G2GFriendAskResponse {
 	
+}
+
+// ----------------------------------- 嘉年華 ----------------------------------
+// 被邀請請求
+message G2GCarnivalBeInvitedRequest {
+	string InviteCode 						= 1;
+}
+
+message G2GCarnivalBeInvitedResponse {
+	string InviteCode						= 2;
 }

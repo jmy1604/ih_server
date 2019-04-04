@@ -21,11 +21,16 @@ func (this *G2G_CommonProc) Get(arg *rpc_proto.G2G_GetRequest, result *rpc_proto
 	}()
 
 	var rpc_client *rpc.Client
-	if arg.ObjectType == rpc_proto.OBJECT_TYPE_PLAYER {
+	if arg.ObjectType == rpc_proto.OBJECT_TYPE_CROSS_PLAYER {
 		rpc_client = GetCrossRpcClientByPlayerId(arg.FromPlayerId, arg.ObjectId)
-	} else if arg.ObjectType == rpc_proto.OBJECT_TYPE_GUILD {
+	} else if arg.ObjectType == rpc_proto.OBJECT_TYPE_CROSS_GUILD {
 		rpc_client = GetCrossRpcClientByGuildId(arg.FromPlayerId, arg.ObjectId)
+	} else if arg.ObjectType == rpc_proto.OBJECT_TYPE_PLAYER {
+		rpc_client = GetRpcClientByPlayerId(arg.ObjectId)
+	} else if arg.ObjectType == rpc_proto.OBJECT_TYPE_GUILD {
+		rpc_client = GetRpcClientByGuildId(arg.ObjectId)
 	}
+
 	if rpc_client == nil {
 		return errors.New(fmt.Sprintf("!!!!!! Not found rpc client by object type %v object id %v", arg.ObjectType, arg.ObjectId))
 	}
@@ -45,14 +50,14 @@ func split_object_ids_with_server(object_type int32, object_ids []int32) (server
 		return
 	}
 
-	if object_type != rpc_proto.OBJECT_TYPE_GUILD && object_type != rpc_proto.OBJECT_TYPE_PLAYER {
+	if object_type != rpc_proto.OBJECT_TYPE_GUILD && object_type != rpc_proto.OBJECT_TYPE_PLAYER && object_type != rpc_proto.OBJECT_TYPE_CROSS_PLAYER && object_type != rpc_proto.OBJECT_TYPE_CROSS_GUILD {
 		return
 	}
 
 	for i := 0; i < len(object_ids); i++ {
 		id := object_ids[i]
 		var server_id int32
-		if object_type == rpc_proto.OBJECT_TYPE_PLAYER {
+		if object_type == rpc_proto.OBJECT_TYPE_PLAYER || object_type == rpc_proto.OBJECT_TYPE_CROSS_PLAYER {
 			server_id = share_data.GetServerIdByPlayerId(id)
 		} else {
 			server_id = share_data.GetServerIdByGuildId(id)

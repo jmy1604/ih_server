@@ -28,7 +28,7 @@ func GetCarnivalCurrRoundAndRemainSeconds() (round, remain_seconds int32) {
 	return
 }
 
-func (this *Player) _carnival_data_check() (round, remain_seconds int32) {
+func (this *Player) _carnival_data_check(send_notify bool) (round, remain_seconds int32) {
 	round, remain_seconds = GetCarnivalCurrRoundAndRemainSeconds()
 	prev_round := dbc.Carnival.GetRow().GetRound()
 
@@ -38,6 +38,9 @@ func (this *Player) _carnival_data_check() (round, remain_seconds int32) {
 			for _, t := range round_reset_tasks {
 				if this.db.Carnivals.HasIndex(t.Id) {
 					this.db.Carnivals.SetValue(t.Id, 0)
+					if send_notify {
+						this.carnival_task_data_notify(t.Id, 0)
+					}
 				}
 			}
 		}
@@ -58,6 +61,9 @@ func (this *Player) _carnival_data_check() (round, remain_seconds int32) {
 			for _, t := range day_reset_tasks {
 				if this.db.Carnivals.HasIndex(t.Id) {
 					this.db.Carnivals.SetValue(t.Id, 0)
+					if send_notify {
+						this.carnival_task_data_notify(t.Id, 0)
+					}
 				}
 			}
 		}
@@ -68,7 +74,7 @@ func (this *Player) _carnival_data_check() (round, remain_seconds int32) {
 }
 
 func (this *Player) carnival_data() int32 {
-	round, remain_seconds := this._carnival_data_check()
+	round, remain_seconds := this._carnival_data_check(false)
 
 	tasks := carnival_task_table_mgr.Array
 	var task_list []*msg_client_message.CarnivalTaskData
@@ -128,7 +134,7 @@ func (this *Player) carnival_task_do_once(task *table_config.XmlCarnivalTaskItem
 }
 
 func (this *Player) carnival_task_set(id int32) int32 {
-	round, _ := this._carnival_data_check()
+	round, _ := this._carnival_data_check(true)
 	if round <= 0 {
 		log.Error("no carnival task doing in this time")
 		return int32(msg_client_message.E_ERR_CARNIVAL_NOT_DOING)
@@ -162,7 +168,7 @@ func (this *Player) carnival_task_set(id int32) int32 {
 }
 
 func (this *Player) carnival_item_exchange(task_id int32) int32 {
-	round, _ := this._carnival_data_check()
+	round, _ := this._carnival_data_check(true)
 	if round <= 0 {
 		log.Error("no carnival task doing in this time")
 		return int32(msg_client_message.E_ERR_CARNIVAL_NOT_DOING)
@@ -295,7 +301,7 @@ func (this *InviteCodeGenerator) GetId(code string) (id int32) {
 }
 
 func (this *Player) carnival_share() int32 {
-	round, _ := this._carnival_data_check()
+	round, _ := this._carnival_data_check(true)
 	if round <= 0 {
 		log.Error("no carnival task doing in this time")
 		return int32(msg_client_message.E_ERR_CARNIVAL_NOT_DOING)
@@ -347,7 +353,7 @@ func (this *Player) carnival_invite_tasks_check() bool {
 }
 
 func (this *Player) carnival_be_invited(invite_code string) int32 {
-	round, _ := this._carnival_data_check()
+	round, _ := this._carnival_data_check(true)
 	if round <= 0 {
 		log.Error("no carnival task doing in this time")
 		return int32(msg_client_message.E_ERR_CARNIVAL_NOT_DOING)
@@ -373,8 +379,11 @@ func (this *Player) carnival_be_invited(invite_code string) int32 {
 
 	inviter := player_mgr.GetPlayerById(inviter_id)
 	if inviter == nil {
-		log.Error("Player %v inviter %v not found", this.Id, inviter_id)
-		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		_, err_code := remote_carnival_be_invited(this.Id, inviter_id)
+		if err_code < 0 {
+			log.Error("Player %v remove carnival be invite err %v", this.Id, inviter_id)
+			return err_code
+		}
 	} else {
 		if !inviter.carnival_invite_tasks_check() {
 			log.Error("Player %v use the invite code %v deprecated", this.Id, invite_code)
@@ -389,7 +398,7 @@ func (this *Player) carnival_be_invited(invite_code string) int32 {
 	})
 	this.carnival_task_data_notify(task.Id, value)
 
-	log.Trace("Player %v carnival be invite task %v progress %v/%v", this.Id, task.Id, value, task.EventCount)
+	log.Trace("Player %v carnival be invite task %v use invite code %v, progress %v/%v", this.Id, task.Id, invite_code, value, task.EventCount)
 
 	return 1
 }
