@@ -389,7 +389,7 @@ func (this *Player) carnival_be_invited(invite_code string) int32 {
 	})
 	this.carnival_task_data_notify(task.Id, value)
 
-	log.Trace("Player %v carnival be invite task %v progress %v/%v")
+	log.Trace("Player %v carnival be invite task %v progress %v/%v", this.Id, task.Id, value, task.EventCount)
 
 	return 1
 }
