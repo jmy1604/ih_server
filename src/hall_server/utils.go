@@ -7,6 +7,18 @@ import (
 	"time"
 )
 
+func power_n(num, power int) int {
+	if power == 0 {
+		return 1
+	}
+
+	value := num
+	for i := 0; i < power-1; i++ {
+		value *= num
+	}
+	return value
+}
+
 func rand31n_from_range(min, max int32) (bool, int32) {
 	if min > max {
 		return false, 0

@@ -332,6 +332,13 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ARTIFACT_LEVELUP_REQUEST), C2SArtifactLevelUpHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ARTIFACT_RANKUP_REQUEST), C2SArtifactRankUpHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ARTIFACT_RESET_REQUEST), C2SArtifactResetHandler)
+
+	// 嘉年华
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CARNIVAL_DATA_REQUEST), C2SCarnivalDataHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CARNIVAL_TASK_SET_REQUEST), C2SCarnivalTaskSetHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CARNIVAL_ITEM_EXCHANGE_REQUEST), C2SCarnivalItemExchangeHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CARNIVAL_SHARE_REQUEST), C2SCarnivalShareHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CARNIVAL_BE_INVITED_REQUEST), C2SCarnivalBeInvitedHander)
 }
 
 func C2SEnterGameRequestHandler(msg_data []byte) (int32, *Player) {

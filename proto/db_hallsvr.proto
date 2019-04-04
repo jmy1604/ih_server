@@ -529,6 +529,19 @@ message PlayerArtifactList{
 	repeated PlayerArtifact List=1;
 }
 
+message PlayerCarnivalCommon{
+	optional int32 DayResetTime=1;
+}
+
+message PlayerCarnival{
+	optional int32 Id=1;
+	optional int32 Value=2;
+}
+
+message PlayerCarnivalList{
+	repeated PlayerCarnival List=1;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }

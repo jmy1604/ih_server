@@ -940,6 +940,33 @@
 						{"Type":"int32","Index":2,"Name":"Rank","Incby":true},
 						{"Type":"int32","Index":3,"Name":"Level","Incby":true}
 					]
+				},
+				{
+					"ColumnName":"CarnivalCommon",
+					"DBColumnName":"CarnivalCommon",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"DayResetTime"}
+					]
+				},
+				{
+					"ColumnName":"Carnival",
+					"DBColumnName":"Carnival",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"Value","Incby":true}
+					]
 				}
 			]
 		},
@@ -1559,6 +1586,29 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":"",
+					"Fields":[]
+				}
+			]
+		},
+		{
+			"TableName":"Carnival",
+			"DBTableName":"Carnival",
+			"SingleRow":true,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"Id",
+			"PrimaryKeyType":"int32",
+			"PrimaryKeySize":11,
+			"Columns":[
+				{
+					"ColumnName":"Round",
+					"DBColumnName":"Round",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
 					"Fields":[]
 				}
 			]

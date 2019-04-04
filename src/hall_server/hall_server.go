@@ -73,6 +73,8 @@ func (this *HallServer) Init() (ok bool) {
 	guild_stage_manager.Init()
 	// 载入公会副本伤害列表
 	guild_manager.LoadDB4StageDamageList()
+	// 邀请码生成器
+	invite_code_generator.Init()
 
 	this.initialized = true
 
@@ -308,6 +310,8 @@ var sub_activity_table_mgr table_config.SubActivityTableMgr
 var expedition_table_mgr table_config.ExpeditionTableMgr
 var artifact_table_mgr table_config.ArtifactTableMgr
 var artifact_unlock_table_mgr table_config.ArtifactUnlockTableMgr
+var carnival_table_mgr table_config.CarnivalTableMgr
+var carnival_task_table_mgr table_config.CarnivalTaskTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool
@@ -579,6 +583,14 @@ func table_init() error {
 
 	if !artifact_unlock_table_mgr.Init("") {
 		return errors.New("artifact_unlock_table_mgr init failed")
+	}
+
+	if !carnival_table_mgr.Init("") {
+		return errors.New("carnival_table_mgr init failed")
+	}
+
+	if !carnival_task_table_mgr.Init("") {
+		return errors.New("carnival_task_table_mgr init failed")
 	}
 
 	if !pay_list.LoadConfig(server_config.GetConfPathFile("pay.json")) {

@@ -359,5 +359,17 @@ enum MSGID {
 	S2C_ARTIFACT_RANKUP_RESPONSE			= 12707; // 神器升阶返回 S2CArtifactRankUpResponse
 	C2S_ARTIFACT_RESET_REQUEST				= 12708; // 神器重铸 C2SArtifactResetRequest
 	S2C_ARTIFACT_RESET_RESPONSE				= 12709; // 神器重铸返回 S2CArtifactResetResponse
-	S2C_ARTIFACT_DATA_UPDATE_NOTIFY			= 12710; // 神器数据更新通知 S2CArtifactDataUpdateNotify			
+	S2C_ARTIFACT_DATA_UPDATE_NOTIFY			= 12710; // 神器数据更新通知 S2CArtifactDataUpdateNotify
+	
+	C2S_CARNIVAL_DATA_REQUEST				= 12800; // 嘉年华数据 C2SCarnivalDataRequest
+	S2C_CARNIVAL_DATA_RESPONSE				= 12801; // 返回嘉年华数据 S2CCarnivalDataResponse
+	C2S_CARNIVAL_TASK_SET_REQUEST			= 12802; // 请求任务进度加1 C2SCarnivalTaskSetRequest
+	S2C_CARNIVAL_TASK_SET_RESPONSE			= 12803; // 任务进度加1返回 S2CCarnivalTaskSetResponse
+	C2S_CARNIVAL_ITEM_EXCHANGE_REQUEST		= 12804; // 请求物品兑换 C2SCarnivalItemExchangeRequest
+	S2C_CARNIVAL_ITEM_EXCHANGE_RESPONSE		= 12805; // 物品兑换返回 S2CCarnivalItemExchangeResponse
+	C2S_CARNIVAL_SHARE_REQUEST				= 12806; // 请求分享 C2SCarnivalInviteCodeRequest
+	S2C_CARNIVAL_SHARE_RESPONSE				= 12807; // 请求分享返回 S2CCarnivalInviteCodeResponse
+	C2S_CARNIVAL_BE_INVITED_REQUEST			= 12808; // 请求被邀请验证 C2SCarnivalBeInvitedRequest
+	S2C_CARNIVAL_BE_INVITED_RESPONSE		= 12809; // 被邀请验证返回 S2CCarnivalBeInvitedResponse
+	S2C_CARNIVAL_TASK_DATA_NOTIFY			= 12810; // 任务数据通知 S2CCarnivalTaskDataNotify
 }

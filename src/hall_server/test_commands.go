@@ -2586,6 +2586,77 @@ func split_player_ids_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func invite_code_generate_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	code := invite_code_generator.Generate(int32(id))
+	id2 := invite_code_generator.GetId(code)
+
+	log.Debug("generate code %v by id %v", code, id)
+	log.Debug("generator get id %v by code %v", id2, code)
+
+	return 1
+}
+
+func carnival_data_cmd(p *Player, args []string) int32 {
+	return p.carnival_data()
+}
+
+func carnival_task_set_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var task_id int
+	var err error
+	task_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.carnival_task_set(int32(task_id))
+}
+
+func carnival_item_exchange_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var task_id int
+	var err error
+	task_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.carnival_item_exchange(int32(task_id))
+}
+
+func carnival_share_cmd(p *Player, args []string) int32 {
+	return p.carnival_share()
+}
+
+func carnival_be_invite_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	return p.carnival_be_invited(args[0])
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2748,6 +2819,12 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"remote_player_info":       remote_player_info_cmd,
 	"remote_players_info":      remote_players_info_cmd,
 	"split_players":            split_player_ids_cmd,
+	"invite_code_generate":     invite_code_generate_cmd,
+	"carnival_data":            carnival_data_cmd,
+	"carnival_task_set":        carnival_task_set_cmd,
+	"carnival_item_exchange":   carnival_item_exchange_cmd,
+	"carnival_share":           carnival_share_cmd,
+	"carnival_be_invite":       carnival_be_invite_cmd,
 }
 
 func C2STestCommandHandler(p *Player /*msg proto.Message*/, msg_data []byte) int32 {

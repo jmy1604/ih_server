@@ -289,6 +289,14 @@ enum E_ERR {
 	ARTIFACT_RANK_IS_MAX					= -32007; // 神器品阶达到上限
 	ARTIFACT_NO_NEED_TO_RESET				= -32008; // 神器无需重铸
 	
+	// 嘉年华
+	CARNIVAL_NOT_DOING						= -33000; // 嘉年华未开始
+	CARNIVAL_TASK_NOT_FOUND					= -33001; // 嘉年华任务不存在 
+	CARNIVAL_TASK_ALREADY_FINISHED			= -33002; // 嘉年华任务已完成
+	CARNIVAL_TASK_CANT_SET					= -33003; // 嘉年华任务不能完成进度
+	CARNIVAL_TASK_INVITE_CODE_INVALID		= -33004; // 嘉年华邀请码非法
+	CARNIVAL_TASK_INVITE_CODE_DEPRECATED	= -33005; // 嘉年华邀请码已作废
+	
 	// 远程调用
 	REMOTE_FUNC_CALL_ERROR					= -100000; // 远程调用失败
 	
@@ -2445,4 +2453,66 @@ message S2CArtifactDataUpdateNotify {
 	int32 Id								= 1;
 	int32 Level								= 2;
 	int32 Rank								= 3;
+}
+
+// --------------------------------- 嘉年华活动 --------------------------------
+// 评论，关注这两个任务服务器不做逻辑处理
+// 分享任务获得邀请码
+// 邀请好友任务被动更新，不用客户端请求 
+// 兑换和被邀请任务单独请求
+
+// 数据请求
+message C2SCarnivalDataRequest {
+}
+
+// 任务数据
+message CarnivalTaskData {
+	int32 Id								= 1; // 任务ID
+	int32 Value								= 2; // 进度数据
+}
+
+message S2CCarnivalDataResponse {
+	int32 Round								= 1; // 当前轮次, 0表示没有
+	int32 RemainSeconds						= 2; // 剩余结束时间
+	repeated CarnivalTaskData TaskList		= 3; // 任务数据列表
+}
+
+// 设置任务进度加1
+message C2SCarnivalTaskSetRequest {
+	int32 TaskId							= 1; // 任务ID
+}
+
+message S2CCarnivalTaskSetResponse {
+	int32 TaskId							= 1; // 任务ID
+}
+
+// 兑换任务
+message C2SCarnivalItemExchangeRequest {
+	int32 TaskId							= 1; // 任务ID
+}
+
+message S2CCarnivalItemExchangeResponse {
+	int32 TaskId							= 1; // 任务ID
+}
+
+// 请求分享，获得邀请码
+message C2SCarnivalShareRequest {
+}
+
+message S2CCarnivalShareResponse {
+	string InviteCode						= 1; // 邀请码
+}
+
+// 被邀请任务
+message C2SCarnivalBeInvitedRequest {
+	string InviteCode						= 1; // 邀请码
+}
+
+message S2CCarnivalBeInvitedResponse {
+	string InviteCode						= 1; // 邀请码
+}
+
+// 任务进度通知，有更新时主动推送，用于客户端处理任务更新数据
+message S2CCarnivalTaskDataNotify {
+	CarnivalTaskData Data					= 1; // 数据
 }
