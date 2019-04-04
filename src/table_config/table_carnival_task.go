@@ -20,7 +20,7 @@ const (
 type XmlCarnivalTaskItem struct {
 	Id            int32  `xml:"ID,attr"`
 	ResetTimeType int32  `xml:"ResetTimeType,attr"`
-	EventType     int32  `xml:"EventType,attr"`
+	EventType     int32  `xml:"ActiveType,attr"`
 	Param1        int32  `xml:"Param1,attr"`
 	Param2        int32  `xml:"Param2,attr"`
 	Param3        int32  `xml:"Param3,attr"`
