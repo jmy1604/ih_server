@@ -347,6 +347,7 @@ func (this *Player) carnival_invite_tasks_check() bool {
 		value := this.carnival_task_do_once(t)
 		this.carnival_task_data_notify(t.Id, value)
 		do = true
+		log.Trace("Player %v carnival invite task %v progress %v/%v", this.Id, t.Id, value, t.EventCount)
 	}
 
 	return do
@@ -381,7 +382,7 @@ func (this *Player) carnival_be_invited(invite_code string) int32 {
 	if inviter == nil {
 		_, err_code := remote_carnival_be_invited(this.Id, inviter_id)
 		if err_code < 0 {
-			log.Error("Player %v remove carnival be invite err %v", this.Id, inviter_id)
+			log.Error("Player %v remote carnival invite by %v err %v", this.Id, inviter_id, err_code)
 			return err_code
 		}
 	} else {
