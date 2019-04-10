@@ -10,7 +10,8 @@ const (
 	GM_CMD_MONTH_CARD_SEND   = 6    // 月卡发送
 	GM_CMD_BAN_PLAYER        = 7    // 封号
 	GM_CMD_BAN_LIST          = 8    // 封号玩家列表
-	GM_CMD_GUILD_LIST        = 9    // 公会列表
+	GM_CMD_GUILD_INFO        = 9    // 公会信息
+	GM_CMD_GUILD_LIST        = 10   // 公会列表
 )
 
 const (
@@ -23,6 +24,7 @@ const (
 	GM_CMD_MONTH_CARD_SEND_STRING   = "month_card_send"
 	GM_CMD_BAN_PLAYER_STRING        = "ban_player"
 	GM_CMD_BAN_LIST_STRING          = "ban_list"
+	GM_CMD_GUILD_INFO_STRING        = "guild_info"
 	GM_CMD_GUILD_LIST_STRING        = "guild_list"
 )
 
@@ -143,9 +145,18 @@ type GmBanPlayerByUniqueIdCmd struct {
 	BanOrFree      int32
 }
 
-// 获取服务器公会列表
-type GmGuildListCmd struct {
-	ServerId int32
+// 公会成员信息
+type GmGuildMemberInfo struct {
+	PlayerId          int32
+	PlayerName        string
+	PlayerLevel       int32
+	Position          int32
+	JoinTime          int32
+	QuitTime          int32
+	SignTime          int32
+	DonateNum         int32
+	LastAskDonateTime int32
+	LastDonateTime    int32
 }
 
 // 公会信息
@@ -153,12 +164,28 @@ type GmGuildInfo struct {
 	Id             int32
 	Name           string
 	Level          int32
-	Icon           int32
+	Logo           int32
 	MaxMemNum      int32
 	CurrMemNum     int32
 	PresidentId    int32
 	PresidentName  string
 	PresidentLevel int32
+	CreateTime     int32
+	Creater        int32
+	MemList        []*GmGuildMemberInfo
+}
+
+type GmGuildInfoCmd struct {
+	GuildId int32
+}
+
+type GmGuildInfoResponse struct {
+	Info GmGuildInfo
+}
+
+// 获取服务器公会列表
+type GmGuildListCmd struct {
+	ServerId int32
 }
 
 // 获取服务器公会列表结果

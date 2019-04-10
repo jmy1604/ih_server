@@ -279,6 +279,62 @@ func (this *G2H_Proc) BanPlayer(args *rpc_proto.GmBanPlayerByUniqueIdCmd, result
 	return nil
 }
 
+func (this *G2H_Proc) GuildInfo(arg *rpc_proto.GmGuildInfoCmd, result *rpc_proto.GmGuildInfoResponse) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+	guild := guild_manager.GetGuild(arg.GuildId)
+	if guild == nil {
+		result.Info.Id = int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
+		log.Error("@@@ Guild cant get by id %v", arg.GuildId)
+		return nil
+	}
+
+	result.Info.Id = guild.GetId()
+	result.Info.Name = guild.GetName()
+	result.Info.Level = guild.GetLevel()
+	result.Info.Logo = guild.GetLogo()
+	result.Info.PresidentId = guild.GetPresident()
+	president := player_mgr.GetPlayerById(result.Info.PresidentId)
+	if president != nil {
+		result.Info.PresidentName = president.db.GetName()
+		result.Info.PresidentLevel = president.db.GetLevel()
+	}
+	result.Info.CurrMemNum = guild.Members.NumAll()
+	result.Info.MaxMemNum = _guild_member_num_limit(guild)
+	result.Info.CreateTime = guild.GetCreateTime()
+	result.Info.Creater = guild.GetCreater()
+
+	// 成员
+	ids := guild.Members.GetAllIndex()
+	if ids != nil {
+		for _, id := range ids {
+			mem := player_mgr.GetPlayerById(id)
+			if mem == nil {
+				continue
+			}
+			result.Info.MemList = append(result.Info.MemList, &rpc_proto.GmGuildMemberInfo{
+				PlayerId:          id,
+				PlayerName:        mem.db.GetName(),
+				PlayerLevel:       mem.db.GetLevel(),
+				Position:          mem.db.Guild.GetPosition(),
+				JoinTime:          mem.db.Guild.GetJoinTime(),
+				QuitTime:          mem.db.Guild.GetQuitTime(),
+				SignTime:          mem.db.Guild.GetSignTime(),
+				DonateNum:         mem.db.Guild.GetDonateNum(),
+				LastAskDonateTime: mem.db.Guild.GetLastAskDonateTime(),
+				LastDonateTime:    mem.db.Guild.GetLastDonateTime(),
+			})
+		}
+	}
+
+	log.Trace("@@@ G2H_Proc::GuildInfo %v", arg)
+
+	return nil
+}
+
 func (this *G2H_Proc) GuildList(arg *rpc_proto.GmGuildListCmd, result *rpc_proto.GmGuildListResponse) error {
 	defer func() {
 		if err := recover(); err != nil {

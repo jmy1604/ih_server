@@ -16,6 +16,7 @@ var gm_handles = map[int32]gm_handle{
 	rpc_proto.GM_CMD_ONLINE_PLAYER_NUM: gm_online_player_num,
 	rpc_proto.GM_CMD_MONTH_CARD_SEND:   gm_month_card_send,
 	rpc_proto.GM_CMD_BAN_PLAYER:        gm_ban_player,
+	rpc_proto.GM_CMD_GUILD_INFO:        gm_guild_info,
 	rpc_proto.GM_CMD_GUILD_LIST:        gm_guild_list,
 }
 
@@ -342,6 +343,43 @@ func gm_ban_player(id int32, data []byte) (int32, []byte) {
 	}
 
 	return 1, nil
+}
+
+func gm_guild_info(id int32, data []byte) (int32, []byte) {
+	if id != rpc_proto.GM_CMD_GUILD_INFO {
+		log.Error("gm guild info cmd id %v not correct", id)
+		return -1, nil
+	}
+
+	var err error
+	var args rpc_proto.GmGuildInfoCmd
+	err = json.Unmarshal(data, &args)
+	if err != nil {
+		log.Error("gm cmd GmGuildInfoCmd unmarshal err %v", err.Error())
+		return -1, nil
+	}
+
+	rpc_client := GetRpcClientByGuildId(args.GuildId)
+	if rpc_client == nil {
+		log.Error("gm get rpc client by guild id %v failed", args.GuildId)
+		return -1, nil
+	}
+
+	var result rpc_proto.GmGuildInfoResponse
+	err = rpc_client.Call("G2H_Proc.GuildInfo", &args, &result)
+	if err != nil {
+		log.Error("gm rpc call G2H_Proc.GuildInfo err %v", err.Error())
+		return -1, nil
+	}
+
+	var result_data []byte
+	result_data, err = json.Marshal(&result)
+	if err != nil {
+		log.Error("marshal gm cmd response GmGuildInfoResponse err %v", err.Error())
+		return -1, nil
+	}
+
+	return 1, result_data
 }
 
 func gm_guild_list(id int32, data []byte) (int32, []byte) {
