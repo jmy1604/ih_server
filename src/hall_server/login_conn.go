@@ -53,7 +53,7 @@ func (this *LoginConnection) Init() {
 
 func (this *LoginConnection) Start() {
 	if this.Connect(LOGIN_CONN_STATE_DISCONNECT) {
-		log.Event("连接Loginerver成功", nil, log.Property{"IP", this.listen_match_ip})
+		log.Event("连接LoginServer成功", nil, log.Property{"IP", this.listen_match_ip})
 	}
 	for {
 		state := atomic.LoadInt32(&this.state)
@@ -68,7 +68,7 @@ func (this *LoginConnection) Start() {
 			break
 		}
 		if this.Connect(state) {
-			log.Event("连接loginserver成功", nil, log.Property{"IP", this.listen_match_ip})
+			log.Event("连接loginServer成功", nil, log.Property{"IP", this.listen_match_ip})
 		}
 	}
 }
