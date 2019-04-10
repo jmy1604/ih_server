@@ -16,6 +16,7 @@ var gm_handles = map[int32]gm_handle{
 	rpc_proto.GM_CMD_ONLINE_PLAYER_NUM: gm_online_player_num,
 	rpc_proto.GM_CMD_MONTH_CARD_SEND:   gm_month_card_send,
 	rpc_proto.GM_CMD_BAN_PLAYER:        gm_ban_player,
+	rpc_proto.GM_CMD_GUILD_LIST:        gm_guild_list,
 }
 
 func gm_test(id int32, data []byte) (int32, []byte) {
@@ -212,7 +213,7 @@ func gm_online_player_num(id int32, data []byte) (int32, []byte) {
 
 		rpc_client := GetRpcClientByServerId(sid)
 		if rpc_client == nil {
-			player_num = append(player_num, []int32{-1, -1}...)
+			player_num = append(player_num, []int32{-1, -1, -1}...)
 			log.Error("gm get rpc client by server id %v failed", sid)
 			continue
 		}
@@ -220,7 +221,7 @@ func gm_online_player_num(id int32, data []byte) (int32, []byte) {
 		args.ServerId = sid
 		err = rpc_client.Call("G2H_Proc.OnlinePlayerNum", &args, &result)
 		if err != nil {
-			player_num = append(player_num, []int32{-1, -1}...)
+			player_num = append(player_num, []int32{-1, -1, -1}...)
 			log.Error("gm rpc call G2H_Proc.OnlinePlayerNum err %v", err.Error())
 			continue
 		}
@@ -341,4 +342,41 @@ func gm_ban_player(id int32, data []byte) (int32, []byte) {
 	}
 
 	return 1, nil
+}
+
+func gm_guild_list(id int32, data []byte) (int32, []byte) {
+	if id != rpc_proto.GM_CMD_GUILD_LIST {
+		log.Error("gm guild list cmd id %v not correct", id)
+		return -1, nil
+	}
+
+	var err error
+	var args rpc_proto.GmGuildListCmd
+	err = json.Unmarshal(data, &args)
+	if err != nil {
+		log.Error("gm cmd GmGuildListCmd unmarshal err %v", err.Error())
+		return -1, nil
+	}
+
+	rpc_client := GetRpcClientByServerId(args.ServerId)
+	if rpc_client == nil {
+		log.Error("gm get rpc client by server id %v failed", args.ServerId)
+		return -1, nil
+	}
+
+	var result rpc_proto.GmGuildListResponse
+	err = rpc_client.Call("G2H_Proc.GuildList", &args, &result)
+	if err != nil {
+		log.Error("gm rpc call G2H_Proc.GuildList err %v", err.Error())
+		return -1, nil
+	}
+
+	var result_data []byte
+	result_data, err = json.Marshal(&result)
+	if err != nil {
+		log.Error("marshal gm cmd response GmGuildListResponse err %v", err.Error())
+		return -1, nil
+	}
+
+	return 1, result_data
 }

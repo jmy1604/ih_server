@@ -10,6 +10,7 @@ const (
 	GM_CMD_MONTH_CARD_SEND   = 6    // 月卡发送
 	GM_CMD_BAN_PLAYER        = 7    // 封号
 	GM_CMD_BAN_LIST          = 8    // 封号玩家列表
+	GM_CMD_GUILD_LIST        = 9    // 公会列表
 )
 
 const (
@@ -22,6 +23,7 @@ const (
 	GM_CMD_MONTH_CARD_SEND_STRING   = "month_card_send"
 	GM_CMD_BAN_PLAYER_STRING        = "ban_player"
 	GM_CMD_BAN_LIST_STRING          = "ban_list"
+	GM_CMD_GUILD_LIST_STRING        = "guild_list"
 )
 
 // 通用GM命令结构
@@ -139,4 +141,28 @@ type GmBanPlayerByUniqueIdCmd struct {
 	PlayerUniqueId string
 	PlayerId       int32
 	BanOrFree      int32
+}
+
+// 获取服务器公会列表
+type GmGuildListCmd struct {
+	ServerId int32
+}
+
+// 公会信息
+type GmGuildInfo struct {
+	Id             int32
+	Name           string
+	Level          int32
+	Icon           int32
+	MaxMemNum      int32
+	CurrMemNum     int32
+	PresidentId    int32
+	PresidentName  string
+	PresidentLevel int32
+}
+
+// 获取服务器公会列表结果
+type GmGuildListResponse struct {
+	ServerId  int32
+	GuildList []*GmGuildInfo
 }

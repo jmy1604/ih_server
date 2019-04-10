@@ -155,7 +155,7 @@ func (this *G2H_Proc) OnlinePlayerNum(args *rpc_proto.GmOnlinePlayerNumCmd, resu
 		}
 	}()
 
-	result.PlayerNum = []int32{conn_timer_wheel.GetCurrPlayerNum(), player_mgr.GetPlayersNum()}
+	result.PlayerNum = []int32{conn_timer_wheel.GetCurrPlayerNum(), player_mgr.GetPlayersNum(), guild_manager.get_guild_num()}
 
 	log.Trace("@@@ G2H_Proc::OnlinePlayerNum")
 
@@ -276,5 +276,14 @@ func (this *G2H_Proc) BanPlayer(args *rpc_proto.GmBanPlayerByUniqueIdCmd, result
 
 	log.Trace("@@@ G2H_Proc::BanPlayer %v", args)
 
+	return nil
+}
+
+func (this *G2H_Proc) GuildList(arg *rpc_proto.GmGuildListCmd, result *rpc_proto.GmGuildListResponse) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
 	return nil
 }

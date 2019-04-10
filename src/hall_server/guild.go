@@ -105,6 +105,12 @@ type GuildManager struct {
 
 var guild_manager GuildManager
 
+func (this *GuildManager) get_guild_num() int32 {
+	this.guild_ids_locker.RLock()
+	defer this.guild_ids_locker.RUnlock()
+	return this.guild_num
+}
+
 func (this *GuildManager) _add_guild(guild_id int32, guild_name string) bool {
 	this.guild_ids_locker.Lock()
 	defer this.guild_ids_locker.Unlock()
