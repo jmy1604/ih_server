@@ -39,7 +39,7 @@ func (this *Player) _carnival_data_check(send_notify bool) (round, remain_second
 				if this.db.Carnivals.HasIndex(t.Id) {
 					this.db.Carnivals.SetValue(t.Id, 0)
 					if send_notify {
-						this.carnival_task_data_notify(t.Id, 0)
+						this.carnival_task_data_notify(t.Id, 0, 0)
 					}
 				}
 			}
@@ -62,7 +62,7 @@ func (this *Player) _carnival_data_check(send_notify bool) (round, remain_second
 				if this.db.Carnivals.HasIndex(t.Id) {
 					this.db.Carnivals.SetValue(t.Id, 0)
 					if send_notify {
-						this.carnival_task_data_notify(t.Id, 0)
+						this.carnival_task_data_notify(t.Id, 0, 0)
 					}
 				}
 			}
@@ -81,12 +81,15 @@ func (this *Player) carnival_data() int32 {
 	if tasks != nil {
 		for _, t := range tasks {
 			value, o := this.db.Carnivals.GetValue(t.Id)
+			value2, o := this.db.Carnivals.GetValue2(t.Id)
 			if !o {
 				value = 0
+				value2 = 0
 			}
 			task_list = append(task_list, &msg_client_message.CarnivalTaskData{
-				Id:    t.Id,
-				Value: value,
+				Id:     t.Id,
+				Value:  value,
+				Value2: value2,
 			})
 		}
 	}
@@ -104,11 +107,12 @@ func (this *Player) carnival_data() int32 {
 	return 1
 }
 
-func (this *Player) carnival_task_data_notify(id, value int32) {
+func (this *Player) carnival_task_data_notify(id, value, value2 int32) {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CARNIVAL_TASK_DATA_NOTIFY), &msg_client_message.S2CCarnivalTaskDataNotify{
 		Data: &msg_client_message.CarnivalTaskData{
-			Id:    id,
-			Value: value,
+			Id:     id,
+			Value:  value,
+			Value2: value2,
 		},
 	})
 }
@@ -121,17 +125,29 @@ func (this *Player) carnival_task_is_finished(task *table_config.XmlCarnivalTask
 	return true
 }
 
-func (this *Player) carnival_task_do_once(task *table_config.XmlCarnivalTaskItem) int32 {
+func (this *Player) carnival_task_do_once(task *table_config.XmlCarnivalTaskItem) (value, value2 int32) {
 	if !this.db.Carnivals.HasIndex(task.Id) {
 		this.db.Carnivals.Add(&dbPlayerCarnivalData{
 			Id: task.Id,
 		})
 	}
-	value := this.db.Carnivals.IncbyValue(task.Id, 1)
-	if value >= task.EventCount {
+	if task.EventType == table_config.CARNIVAL_EVENT_INVITE {
+		value2 = this.db.Carnivals.IncbyValue2(task.Id, 1)
+		if value2 >= task.Param1 {
+			value = this.db.Carnivals.IncbyValue(task.Id, 1)
+			this.db.Carnivals.SetValue2(task.Id, 0)
+		}
+	} else {
+		value = this.db.Carnivals.IncbyValue(task.Id, 1)
+	}
+
+	if task.RewardMailId > 0 {
+		RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, task.RewardMailId, "", "", task.Reward, 0)
+	} else {
 		this.add_resources(task.Reward)
 	}
-	return value
+
+	return
 }
 
 func (this *Player) carnival_task_set(id int32) int32 {
@@ -155,13 +171,13 @@ func (this *Player) carnival_task_set(id int32) int32 {
 		return int32(msg_client_message.E_ERR_CARNIVAL_TASK_ALREADY_FINISHED)
 	}
 
-	value := this.carnival_task_do_once(task)
+	value, value2 := this.carnival_task_do_once(task)
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CARNIVAL_TASK_SET_RESPONSE), &msg_client_message.S2CCarnivalTaskSetResponse{
 		TaskId: id,
 	})
 
-	this.carnival_task_data_notify(id, value)
+	this.carnival_task_data_notify(id, value, value2)
 
 	log.Trace("Player %v carnival task %v progress %v/%v", this.Id, id, value, task.EventCount)
 
@@ -192,13 +208,13 @@ func (this *Player) carnival_item_exchange(task_id int32) int32 {
 	}
 
 	this.cost_resources(items)
-	value := this.carnival_task_do_once(task)
+	value, value2 := this.carnival_task_do_once(task)
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CARNIVAL_ITEM_EXCHANGE_RESPONSE), &msg_client_message.S2CCarnivalItemExchangeResponse{
 		TaskId: task_id,
 	})
 
-	this.carnival_task_data_notify(task_id, value)
+	this.carnival_task_data_notify(task_id, value, value2)
 
 	log.Trace("Player %v item exchanged for carnival task %v progress %v/%v", this.Id, task_id, value, task.EventCount)
 
@@ -322,12 +338,12 @@ func (this *Player) carnival_share() int32 {
 
 	// 生成邀请码
 	invite_code := invite_code_generator.Generate(this.Id)
-	value := this.carnival_task_do_once(task)
+	value, value2 := this.carnival_task_do_once(task)
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CARNIVAL_SHARE_RESPONSE), &msg_client_message.S2CCarnivalShareResponse{
 		InviteCode: invite_code,
 	})
-	this.carnival_task_data_notify(task.Id, value)
+	this.carnival_task_data_notify(task.Id, value, value2)
 
 	log.Trace("Player %v carnival share task %v progress %v/%v, invite code %v", this.Id, task.Id, value, task.EventCount, invite_code)
 
@@ -345,8 +361,8 @@ func (this *Player) carnival_invite_tasks_check() bool {
 		if this.carnival_task_is_finished(t) {
 			continue
 		}
-		value := this.carnival_task_do_once(t)
-		this.carnival_task_data_notify(t.Id, value)
+		value, value2 := this.carnival_task_do_once(t)
+		this.carnival_task_data_notify(t.Id, value, value2)
 		do = true
 		log.Trace("Player %v carnival invite task %v progress %v/%v", this.Id, t.Id, value, t.EventCount)
 	}
@@ -393,12 +409,12 @@ func (this *Player) carnival_be_invited(invite_code string) int32 {
 		}
 	}
 
-	value := this.carnival_task_do_once(task)
+	value, value2 := this.carnival_task_do_once(task)
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CARNIVAL_BE_INVITED_RESPONSE), &msg_client_message.S2CCarnivalBeInvitedResponse{
 		InviteCode: invite_code,
 	})
-	this.carnival_task_data_notify(task.Id, value)
+	this.carnival_task_data_notify(task.Id, value, value2)
 
 	log.Trace("Player %v carnival be invite task %v use invite code %v, progress %v/%v", this.Id, task.Id, invite_code, value, task.EventCount)
 

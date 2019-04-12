@@ -28,6 +28,7 @@ type XmlCarnivalTaskItem struct {
 	EventCount    int32  `xml:"EventCount,attr"`
 	RewardStr     string `xml:"Reward,attr"`
 	Reward        []int32
+	RewardMailId  int32 `xml:"RewardMailID,attr"`
 }
 
 type XmlCarnivalTaskConfig struct {

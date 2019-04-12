@@ -536,6 +536,7 @@ message PlayerCarnivalCommon{
 message PlayerCarnival{
 	optional int32 Id=1;
 	optional int32 Value=2;
+	optional int32 Value2=3;
 }
 
 message PlayerCarnivalList{

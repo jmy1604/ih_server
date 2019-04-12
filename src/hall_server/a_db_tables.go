@@ -2221,6 +2221,7 @@ func (this* dbPlayerCarnivalCommonData)clone_to(d *dbPlayerCarnivalCommonData){
 type dbPlayerCarnivalData struct{
 	Id int32
 	Value int32
+	Value2 int32
 }
 func (this* dbPlayerCarnivalData)from_pb(pb *db.PlayerCarnival){
 	if pb == nil {
@@ -2228,17 +2229,20 @@ func (this* dbPlayerCarnivalData)from_pb(pb *db.PlayerCarnival){
 	}
 	this.Id = pb.GetId()
 	this.Value = pb.GetValue()
+	this.Value2 = pb.GetValue2()
 	return
 }
 func (this* dbPlayerCarnivalData)to_pb()(pb *db.PlayerCarnival){
 	pb = &db.PlayerCarnival{}
 	pb.Id = proto.Int32(this.Id)
 	pb.Value = proto.Int32(this.Value)
+	pb.Value2 = proto.Int32(this.Value2)
 	return
 }
 func (this* dbPlayerCarnivalData)clone_to(d *dbPlayerCarnivalData){
 	d.Id = this.Id
 	d.Value = this.Value
+	d.Value2 = this.Value2
 	return
 }
 type dbBattleSaveDataData struct{
@@ -12163,6 +12167,40 @@ func (this *dbPlayerCarnivalColumn)IncbyValue(id int32,v int32)(r int32){
 	d.Value +=  v
 	this.m_changed = true
 	return d.Value
+}
+func (this *dbPlayerCarnivalColumn)GetValue2(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCarnivalColumn.GetValue2")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Value2
+	return v,true
+}
+func (this *dbPlayerCarnivalColumn)SetValue2(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCarnivalColumn.SetValue2")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Value2 = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerCarnivalColumn)IncbyValue2(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCarnivalColumn.IncbyValue2")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerCarnivalData{}
+		this.m_data[id] = d
+	}
+	d.Value2 +=  v
+	this.m_changed = true
+	return d.Value2
 }
 type dbPlayerRow struct {
 	m_table *dbPlayerTable

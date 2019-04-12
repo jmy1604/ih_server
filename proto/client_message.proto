@@ -2469,6 +2469,7 @@ message C2SCarnivalDataRequest {
 message CarnivalTaskData {
 	int32 Id								= 1; // 任务ID
 	int32 Value								= 2; // 进度数据
+	int32 Value2							= 3; // 进度数据2  用于邀请好友任务表示已邀请的好友数
 }
 
 message S2CCarnivalDataResponse {
