@@ -131,20 +131,26 @@ func (this *Player) carnival_task_do_once(task *table_config.XmlCarnivalTaskItem
 			Id: task.Id,
 		})
 	}
+
+	var reward bool
 	if task.EventType == table_config.CARNIVAL_EVENT_INVITE {
 		value2 = this.db.Carnivals.IncbyValue2(task.Id, 1)
 		if value2 >= task.Param1 {
 			value = this.db.Carnivals.IncbyValue(task.Id, 1)
 			this.db.Carnivals.SetValue2(task.Id, 0)
+			reward = true
 		}
 	} else {
 		value = this.db.Carnivals.IncbyValue(task.Id, 1)
+		reward = true
 	}
 
-	if task.RewardMailId > 0 {
-		RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, task.RewardMailId, "", "", task.Reward, 0)
-	} else {
-		this.add_resources(task.Reward)
+	if reward {
+		if task.RewardMailId > 0 {
+			RealSendMail(nil, this.Id, MAIL_TYPE_SYSTEM, task.RewardMailId, "", "", task.Reward, 0)
+		} else {
+			this.add_resources(task.Reward)
+		}
 	}
 
 	return
