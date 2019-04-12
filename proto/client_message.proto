@@ -2475,6 +2475,7 @@ message S2CCarnivalDataResponse {
 	int32 Round								= 1; // 当前轮次, 0表示没有
 	int32 RemainSeconds						= 2; // 剩余结束时间
 	repeated CarnivalTaskData TaskList		= 3; // 任务数据列表
+	string InviteCode						= 4; // 邀请码
 }
 
 // 设置任务进度加1

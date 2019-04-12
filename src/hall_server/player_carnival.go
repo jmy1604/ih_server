@@ -95,6 +95,7 @@ func (this *Player) carnival_data() int32 {
 		Round:         round,
 		RemainSeconds: remain_seconds,
 		TaskList:      task_list,
+		InviteCode:    invite_code_generator.Generate(this.Id),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CARNIVAL_DATA_RESPONSE), response)
 
