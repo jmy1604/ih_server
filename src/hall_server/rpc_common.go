@@ -55,3 +55,24 @@ func (this *G2G_CommonProc) MultiGet(arg *rpc_proto.G2G_MultiGetRequest, result 
 
 	return
 }
+
+// 广播
+func (this *G2G_CommonProc) BroadcastGet(arg *rpc_proto.G2G_BroadcastGetRequest, result *rpc_proto.G2G_GetResponse) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Stack(e)
+		}
+	}()
+
+	handler := id2rpc_broadcast_func[arg.MsgId]
+	if handler == nil {
+		err_str := fmt.Sprintf("RPC G2G_CommonProc.BroadcastGet not found msg %v handler", arg.MsgId)
+		log.Error(err_str)
+		err = errors.New(err_str)
+		return
+	}
+
+	result.Data.ResultData, result.Data.ErrorCode = handler(arg.FromPlayerId, arg.MsgData)
+	log.Trace("RPC G2G_CommonProc.BroadcastGet(%v,%v)", arg, result)
+	return
+}

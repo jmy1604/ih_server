@@ -11,7 +11,7 @@ import (
 
 type rpc_func func(int32, []byte) ([]byte, int32)
 type rpc_mfunc func([]int32, []byte) ([]byte, int32)
-type rpc_broadcast_func func([]byte)
+type rpc_broadcast_func func(int32, []byte) ([]byte, int32)
 
 var id2rpc_funcs = map[int32]rpc_func{
 	int32(msg_rpc_message.MSGID_G2G_PLAYER_INFO_REQUEST):         remote_get_player_info_response,
@@ -22,7 +22,9 @@ var id2rpc_mfuncs = map[int32]rpc_mfunc{
 	int32(msg_rpc_message.MSGID_G2G_PLAYER_MULTI_INFO_REQUEST): remote_get_multi_player_info_response,
 }
 
-var id2rpc_broadcast_func = map[int32]rpc_broadcast_func{}
+var id2rpc_broadcast_func = map[int32]rpc_broadcast_func{
+	int32(msg_rpc_message.MSGID_G2G_CARNIVAL_IS_INVITED_REQUEST): remote_carnival_get_is_invited_response,
+}
 
 func _marshal_msg(msg proto.Message) (msg_data []byte, err error) {
 	msg_data, err = proto.Marshal(msg)
@@ -186,51 +188,6 @@ func remote_get_multi_player_info_response(to_player_ids []int32, req_data []byt
 			err_code = -1
 			return
 		}
-	}
-
-	err_code = 1
-	return
-}
-
-// 嘉年華被邀請
-func remote_carnival_be_invited(from_player_id, to_player_id int32) (resp *msg_rpc_message.G2GCarnivalBeInvitedResponse, err_code int32) {
-	var req msg_rpc_message.G2GCarnivalBeInvitedRequest
-	var response msg_rpc_message.G2GCarnivalBeInvitedResponse
-	err_code = RemoteGetUsePB(from_player_id, rpc_proto.OBJECT_TYPE_PLAYER, to_player_id, int32(msg_rpc_message.MSGID_G2G_CARNIVAL_BE_INVITED_REQUEST), &req, &response)
-	resp = &response
-	return
-}
-
-// 嘉年華被邀請返回
-func remote_carnival_be_invited_response(to_player_id int32, req_data []byte) (resp_data []byte, err_code int32) {
-	var req msg_rpc_message.G2GCarnivalBeInvitedRequest
-	err := _unmarshal_msg(req_data, &req)
-	if err != nil {
-		err_code = -1
-		return
-	}
-
-	player := player_mgr.GetPlayerById(to_player_id)
-	if player == nil {
-		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
-		log.Error("remote request carnival be invited by id %v not found", to_player_id)
-		return
-	}
-
-	if !player.carnival_invite_tasks_check() {
-		err_code = int32(msg_client_message.E_ERR_CARNIVAL_TASK_INVITE_CODE_DEPRECATED)
-		log.Error("remote carnival invite tasks check failed")
-		return
-	}
-
-	var response = msg_rpc_message.G2GCarnivalBeInvitedResponse{
-		InviteCode: req.GetInviteCode(),
-	}
-
-	resp_data, err = _marshal_msg(&response)
-	if err != nil {
-		err_code = -1
-		return
 	}
 
 	err_code = 1

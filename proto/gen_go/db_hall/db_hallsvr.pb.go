@@ -103,6 +103,8 @@ It has these top-level messages:
 	PlayerCarnivalCommon
 	PlayerCarnival
 	PlayerCarnivalList
+	PlayerInviteCodes
+	PlayerInviteCodesList
 	BattleSaveData
 	TowerFightSaveData
 	ArenaSeasonData
@@ -3041,6 +3043,40 @@ func (m *PlayerCarnivalList) GetList() []*PlayerCarnival {
 	return nil
 }
 
+type PlayerInviteCodes struct {
+	Code             *string `protobuf:"bytes,1,opt,name=Code" json:"Code,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
+}
+
+func (m *PlayerInviteCodes) Reset()                    { *m = PlayerInviteCodes{} }
+func (m *PlayerInviteCodes) String() string            { return proto.CompactTextString(m) }
+func (*PlayerInviteCodes) ProtoMessage()               {}
+func (*PlayerInviteCodes) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{95} }
+
+func (m *PlayerInviteCodes) GetCode() string {
+	if m != nil && m.Code != nil {
+		return *m.Code
+	}
+	return ""
+}
+
+type PlayerInviteCodesList struct {
+	List             []*PlayerInviteCodes `protobuf:"bytes,1,rep,name=List" json:"List,omitempty"`
+	XXX_unrecognized []byte               `json:"-"`
+}
+
+func (m *PlayerInviteCodesList) Reset()                    { *m = PlayerInviteCodesList{} }
+func (m *PlayerInviteCodesList) String() string            { return proto.CompactTextString(m) }
+func (*PlayerInviteCodesList) ProtoMessage()               {}
+func (*PlayerInviteCodesList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{96} }
+
+func (m *PlayerInviteCodesList) GetList() []*PlayerInviteCodes {
+	if m != nil {
+		return m.List
+	}
+	return nil
+}
+
 type BattleSaveData struct {
 	Data             []byte `protobuf:"bytes,1,opt,name=Data" json:"Data,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
@@ -3049,7 +3085,7 @@ type BattleSaveData struct {
 func (m *BattleSaveData) Reset()                    { *m = BattleSaveData{} }
 func (m *BattleSaveData) String() string            { return proto.CompactTextString(m) }
 func (*BattleSaveData) ProtoMessage()               {}
-func (*BattleSaveData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{95} }
+func (*BattleSaveData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{97} }
 
 func (m *BattleSaveData) GetData() []byte {
 	if m != nil {
@@ -3066,7 +3102,7 @@ type TowerFightSaveData struct {
 func (m *TowerFightSaveData) Reset()                    { *m = TowerFightSaveData{} }
 func (m *TowerFightSaveData) String() string            { return proto.CompactTextString(m) }
 func (*TowerFightSaveData) ProtoMessage()               {}
-func (*TowerFightSaveData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{96} }
+func (*TowerFightSaveData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{98} }
 
 func (m *TowerFightSaveData) GetData() []byte {
 	if m != nil {
@@ -3084,7 +3120,7 @@ type ArenaSeasonData struct {
 func (m *ArenaSeasonData) Reset()                    { *m = ArenaSeasonData{} }
 func (m *ArenaSeasonData) String() string            { return proto.CompactTextString(m) }
 func (*ArenaSeasonData) ProtoMessage()               {}
-func (*ArenaSeasonData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{97} }
+func (*ArenaSeasonData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{99} }
 
 func (m *ArenaSeasonData) GetLastDayResetTime() int32 {
 	if m != nil && m.LastDayResetTime != nil {
@@ -3108,7 +3144,7 @@ type GuildMember struct {
 func (m *GuildMember) Reset()                    { *m = GuildMember{} }
 func (m *GuildMember) String() string            { return proto.CompactTextString(m) }
 func (*GuildMember) ProtoMessage()               {}
-func (*GuildMember) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{98} }
+func (*GuildMember) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{100} }
 
 func (m *GuildMember) GetPlayerId() int32 {
 	if m != nil && m.PlayerId != nil {
@@ -3125,7 +3161,7 @@ type GuildMemberList struct {
 func (m *GuildMemberList) Reset()                    { *m = GuildMemberList{} }
 func (m *GuildMemberList) String() string            { return proto.CompactTextString(m) }
 func (*GuildMemberList) ProtoMessage()               {}
-func (*GuildMemberList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{99} }
+func (*GuildMemberList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{101} }
 
 func (m *GuildMemberList) GetList() []*GuildMember {
 	if m != nil {
@@ -3142,7 +3178,7 @@ type GuildAskList struct {
 func (m *GuildAskList) Reset()                    { *m = GuildAskList{} }
 func (m *GuildAskList) String() string            { return proto.CompactTextString(m) }
 func (*GuildAskList) ProtoMessage()               {}
-func (*GuildAskList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{100} }
+func (*GuildAskList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{102} }
 
 func (m *GuildAskList) GetPlayerId() int32 {
 	if m != nil && m.PlayerId != nil {
@@ -3159,7 +3195,7 @@ type GuildAskListList struct {
 func (m *GuildAskListList) Reset()                    { *m = GuildAskListList{} }
 func (m *GuildAskListList) String() string            { return proto.CompactTextString(m) }
 func (*GuildAskListList) ProtoMessage()               {}
-func (*GuildAskListList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{101} }
+func (*GuildAskListList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{103} }
 
 func (m *GuildAskListList) GetList() []*GuildAskList {
 	if m != nil {
@@ -3179,7 +3215,7 @@ type GuildLog struct {
 func (m *GuildLog) Reset()                    { *m = GuildLog{} }
 func (m *GuildLog) String() string            { return proto.CompactTextString(m) }
 func (*GuildLog) ProtoMessage()               {}
-func (*GuildLog) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{102} }
+func (*GuildLog) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{104} }
 
 func (m *GuildLog) GetId() int32 {
 	if m != nil && m.Id != nil {
@@ -3217,7 +3253,7 @@ type GuildLogList struct {
 func (m *GuildLogList) Reset()                    { *m = GuildLogList{} }
 func (m *GuildLogList) String() string            { return proto.CompactTextString(m) }
 func (*GuildLogList) ProtoMessage()               {}
-func (*GuildLogList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{103} }
+func (*GuildLogList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{105} }
 
 func (m *GuildLogList) GetList() []*GuildLog {
 	if m != nil {
@@ -3237,7 +3273,7 @@ type GuildAskDonate struct {
 func (m *GuildAskDonate) Reset()                    { *m = GuildAskDonate{} }
 func (m *GuildAskDonate) String() string            { return proto.CompactTextString(m) }
 func (*GuildAskDonate) ProtoMessage()               {}
-func (*GuildAskDonate) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{104} }
+func (*GuildAskDonate) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{106} }
 
 func (m *GuildAskDonate) GetPlayerId() int32 {
 	if m != nil && m.PlayerId != nil {
@@ -3275,7 +3311,7 @@ type GuildAskDonateList struct {
 func (m *GuildAskDonateList) Reset()                    { *m = GuildAskDonateList{} }
 func (m *GuildAskDonateList) String() string            { return proto.CompactTextString(m) }
 func (*GuildAskDonateList) ProtoMessage()               {}
-func (*GuildAskDonateList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{105} }
+func (*GuildAskDonateList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{107} }
 
 func (m *GuildAskDonateList) GetList() []*GuildAskDonate {
 	if m != nil {
@@ -3295,7 +3331,7 @@ type GuildStage struct {
 func (m *GuildStage) Reset()                    { *m = GuildStage{} }
 func (m *GuildStage) String() string            { return proto.CompactTextString(m) }
 func (*GuildStage) ProtoMessage()               {}
-func (*GuildStage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{106} }
+func (*GuildStage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{108} }
 
 func (m *GuildStage) GetBossId() int32 {
 	if m != nil && m.BossId != nil {
@@ -3334,7 +3370,7 @@ type GuildStageDamageLog struct {
 func (m *GuildStageDamageLog) Reset()                    { *m = GuildStageDamageLog{} }
 func (m *GuildStageDamageLog) String() string            { return proto.CompactTextString(m) }
 func (*GuildStageDamageLog) ProtoMessage()               {}
-func (*GuildStageDamageLog) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{107} }
+func (*GuildStageDamageLog) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{109} }
 
 func (m *GuildStageDamageLog) GetAttackerId() int32 {
 	if m != nil && m.AttackerId != nil {
@@ -3358,7 +3394,7 @@ type GuildStageDamageLogList struct {
 func (m *GuildStageDamageLogList) Reset()                    { *m = GuildStageDamageLogList{} }
 func (m *GuildStageDamageLogList) String() string            { return proto.CompactTextString(m) }
 func (*GuildStageDamageLogList) ProtoMessage()               {}
-func (*GuildStageDamageLogList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{108} }
+func (*GuildStageDamageLogList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{110} }
 
 func (m *GuildStageDamageLogList) GetList() []*GuildStageDamageLog {
 	if m != nil {
@@ -3375,7 +3411,7 @@ type SysMailAttachedItems struct {
 func (m *SysMailAttachedItems) Reset()                    { *m = SysMailAttachedItems{} }
 func (m *SysMailAttachedItems) String() string            { return proto.CompactTextString(m) }
 func (*SysMailAttachedItems) ProtoMessage()               {}
-func (*SysMailAttachedItems) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{109} }
+func (*SysMailAttachedItems) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{111} }
 
 func (m *SysMailAttachedItems) GetItemList() []int32 {
 	if m != nil {
@@ -3480,6 +3516,8 @@ func init() {
 	proto.RegisterType((*PlayerCarnivalCommon)(nil), "db.PlayerCarnivalCommon")
 	proto.RegisterType((*PlayerCarnival)(nil), "db.PlayerCarnival")
 	proto.RegisterType((*PlayerCarnivalList)(nil), "db.PlayerCarnivalList")
+	proto.RegisterType((*PlayerInviteCodes)(nil), "db.PlayerInviteCodes")
+	proto.RegisterType((*PlayerInviteCodesList)(nil), "db.PlayerInviteCodesList")
 	proto.RegisterType((*BattleSaveData)(nil), "db.BattleSaveData")
 	proto.RegisterType((*TowerFightSaveData)(nil), "db.TowerFightSaveData")
 	proto.RegisterType((*ArenaSeasonData)(nil), "db.ArenaSeasonData")
@@ -3500,7 +3538,7 @@ func init() {
 func init() { proto.RegisterFile("db_hallsvr.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 3438 bytes of a gzipped FileDescriptorProto
+	// 3467 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xac, 0x5a, 0x5f, 0x6f, 0x24, 0x47,
 	0x11, 0xd7, 0xfe, 0xb1, 0xef, 0xdc, 0xf6, 0xd9, 0xbe, 0xb9, 0x8b, 0xb3, 0x49, 0x9c, 0x93, 0x33,
 	0x5c, 0x12, 0xe7, 0x48, 0x8e, 0xc3, 0x1c, 0x49, 0x14, 0x25, 0xc0, 0xda, 0xbe, 0xb3, 0x9d, 0xd8,
@@ -3698,22 +3736,24 @@ var fileDescriptor0 = []byte{
 	0xbc, 0x12, 0x4a, 0xe3, 0xf0, 0x92, 0xd3, 0x6b, 0x04, 0x9f, 0x2d, 0xed, 0xf2, 0x49, 0x57, 0x64,
 	0x22, 0xb7, 0x93, 0x22, 0x1b, 0xf3, 0x8f, 0xcd, 0x0b, 0x14, 0xd9, 0xf7, 0x05, 0xcb, 0x3d, 0x6b,
 	0x6c, 0x1e, 0xff, 0x6c, 0xa9, 0x85, 0x28, 0xca, 0x7e, 0x9f, 0x22, 0xc7, 0x7b, 0xde, 0xfb, 0x14,
-	0xc9, 0xa5, 0x4b, 0x3c, 0xcb, 0xe6, 0xb3, 0xf5, 0xd4, 0xd0, 0xbc, 0xc9, 0x3c, 0xfc, 0xac, 0xfa,
-	0x34, 0x1c, 0x9c, 0xe7, 0x33, 0x39, 0x13, 0xb6, 0x82, 0x9f, 0xb8, 0x7a, 0x82, 0x67, 0x2a, 0x0a,
-	0x3e, 0x60, 0xab, 0x98, 0x8c, 0x94, 0x15, 0x53, 0xc2, 0xa9, 0x34, 0x2f, 0x7b, 0x1b, 0x76, 0xab,
-	0x34, 0x5f, 0x68, 0xf2, 0xdf, 0x61, 0x8b, 0x98, 0xd1, 0xc8, 0xf7, 0x61, 0x33, 0x2b, 0x97, 0xef,
-	0xb3, 0x15, 0x8b, 0x75, 0xda, 0x57, 0x64, 0x8b, 0x45, 0xe9, 0xe8, 0x01, 0x5b, 0x42, 0x90, 0x4a,
-	0x9d, 0xb3, 0xe6, 0xf8, 0x90, 0xad, 0xda, 0xbc, 0xd3, 0xea, 0xc0, 0x36, 0x8f, 0x9a, 0x25, 0x60,
-	0x37, 0x11, 0x3d, 0x4c, 0x06, 0x55, 0x6f, 0x08, 0x0f, 0x93, 0x81, 0xf5, 0xf2, 0x84, 0x48, 0x47,
-	0x96, 0x46, 0x21, 0x34, 0x7a, 0xac, 0x69, 0xe5, 0x3d, 0x4d, 0xf5, 0xfe, 0x69, 0x89, 0x66, 0x41,
-	0xd9, 0x36, 0x1c, 0xd9, 0x96, 0xb4, 0x6c, 0x87, 0xc9, 0x40, 0xc9, 0x75, 0xcd, 0x96, 0x49, 0x5a,
-	0x99, 0x4f, 0xce, 0xac, 0xaa, 0x9b, 0xb7, 0x42, 0xf5, 0x69, 0x6f, 0x85, 0x1a, 0xce, 0x5b, 0x21,
-	0x68, 0x69, 0x67, 0x17, 0x96, 0xa0, 0x44, 0x82, 0x65, 0xbb, 0x33, 0x4f, 0xb3, 0x6c, 0x97, 0x4b,
-	0xc9, 0x9d, 0x33, 0x66, 0xa5, 0xba, 0x6b, 0x6c, 0x7e, 0x3b, 0xc9, 0x32, 0x13, 0x53, 0x24, 0xe5,
-	0x86, 0xbb, 0x46, 0x21, 0xdc, 0x81, 0x6c, 0xf8, 0xd5, 0x25, 0xa1, 0xb3, 0x97, 0x48, 0x1a, 0x6f,
-	0xbf, 0xa3, 0xbf, 0x13, 0x23, 0xe5, 0x1f, 0xb1, 0x3b, 0x66, 0xd6, 0x5d, 0x3e, 0x84, 0x6b, 0x72,
-	0x32, 0xc0, 0x74, 0x16, 0x3f, 0xe2, 0x58, 0x4a, 0xb3, 0x10, 0xbc, 0x02, 0x21, 0xb3, 0xbe, 0x02,
-	0x21, 0x05, 0x57, 0xa0, 0x8a, 0xe1, 0xa6, 0x5d, 0x81, 0x2a, 0x58, 0x95, 0x32, 0xb6, 0xd8, 0x5d,
-	0x15, 0x5d, 0xe9, 0x79, 0x0f, 0xa8, 0x3f, 0x83, 0xad, 0xa4, 0xab, 0xb5, 0xca, 0x75, 0x35, 0xfd,
-	0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0x67, 0xdd, 0xe0, 0xa7, 0x44, 0x2d, 0x00, 0x00,
+	0xc9, 0xa5, 0x95, 0x7f, 0x9b, 0x5e, 0x44, 0x5e, 0x86, 0xb9, 0xd8, 0x49, 0x02, 0x81, 0xe7, 0x1c,
+	0xfc, 0x51, 0x07, 0x11, 0xfe, 0x37, 0xd5, 0x7b, 0x8b, 0x71, 0x76, 0xf5, 0xde, 0x62, 0xd4, 0xf5,
+	0xa4, 0x65, 0xf3, 0x8d, 0x7c, 0xea, 0x39, 0xb0, 0xc9, 0x3c, 0xfc, 0x86, 0xfb, 0x34, 0x1c, 0x9c,
+	0xe7, 0x33, 0x39, 0x13, 0xb6, 0x82, 0xdf, 0xd3, 0x7a, 0x82, 0x67, 0x2a, 0xe4, 0x3e, 0x60, 0xab,
+	0x98, 0xf9, 0x94, 0x77, 0xa1, 0x84, 0xd3, 0x77, 0x00, 0xd9, 0xdb, 0xb0, 0x5b, 0xdf, 0x01, 0x0a,
+	0x4d, 0xfe, 0x3b, 0x6c, 0x11, 0xd3, 0x27, 0xf9, 0x18, 0x6d, 0x66, 0x99, 0xf4, 0x7d, 0xb6, 0x62,
+	0xb1, 0x4e, 0xfb, 0x64, 0x6d, 0xb1, 0x28, 0x1d, 0x3d, 0x60, 0x4b, 0x08, 0x52, 0x5d, 0x75, 0xd6,
+	0x1c, 0x1f, 0xb2, 0x55, 0x9b, 0x77, 0x5a, 0xd1, 0xd9, 0xe6, 0x51, 0xb3, 0x04, 0xec, 0x26, 0xa2,
+	0x87, 0xc9, 0xa0, 0xea, 0xc1, 0xe2, 0x61, 0x32, 0xb0, 0x9e, 0xb9, 0x10, 0xe9, 0xc8, 0xd2, 0x28,
+	0xc4, 0x61, 0x8f, 0x35, 0xad, 0x24, 0xab, 0xa9, 0x1e, 0x5b, 0x2d, 0xd1, 0x2c, 0x28, 0xdb, 0x86,
+	0x23, 0xdb, 0x92, 0x96, 0xed, 0x30, 0x19, 0x28, 0xb9, 0xae, 0xd9, 0x32, 0x49, 0x2b, 0x93, 0xd7,
+	0x99, 0x25, 0x7c, 0xf3, 0x30, 0xa9, 0x3e, 0xed, 0x61, 0x52, 0xc3, 0x79, 0x98, 0x04, 0x2d, 0xed,
+	0xec, 0xc2, 0x12, 0x94, 0x48, 0x70, 0x23, 0x77, 0xe6, 0x69, 0x6e, 0xe4, 0x72, 0x29, 0xb9, 0x73,
+	0xc6, 0xac, 0xbc, 0x7a, 0x8d, 0xcd, 0x6f, 0x27, 0x59, 0x66, 0x02, 0x98, 0xa4, 0xdc, 0xd8, 0xda,
+	0x28, 0xc4, 0x56, 0x90, 0x0d, 0x3f, 0xf1, 0x24, 0x74, 0xd0, 0x13, 0x49, 0xe3, 0xed, 0x77, 0xf4,
+	0x47, 0x69, 0xa4, 0xfc, 0x23, 0x76, 0xc7, 0xcc, 0xba, 0xcb, 0x87, 0x70, 0x27, 0x4f, 0x06, 0x98,
+	0x3b, 0xe3, 0x17, 0x23, 0x4b, 0x69, 0x16, 0x82, 0xf7, 0x2d, 0x64, 0xd6, 0xf7, 0x2d, 0xa4, 0xe0,
+	0xbe, 0x55, 0x31, 0xdc, 0xb4, 0xfb, 0x56, 0x05, 0xab, 0x52, 0xc6, 0x16, 0xbb, 0xab, 0x42, 0x39,
+	0xbd, 0x25, 0x02, 0xf5, 0x67, 0xb0, 0x95, 0x74, 0x8f, 0x57, 0x89, 0xb5, 0xa6, 0xff, 0x1f, 0x00,
+	0x00, 0xff, 0xff, 0x5e, 0xcf, 0xd0, 0x58, 0xb1, 0x2d, 0x00, 0x00,
 }

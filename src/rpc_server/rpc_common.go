@@ -113,3 +113,32 @@ func (this *G2G_CommonProc) MultiGet(arg *rpc_proto.G2G_MultiGetRequest, result 
 
 	return nil
 }
+
+func (this *G2G_CommonProc) BroadcastGet(arg *rpc_proto.G2G_BroadcastGetRequest, result *rpc_proto.G2G_BroadcastGetResponse) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Stack(e)
+		}
+	}()
+
+	from_rpc_client := GetRpcClientByPlayerId(arg.FromPlayerId)
+	rpc_clients := server.get_rpc_client_list()
+	for _, r := range rpc_clients {
+		if r == nil {
+			continue
+		}
+		if r == from_rpc_client {
+			continue
+		}
+		var tmp_result rpc_proto.G2G_GetResponse
+		err = r.Call("G2G_CommonProc.BroadcastGet", arg, &tmp_result)
+		if err != nil {
+			err_str := fmt.Sprintf("RPC @@@ G2G_CommonProc.BroadcastGet(%v,%v) error(%v)", arg, tmp_result, err.Error())
+			log.Error(err_str)
+			return errors.New(err_str)
+		}
+		result.Datas = append(result.Datas, &tmp_result.Data)
+		log.Trace("RPC @@@ G2G_CommonProc.BroadcastGet(%v,%v)", arg, tmp_result)
+	}
+	return nil
+}

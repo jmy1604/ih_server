@@ -19,6 +19,7 @@ type ServerResponseData struct {
 	ErrorCode  int32
 }
 
+// 单个对象请求
 type G2G_GetRequest struct {
 	FromPlayerId int32
 	ObjectType   int32
@@ -31,6 +32,7 @@ type G2G_GetResponse struct {
 	Data ServerResponseData
 }
 
+// 多个对象请求
 type G2G_MultiGetRequest struct {
 	FromPlayerId int32
 	ObjectType   int32
@@ -43,6 +45,7 @@ type G2G_MultiGetResponse struct {
 	Datas []*ServerResponseData
 }
 
+// 单个通知
 type G2G_DataNotify struct {
 	FromPlayerId int32
 	ObjectType   int32
@@ -55,6 +58,7 @@ type G2G_DataNotifyResult struct {
 	ErrorCode int32
 }
 
+// 多个通知
 type G2G_MultiDataNotify struct {
 	FromPlayerId int32
 	ObjectType   int32
@@ -67,7 +71,18 @@ type G2G_MultiDataNotifyResult struct {
 	ErrorCodes []int32
 }
 
-// 通用请求函数
+// 广播
+type G2G_BroadcastGetRequest struct {
+	FromPlayerId int32
+	MsgId        int32
+	MsgData      []byte
+}
+
+type G2G_BroadcastGetResponse struct {
+	Datas []*ServerResponseData
+}
+
+// 请求一个玩家
 func RpcCommonGet(rpc_client *rpc.Client, rpc_func_name string, from_player_id, object_type, object_id, msg_id int32, msg_data []byte) (result_data []byte, err_code int32) {
 	var arg = G2G_GetRequest{
 		FromPlayerId: from_player_id,
@@ -107,6 +122,24 @@ func RpcCommonMultiGet(rpc_client *rpc.Client, rpc_func_name string, from_player
 		log.Error("RpcCommonMultiGet error(%v)", err.Error())
 	} else {
 		log.Trace("RpcCommonMultiGet: arg %v, result %v", arg, result)
+	}
+	datas = result.Datas
+	return
+}
+
+// 广播给所有服务器
+func RpcBroadcastGet(rpc_client *rpc.Client, rpc_func_name string, from_player_id int32, msg_id int32, msg_data []byte) (datas []*ServerResponseData) {
+	var arg = G2G_BroadcastGetRequest{
+		FromPlayerId: from_player_id,
+		MsgId:        msg_id,
+		MsgData:      msg_data,
+	}
+	var result G2G_BroadcastGetResponse
+	err := rpc_client.Call(rpc_func_name, &arg, &result)
+	if err != nil {
+		log.Error("RpcBroadcastGet error(%v)", err.Error())
+	} else {
+		log.Trace("RpcBroadcastGet: arg %v, result %v", arg, result)
 	}
 	datas = result.Datas
 	return

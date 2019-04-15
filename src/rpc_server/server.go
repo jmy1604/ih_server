@@ -19,7 +19,7 @@ type RpcServer struct {
 	initialized           bool
 	rpc_service           *rpc.Service             // rpc服务
 	hall_rpc_clients      map[int32]*HallRpcClient // 连接HallServer的rpc客户端(key: HallId, value: *rpc.Client)
-	hall_rpc_clients_lock *sync.Mutex
+	hall_rpc_clients_lock *sync.RWMutex
 }
 
 var server RpcServer
@@ -168,7 +168,7 @@ func (this *RpcServer) init_hall_clients() bool {
 		this.hall_rpc_clients = make(map[int32]*HallRpcClient)
 	}
 	if this.hall_rpc_clients_lock == nil {
-		this.hall_rpc_clients_lock = &sync.Mutex{}
+		this.hall_rpc_clients_lock = &sync.RWMutex{}
 	}
 	return true
 }
@@ -220,20 +220,50 @@ func (this *RpcServer) check_connect() {
 	var args = rpc_proto.H2R_Ping{}
 	var result = rpc_proto.H2R_Pong{}
 
-	to_del_ids := make(map[int32]int32)
+	var to_del_ids map[int32]int32
+
+	this.hall_rpc_clients_lock.RLock()
 	for id, c := range this.hall_rpc_clients {
+		var del bool
 		if c == nil {
-			to_del_ids[id] = id
+			del = true
 		} else if c.rpc_client == nil {
-			to_del_ids[id] = id
+			del = true
 		} else {
 			if c.rpc_client.Call("H2R_PingProc.Do", args, &result) != nil {
-				to_del_ids[id] = id
+				del = true
 			}
 		}
+		if del {
+			if to_del_ids == nil {
+				to_del_ids = make(map[int32]int32)
+			}
+			to_del_ids[id] = id
+		}
 	}
+	this.hall_rpc_clients_lock.RUnlock()
 
-	for id, _ := range to_del_ids {
-		delete(this.hall_rpc_clients, id)
+	if to_del_ids != nil {
+		this.hall_rpc_clients_lock.Lock()
+		for id, _ := range to_del_ids {
+			delete(this.hall_rpc_clients, id)
+		}
+		this.hall_rpc_clients_lock.Unlock()
 	}
+}
+
+func (this *RpcServer) get_rpc_client(server_id int32) *HallRpcClient {
+	this.hall_rpc_clients_lock.RLock()
+	defer this.hall_rpc_clients_lock.RUnlock()
+	return this.hall_rpc_clients[server_id]
+}
+
+func (this *RpcServer) get_rpc_client_list() (rpc_clients []*rpc.Client) {
+	this.hall_rpc_clients_lock.RLock()
+	defer this.hall_rpc_clients_lock.RUnlock()
+
+	for _, r := range this.hall_rpc_clients {
+		rpc_clients = append(rpc_clients, r.rpc_client)
+	}
+	return
 }

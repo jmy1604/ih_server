@@ -30,6 +30,8 @@ enum MSGID {
 	// 嘉年華
 	G2G_CARNIVAL_BE_INVITED_REQUEST			= 1000; // 被邀請請求
 	G2G_CARNIVAL_BE_INVITED_RESPONSE		= 1001; // 被邀請請求返回
+	G2G_CARNIVAL_IS_INVITED_REQUEST			= 1002; // 是否被邀请查询请求
+	G2G_CARNIVAL_IS_INVITED_RESPONSE		= 1003; // 是否被邀请查询请求返回
 }
 
 // 玩家信息请求
@@ -103,4 +105,13 @@ message G2GCarnivalBeInvitedRequest {
 
 message G2GCarnivalBeInvitedResponse {
 	string InviteCode						= 2;
+}
+
+message G2GCarnivalIsInvitedRequest {
+	string PlayerUniqueId					= 1;
+	string InviteCode						= 2;
+}
+
+message G2GCarnivalIsInvitedResponse {
+	bool IsInvited							= 1;
 }

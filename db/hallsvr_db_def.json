@@ -968,6 +968,19 @@
 						{"Type":"int32","Index":2,"Name":"Value","Incby":true},
 						{"Type":"int32","Index":3,"Name":"Value2","Incby":true}
 					]
+				},
+				{
+					"ColumnName":"InviteCodes",
+					"DBColumnName":"InviteCodes",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"string","Index":1,"Name":"Code"}
+					]
 				}
 			]
 		},

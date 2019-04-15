@@ -9,6 +9,8 @@ import (
 
 	"ih_server/proto/gen_go/client_message"
 	"ih_server/proto/gen_go/client_message_id"
+	"ih_server/proto/gen_go/rpc_message"
+	"ih_server/src/rpc_proto"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -389,9 +391,23 @@ func (this *Player) carnival_be_invited(invite_code string) int32 {
 		return int32(msg_client_message.E_ERR_CARNIVAL_TASK_NOT_FOUND)
 	}
 
+	if this.db.InviteCodess.HasIndex(invite_code) {
+		log.Error("Player %v already used invite code %v", this.Id, invite_code)
+		return int32(msg_client_message.E_ERR_CARNIVAL_TASK_ALREADY_FINISHED)
+	}
+
 	if this.carnival_task_is_finished(task) {
 		log.Error("Player %v carnival task %v already finished", this.Id, task.Id)
 		return int32(msg_client_message.E_ERR_CARNIVAL_TASK_ALREADY_FINISHED)
+	} else {
+		is_invited, err_code := remote_carnival_get_is_invited(this.Id, this.UniqueId, invite_code)
+		if is_invited {
+			log.Error("Player %v carnival remote invited with task %v already finished", this.Id, task.Id)
+			return int32(msg_client_message.E_ERR_CARNIVAL_TASK_ALREADY_FINISHED)
+		}
+		if err_code < 0 {
+			return err_code
+		}
 	}
 
 	// 邀请者任务检测
@@ -399,6 +415,11 @@ func (this *Player) carnival_be_invited(invite_code string) int32 {
 	if inviter_id <= 0 {
 		log.Error("Player %v provide invite code %v invalid", this.Id, invite_code)
 		return int32(msg_client_message.E_ERR_CARNIVAL_TASK_INVITE_CODE_INVALID)
+	}
+
+	if inviter_id == this.Id {
+		log.Error("Player %v cant invite self on carnival", this.Id)
+		return -1
 	}
 
 	inviter := player_mgr.GetPlayerById(inviter_id)
@@ -416,6 +437,9 @@ func (this *Player) carnival_be_invited(invite_code string) int32 {
 	}
 
 	value, value2 := this.carnival_task_do_once(task)
+	this.db.InviteCodess.Add(&dbPlayerInviteCodesData{
+		Code: invite_code,
+	})
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CARNIVAL_BE_INVITED_RESPONSE), &msg_client_message.S2CCarnivalBeInvitedResponse{
 		InviteCode: invite_code,
@@ -475,4 +499,123 @@ func C2SCarnivalBeInvitedHander(p *Player, msg_data []byte) int32 {
 		return -1
 	}
 	return p.carnival_be_invited(req.GetInviteCode())
+}
+
+// ---------------------------------- remote ----------------------------------
+// 嘉年华是否被邀请
+func remote_carnival_get_is_invited(from_player_id int32, unique_id, invite_code string) (is_invited bool, err_code int32) {
+	var req = msg_rpc_message.G2GCarnivalIsInvitedRequest{
+		PlayerUniqueId: unique_id,
+		InviteCode:     invite_code,
+	}
+
+	req_data, err := _marshal_msg(&req)
+	if err != nil {
+		err_code = -1
+		return
+	}
+
+	datas := rpc_proto.RpcBroadcastGet(hall_server.rpc_client, "G2G_CommonProc.BroadcastGet", from_player_id, int32(msg_rpc_message.MSGID_G2G_CARNIVAL_IS_INVITED_REQUEST), req_data)
+	if datas == nil || len(datas) == 0 {
+		log.Error("remote carnival is invited get result empty")
+		err_code = -1
+		return
+	}
+
+	var response msg_rpc_message.G2GCarnivalIsInvitedResponse
+	for i := 0; i < len(datas); i++ {
+		if datas[i].ErrorCode < 0 {
+			err_code = datas[i].ErrorCode
+			log.Error("remote carnival is invited error %v with index %v", datas[i].ErrorCode, i)
+			return
+		}
+		err = _unmarshal_msg(datas[i].ResultData, &response)
+		if err != nil {
+			err_code = -1
+			return
+		}
+		if response.IsInvited {
+			is_invited = true
+		}
+	}
+
+	err_code = 1
+	return
+}
+
+// 嘉年华是否被邀请返回
+func remote_carnival_get_is_invited_response(from_player_id int32, req_data []byte) (resp_data []byte, err_code int32) {
+	var req msg_rpc_message.G2GCarnivalIsInvitedRequest
+	err := _unmarshal_msg(req_data, &req)
+	if err != nil {
+		err_code = -1
+		return
+	}
+
+	var is_invited bool
+	p := player_mgr.GetPlayerByUid(req.GetPlayerUniqueId())
+	if p != nil {
+		if p.db.InviteCodess.HasIndex(req.GetInviteCode()) {
+			is_invited = true
+		}
+	}
+
+	if err_code >= 0 {
+		var response = msg_rpc_message.G2GCarnivalIsInvitedResponse{
+			IsInvited: is_invited,
+		}
+		resp_data, err = _marshal_msg(&response)
+		if err != nil {
+			err_code = -1
+			return
+		}
+	}
+
+	err_code = 1
+	return
+}
+
+// 嘉年華被邀請
+func remote_carnival_be_invited(from_player_id, to_player_id int32) (resp *msg_rpc_message.G2GCarnivalBeInvitedResponse, err_code int32) {
+	var req msg_rpc_message.G2GCarnivalBeInvitedRequest
+	var response msg_rpc_message.G2GCarnivalBeInvitedResponse
+	err_code = RemoteGetUsePB(from_player_id, rpc_proto.OBJECT_TYPE_PLAYER, to_player_id, int32(msg_rpc_message.MSGID_G2G_CARNIVAL_BE_INVITED_REQUEST), &req, &response)
+	resp = &response
+	return
+}
+
+// 嘉年華被邀請返回
+func remote_carnival_be_invited_response(to_player_id int32, req_data []byte) (resp_data []byte, err_code int32) {
+	var req msg_rpc_message.G2GCarnivalBeInvitedRequest
+	err := _unmarshal_msg(req_data, &req)
+	if err != nil {
+		err_code = -1
+		return
+	}
+
+	player := player_mgr.GetPlayerById(to_player_id)
+	if player == nil {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		log.Error("remote request carnival be invited by id %v not found", to_player_id)
+		return
+	}
+
+	if !player.carnival_invite_tasks_check() {
+		err_code = int32(msg_client_message.E_ERR_CARNIVAL_TASK_INVITE_CODE_DEPRECATED)
+		log.Error("remote carnival invite tasks check failed")
+		return
+	}
+
+	var response = msg_rpc_message.G2GCarnivalBeInvitedResponse{
+		InviteCode: req.GetInviteCode(),
+	}
+
+	resp_data, err = _marshal_msg(&response)
+	if err != nil {
+		err_code = -1
+		return
+	}
+
+	err_code = 1
+	return
 }

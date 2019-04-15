@@ -543,6 +543,14 @@ message PlayerCarnivalList{
 	repeated PlayerCarnival List=1;
 }
 
+message PlayerInviteCodes{
+	optional string Code=1;
+}
+
+message PlayerInviteCodesList{
+	repeated PlayerInviteCodes List=1;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }
