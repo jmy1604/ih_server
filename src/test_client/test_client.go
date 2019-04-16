@@ -164,53 +164,6 @@ func _send_func(msg_id int32, msg_data []byte) *msg_client_message.S2C_ONE_MSG {
 }
 
 func register_func(account, password string, is_guest int32) {
-	/*var url_str string
-	if config.UseHttps {
-		url_str = fmt.Sprintf("https://"+config.RegisterUrl, config.LoginServerIP, account, password, is_guest)
-	} else {
-		url_str = fmt.Sprintf("http://"+config.RegisterUrl, config.LoginServerIP, account, password, is_guest)
-	}
-	log.Debug("Register Url %s,  account %s,  password %s,  is_guest %s", url_str, account, password, is_guest)
-
-	var resp *http.Response
-	var err error
-	if config.UseHttps {
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		client := &http.Client{Transport: tr}
-		resp, err = client.Get(url_str)
-	} else {
-		resp, err = http.Get(url_str)
-	}
-	if nil != err {
-		log.Error("register http get err (%s)", err.Error())
-		return
-	}
-
-	var data []byte
-	data, err = ioutil.ReadAll(resp.Body)
-	if nil != err {
-		log.Error("register ioutil readall failed err(%s) !", err.Error())
-		return
-	}
-
-	log.Debug("register result data: %v", data)
-
-	res := &JsonResponseData{}
-	err = json.Unmarshal(data, res)
-	if nil != err {
-		log.Error("login ummarshal failed err(%s)", err.Error())
-		return
-	}
-
-	if res.Code < 0 {
-		log.Warn("return error_code[%v]", res.Code)
-		return
-	}
-
-	*/
-
 	var register_msg = msg_client_message.C2SRegisterRequest{
 		Account:  account,
 		Password: password,
@@ -249,62 +202,6 @@ func register_func(account, password string, is_guest int32) {
 }
 
 func bind_new_account_func(server_id int32, account, password, new_account, new_password, new_channel string) {
-	/*var url_str string
-	if config.UseHttps {
-		url_str = fmt.Sprintf("https://"+config.BindNewAccountUrl, config.LoginServerIP, account, password, new_account, new_password)
-	} else {
-		url_str = fmt.Sprintf("http://"+config.BindNewAccountUrl, config.LoginServerIP, account, password, new_account, new_password)
-	}
-	log.Debug("Bind New Account Url %s,  account %s,  password %s,  new_account %s,  new_password %s", url_str, account, password, new_account, new_password)
-
-	var resp *http.Response
-	var err error
-	if config.UseHttps {
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		client := &http.Client{Transport: tr}
-		resp, err = client.Get(url_str)
-	} else {
-		resp, err = http.Get(url_str)
-	}
-	if nil != err {
-		log.Error("register http get err (%s)", err.Error())
-		return
-	}
-
-	var data []byte
-	data, err = ioutil.ReadAll(resp.Body)
-	if nil != err {
-		log.Error("register ioutil readall failed err(%s) !", err.Error())
-		return
-	}
-
-	log.Debug("bind result data: %v", data)
-
-	res := &JsonResponseData{}
-	err = json.Unmarshal(data, res)
-	if nil != err {
-		log.Error("login ummarshal failed err(%s)", err.Error())
-		return
-	}
-
-	if res.Code < 0 {
-		log.Warn("return error_code[%v]", res.Code)
-		return
-	}
-
-	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE) {
-		log.Warn("returned msg_id[%v] is not correct")
-		return
-	}
-
-	h := hall_conn_mgr.GetHallConnByAcc(account)
-	if h == nil {
-		log.Error("Account %v cant get hall client", account)
-		return
-	}*/
-
 	var bind_msg = msg_client_message.C2SGuestBindNewAccountRequest{
 		ServerId:    server_id,
 		Account:     account,
@@ -378,55 +275,6 @@ func login_func(account, password, channel, client_os string) {
 }
 
 func select_server_func(account, token, game_ip string, server_id int32) {
-	/*url_str := fmt.Sprintf(config.SelectServerUrl, config.LoginServerIP, account, token, server_id)
-	log.Debug("select server Url str %s", url_str)
-
-	var resp *http.Response
-	var err error
-	if config.UseHttps {
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		client := &http.Client{Transport: tr}
-		resp, err = client.Get(url_str)
-	} else {
-		resp, err = http.Get(url_str)
-	}
-	if nil != err {
-		log.Error("login http get err (%s)", err.Error())
-		return
-	}
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if nil != err {
-		log.Error("login ioutil readall failed err(%s) !", err.Error())
-		return
-	}
-
-	res := &JsonResponseData{}
-	err = json.Unmarshal(data, res)
-	if nil != err {
-		log.Error("login ummarshal failed err(%s)", err.Error())
-		return
-	}
-
-	if res.Code < 0 {
-		log.Warn("return error_code[%v]", res.Code)
-		return
-	}
-
-	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_SELECT_SERVER_RESPONSE) {
-		log.Warn("returned msg_id[%v] is not correct")
-		return
-	}
-
-	var msg msg_client_message.S2CSelectServerResponse
-	err = proto.Unmarshal(res.MsgData, &msg)
-	if err != nil {
-		log.Error("unmarshal error[%v]", err.Error())
-		return
-	}*/
-
 	strs := strings.Split( /*msg.GetIP()*/ game_ip, ":")
 	if len(strs) == 0 {
 		log.Error("cant get game server port from ip %v" /*msg.GetIP()*/, game_ip)
@@ -448,48 +296,6 @@ func select_server_func(account, token, game_ip string, server_id int32) {
 }
 
 func set_password_func(account, password, new_password string) {
-	/*var url_str string
-	if config.UseHttps {
-		url_str = fmt.Sprintf("https://"+config.SetPasswordUrl, config.LoginServerIP, account, password, new_password)
-	} else {
-		url_str = fmt.Sprintf("http://"+config.SetPasswordUrl, config.LoginServerIP, account, password, new_password)
-	}
-	log.Debug("set password Url str %s", url_str)
-
-	var resp *http.Response
-	var err error
-	if config.UseHttps {
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		client := &http.Client{Transport: tr}
-		resp, err = client.Get(url_str)
-	} else {
-		resp, err = http.Get(url_str)
-	}
-	if nil != err {
-		log.Error("set password http get err (%s)", err.Error())
-		return
-	}
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if nil != err {
-		log.Error("set password ioutil readall failed err(%s) !", err.Error())
-		return
-	}
-
-	res := &JsonResponseData{}
-	err = json.Unmarshal(data, res)
-	if nil != err {
-		log.Error("set password ummarshal failed err(%s)", err.Error())
-		return
-	}
-
-	if res.Code < 0 {
-		log.Warn("return error_code[%v]", res.Code)
-		return
-	}*/
-
 	var pass_msg = msg_client_message.C2SSetLoginPasswordRequest{
 		Account:     account,
 		Password:    password,
