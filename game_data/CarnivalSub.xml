@@ -1,17 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item ID="101" ResetTimeType="0" Reward="1,20000,2,5000,3,50" ActiveType="401" DescriptionId="" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="1" RewardMailID="1117" />
-     <item ID="201" ResetTimeType="0" Reward="15,2,2,5000,3,50" ActiveType="402" DescriptionId="" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="1" RewardMailID="1118" />
-     <item ID="301" ResetTimeType="2" Reward="3,20" ActiveType="403" DescriptionId="0" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="1" RewardMailID="1119" />
-     <item ID="401" ResetTimeType="1" Reward="101,2" ActiveType="404" DescriptionId="5007621" Param1="3" Param2="0" Param3="" Param4="0" EventCount="1" RewardMailID="1116" />
-     <item ID="402" ResetTimeType="1" Reward="101,3" ActiveType="404" DescriptionId="5007621" Param1="5" Param2="0" Param3="" Param4="0" EventCount="1" RewardMailID="1116" />
-     <item ID="403" ResetTimeType="1" Reward="101,5" ActiveType="404" DescriptionId="5007621" Param1="8" Param2="0" Param3="" Param4="0" EventCount="1" RewardMailID="1116" />
-     <item ID="404" ResetTimeType="1" Reward="101,8" ActiveType="404" DescriptionId="5007621" Param1="12" Param2="0" Param3="" Param4="0" EventCount="1" RewardMailID="1116" />
-     <item ID="405" ResetTimeType="1" Reward="101,12" ActiveType="404" DescriptionId="5007621" Param1="20" Param2="0" Param3="" Param4="0" EventCount="1" RewardMailID="1116" />
-     <item ID="501" ResetTimeType="1" Reward="1,100000" ActiveType="405" DescriptionId="0" Param1="101" Param2="1" Param3="" Param4="0" EventCount="6" RewardMailID="0" />
-     <item ID="502" ResetTimeType="1" Reward="2,100000" ActiveType="405" DescriptionId="0" Param1="101" Param2="2" Param3="" Param4="0" EventCount="2" RewardMailID="0" />
-     <item ID="503" ResetTimeType="1" Reward="16,5" ActiveType="405" DescriptionId="0" Param1="101" Param2="4" Param3="" Param4="0" EventCount="1" RewardMailID="0" />
-     <item ID="504" ResetTimeType="1" Reward="13,1500" ActiveType="405" DescriptionId="0" Param1="101" Param2="6" Param3="" Param4="0" EventCount="1" RewardMailID="0" />
-     <item ID="505" ResetTimeType="1" Reward="57020,50" ActiveType="405" DescriptionId="0" Param1="101" Param2="10" Param3="" Param4="0" EventCount="1" RewardMailID="0" />
      <item ID="601" ResetTimeType="0" Reward="1,50000,15,3,3,100" ActiveType="406" DescriptionId="0" Param1="0" Param2="0" Param3="0" Param4="0" EventCount="1" RewardMailID="0" />
 </Config>
