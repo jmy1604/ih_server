@@ -25,10 +25,7 @@
      <item MainActiveID="200018" ActiveType="2" EventID="301" StartTime="2019-04-12 17:00:00" EndTime="2019-04-19 13:00:00" SubActiveList="2005,2006,2007,2008" RewardMailID="0" />
      <item MainActiveID="200019" ActiveType="2" EventID="301" StartTime="2019-04-19 17:00:00" EndTime="2019-04-26 13:00:00" SubActiveList="2005,2006,2007,2008" RewardMailID="0" />
      <item MainActiveID="200020" ActiveType="2" EventID="301" StartTime="2019-04-26 17:00:00" EndTime="2019-05-03 13:00:00" SubActiveList="2005,2006,2007,2008" RewardMailID="0" />
-     <item MainActiveID="200021" ActiveType="2" EventID="301" StartTime="2019-05-03 17:00:00" EndTime="2019-05-10 13:00:00" SubActiveList="2005,2006,2007,2008" RewardMailID="0" />
-     <item MainActiveID="200022" ActiveType="2" EventID="301" StartTime="2019-05-10 17:00:00" EndTime="2019-05-17 13:00:00" SubActiveList="2005,2006,2007,2008" RewardMailID="0" />
-     <item MainActiveID="200023" ActiveType="2" EventID="301" StartTime="2019-05-17 17:00:00" EndTime="2019-05-24 13:00:00" SubActiveList="2005,2006,2007,2008" RewardMailID="0" />
-     <item MainActiveID="200024" ActiveType="2" EventID="301" StartTime="2019-05-24 17:00:00" EndTime="2019-05-31 13:00:00" SubActiveList="2005,2006,2007,2008" RewardMailID="0" />
+     <item MainActiveID="200021" ActiveType="2" EventID="301" StartTime="2019-05-03 17:00:00" EndTime="2019-05-31 13:00:00" SubActiveList="2005,2006,2007,2008" RewardMailID="0" />
      <item MainActiveID="300001" ActiveType="3" EventID="301" StartTime="2018-12-24 17:00:00" EndTime="2018-12-31 13:00:00" SubActiveList="3001,3002,3003,3004" RewardMailID="" />
      <item MainActiveID="300002" ActiveType="3" EventID="301" StartTime="2018-12-31 17:00:00" EndTime="2019-01-07 13:00:00" SubActiveList="3005,3006,3007,3008" RewardMailID="" />
      <item MainActiveID="400001" ActiveType="4" EventID="303" StartTime="2019-03-15 17:00:00" EndTime="2019-03-29 13:00:00" SubActiveList="4001,4002,4003,4004,4005,4006,4007,4008,4009" RewardMailID="1110" />
