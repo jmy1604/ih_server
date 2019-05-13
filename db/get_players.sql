@@ -56,7 +56,8 @@ BEGIN
 	CLOSE cur;
     SELECT * INTO OUTFILE '/tmp/players.xls' FROM tmp_players;
 	DROP TABLE tmp_players;
-END//
+END;
+//
 DELIMITER ;
 
 CALL get_players();
