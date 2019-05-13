@@ -45,12 +45,12 @@ BEGIN
 	PREPARE st_s4 FROM @s4_sql;
 	SET @s5_sql = 'SELECT PlayerId, Name INTO s5_pid, s5_name FROM ih_hall_server_5.Players WHERE UniqueId=unique_id';
 	PREPARE st_s5 FROM @s5_sql;
-	SET @s6_sql = 'SELECT PlayerId, Name INTO s6_pid, s6_name FROM ih_hall_server_6.Players WHERE UniqueId=unique_id';
+	/*SET @s6_sql = 'SELECT PlayerId, Name INTO s6_pid, s6_name FROM ih_hall_server_6.Players WHERE UniqueId=unique_id';
 	PREPARE st_s6 FROM @s6_sql;
 	SET @s7_sql = 'SELECT PlayerId, Name INTO s7_pid, s7_name FROM ih_hall_server_7.Players WHERE UniqueId=unique_id';
 	PREPARE st_s7 FROM @s7_sql;
 	SET @s8_sql = 'SELECT PlayerId, Name INTO s8_pid, s8_name FROM ih_hall_server_8.Players WHERE UniqueId=unique_id';
-	PREPARE st_s8 FROM @s8_sql;
+	PREPARE st_s8 FROM @s8_sql;*/
 
 	OPEN cur;
 	it_loop: LOOP
