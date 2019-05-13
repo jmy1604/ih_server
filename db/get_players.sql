@@ -1,5 +1,3 @@
-DELIMETER //
-
 CREATE PROCEDURE get_player_charge()
 BEGIN
 	DECLARE account CHAR(64);
@@ -54,5 +52,3 @@ BEGIN
 	END LOOP it_loop;
 	CLOSE cur;
 END
-
-DELIMETER;
