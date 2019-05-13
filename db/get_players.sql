@@ -10,7 +10,7 @@ BEGIN
 	DECLARE s1_name, s2_name, s3_name, s4_name, s5_name/*, s6_name, s7_name, s8_name*/ VARCHAR(32) DEFAULT '';
     DECLARE done INT DEFAULT 0;
 
-	DECLARE cur CURSOR FOR (SELECT AccountId, UniqueId, LastSelectServerId FROM Accounts);
+	DECLARE cur CURSOR FOR (SELECT AccountId, UniqueId, LastSelectServerId FROM Accounts GROUP BY UniqueId);
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 	
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_players (
