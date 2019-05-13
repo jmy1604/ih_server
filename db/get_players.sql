@@ -34,6 +34,23 @@ BEGIN
 		S8_NAME CHAR(64),*/
  		PRIMARY KEY (Account)
  	);
+	
+	SET @s1_sql = 'SELECT PlayerId, Name INTO s1_pid, s1_name FROM ih_hall_server.Players WHERE UniqueId=unique_id';
+	PREPARE st_s1 FROM @s1_sql;
+	SET @s2_sql = 'SELECT PlayerId, Name INTO s2_pid, s2_name FROM ih_hall_server_2.Players WHERE UniqueId=unique_id';
+	PREPARE st_s2 FROM @s2_sql;
+	SET @s3_sql = 'SELECT PlayerId, Name INTO s3_pid, s3_name FROM ih_hall_server_3.Players WHERE UniqueId=unique_id';
+	PREPARE st_s3 FROM @s3_sql;
+	SET @s4_sql = 'SELECT PlayerId, Name INTO s4_pid, s4_name FROM ih_hall_server_4.Players WHERE UniqueId=unique_id';
+	PREPARE st_s4 FROM @s4_sql;
+	SET @s5_sql = 'SELECT PlayerId, Name INTO s5_pid, s5_name FROM ih_hall_server_5.Players WHERE UniqueId=unique_id';
+	PREPARE st_s5 FROM @s5_sql;
+	SET @s6_sql = 'SELECT PlayerId, Name INTO s6_pid, s6_name FROM ih_hall_server_6.Players WHERE UniqueId=unique_id';
+	PREPARE st_s6 FROM @s6_sql;
+	SET @s7_sql = 'SELECT PlayerId, Name INTO s7_pid, s7_name FROM ih_hall_server_7.Players WHERE UniqueId=unique_id';
+	PREPARE st_s7 FROM @s7_sql;
+	SET @s8_sql = 'SELECT PlayerId, Name INTO s8_pid, s8_name FROM ih_hall_server_8.Players WHERE UniqueId=unique_id';
+	PREPARE st_s8 FROM @s8_sql;
 
 	OPEN cur;
 	it_loop: LOOP
@@ -42,12 +59,20 @@ BEGIN
 			LEAVE it_loop;
 		END IF;
 		
-		SELECT PlayerId, Name INTO s1_pid, s1_name FROM ih_hall_server.Players WHERE UniqueId=unique_id;
+		EXECUTE st_s1;
+		EXECUTE st_s2;
+		EXECUTE st_s3;
+		EXECUTE st_s4;
+		EXECUTE st_s5;
+		/*EXECUTE st_s6;
+		EXECUTE st_s7;
+		EXECUTE st_s8;*/
+		/*SELECT PlayerId, Name INTO s1_pid, s1_name FROM ih_hall_server.Players WHERE UniqueId=unique_id;
 		SELECT PlayerId, Name INTO s2_pid, s2_name FROM ih_hall_server_2.Players WHERE UniqueId=unique_id;
 		SELECT PlayerId, Name INTO s3_pid, s3_name FROM ih_hall_server_3.Players WHERE UniqueId=unique_id;
 		SELECT PlayerId, Name INTO s4_pid, s4_name FROM ih_hall_server_4.Players WHERE UniqueId=unique_id;
 		SELECT PlayerId, Name INTO s5_pid, s5_name FROM ih_hall_server_5.Players WHERE UniqueId=unique_id;
-		/*SELECT PlayerId, Name INTO s6_pid, s6_name FROM ih_hall_server_6.Players WHERE UniqueId=unique_id;
+		SELECT PlayerId, Name INTO s6_pid, s6_name FROM ih_hall_server_6.Players WHERE UniqueId=unique_id;
 		SELECT PlayerId, Name INTO s7_pid, s7_name FROM ih_hall_server_7.Players WHERE UniqueId=unique_id;
 		SELECT PlayerId, Name INTO s8_pid, s8_name FROM ih_hall_server_8.Players WHERE UniqueId=unique_id;*/
 		IF done = 1 THEN
