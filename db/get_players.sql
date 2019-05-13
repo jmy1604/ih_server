@@ -50,7 +50,7 @@ BEGIN
 		SELECT PlayerId, Name INTO s7_pid, s7_name FROM ih_hall_server_7.Players WHERE UniqueId=unique_id;
 		SELECT PlayerId, Name INTO s8_pid, s8_name FROM ih_hall_server_8.Players WHERE UniqueId=unique_id;*/
 		
-		INSERT INTO tmp_players (Account, UniqueId, S1_PID, S1_NAME, S2_PID, S2_NAME, S3_PID, S3_NAME, S4_PID, S4_NAME, S4_PID, S4_NAME, S5_PID, S5_NAME/*, S6_PID, S6_NAME, S7_PID, S7_NAME, S8_PID, S8_NAME*/)
+		INSERT INTO tmp_players (Account, UniqueId, S1_PID, S1_NAME, S2_PID, S2_NAME, S3_PID, S3_NAME, S4_PID, S4_NAME, S5_PID, S5_NAME/*, S6_PID, S6_NAME, S7_PID, S7_NAME, S8_PID, S8_NAME*/)
 		VALUES (account, unique_id, s1_pid, s1_name, s2_pid, s2_name, s3_pid, s3_name, s4_pid, s4_name, s5_pid, s5_name/*, s6_pid, s6_name, s7_pid, s7_name, s8_pid, s8_name*/);
 	END LOOP it_loop;
 	CLOSE cur;
