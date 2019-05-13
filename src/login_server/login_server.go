@@ -594,6 +594,7 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 func login_handler(account, password, channel, client_os string, is_verify bool) (err_code int32, resp_data []byte) {
 	var err error
 	acc_row := dbc.Accounts.GetRow(account)
+	now_time := time.Now()
 	if config.VerifyAccount {
 		if channel == "" {
 			if acc_row == nil {
@@ -618,6 +619,7 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 					return -1, nil
 				}
 				acc_row.SetChannel("facebook")
+				acc_row.SetRegisterTime(int32(now_time.Unix()))
 			}
 		} else if channel == "guest" {
 			if acc_row == nil {
@@ -627,6 +629,7 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 					return -1, nil
 				}
 				acc_row.SetChannel("guest")
+				acc_row.SetRegisterTime(int32(now_time.Unix()))
 			} else {
 				if acc_row.GetPassword() != password {
 					err_code = int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR)
@@ -645,6 +648,7 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 				log.Error("Account %v add row without verify failed")
 				return -1, nil
 			}
+			acc_row.SetRegisterTime(int32(now_time.Unix()))
 		}
 	}
 
@@ -655,7 +659,6 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 		}
 	}
 
-	now_time := time.Now()
 	last_time := acc_row.GetLastGetAccountPlayerListTime()
 	if int32(now_time.Unix())-last_time >= 5*60 {
 		share_data.LoadUidPlayerList(server.redis_conn, acc_row.GetUniqueId())
