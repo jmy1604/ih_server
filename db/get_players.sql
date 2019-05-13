@@ -6,8 +6,8 @@ BEGIN
     DECLARE account VARCHAR(64);
 	DECLARE unique_id VARCHAR(64);
 	DECLARE last_server_id INT;
-	DECLARE s1_pid, s2_pid, s3_pid, s4_pid, s5_pid/*, s6_pid, s7_pid, s8_pid*/ INT DEFAULT 0;
-	DECLARE s1_name, s2_name, s3_name, s4_name, s5_name/*, s6_name, s7_name, s8_name*/ VARCHAR(32) DEFAULT '';
+	/*DECLARE s1_pid, s2_pid, s3_pid, s4_pid, s5_pid, s6_pid, s7_pid, s8_pid INT DEFAULT 0;
+	DECLARE s1_name, s2_name, s3_name, s4_name, s5_name, s6_name, s7_name, s8_name VARCHAR(32) DEFAULT '';*/
     DECLARE done INT DEFAULT 0;
 
 	DECLARE cur CURSOR FOR (SELECT AccountId, UniqueId, LastSelectServerId FROM Accounts GROUP BY UniqueId);
@@ -34,6 +34,9 @@ BEGIN
 		S8_NAME CHAR(64),*/
  		PRIMARY KEY (Account)
  	);
+	
+	SET @s1_pid=0, @s2_pid=0, @s3_pid=0, @s4_pid=0, @s5_pid=0, @s6_pid=0, @s7_pid=0, @s8_pid=0;
+	SET @s1_name='', @s2_name='', @s3_name='', @s4_name='', @s5_name='', @s6_name='', @s7_name='', @s8_name=''; 
 	
 	SET @s1_sql = 'SELECT PlayerId, Name INTO s1_pid, s1_name FROM ih_hall_server.Players WHERE UniqueId=unique_id';
 	PREPARE st_s1 FROM @s1_sql;
