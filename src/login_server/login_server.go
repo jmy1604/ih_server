@@ -17,7 +17,6 @@ import (
 	"net/http"
 	"regexp"
 	"runtime/debug"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -591,7 +590,7 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 	return 1
 }
 
-func login_handler(account, password, channel, client_os string, is_verify bool) (err_code int32, resp_data []byte) {
+func login_handler(account, password, channel, client_os, aaid string) (err_code int32, resp_data []byte) {
 	var err error
 	acc_row := dbc.Accounts.GetRow(account)
 	now_time := time.Now()
@@ -700,6 +699,16 @@ func login_handler(account, password, channel, client_os string, is_verify bool)
 	account_login(account, token, client_os)
 
 	acc_row.SetToken(token)
+
+	if aaid != "" {
+		acc_aaid := account + "_" + aaid
+		acc_aaid_row := dbc.AccountAAIDs.GetRow(acc_aaid)
+		if acc_aaid_row == nil {
+			acc_aaid_row = dbc.AccountAAIDs.AddRow(acc_aaid)
+			acc_aaid_row.SetAccount(account)
+			acc_aaid_row.SetAAID(aaid)
+		}
+	}
 
 	response := &msg_client_message.S2CLoginResponse{
 		Acc:    account,
@@ -896,297 +905,6 @@ func response_error(err_code int32, w http.ResponseWriter) {
 	w.Write(data)
 }
 
-func register_http_handler(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-			return
-		}
-	}()
-
-	if !config.VerifyAccount {
-		response_error(-1, w)
-		log.Error("no need verify account and no need register")
-		return
-	}
-
-	account := r.URL.Query().Get("account")
-
-	password := r.URL.Query().Get("password")
-	is_guest := r.URL.Query().Get("is_guest")
-	ig, err := strconv.Atoi(is_guest)
-	if err != nil {
-		response_error(-1, w)
-		log.Error("is_guest %v set invalid", is_guest)
-		return
-	}
-
-	if ig == 0 && password == "" {
-		response_error(-1, w)
-		log.Error("password can not set to empty")
-		return
-	}
-
-	err_code, data := register_handler(account, password, func() bool {
-		if ig > 0 {
-			return true
-		}
-		return false
-	}())
-
-	if err_code < 0 {
-		response_error(err_code, w)
-		log.Error("login_http_handler err_code[%v]", err_code)
-		return
-	}
-
-	if data == nil {
-		response_error(-1, w)
-		log.Error("cant get response data failed")
-		return
-	}
-
-	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_REGISTER_RESPONSE), MsgData: data}
-	data, err = json.Marshal(http_res)
-	if nil != err {
-		response_error(-1, w)
-		log.Error("login_http_handler json mashal error")
-		return
-	}
-	w.Write(data)
-
-	log.Debug("New account %v registered, is_guest %v", account, is_guest)
-}
-
-func bind_new_account_http_handler(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-			return
-		}
-	}()
-
-	if !config.VerifyAccount {
-		response_error(-1, w)
-		log.Error("no need bind new account")
-		return
-	}
-
-	server_id_str := r.URL.Query().Get("server_id")
-	server_id, err := strconv.Atoi(server_id_str)
-	if err != nil {
-		log.Error("server_id convert err %v", err.Error())
-		return
-	}
-	account := r.URL.Query().Get("account")
-	password := r.URL.Query().Get("password")
-
-	new_account := r.URL.Query().Get("new_account")
-	new_password := r.URL.Query().Get("new_password")
-	new_channel := r.URL.Query().Get("new_channel")
-
-	err_code, data := bind_new_account_handler(int32(server_id), account, password, new_account, new_password, new_channel)
-	if err_code < 0 {
-		response_error(err_code, w)
-		log.Error("login_http_handler err_code[%v]", err_code)
-		return
-	}
-
-	if data == nil {
-		response_error(-1, w)
-		log.Error("cant get response data failed")
-		return
-	}
-
-	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE), MsgData: data}
-	data, err = json.Marshal(http_res)
-	if nil != err {
-		response_error(-1, w)
-		log.Error("login_http_handler json mashal error")
-		return
-	}
-	w.Write(data)
-
-	log.Debug("Account %v bind new account %v", account, new_account)
-}
-
-func login_http_handler(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-			return
-		}
-	}()
-
-	// account
-	account := r.URL.Query().Get("account")
-	if "" == account {
-		response_error(int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR), w)
-		log.Error("login_http_handler get msg_id failed")
-		return
-	}
-
-	// password
-	password := r.URL.Query().Get("password")
-
-	// channel
-	channel := r.URL.Query().Get("channel")
-
-	// client os
-	client_os := r.URL.Query().Get("client_os")
-
-	log.Debug("account: %v, password: %v, channel: %v", account, password, channel)
-
-	var err_code int32
-	var data []byte
-	err_code, data = login_handler(account, password, channel, client_os, false)
-
-	if err_code < 0 {
-		response_error(err_code, w)
-		log.Error("login_http_handler err_code[%v]", err_code)
-		return
-	}
-
-	if data == nil {
-		response_error(-1, w)
-		log.Error("cant get response data failed")
-		return
-	}
-
-	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE), MsgData: data}
-	var err error
-	data, err = json.Marshal(http_res)
-	if nil != err {
-		response_error(-1, w)
-		log.Error("login_http_handler json mashal error")
-		return
-	}
-	w.Write(data)
-	log.Debug("Account %v logined, channel %v", account, channel)
-}
-
-func select_server_http_handler(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-			return
-		}
-	}()
-
-	account := r.URL.Query().Get("account")
-	if "" == account {
-		response_error(-1, w)
-		log.Error("login_http_handler get account is empty")
-		return
-	}
-
-	token := r.URL.Query().Get("token")
-	if "" == token {
-		response_error(-1, w)
-		log.Error("login_http_handler get token is empty")
-		return
-	}
-
-	server_id_str := r.URL.Query().Get("server_id")
-	if "" == server_id_str {
-		response_error(-1, w)
-		log.Error("login_http_handler get server_id is empty")
-		return
-	}
-
-	server_id, err := strconv.Atoi(server_id_str)
-	if err != nil {
-		response_error(-1, w)
-		log.Error("login_http_handler transfer server_id[%v] error[%v]", server_id_str, err.Error())
-		return
-	}
-	log.Debug("account: %v, token: %v, server_id: %v", account, token, server_id)
-
-	var err_code int32
-	var data []byte
-	err_code, data = select_server_handler(account, token, int32(server_id))
-
-	if err_code < 0 {
-		response_error(err_code, w)
-		log.Error("login_http_handler err_code[%v]", err_code)
-		return
-	}
-
-	if data == nil {
-		response_error(-1, w)
-		log.Error("cant get response data")
-		return
-	}
-
-	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_SELECT_SERVER_RESPONSE), MsgData: data}
-	data, err = json.Marshal(http_res)
-	if nil != err {
-		response_error(-1, w)
-		log.Error("login_http_handler json mashal error")
-		return
-	}
-	w.Write(data)
-}
-
-func set_password_http_handler(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-			return
-		}
-	}()
-
-	account := r.URL.Query().Get("account")
-	if "" == account {
-		response_error(-1, w)
-		log.Error("set_password_http_handler get account is empty")
-		return
-	}
-
-	password := r.URL.Query().Get("password")
-
-	new_password := r.URL.Query().Get("new_password")
-	if "" == new_password {
-		response_error(-1, w)
-		log.Error("set_password_http_handler get new password is empty")
-		return
-	}
-
-	if password == new_password {
-		response_error(-1, w)
-		log.Error("set_password_http_handler set password must different to old password")
-		return
-	}
-
-	log.Debug("account: %v, password: %v, new_password: %v", account, password, new_password)
-
-	var err_code int32
-	var data []byte
-	err_code, data = set_password_handler(account, password, new_password)
-
-	if err_code < 0 {
-		response_error(err_code, w)
-		log.Error("set_password_http_handler err_code[%v]", err_code)
-		return
-	}
-
-	if data == nil {
-		response_error(-1, w)
-		log.Error("cant get response data")
-		return
-	}
-
-	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_SET_LOGIN_PASSWORD_RESPONSE), MsgData: data}
-	var err error
-	data, err = json.Marshal(http_res)
-	if nil != err {
-		response_error(-1, w)
-		log.Error("set_password_http_handler json mashal error")
-		return
-	}
-	w.Write(data)
-}
-
 func _send_error(w http.ResponseWriter, msg_id, ret_code int32) {
 	m := &msg_client_message.S2C_ONE_MSG{ErrorCode: ret_code}
 	res2cli := &msg_client_message.S2C_MSG_DATA{MsgList: []*msg_client_message.S2C_ONE_MSG{m}}
@@ -1246,7 +964,7 @@ func client_http_handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		msg_id = int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE)
-		err_code, data = login_handler(login_msg.GetAcc(), login_msg.GetPassword(), login_msg.GetChannel(), login_msg.GetClientOS(), login_msg.GetIsAppleVerifyUse())
+		err_code, data = login_handler(login_msg.GetAcc(), login_msg.GetPassword(), login_msg.GetChannel(), login_msg.GetClientOS(), login_msg.GetAAID())
 	} else if msg.MsgCode == int32(msg_client_message_id.MSGID_C2S_SELECT_SERVER_REQUEST) {
 		var select_msg msg_client_message.C2SSelectServerRequest
 		err = proto.Unmarshal(msg.GetData(), &select_msg)

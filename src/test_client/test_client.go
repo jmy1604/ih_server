@@ -236,12 +236,13 @@ func bind_new_account_func(server_id int32, account, password, new_account, new_
 	log.Debug("Account[%v] bind new account %v, password is %v", msg.GetAccount(), msg.GetNewAccount(), msg.GetNewPassword())
 }
 
-func login_func(account, password, channel, client_os string) {
+func login_func(account, password, channel, client_os, aaid string) {
 	var login_msg = msg_client_message.C2SLoginRequest{
 		Acc:      account,
 		Password: password,
 		Channel:  channel,
 		ClientOS: client_os,
+		AAID:     aaid,
 	}
 	data, err := proto.Marshal(&login_msg)
 	if err != nil {
@@ -389,7 +390,7 @@ func (this *TestClient) cmd_bind_new_account(use_https bool) {
 }
 
 func (this *TestClient) cmd_login(use_https bool) {
-	var acc, pwd, chl, cos string
+	var acc, pwd, chl, cos, aaid string
 	fmt.Printf("请输入账号: ")
 	fmt.Scanf("%s\n", &acc)
 	fmt.Printf("请输入密码: ")
@@ -398,6 +399,8 @@ func (this *TestClient) cmd_login(use_https bool) {
 	fmt.Scanf("%s\n", &chl)
 	fmt.Printf("请输入客户端系统: ")
 	fmt.Scanf("%s\n", &cos)
+	fmt.Printf("请输入AAID: ")
+	fmt.Scanf("%s\n", &aaid)
 	cur_hall_conn = hall_conn_mgr.GetHallConnByAcc(acc)
 	if nil != cur_hall_conn && cur_hall_conn.blogin {
 		log.Info("[%s] already login", acc)
@@ -413,7 +416,7 @@ func (this *TestClient) cmd_login(use_https bool) {
 			account = fmt.Sprintf("%s_%v", acc, i)
 		}
 
-		login_func(account, pwd, chl, cos)
+		login_func(account, pwd, chl, cos, aaid)
 
 		if config.AccountNum > 1 {
 			log.Debug("Account[%v] logined, total count[%v]", account, i+1)

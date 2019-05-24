@@ -206,6 +206,41 @@
 					"Fields":[]
 				}
 			]
+		},
+		{
+			"TableName":"AccountAAID",
+			"DBTableName":"AccountAAID",
+			"SingleRow":false,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"AccAAID",
+			"PrimaryKeyType":"string",
+			"PrimaryKeySize":256,
+			"Columns":[
+				{
+					"ColumnName":"Account",
+					"DBColumnName":"Account",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",			
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[]
+				},
+				{
+					"ColumnName":"AAID",
+					"DBColumnName":"AAID",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",			
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[]
+				}
+			]
 		}
 	]
 }

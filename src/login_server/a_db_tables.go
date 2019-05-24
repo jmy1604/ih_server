@@ -1395,6 +1395,405 @@ func (this *dbBanPlayerTable) GetRow(UniqueId string) (row *dbBanPlayerRow) {
 	}
 	return row
 }
+func (this *dbAccountAAIDRow)GetAccount( )(r string ){
+	this.m_lock.UnSafeRLock("dbAccountAAIDRow.GetdbAccountAAIDAccountColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_Account)
+}
+func (this *dbAccountAAIDRow)SetAccount(v string){
+	this.m_lock.UnSafeLock("dbAccountAAIDRow.SetdbAccountAAIDAccountColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_Account=string(v)
+	this.m_Account_changed=true
+	return
+}
+func (this *dbAccountAAIDRow)GetAAID( )(r string ){
+	this.m_lock.UnSafeRLock("dbAccountAAIDRow.GetdbAccountAAIDAAIDColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_AAID)
+}
+func (this *dbAccountAAIDRow)SetAAID(v string){
+	this.m_lock.UnSafeLock("dbAccountAAIDRow.SetdbAccountAAIDAAIDColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_AAID=string(v)
+	this.m_AAID_changed=true
+	return
+}
+type dbAccountAAIDRow struct {
+	m_table *dbAccountAAIDTable
+	m_lock       *RWMutex
+	m_loaded  bool
+	m_new     bool
+	m_remove  bool
+	m_touch      int32
+	m_releasable bool
+	m_valid   bool
+	m_AccAAID        string
+	m_Account_changed bool
+	m_Account string
+	m_AAID_changed bool
+	m_AAID string
+}
+func new_dbAccountAAIDRow(table *dbAccountAAIDTable, AccAAID string) (r *dbAccountAAIDRow) {
+	this := &dbAccountAAIDRow{}
+	this.m_table = table
+	this.m_AccAAID = AccAAID
+	this.m_lock = NewRWMutex()
+	this.m_Account_changed=true
+	this.m_AAID_changed=true
+	return this
+}
+func (this *dbAccountAAIDRow) GetAccAAID() (r string) {
+	return this.m_AccAAID
+}
+func (this *dbAccountAAIDRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbAccountAAIDRow.save_data")
+	defer this.m_lock.UnSafeUnlock()
+	if this.m_new {
+		db_args:=new_db_args(3)
+		db_args.Push(this.m_AccAAID)
+		db_args.Push(this.m_Account)
+		db_args.Push(this.m_AAID)
+		args=db_args.GetArgs()
+		state = 1
+	} else {
+		if this.m_Account_changed||this.m_AAID_changed{
+			update_string = "UPDATE AccountAAIDs SET "
+			db_args:=new_db_args(3)
+			if this.m_Account_changed{
+				update_string+="Account=?,"
+				db_args.Push(this.m_Account)
+			}
+			if this.m_AAID_changed{
+				update_string+="AAID=?,"
+				db_args.Push(this.m_AAID)
+			}
+			update_string = strings.TrimRight(update_string, ", ")
+			update_string+=" WHERE AccAAID=?"
+			db_args.Push(this.m_AccAAID)
+			args=db_args.GetArgs()
+			state = 2
+		}
+	}
+	this.m_new = false
+	this.m_Account_changed = false
+	this.m_AAID_changed = false
+	if release && this.m_loaded {
+		atomic.AddInt32(&this.m_table.m_gc_n, -1)
+		this.m_loaded = false
+		released = true
+	}
+	return nil,released,state,update_string,args
+}
+func (this *dbAccountAAIDRow) Save(release bool) (err error, d bool, released bool) {
+	err,released, state, update_string, args := this.save_data(release)
+	if err != nil {
+		log.Error("save data failed")
+		return err, false, false
+	}
+	if state == 0 {
+		d = false
+	} else if state == 1 {
+		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
+		if err != nil {
+			log.Error("INSERT AccountAAIDs exec failed %v ", this.m_AccAAID)
+			return err, false, released
+		}
+		d = true
+	} else if state == 2 {
+		_, err = this.m_table.m_dbc.Exec(update_string, args...)
+		if err != nil {
+			log.Error("UPDATE AccountAAIDs exec failed %v", this.m_AccAAID)
+			return err, false, released
+		}
+		d = true
+	}
+	return nil, d, released
+}
+func (this *dbAccountAAIDRow) Touch(releasable bool) {
+	this.m_touch = int32(time.Now().Unix())
+	this.m_releasable = releasable
+}
+type dbAccountAAIDRowSort struct {
+	rows []*dbAccountAAIDRow
+}
+func (this *dbAccountAAIDRowSort) Len() (length int) {
+	return len(this.rows)
+}
+func (this *dbAccountAAIDRowSort) Less(i int, j int) (less bool) {
+	return this.rows[i].m_touch < this.rows[j].m_touch
+}
+func (this *dbAccountAAIDRowSort) Swap(i int, j int) {
+	temp := this.rows[i]
+	this.rows[i] = this.rows[j]
+	this.rows[j] = temp
+}
+type dbAccountAAIDTable struct{
+	m_dbc *DBC
+	m_lock *RWMutex
+	m_rows map[string]*dbAccountAAIDRow
+	m_new_rows map[string]*dbAccountAAIDRow
+	m_removed_rows map[string]*dbAccountAAIDRow
+	m_gc_n int32
+	m_gcing int32
+	m_pool_size int32
+	m_preload_select_stmt *sql.Stmt
+	m_preload_max_id int32
+	m_save_insert_stmt *sql.Stmt
+	m_delete_stmt *sql.Stmt
+}
+func new_dbAccountAAIDTable(dbc *DBC) (this *dbAccountAAIDTable) {
+	this = &dbAccountAAIDTable{}
+	this.m_dbc = dbc
+	this.m_lock = NewRWMutex()
+	this.m_rows = make(map[string]*dbAccountAAIDRow)
+	this.m_new_rows = make(map[string]*dbAccountAAIDRow)
+	this.m_removed_rows = make(map[string]*dbAccountAAIDRow)
+	return this
+}
+func (this *dbAccountAAIDTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS AccountAAIDs(AccAAID varchar(256),PRIMARY KEY (AccAAID))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS AccountAAIDs failed")
+		return
+	}
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='AccountAAIDs'", this.m_dbc.m_db_name)
+	if err != nil {
+		log.Error("SELECT information_schema failed")
+		return
+	}
+	columns := make(map[string]int32)
+	for rows.Next() {
+		var column_name string
+		var ordinal_position int32
+		err = rows.Scan(&column_name, &ordinal_position)
+		if err != nil {
+			log.Error("scan information_schema row failed")
+			return
+		}
+		if ordinal_position < 1 {
+			log.Error("col ordinal out of range")
+			continue
+		}
+		columns[column_name] = ordinal_position
+	}
+	_, hasAccount := columns["Account"]
+	if !hasAccount {
+		_, err = this.m_dbc.Exec("ALTER TABLE AccountAAIDs ADD COLUMN Account varchar(256) DEFAULT ''")
+		if err != nil {
+			log.Error("ADD COLUMN Account failed")
+			return
+		}
+	}
+	_, hasAAID := columns["AAID"]
+	if !hasAAID {
+		_, err = this.m_dbc.Exec("ALTER TABLE AccountAAIDs ADD COLUMN AAID varchar(256) DEFAULT ''")
+		if err != nil {
+			log.Error("ADD COLUMN AAID failed")
+			return
+		}
+	}
+	return
+}
+func (this *dbAccountAAIDTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT AccAAID,Account,AAID FROM AccountAAIDs")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbAccountAAIDTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO AccountAAIDs (AccAAID,Account,AAID) VALUES (?,?,?)")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbAccountAAIDTable) prepare_delete_stmt() (err error) {
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM AccountAAIDs WHERE AccAAID=?")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbAccountAAIDTable) Init() (err error) {
+	err=this.check_create_table()
+	if err!=nil{
+		log.Error("check_create_table failed")
+		return
+	}
+	err=this.prepare_preload_select_stmt()
+	if err!=nil{
+		log.Error("prepare_preload_select_stmt failed")
+		return
+	}
+	err=this.prepare_save_insert_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	err=this.prepare_delete_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	return
+}
+func (this *dbAccountAAIDTable) Preload() (err error) {
+	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
+	if err != nil {
+		log.Error("SELECT")
+		return
+	}
+	var AccAAID string
+	var dAccount string
+	var dAAID string
+	for r.Next() {
+		err = r.Scan(&AccAAID,&dAccount,&dAAID)
+		if err != nil {
+			log.Error("Scan err[%v]", err.Error())
+			return
+		}
+		row := new_dbAccountAAIDRow(this,AccAAID)
+		row.m_Account=dAccount
+		row.m_AAID=dAAID
+		row.m_Account_changed=false
+		row.m_AAID_changed=false
+		row.m_valid = true
+		this.m_rows[AccAAID]=row
+	}
+	return
+}
+func (this *dbAccountAAIDTable) GetPreloadedMaxId() (max_id int32) {
+	return this.m_preload_max_id
+}
+func (this *dbAccountAAIDTable) fetch_rows(rows map[string]*dbAccountAAIDRow) (r map[string]*dbAccountAAIDRow) {
+	this.m_lock.UnSafeLock("dbAccountAAIDTable.fetch_rows")
+	defer this.m_lock.UnSafeUnlock()
+	r = make(map[string]*dbAccountAAIDRow)
+	for i, v := range rows {
+		r[i] = v
+	}
+	return r
+}
+func (this *dbAccountAAIDTable) fetch_new_rows() (new_rows map[string]*dbAccountAAIDRow) {
+	this.m_lock.UnSafeLock("dbAccountAAIDTable.fetch_new_rows")
+	defer this.m_lock.UnSafeUnlock()
+	new_rows = make(map[string]*dbAccountAAIDRow)
+	for i, v := range this.m_new_rows {
+		_, has := this.m_rows[i]
+		if has {
+			log.Error("rows already has new rows %v", i)
+			continue
+		}
+		this.m_rows[i] = v
+		new_rows[i] = v
+	}
+	for i, _ := range new_rows {
+		delete(this.m_new_rows, i)
+	}
+	return
+}
+func (this *dbAccountAAIDTable) save_rows(rows map[string]*dbAccountAAIDRow, quick bool) {
+	for _, v := range rows {
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		err, delay, _ := v.Save(false)
+		if err != nil {
+			log.Error("save failed %v", err)
+		}
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		if delay&&!quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+}
+func (this *dbAccountAAIDTable) Save(quick bool) (err error){
+	removed_rows := this.fetch_rows(this.m_removed_rows)
+	for _, v := range removed_rows {
+		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetAccAAID())
+		if err != nil {
+			log.Error("exec delete stmt failed %v", err)
+		}
+		v.m_valid = false
+		if !quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+	this.m_removed_rows = make(map[string]*dbAccountAAIDRow)
+	rows := this.fetch_rows(this.m_rows)
+	this.save_rows(rows, quick)
+	new_rows := this.fetch_new_rows()
+	this.save_rows(new_rows, quick)
+	return
+}
+func (this *dbAccountAAIDTable) AddRow(AccAAID string) (row *dbAccountAAIDRow) {
+	this.m_lock.UnSafeLock("dbAccountAAIDTable.AddRow")
+	defer this.m_lock.UnSafeUnlock()
+	row = new_dbAccountAAIDRow(this,AccAAID)
+	row.m_new = true
+	row.m_loaded = true
+	row.m_valid = true
+	_, has := this.m_new_rows[AccAAID]
+	if has{
+		log.Error("已经存在 %v", AccAAID)
+		return nil
+	}
+	this.m_new_rows[AccAAID] = row
+	atomic.AddInt32(&this.m_gc_n,1)
+	return row
+}
+func (this *dbAccountAAIDTable) RemoveRow(AccAAID string) {
+	this.m_lock.UnSafeLock("dbAccountAAIDTable.RemoveRow")
+	defer this.m_lock.UnSafeUnlock()
+	row := this.m_rows[AccAAID]
+	if row != nil {
+		row.m_remove = true
+		delete(this.m_rows, AccAAID)
+		rm_row := this.m_removed_rows[AccAAID]
+		if rm_row != nil {
+			log.Error("rows and removed rows both has %v", AccAAID)
+		}
+		this.m_removed_rows[AccAAID] = row
+		_, has_new := this.m_new_rows[AccAAID]
+		if has_new {
+			delete(this.m_new_rows, AccAAID)
+			log.Error("rows and new_rows both has %v", AccAAID)
+		}
+	} else {
+		row = this.m_removed_rows[AccAAID]
+		if row == nil {
+			_, has_new := this.m_new_rows[AccAAID]
+			if has_new {
+				delete(this.m_new_rows, AccAAID)
+			} else {
+				log.Error("row not exist %v", AccAAID)
+			}
+		} else {
+			log.Error("already removed %v", AccAAID)
+			_, has_new := this.m_new_rows[AccAAID]
+			if has_new {
+				delete(this.m_new_rows, AccAAID)
+				log.Error("removed rows and new_rows both has %v", AccAAID)
+			}
+		}
+	}
+}
+func (this *dbAccountAAIDTable) GetRow(AccAAID string) (row *dbAccountAAIDRow) {
+	this.m_lock.UnSafeRLock("dbAccountAAIDTable.GetRow")
+	defer this.m_lock.UnSafeRUnlock()
+	row = this.m_rows[AccAAID]
+	if row == nil {
+		row = this.m_new_rows[AccAAID]
+	}
+	return row
+}
 
 type DBC struct {
 	m_db_name            string
@@ -1411,6 +1810,7 @@ type DBC struct {
 	m_db_password		string
 	Accounts *dbAccountTable
 	BanPlayers *dbBanPlayerTable
+	AccountAAIDs *dbAccountAAIDTable
 }
 func (this *DBC)init_tables()(err error){
 	this.Accounts = new_dbAccountTable(this)
@@ -1423,6 +1823,12 @@ func (this *DBC)init_tables()(err error){
 	err = this.BanPlayers.Init()
 	if err != nil {
 		log.Error("init BanPlayers table failed")
+		return
+	}
+	this.AccountAAIDs = new_dbAccountAAIDTable(this)
+	err = this.AccountAAIDs.Init()
+	if err != nil {
+		log.Error("init AccountAAIDs table failed")
 		return
 	}
 	return
@@ -1441,6 +1847,13 @@ func (this *DBC)Preload()(err error){
 		return
 	}else{
 		log.Info("preload BanPlayers table succeed !")
+	}
+	err = this.AccountAAIDs.Preload()
+	if err != nil {
+		log.Error("preload AccountAAIDs table failed")
+		return
+	}else{
+		log.Info("preload AccountAAIDs table succeed !")
 	}
 	err = this.on_preload()
 	if err != nil {
@@ -1463,6 +1876,11 @@ func (this *DBC)Save(quick bool)(err error){
 	err = this.BanPlayers.Save(quick)
 	if err != nil {
 		log.Error("save BanPlayers table failed")
+		return
+	}
+	err = this.AccountAAIDs.Save(quick)
+	if err != nil {
+		log.Error("save AccountAAIDs table failed")
 		return
 	}
 	return
