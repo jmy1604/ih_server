@@ -38,6 +38,7 @@ enum E_ERR {
 	ACCOUNT_NAME_MUST_DIFFRENT_TO_OLD		= -106; // 游客新绑定账号不能跟原来相同
 	ACCOUNT_ALREADY_BIND				    = -107; // 账号已绑定过
 	ACCOUNT_BE_BANNED						= -108; // 账号被封禁
+	ACCOUNT_AAID_DONT_EMPTY					= -109; // AAID不能为空
 	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败
@@ -464,6 +465,16 @@ message S2CSetLoginPasswordResponse {
 	string NewPassword						= 3;
 }
 
+// 保存AAID
+message C2SSaveAAIDRequest {
+	string Account							= 1;
+	string AAID								= 2;
+}
+
+message S2CSaveAAIDResponse {
+	string Account							= 1;
+	string AAID								= 2;
+}
 ///////////////////////////////////start///////////////////////////////////////
 
 message C2S_ONE_MSG {

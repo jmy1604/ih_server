@@ -328,6 +328,37 @@ func set_password_func(account, password, new_password string) {
 	log.Debug("Account[%v] set password[%v] replace old password[%v]", account, new_password, password)
 }
 
+func save_aaid_func(account, aaid string) {
+	var aaid_msg = msg_client_message.C2SSaveAAIDRequest{
+		Account: account,
+		AAID:    aaid,
+	}
+	data, err := proto.Marshal(&aaid_msg)
+	if err != nil {
+		log.Error("C2SSaveAAIDRequest marshal err %v", err.Error())
+		return
+	}
+
+	resp_msg := _send_func(int32(msg_client_message_id.MSGID_C2S_SAVE_AAID_REQUEST), data)
+	if resp_msg.GetErrorCode() < 0 {
+		return
+	}
+
+	if resp_msg.GetMsgCode() != int32(msg_client_message_id.MSGID_S2C_SAVE_AAID_RESPONSE) {
+		log.Warn("returned msg_id[%v] is not correct")
+		return
+	}
+
+	var msg msg_client_message.S2CSaveAAIDResponse
+	err = proto.Unmarshal(resp_msg.GetData(), &msg)
+	if err != nil {
+		log.Error("unmarshal error %v", err.Error())
+		return
+	}
+
+	log.Trace("Account %v saved AAID %v", account, aaid)
+}
+
 func (this *TestClient) cmd_register(use_https bool) {
 	fmt.Printf("请输入账号: ")
 	var acc, pwd, is_guest string
@@ -455,6 +486,26 @@ func (this *TestClient) cmd_set_password(use_https bool) {
 	}
 }
 
+func (this *TestClient) cmd_save_aaid(use_https bool) {
+	var acc, aaid string
+	fmt.Printf("请输入账号: ")
+	fmt.Scanf("%s\n", &acc)
+	fmt.Printf("请输入AAID: ")
+	fmt.Scanf("%s\n", &aaid)
+	cur_hall_conn = hall_conn_mgr.GetHallConnByAcc(acc)
+	if nil != cur_hall_conn && cur_hall_conn.blogin {
+		log.Info("%s already login", acc)
+		return
+	}
+
+	if config.AccountNum > 1 {
+		log.Trace("cant set aaid for multiple players")
+		return
+	}
+
+	save_aaid_func(acc, aaid)
+}
+
 var is_test bool
 
 func (this *TestClient) OnTick(t timer.TickTime) {
@@ -479,6 +530,10 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 		case "set_password":
 			{
 				this.cmd_set_password(true)
+			}
+		case "save_aaid":
+			{
+				this.cmd_save_aaid(true)
 			}
 		case "enter_test":
 			{

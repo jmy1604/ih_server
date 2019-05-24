@@ -590,6 +590,18 @@ func _verify_facebook_login(user_id, input_token string) int32 {
 	return 1
 }
 
+func _save_aaid(account, aaid string) {
+	if aaid != "" {
+		acc_aaid := account + "_" + aaid
+		acc_aaid_row := dbc.AccountAAIDs.GetRow(acc_aaid)
+		if acc_aaid_row == nil {
+			acc_aaid_row = dbc.AccountAAIDs.AddRow(acc_aaid)
+			acc_aaid_row.SetAccount(account)
+			acc_aaid_row.SetAAID(aaid)
+		}
+	}
+}
+
 func login_handler(account, password, channel, client_os, aaid string) (err_code int32, resp_data []byte) {
 	var err error
 	acc_row := dbc.Accounts.GetRow(account)
@@ -700,15 +712,7 @@ func login_handler(account, password, channel, client_os, aaid string) (err_code
 
 	acc_row.SetToken(token)
 
-	if aaid != "" {
-		acc_aaid := account + "_" + aaid
-		acc_aaid_row := dbc.AccountAAIDs.GetRow(acc_aaid)
-		if acc_aaid_row == nil {
-			acc_aaid_row = dbc.AccountAAIDs.AddRow(acc_aaid)
-			acc_aaid_row.SetAccount(account)
-			acc_aaid_row.SetAAID(aaid)
-		}
-	}
+	_save_aaid(account, aaid)
 
 	response := &msg_client_message.S2CLoginResponse{
 		Acc:    account,
@@ -893,6 +897,27 @@ func set_password_handler(account, password, new_password string) (err_code int3
 	return
 }
 
+func save_aaid_handler(account, aaid string) (err_code int32, resp_data []byte) {
+	if account == "" || aaid == "" {
+		err_code = int32(msg_client_message.E_ERR_ACCOUNT_AAID_DONT_EMPTY)
+		return
+	}
+
+	_save_aaid(account, aaid)
+	response := &msg_client_message.S2CSaveAAIDResponse{
+		Account: account,
+		AAID:    aaid,
+	}
+	var err error
+	resp_data, err = proto.Marshal(response)
+	if err != nil {
+		err_code = int32(msg_client_message.E_ERR_INTERNAL)
+		log.Error("save_aaid_handler marshal response error: %v", err.Error())
+		return
+	}
+	return
+}
+
 func response_error(err_code int32, w http.ResponseWriter) {
 	err_response := JsonResponseData{
 		Code: err_code,
@@ -1005,6 +1030,16 @@ func client_http_handler(w http.ResponseWriter, r *http.Request) {
 		}
 		msg_id = int32(msg_client_message_id.MSGID_S2C_GUEST_BIND_NEW_ACCOUNT_RESPONSE)
 		err_code, data = bind_new_account_handler(bind_msg.GetServerId(), bind_msg.GetAccount(), bind_msg.GetPassword(), bind_msg.GetNewAccount(), bind_msg.GetNewPassword(), bind_msg.GetNewChannel())
+	} else if msg.MsgCode == int32(msg_client_message_id.MSGID_C2S_SAVE_AAID_REQUEST) {
+		var aaid_msg msg_client_message.C2SSaveAAIDRequest
+		err = proto.Unmarshal(msg.GetData(), &aaid_msg)
+		if err != nil {
+			_send_error(w, 0, -1)
+			log.Error("Msg C2SSaveAAIDRequest unmarshal err %v", err.Error())
+			return
+		}
+		msg_id = int32(msg_client_message_id.MSGID_S2C_SAVE_AAID_RESPONSE)
+		err_code, data = save_aaid_handler(aaid_msg.GetAccount(), aaid_msg.GetAAID())
 	} else {
 		if msg.MsgCode > 0 {
 			_send_error(w, msg.MsgCode, int32(msg_client_message.E_ERR_PLAYER_MSG_ID_NOT_FOUND))
