@@ -420,9 +420,9 @@ func bind_new_account_handler(server_id int32, account, password, new_account, n
 		return
 	}
 
-	if row.GetChannel() != "guest" {
+	if row.GetChannel() != "guest" && row.GetChannel() != "facebook" {
 		err_code = int32(msg_client_message.E_ERR_ACCOUNT_NOT_GUEST)
-		log.Error("Account %v not guest", account)
+		log.Error("Account %v not guest and not facebook user", account)
 		return
 	}
 
