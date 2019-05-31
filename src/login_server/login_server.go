@@ -632,7 +632,7 @@ func login_handler(account, password, channel, client_os, aaid string) (err_code
 				acc_row.SetChannel("facebook")
 				acc_row.SetRegisterTime(int32(now_time.Unix()))
 			}
-			if acc_row.GetPassword() != "" {
+			if acc_row.GetPassword() == "" {
 				acc_row.SetPassword(password)
 			}
 		} else if channel == "guest" {
